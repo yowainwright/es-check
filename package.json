@@ -1,6 +1,6 @@
 {
   "name": "es-check",
-  "version": "5.1.1",
+  "version": "5.1.2",
   "description": "Checks the EcamScript version of .js glob against a specified version of EcamScript with a shell command",
   "main": "index.js",
   "files": [
@@ -24,14 +24,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/dollarshaveclub/es-check.git"
+    "url": "git+https://github.com/yowainwright/es-check.git"
   },
   "author": "Jeff Wainwright <yowainwright@gmail.com> (https://jeffry.in), Brian Gonzalez <me@briangonzalez.org>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/dollarshaveclub/es-check/issues"
+    "url": "https://github.com/yowainwright/es-check/issues"
   },
-  "homepage": "https://github.com/dollarshaveclub/es-check#readme",
+  "homepage": "https://github.com/yowainwright/es-check#readme",
   "devDependencies": {
     "assert": "^1.4.1",
     "codecov": "^3.0.0",
