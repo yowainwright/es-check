@@ -44,7 +44,7 @@
   },
   "dependencies": {
     "acorn": "^6.4.1",
-    "caporal": "1.3.0",
+    "caporal": "1.4.0",
     "glob": "^7.1.2"
   },
   "engines": {
