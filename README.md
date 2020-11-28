@@ -1,22 +1,12 @@
-<p align="center">⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️</p>
-<p align="center">
-  <strong>
-    This software is maintained under a new repository located at <a href="https://github.com/yowainwright/es-check">yowainwright/es-check</a>
-  </strong>
-</p>
-<p align="center">⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️</p>
-
-***
-
 <p align="center">
   <img src="https://yowainwright.imgix.net/gh/es-check.svg" alt="ES Check ✔️" width="120" />
 </p>
 
-----
+---
 
 <p align="center">Check JavaScript files ES version against a specified ES version 🏆</p>
 
-----
+---
 
 <p align="center">
   <a href="https://circleci.com/gh/dollarshaveclub/es-check/tree/master">
@@ -36,7 +26,7 @@
   </a>
 </p>
 
-----
+---
 
 <h1 align="center">ES Check ✔️</h1>
 
@@ -44,7 +34,7 @@
 Removes need for `boolean` in argument; post [Caporal **1.1.0**](https://github.com/mattallty/Caporal.js/commit/ae5d2c3cc1acef1b89a13608033b250fa7750c4e).
 This will require an update for any boolean cli flags, in example `--module`, `--allow-hash-bang`.
 
-Example of CLI boolean flag in previous versions (Versions 0-4.*)
+Example of CLI boolean flag in previous versions (Versions 0-4.\*)
 
 ```sh
 
@@ -62,13 +52,13 @@ es-check --module es6 ./tests/modules/*.js'
 
 ```
 
-----
+---
 
 **ES Check** checks JavaScript files against a specified version of ECMAScript (ES) with a shell command. If a specified file's ES version doesn't match the ES version argument passed in the ES Check command, ES Check will throw an error and log the files that didn't match the check.
 
 Ensuring that JavaScript files can pass ES Check is important in a [modular and bundled](https://www.sitepoint.com/javascript-modules-bundling-transpiling/) world. Read more about [why](#why).
 
-----
+---
 
 <p align="center">
   <a href="#get-started">Get Started</a>&nbsp;&nbsp;
@@ -81,7 +71,7 @@ Ensuring that JavaScript files can pass ES Check is important in a [modular and 
   <a href="/issues">Issues</a>
 </p>
 
-----
+---
 
 ## Get Started
 
@@ -106,13 +96,13 @@ es-check es5 './vendor/js/*.js' './dist/**/*.js'
 
 - The ES Check script (above) checks `/dist/*.js` files to see if they're ES5. It throws an error and logs files are that do not pass the check.
 
-----
+---
 
 ## Why ES Check?
 
 In modern JavaScript builds, files are bundled up so they can be served in an optimized manner in the browsers. It is assumed by developers that future JavaScript—like ES8 will be transpiled (changed from future JavaScript to current JavaScript) appropriately by a tool like Babel. Sometimes there is an issue where files are not transpiled. There was no efficient way to test for files that weren't transpiled—until now. That's what ES Check does.
 
-----
+---
 
 ## Walk through
 
@@ -126,7 +116,7 @@ Fail
 
 **ES Check** is run above with node commands. It can also be run within npm scripts, ci tools, or testing suites.
 
-----
+---
 
 ## API
 
@@ -170,6 +160,7 @@ index.js es-check <ecmaVersion> [files...]
 ```
 
 **Not**
+
 ```sh
 --not=folderName1,folderName2 An array of file/folder names that you would like to ignore. Defaults to `[]`.
 ```
@@ -186,7 +177,7 @@ index.js es-check <ecmaVersion> [files...]
 
 ```
 
-----
+---
 
 ## Usage
 
@@ -202,7 +193,7 @@ es-check ./js/*.js
 es-check ./js/*.js ./dist/*.js
 ```
 
-----
+---
 
 ## Configuration
 
@@ -230,13 +221,13 @@ As of ES-Check version **2.0.2**, a better debugging interface is provided. When
 
 ⚠️ **NOTE:** Error logs are from the Acorn parser while parsing JavaScript related to specific versions of ECMAScript. This means error messaging is not specific to ECMAScript version. It still offers context into parsing issues!
 
-----
+---
 
 ## Acknowledgements
 
 ES Check is a small utility using powerful tools that [Isaac Z. Schlueter](https://github.com/isaacs), [Marijn Haverbeke](https://github.com/marijnh), and [Matthias Etienne](https://github.com/mattallty) built. [ES Checker](https://github.com/ruanyf/es-checker) by [Ruan YiFeng](https://github.com/ruanyf) checks the JavaScript version supported within a [browser](http://ruanyf.github.io/es-checker/) at run time. ES Check offers similar feedback to ES Checker but at build time and is specific to the product that is using it. ES Check was started after reading this [post](https://philipwalton.com/articles/deploying-es2015-code-in-production-today/) about [deploying es2015 code to production today] by [Philip Walton](https://github.com/philipwalton).
 
-----
+---
 
 ## Contributing
 
