@@ -10,7 +10,7 @@
 
 <h1 align="center">ES Check ✔️</h1>
 
-[![npm version](ttps://badge.fury.io/js/es-check.svg)](https://www.npmjs.com/package/es-check)
+[![npm version](https://badge.fury.io/js/es-check.svg)](https://www.npmjs.com/package/es-check)
 
 **Version 5** release! 🎉 Thanks to [@BrandonOCasey](https://github.com/brandonocasey).
 Removes need for `boolean` in argument; post [Caporal **1.1.0**](https://github.com/mattallty/Caporal.js/commit/ae5d2c3cc1acef1b89a13608033b250fa7750c4e).
