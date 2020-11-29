@@ -8,7 +8,7 @@
 
 ---
 
-<h1 align="center">ES Check ✔️</h1>
+# ES Check ✔️
 
 [![npm version](https://badge.fury.io/js/es-check.svg)](https://www.npmjs.com/package/es-check)
 
