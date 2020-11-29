@@ -43,7 +43,7 @@
     "nyc": "^15.1.0"
   },
   "dependencies": {
-    "acorn": "^8.0.4",
+    "acorn": "^6.4.1",
     "caporal": "1.4.0",
     "glob": "^7.1.2"
   },
