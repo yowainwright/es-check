@@ -33,14 +33,16 @@
   },
   "homepage": "https://github.com/yowainwright/es-check#readme",
   "devDependencies": {
+    "@heartly/eslint-config": "^0.0.2",
+    "@heartly/prettier-config": "^0.0.1",
     "assert": "^2.0.0",
     "codecov": "^3.0.0",
     "conventional-changelog-cli": "^2.0.11",
-    "eslint": "^7.14.0",
-    "eslint-plugin-dollarshaveclub": "^1.0.2",
+    "eslint": "^6.6.0",
     "husky": "^4.3.5",
     "mocha": "^8.2.1",
-    "nyc": "^15.1.0"
+    "nyc": "^15.1.0",
+    "prettier": "^2.2.1"
   },
   "dependencies": {
     "acorn": "^6.4.1",
@@ -68,7 +70,5 @@
     "test js version",
     "test ecmascript version"
   ],
-  "resolutions": {
-    "eslint-scope": "3.7.1"
-  }
+  "prettier": "@heartly/eslint-config/dist/prettier"
 }
