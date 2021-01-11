@@ -33,8 +33,6 @@ prog
   .action((args, options, logger) => {
     const configFilePath = path.resolve(process.cwd(), '.escheckrc')
 
-    let e // The ecmaVersion
-
     /**
      * @note
      * Check for a configuration file.
@@ -42,13 +40,13 @@ prog
      * - Ff no command line arguments are passed in
      */
     const config = fs.existsSync(configFilePath) ? JSON.parse(fs.readFileSync(configFilePath)) : {}
-    const v = args.ecmaVersion ? args.ecmaVersion : config.ecmaVersion
+    const expectedEcmaVersion = args.ecmaVersion ? args.ecmaVersion : config.ecmaVersion
     const files = args.files.length ? args.files : [].concat(config.files)
     const esmodule = options.module ? options.module : config.module
     const allowHashBang = options.allowHashBang ? options.allowHashBang : config.allowHashBang
     const pathsToIgnore = options.not ? options.not : config.not
 
-    if (!v) {
+    if (!expectedEcmaVersion) {
       logger.error(
         'No ecmaScript version passed in or found in .escheckrc. Please set your ecmaScript version in the CLI or in .escheckrc',
       )
@@ -63,45 +61,46 @@ prog
     /**
      * @note define ecmaScript version
      */
-    switch (v) {
+    let ecmaVersion
+    switch (expectedEcmaVersion) {
       case 'es3':
-        e = '3'
+        ecmaVersion = '3'
         break
       case 'es4':
-        e = '4'
+        ecmaVersion = '4'
         break
       case 'es5':
-        e = '5'
+        ecmaVersion = '5'
         break
       case 'es6':
-        e = '6'
+        ecmaVersion = '6'
         break
       case 'es7':
-        e = '7'
+        ecmaVersion = '7'
         break
       case 'es8':
-        e = '8'
+        ecmaVersion = '8'
         break
       case 'es9':
-        e = '9'
+        ecmaVersion = '9'
         break
       case 'es10':
-        e = '10'
+        ecmaVersion = '10'
         break
       case 'es2015':
-        e = '6'
+        ecmaVersion = '6'
         break
       case 'es2016':
-        e = '7'
+        ecmaVersion = '7'
         break
       case 'es2017':
-        e = '8'
+        ecmaVersion = '8'
         break
       case 'es2018':
-        e = '9'
+        ecmaVersion = '9'
         break
       case 'es2019':
-        e = '10'
+        ecmaVersion = '10'
         break
       default:
         logger.error('Invalid ecmaScript version, please pass a valid version, use --help for help')
@@ -110,7 +109,7 @@ prog
 
     const errArray = []
     const globOpts = { nodir: true }
-    const acornOpts = { ecmaVersion: e, silent: true }
+    const acornOpts = { ecmaVersion, silent: true }
     const filterForIgnore = (globbedFiles) => {
       if (pathsToIgnore && pathsToIgnore.length > 0) {
         const filtered = globbedFiles.filter(
@@ -121,7 +120,7 @@ prog
       return globbedFiles
     }
 
-    logger.debug(`ES-Check: Going to check files using version ${e}`)
+    logger.debug(`ES-Check: Going to check files using version ${ecmaVersion}`)
 
     if (esmodule) {
       acornOpts.sourceType = 'module'
