@@ -37,7 +37,7 @@ prog
      * @note
      * Check for a configuration file.
      * - If one exists, default to those options
-     * - Ff no command line arguments are passed in
+     * - If no command line arguments are passed in
      */
     const config = fs.existsSync(configFilePath) ? JSON.parse(fs.readFileSync(configFilePath)) : {}
     const expectedEcmaVersion = args.ecmaVersion ? args.ecmaVersion : config.ecmaVersion
