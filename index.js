@@ -87,6 +87,12 @@ prog
       case 'es10':
         ecmaVersion = '10'
         break
+      case 'es11':
+        ecmaVersion = '11'
+        break
+      case 'es12':
+        ecmaVersion = '12'
+        break
       case 'es2015':
         ecmaVersion = '6'
         break
@@ -101,6 +107,12 @@ prog
         break
       case 'es2019':
         ecmaVersion = '10'
+        break
+      case 'es2020':
+        ecmaVersion = '2020'
+        break
+      case 'es2021':
+        ecmaVersion = '2021'
         break
       default:
         logger.error('Invalid ecmaScript version, please pass a valid version, use --help for help')
