@@ -17,7 +17,7 @@ it('🎉  Es Check should pass when checking an array of es5 files as es5', (don
 })
 
 it('🎉  Es Check should pass when checking a file with a hash bang', (done) => {
-  exec('node index.js es6 index.js --allow-hash-bang', (err, stdout, stderr) => {
+  exec('node index.js es6 ./tests/scripts/hash-bang.js --allow-hash-bang', (err, stdout, stderr) => {
     if (err) {
       console.error(err.stack)
       console.error(stdout.toString())
@@ -117,7 +117,7 @@ it('👌 Es Check should read from an .escheckrc file for config', (done) => {
 })
 
 it('👌  Es Check skips versions included in the not flag', (done) => {
-  exec('node index.js es6 ./tests/*/*.js --module --not=skipped,passed', (err, stdout, stderr) => {
+  exec('node index.js es6 ./tests/passed/*.js --module --not=skipped,passed', (err, stdout, stderr) => {
     if (err) {
       console.error(err.stack)
       console.error(stdout.toString())
@@ -126,5 +126,5 @@ it('👌  Es Check skips versions included in the not flag', (done) => {
       return
     }
     done()
-  });
-});
+  })
+})

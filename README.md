@@ -12,28 +12,6 @@
 
 [![npm version](https://badge.fury.io/js/es-check.svg)](https://www.npmjs.com/package/es-check)
 
-**Version 5** release! 🎉 Thanks to [@BrandonOCasey](https://github.com/brandonocasey).
-Removes need for `boolean` in argument; post [Caporal **1.1.0**](https://github.com/mattallty/Caporal.js/commit/ae5d2c3cc1acef1b89a13608033b250fa7750c4e).
-This will require an update for any boolean cli flags, in example `--module`, `--allow-hash-bang`.
-
-Example of CLI boolean flag in previous versions (Versions 0-4.\*)
-
-```sh
-
-// the "true" argument was required
-es-check --module true es6 ./tests/modules/*.js'
-
-```
-
-Now, with Version 5
-
-```sh
-
-// the "true" argument must be removed if used
-es-check --module es6 ./tests/modules/*.js'
-
-```
-
 ---
 
 **ES Check** checks JavaScript files against a specified version of ECMAScript (ES) with a shell command. If a specified file's ES version doesn't match the ES version argument passed in the ES Check command, ES Check will throw an error and log the files that didn't match the check.
