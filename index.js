@@ -187,7 +187,7 @@ prog
       })
       process.exit(1)
     }
-    logger.error(`ES-Check: there were no ES version matching errors!  🎉`)
+    logger.info(`ES-Check: there were no ES version matching errors!  🎉`)
   })
 
 prog.parse(argsArray)
