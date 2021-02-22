@@ -44,7 +44,7 @@ prog
     const files = args.files.length ? args.files : [].concat(config.files)
     const esmodule = options.module ? options.module : config.module
     const allowHashBang = options.allowHashBang ? options.allowHashBang : config.allowHashBang
-    const pathsToIgnore = options.not ? options.not : config.not
+    const pathsToIgnore = options.not.length ? options.not : [].concat(config.not)
 
     if (!expectedEcmaVersion) {
       logger.error(
@@ -122,10 +122,19 @@ prog
     const errArray = []
     const globOpts = { nodir: true }
     const acornOpts = { ecmaVersion, silent: true }
+
+    const expandedPathsToIgnore = pathsToIgnore.reduce((result, path) => {
+      if (path.includes('*')) {
+        return result.concat(glob.sync(path, globOpts))
+      } else {
+        return result.concat(path)
+      }
+    }, [])
+
     const filterForIgnore = (globbedFiles) => {
-      if (pathsToIgnore && pathsToIgnore.length > 0) {
+      if (expandedPathsToIgnore && expandedPathsToIgnore.length > 0) {
         const filtered = globbedFiles.filter(
-          (filePath) => !pathsToIgnore.some((ignoreValue) => filePath.includes(ignoreValue)),
+          (filePath) => !expandedPathsToIgnore.some((ignoreValue) => filePath.includes(ignoreValue)),
         )
         return filtered
       }

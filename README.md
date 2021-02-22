@@ -122,7 +122,7 @@ index.js es-check <ecmaVersion> [files...]
 **Not**
 
 ```sh
---not=folderName1,folderName2 An array of file/folder names that you would like to ignore. Defaults to `[]`.
+--not=folderName1,folderName2 An array of file/folder names or globs that you would like to ignore. Defaults to `[]`.
 ```
 
 ### Global Options
@@ -165,7 +165,8 @@ Here's an example of what an `.escheckrc` file will look like:
 {
   "ecmaVersion": "es6",
   "module": false,
-  "files": "./dist/**/*.js"
+  "files": "./dist/**/*.js",
+  "not": ["./dist/skip/*.js"]
 }
 ```
 

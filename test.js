@@ -116,15 +116,59 @@ it('👌 Es Check should read from an .escheckrc file for config', (done) => {
   })
 })
 
-it('👌  Es Check skips versions included in the not flag', (done) => {
-  exec('node index.js es6 ./tests/passed/*.js --module --not=skipped,passed', (err, stdout, stderr) => {
-    if (err) {
-      console.error(err.stack)
-      console.error(stdout.toString())
-      console.error(stderr.toString())
-      done(err)
-      return
-    }
-    done()
+describe('Es Check skips folders and files included in the not flag', () => {
+  it('👌  non-glob', (done) => {
+    exec('node index.js es5 ./tests/es5.js ./tests/modules/* --not=./tests/modules', (err, stdout, stderr) => {
+      if (err) {
+        console.error(err.stack)
+        console.error(stdout.toString())
+        console.error(stderr.toString())
+        done(err)
+        return
+      }
+      done()
+    })
+  })
+  
+  it('👌  glob', (done) => {
+    exec('node index.js es5 ./tests/es5.js ./tests/modules/* --not=./tests/modules/*', (err, stdout, stderr) => {
+      if (err) {
+        console.error(err.stack)
+        console.error(stdout.toString())
+        console.error(stderr.toString())
+        done(err)
+        return
+      }
+      done()
+    })
+  })
+  
+  it('👌  mixed glob & non-glob', (done) => {
+    exec(
+      'node index.js es5 ./tests/es5.js ./tests/modules/* ./tests/passed/* --not=./tests/passed,./tests/modules/*',
+      (err, stdout, stderr) => {
+        if (err) {
+          console.error(err.stack)
+          console.error(stdout.toString())
+          console.error(stderr.toString())
+          done(err)
+          return
+        }
+        done()
+      },
+    )
+  })
+  
+  it('👌  .escheckrc', (done) => {
+    exec('node index.js es5 ./tests/es5.js ./tests/skipped/es6-skipped.js', (err, stdout, stderr) => {
+      if (err) {
+        console.error(err.stack)
+        console.error(stdout.toString())
+        console.error(stderr.toString())
+        done(err)
+        return
+      }
+      done()
+    })
   })
 })
