@@ -35,7 +35,7 @@
   "devDependencies": {
     "@commitlint/cli": "^11.0.0",
     "@commitlint/config-conventional": "^11.0.0",
-    "@commitlint/prompt": "^11.0.0",
+    "@commitlint/prompt": "^12.0.0",
     "@heartly/eslint-config": "^0.0.2",
     "@heartly/prettier-config": "^0.0.1",
     "assert": "^2.0.0",
