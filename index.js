@@ -44,7 +44,7 @@ prog
     const files = args.files.length ? args.files : [].concat(config.files)
     const esmodule = options.module ? options.module : config.module
     const allowHashBang = options.allowHashBang ? options.allowHashBang : config.allowHashBang
-    const pathsToIgnore = options.not.length ? options.not : [].concat(config.not)
+    const pathsToIgnore = options.not.length ? options.not : [].concat(config.not || [])
 
     if (!expectedEcmaVersion) {
       logger.error(
