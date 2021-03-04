@@ -129,7 +129,7 @@ describe('Es Check skips folders and files included in the not flag', () => {
       done()
     })
   })
-  
+
   it('👌  glob', (done) => {
     exec('node index.js es5 ./tests/es5.js ./tests/modules/* --not=./tests/modules/*', (err, stdout, stderr) => {
       if (err) {
@@ -142,7 +142,7 @@ describe('Es Check skips folders and files included in the not flag', () => {
       done()
     })
   })
-  
+
   it('👌  mixed glob & non-glob', (done) => {
     exec(
       'node index.js es5 ./tests/es5.js ./tests/modules/* ./tests/passed/* --not=./tests/passed,./tests/modules/*',
@@ -158,7 +158,7 @@ describe('Es Check skips folders and files included in the not flag', () => {
       },
     )
   })
-  
+
   it('👌  .escheckrc', (done) => {
     exec('node index.js es5 ./tests/es5.js ./tests/skipped/es6-skipped.js', (err, stdout, stderr) => {
       if (err) {
