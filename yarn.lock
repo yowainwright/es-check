@@ -208,10 +208,10 @@
     "@commitlint/types" "^12.0.1"
     lodash "^4.17.19"
 
-"@commitlint/execute-rule@^12.0.1":
-  version "12.0.1"
-  resolved "https://registry.yarnpkg.com/@commitlint/execute-rule/-/execute-rule-12.0.1.tgz#5bb2eba929270cafb2bd8191799d8b451de7fb7e"
-  integrity sha512-JzyweYfZlFLtXpgP+btzSY3YAkGPg61TqUSYQqBr4+5IaVf1FruMm5v4D5eLu9dAJuNKUfHbM3AEfuEPiZ79pg==
+"@commitlint/execute-rule@^12.1.1":
+  version "12.1.1"
+  resolved "https://registry.yarnpkg.com/@commitlint/execute-rule/-/execute-rule-12.1.1.tgz#8aad1d46fb78b3199e4ae36debdc93570bf765ea"
+  integrity sha512-6mplMGvLCKF5LieL7BRhydpg32tm6LICnWQADrWU4S5g9PKi2utNvhiaiuNPoHUXr29RdbNaGNcyyPv8DSjJsQ==
 
 "@commitlint/format@^12.0.1":
   version "12.0.1"
@@ -239,14 +239,14 @@
     "@commitlint/rules" "^12.0.1"
     "@commitlint/types" "^12.0.1"
 
-"@commitlint/load@>6.1.1", "@commitlint/load@^12.0.1":
-  version "12.0.1"
-  resolved "https://registry.yarnpkg.com/@commitlint/load/-/load-12.0.1.tgz#4d180fc88e5b4cfcb476a245d899f85154137502"
-  integrity sha512-dX8KdCWn7w0bTkkk3zKQpe9X8vsTRa5EM+1ffF313wCX9b6tGa9vujhEHCkSzKAbbE2tFV64CHZygE7rtlHdIA==
+"@commitlint/load@>6.1.1", "@commitlint/load@^12.0.1", "@commitlint/load@^12.1.1":
+  version "12.1.1"
+  resolved "https://registry.yarnpkg.com/@commitlint/load/-/load-12.1.1.tgz#5a7fb8be11e520931d1237c5e8dc401b7cc9c6c1"
+  integrity sha512-qOQtgNdJRULUQWP9jkpTwhj7aEtnqUtqeUpbQ9rjS+GIUST65HZbteNUX4S0mAEGPWqy2aK5xGd73cUfFSvuuw==
   dependencies:
-    "@commitlint/execute-rule" "^12.0.1"
-    "@commitlint/resolve-extends" "^12.0.1"
-    "@commitlint/types" "^12.0.1"
+    "@commitlint/execute-rule" "^12.1.1"
+    "@commitlint/resolve-extends" "^12.1.1"
+    "@commitlint/types" "^12.1.1"
     chalk "^4.0.0"
     cosmiconfig "^7.0.0"
     lodash "^4.17.19"
@@ -267,12 +267,12 @@
     conventional-commits-parser "^3.0.0"
 
 "@commitlint/prompt@^12.0.1":
-  version "12.0.1"
-  resolved "https://registry.yarnpkg.com/@commitlint/prompt/-/prompt-12.0.1.tgz#f1d7c808c26e2864fde50a21fc95651c647cb395"
-  integrity sha512-EXCZzoyXIbIhV38tJMjVvwzpQwP08ZmLDbL2crU3zVsZ9FjHxw2ujreF23qpCnx7GQHm/D7Q7rIDHhUALAPj/Q==
+  version "12.1.1"
+  resolved "https://registry.yarnpkg.com/@commitlint/prompt/-/prompt-12.1.1.tgz#73f8b6987f106f56cf7f2a9407392f26c26be869"
+  integrity sha512-Ln7M2CMedxPVaZXhZ1BH/mUidzKeNTu8SXeTpSYuUb/l1Kx9N1xoX65EFbZQrffxQ+YskG/fPth9tAc6xopFFg==
   dependencies:
-    "@commitlint/load" "^12.0.1"
-    "@commitlint/types" "^12.0.1"
+    "@commitlint/load" "^12.1.1"
+    "@commitlint/types" "^12.1.1"
     chalk "^4.0.0"
     lodash "^4.17.19"
     throat "^6.0.0"
@@ -288,10 +288,10 @@
     fs-extra "^9.0.0"
     git-raw-commits "^2.0.0"
 
-"@commitlint/resolve-extends@^12.0.1":
-  version "12.0.1"
-  resolved "https://registry.yarnpkg.com/@commitlint/resolve-extends/-/resolve-extends-12.0.1.tgz#77509f386e08bd30262ec9a75c783d8f4f028fd2"
-  integrity sha512-Mvg0GDi/68Cqw893ha8uhxE8myHfPmiSSSi7d1x4VJNR4hoS37lBdX89kyx4i9NPmLfviY2cUJKTyK8ZrFznZw==
+"@commitlint/resolve-extends@^12.1.1":
+  version "12.1.1"
+  resolved "https://registry.yarnpkg.com/@commitlint/resolve-extends/-/resolve-extends-12.1.1.tgz#80a78b0940775d17888dd2985b52f93d93e0a885"
+  integrity sha512-/DXRt0S0U3o9lq5cc8OL1Lkx0IjW0HcDWjUkUXshAajBIKBYSJB8x/loNCi1krNEJ8SwLXUEFt5OLxNO6wE9yQ==
   dependencies:
     import-fresh "^3.0.0"
     lodash "^4.17.19"
@@ -320,10 +320,10 @@
   dependencies:
     find-up "^5.0.0"
 
-"@commitlint/types@^12.0.1":
-  version "12.0.1"
-  resolved "https://registry.yarnpkg.com/@commitlint/types/-/types-12.0.1.tgz#04a0cbb8aa56b7c004f8939c2d1ef8892ec68327"
-  integrity sha512-FsNDMV0W7D19/ZbR412klpqAilXASx75Neqh7jPtK278IEwdukOg3vth1r5kTm+BjDScM7wMUEOwIW3NNfAtwg==
+"@commitlint/types@^12.0.1", "@commitlint/types@^12.1.1":
+  version "12.1.1"
+  resolved "https://registry.yarnpkg.com/@commitlint/types/-/types-12.1.1.tgz#8e651f6af0171cd4f8d464c6c37a7cf63ee071bd"
+  integrity sha512-+qGH+s2Lo6qwacV2X3/ZypZwaAI84ift+1HBjXdXtI/q0F5NtmXucV3lcQOTviMTNiJhq4qWON2fjci2NItASw==
   dependencies:
     chalk "^4.0.0"
 
