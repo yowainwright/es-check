@@ -1,0 +1,31 @@
+version: 2
+updates:
+- package-ecosystem: npm
+  directory: "/"
+  schedule:
+    interval: daily
+    time: "13:00"
+  open-pull-requests-limit: 2
+  ignore:
+  - dependency-name: acorn
+    versions:
+    - 8.0.5
+    - 8.1.0
+    - 8.1.1
+    - 8.2.1
+  - dependency-name: mocha
+    versions:
+    - 8.3.1
+  - dependency-name: husky
+    versions:
+    - 5.1.0
+    - 5.1.1
+    - 5.1.2
+  - dependency-name: "@commitlint/prompt"
+    versions:
+    - 12.0.0
+  - dependency-name: eslint
+    versions:
+    - 7.18.0
+    - 7.19.0
+    - 7.20.0
