@@ -49,7 +49,7 @@
     "prettier": "^2.2.1"
   },
   "dependencies": {
-    "acorn": "^6.4.1",
+    "acorn": "^8.2.2",
     "caporal": "1.4.0",
     "glob": "^7.1.2"
   },
