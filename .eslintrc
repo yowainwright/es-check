@@ -1,3 +1,5 @@
 {
-  "extends": "@heartly/eslint-config"
+  "extends": [
+    "prettier-standard"
+  ]
 }
