@@ -83,8 +83,8 @@ prog
         ecmaVersion = '3'
         break
       case 'es4':
-        ecmaVersion = '4'
-        break
+        logger.error('ES4 is not supported.')
+        process.exit(1)
       case 'es5':
         ecmaVersion = '5'
         break
@@ -139,7 +139,7 @@ prog
 
     const errArray = []
     const globOpts = { nodir: true }
-    const acornOpts = { ecmaVersion, silent: true }
+    const acornOpts = { ecmaVersion: parseInt(ecmaVersion, 10), silent: true }
 
     const expandedPathsToIgnore = pathsToIgnore.reduce((result, path) => {
       if (path.includes('*')) {

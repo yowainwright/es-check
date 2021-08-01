@@ -55,9 +55,9 @@
     "prettier-config-standard": "^4.0.0"
   },
   "dependencies": {
-    "acorn": "^6.4.1",
-    "caporal": "1.4.0",
-    "glob": "^7.1.2"
+    "acorn": "^8.4.1",
+    "caporal": "^1.4.0",
+    "glob": "^7.1.7"
   },
   "engines": {
     "node": ">= 4"
