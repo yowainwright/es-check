@@ -20,6 +20,10 @@ Ensuring that JavaScript files can pass ES Check is important in a [modular and 
 
 ---
 
+**Version 6:** released with [dropped support for es4](https://github.com/yowainwright/es-check/pull/98/files#r680564074) and a major version bump of [acorn](https://github.com/acornjs/acorn) parser. Thanks so much for your insightful PR [Noah](https://github.com/noahnu)!
+
+---
+
 <p align="center">
   <a href="#get-started">Get Started</a>&nbsp;&nbsp;
   <a href="#why-es-check">Why ES Check?</a>&nbsp;&nbsp;
