@@ -20,7 +20,7 @@ Ensuring that JavaScript files can pass ES Check is important in a [modular and 
 
 ---
 
-**Version 6:** released with [dropped support for es4](https://github.com/yowainwright/es-check/pull/98/files#r680564074) and a major version bump of [acorn](https://github.com/acornjs/acorn) parser. Thanks so much for your insightful PR [Noah](https://github.com/noahnu)!
+**Version 6:** released with [dropped support for es4](https://github.com/yowainwright/es-check/pull/98/files#r680564074) and a **major version bump of the [acorn](https://github.com/acornjs/acorn) parser**. Thanks so much for your insightful PR, [Noah](https://github.com/noahnu)! For any issues with the newer acorn version or for es4 support, use [version 5.2.4](https://www.npmjs.com/package/es-check/v/5.2.4) (`npm i es-check@5.2.4`). 🎉
 
 ---
 
