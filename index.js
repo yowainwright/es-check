@@ -2,14 +2,14 @@
 
 'use strict'
 
-const prog = require('caporal')
+const { program } = require('@caporal/core')
 const acorn = require('acorn')
 const glob = require('glob')
 const fs = require('fs')
 const path = require('path')
 
 const pkg = require('./package.json')
-const argsArray = process.argv
+const argsArray = process.argv.slice(2)
 
 /**
  * es-check 🏆
@@ -20,7 +20,7 @@ const argsArray = process.argv
  *   to to test the EcmaScript version of each file
  * - error failures
  */
-prog
+program
   .version(pkg.version)
   .argument(
     '[ecmaVersion]',
@@ -35,8 +35,10 @@ prog
     '--allow-hash-bang',
     'if the code starts with #! treat it as a comment'
   )
-  .option('--not', 'folder or file names to skip', prog.LIST)
-  .action((args, options, logger) => {
+  .option('--not', 'folder or file names to skip', {
+    validator: program.ARRAY
+  })
+  .action(({ logger, args, options }) => {
     const configFilePath = path.resolve(process.cwd(), '.escheckrc')
 
     /**
@@ -51,14 +53,16 @@ prog
     const expectedEcmaVersion = args.ecmaVersion
       ? args.ecmaVersion
       : config.ecmaVersion
-    const files = args.files.length ? args.files : [].concat(config.files)
+    const files =
+      args.files && args.files.length ? args.files : [].concat(config.files)
     const esmodule = options.module ? options.module : config.module
     const allowHashBang = options.allowHashBang
       ? options.allowHashBang
       : config.allowHashBang
-    const pathsToIgnore = options.not.length
-      ? options.not
-      : [].concat(config.not || [])
+    const pathsToIgnore =
+      options.not && options.not.length
+        ? options.not
+        : [].concat(config.not || [])
 
     if (!expectedEcmaVersion) {
       logger.error(
@@ -226,4 +230,4 @@ prog
     logger.info(`ES-Check: there were no ES version matching errors!  🎉`)
   })
 
-prog.parse(argsArray)
+program.run(argsArray)
