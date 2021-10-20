@@ -318,11 +318,11 @@
     conventional-commits-parser "^3.2.2"
 
 "@commitlint/prompt@^13.1.0":
-  version "13.2.0"
-  resolved "https://registry.yarnpkg.com/@commitlint/prompt/-/prompt-13.2.0.tgz#5fb2f331563d2dd2a1e5e3700aab3b49d0a0fd59"
-  integrity sha512-PYPqsDKkCuAle6HGfSVFop0ncS5AURNXD3InJ5sDTOfs8V6zfXBaNANaX1hLKFJaZ7O4YnpGGVIk8YlYoevLww==
+  version "13.2.1"
+  resolved "https://registry.yarnpkg.com/@commitlint/prompt/-/prompt-13.2.1.tgz#c2e15ad35a26b6b9a7192fb4089ca45d27e11416"
+  integrity sha512-V5/zvz94wZgRA2cfFFQzG0tv1lfv0OKp4+qiUYYYUGlfztKoNxyZC96KXYADfzX9/fepaT54y8FpSN/+6gc0YQ==
   dependencies:
-    "@commitlint/load" "^13.2.0"
+    "@commitlint/load" "^13.2.1"
     "@commitlint/types" "^13.2.0"
     chalk "^4.0.0"
     lodash "^4.17.19"
