@@ -1,6 +1,6 @@
 {
   "name": "es-check",
-  "version": "6.0.0",
+  "version": "6.1.0",
   "description": "Checks the ECMAScript version of .js glob against a specified version of ECMAScript with a shell command",
   "main": "index.js",
   "license": "MIT",
