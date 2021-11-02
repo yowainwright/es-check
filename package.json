@@ -35,7 +35,7 @@
   "devDependencies": {
     "@commitlint/cli": "^13.2.0",
     "@commitlint/config-conventional": "^13.1.0",
-    "@commitlint/prompt": "^13.1.0",
+    "@commitlint/prompt": "^14.1.0",
     "assert": "^2.0.0",
     "codecov": "^3.0.0",
     "commitizen": "^4.2.2",
