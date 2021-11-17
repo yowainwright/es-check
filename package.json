@@ -1,6 +1,6 @@
 {
   "name": "es-check",
-  "version": "6.1.0",
+  "version": "6.1.1",
   "description": "Checks the ECMAScript version of .js glob against a specified version of ECMAScript with a shell command",
   "main": "index.js",
   "license": "MIT",
@@ -9,6 +9,9 @@
   ],
   "bin": {
     "es-check": "index.js"
+  },
+  "resolutions": {
+    "ansi-regex": "5.0.1"
   },
   "scripts": {
     "chore:delete-branch": "if git show-ref --quiet refs/heads/chore-changelog; then git branch -D chore-changelog; fi",
@@ -34,7 +37,7 @@
   "homepage": "https://github.com/yowainwright/es-check#readme",
   "devDependencies": {
     "@commitlint/cli": "^14.1.0",
-    "@commitlint/config-conventional": "^14.1.0",
+    "@commitlint/config-conventional": "^15.0.0",
     "@commitlint/prompt": "^13.1.0",
     "assert": "^2.0.0",
     "codecov": "^3.0.0",
