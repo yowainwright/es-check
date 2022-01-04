@@ -11,7 +11,6 @@ specifiers:
   acorn: ^8.4.1
   assert: ^2.0.0
   codecov: ^3.0.0
-  commander: ^8.3.0
   commitizen: ^4.2.2
   conventional-changelog-cli: ^2.0.11
   eslint: ^7.29.0
@@ -32,7 +31,6 @@ specifiers:
 dependencies:
   '@caporal/core': 2.0.2
   acorn: 8.5.0
-  commander: 8.3.0
   glob: 7.2.0
 
 devDependencies:
@@ -1085,11 +1083,6 @@ packages:
     dependencies:
       color: 3.2.1
       text-hex: 1.0.0
-    dev: false
-
-  /commander/8.3.0:
-    resolution: {integrity: sha512-OkTL9umf+He2DZkUq8f8J9of7yL6RJKI24dVITBmNfZBmri9zYZQrKkuXiKhyfPSu8tUhnVBB1iKXevvnlR4Ww==}
-    engines: {node: '>= 12'}
     dev: false
 
   /commitizen/4.2.4:
