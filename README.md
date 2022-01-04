@@ -20,7 +20,7 @@ Ensuring that JavaScript files can pass ES Check is important in a [modular and 
 
 ---
 
-**Version 6:** released with [dropped support for es4](https://github.com/yowainwright/es-check/pull/98/files#r680564074) and a **major version bump of the [acorn](https://github.com/acornjs/acorn) parser**. Thanks so much for your insightful PR, [Noah](https://github.com/noahnu)! For any issues with the newer acorn version or for es4 support, use [version 5.2.4](https://www.npmjs.com/package/es-check/v/5.2.4) (`npm i es-check@5.2.4`). 🎉
+**Known issue:** cli argument vs. option order. There is a small issue with cli's option ordering. If an argument is passed **after** a boolean option, the boolean option will default to `falsy` as if the argument was not added. This will create weirdness in checks. A fix for this issue is in the works! 👌
 
 ---
 
