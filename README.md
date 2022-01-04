@@ -200,10 +200,6 @@ ES Check is a small utility using powerful tools that [Isaac Z. Schlueter](https
 
 ES Check has 3 main dependencies: [acorn](https://github.com/ternjs/acorn/), [glob](https://www.npmjs.com/package/glob), and [caporal](https://github.com/mattallty/Caporal.js). To contribute, file an [issue](https://github.com/yowainwright/es-check/issues) or submit a pull request.
 
-## Previous Major Release
-
-**Version 6:** released with [dropped support for es4](https://github.com/yowainwright/es-check/pull/98/files#r680564074) and a **major version bump of the [acorn](https://github.com/acornjs/acorn) parser**. Thanks so much for your insightful PR, [Noah](https://github.com/noahnu)! For any issues with the newer acorn version or for es4 support, use [version 5.2.4](https://www.npmjs.com/package/es-check/v/5.2.4) (`npm i es-check@5.2.4`). 🎉
-
 ### Contributors
 
 - [Jeff Wainwright](https://github.com/yowainwright/)
