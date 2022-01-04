@@ -33,8 +33,6 @@ Ensuring that JavaScript files can pass ES Check is important in a [modular and 
   <a href="#debugging">Debugging</a>&nbsp;&nbsp;
   <a href="#contributing">Contributing</a>&nbsp;&nbsp;
   <a href="/issues">Issues</a>
-  <a href="#previous-major-release">Previous Major Release</a>
-
 </p>
 
 ---
