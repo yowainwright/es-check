@@ -4,7 +4,7 @@
 
 const { program } = require('@caporal/core')
 const acorn = require('acorn')
-const glob = require('glob')
+const glob = require('fast-glob')
 const fs = require('fs')
 const path = require('path')
 

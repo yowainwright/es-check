@@ -1,6 +1,6 @@
 {
   "name": "es-check",
-  "version": "6.1.2",
+  "version": "6.2.0",
   "description": "Checks the ECMAScript version of .js glob against a specified version of ECMAScript with a shell command",
   "main": "index.js",
   "license": "MIT",
@@ -18,11 +18,12 @@
     "chore:branch": "git checkout -b chore-changelog",
     "chore:changelog": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0",
     "chore:pr": "git add . && git commit -m '[chore] updates changelog' --no-verify && git push origin chore-changelog -f",
-    "chore": "npm run chore:delete-branch && npm run chore:branch && npm run chore:changelog && npm run chore:pr",
+    "chore": "pnpm run chore:delete-branch && pnpm run chore:branch && pnpm run chore:changelog && pnpm run chore:pr",
     "lint": "eslint index.js --fix",
     "lint:ci": "eslint index.js",
-    "prepush": "npm run lint && npm test",
-    "postpublish": "git tag $npm_package_version && git push origin --tags && npm run chore",
+    "prepush": "pnpm run lint && pnpm test",
+    "postpublish": "git tag $npm_package_version && git push origin --tags && pnpm run chore",
+    "preinstall": "npx only-allow pnpm",
     "report:coverage": "nyc report --reporter=lcov > coverage.lcov && codecov",
     "test": "nyc mocha test.js --timeout 10s --coverage"
   },
@@ -36,31 +37,24 @@
   },
   "homepage": "https://github.com/yowainwright/es-check#readme",
   "devDependencies": {
-    "@commitlint/cli": "^16.0.2",
+    "@commitlint/cli": "^16.1.0",
     "@commitlint/config-conventional": "^16.0.0",
-    "@commitlint/prompt": "^16.0.0",
+    "@commitlint/prompt": "^16.1.0",
     "assert": "^2.0.0",
-    "codecov": "^3.0.0",
-    "commitizen": "^4.2.2",
-    "conventional-changelog-cli": "^2.0.11",
-    "eslint": "^7.29.0",
+    "codecov": "^3.8.3",
+    "commitizen": "^4.2.4",
+    "conventional-changelog-cli": "^2.2.2",
+    "eslint": "^8.7.0",
     "eslint-config-prettier": "^8.3.0",
-    "eslint-config-prettier-standard": "^4.0.1",
-    "eslint-config-standard": "^16.0.3",
-    "eslint-plugin-import": "^2.23.4",
-    "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-prettier": "^4.0.0",
-    "eslint-plugin-promise": "^5.1.0",
-    "husky": "^7.0.1",
-    "mocha": "^9.0.1",
+    "husky": "^7.0.4",
+    "mocha": "^9.2.0",
     "nyc": "^15.1.0",
-    "prettier": "^2.3.2",
-    "prettier-config-standard": "^4.0.0"
+    "prettier": "^2.5.1"
   },
   "dependencies": {
-    "acorn": "^8.4.1",
     "@caporal/core": "^2.0.2",
-    "glob": "^7.1.7"
+    "acorn": "^8.7.0",
+    "fast-glob": "^3.2.11"
   },
   "engines": {
     "node": ">= 4"
@@ -98,10 +92,10 @@
   "husky": {
     "hooks": {
       "commit-msg": "commitlint -E HUSKY_GIT_PARAMS",
-      "post-checkout": "if [[ $HUSKY_GIT_PARAMS =~ 1$ ]]; then yarn; fi",
-      "post-merge": "yarn",
-      "post-rewrite": "yarn",
-      "pre-commit": "yarn test && yarn lint"
+      "post-checkout": "if [[ $HUSKY_GIT_PARAMS =~ 1$ ]]; then pnpm i -r; fi",
+      "post-merge": "pnpm i -r",
+      "post-rewrite": "pnpm i -r",
+      "pre-commit": "pnpm test && pnpm lint"
     }
   }
 }
