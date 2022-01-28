@@ -58,8 +58,9 @@
     "prettier-config-standard": "^4.0.0"
   },
   "dependencies": {
-    "acorn": "^8.4.1",
     "@caporal/core": "^2.0.2",
+    "acorn": "^8.4.1",
+    "fast-glob": "^3.2.11",
     "glob": "^7.1.7"
   },
   "engines": {
