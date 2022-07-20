@@ -20,7 +20,12 @@ Ensuring that JavaScript files can pass ES Check is important in a [modular and 
 
 ---
 
-**Known issue:** cli argument vs. option order. There is a small issue with cli's option ordering. If an argument is passed **after** a boolean option, the boolean option will default to `falsy` as if the argument was not added. This will create weirdness in checks. A fix for this issue is in the works! 👌
+## Version 7 🎉
+
+Thanks to the efforts of [Anders Kaseorg](https://github.com/andersk), ES Check has switched to [Commander](https://www.npmjs.com/package/commander
+)! There appears to be no clear breaking issues but this update is being merged as a major release for your ease-of-use. Please reach out with any observations or pull requests!
+This update was made for security purposes—dependencies not being maintained. Thanks to Anders for this deeper fix, to [StudioMaX](https://github.com/StudioMaX) for the initial issue and support, and to [Alexander Pepper](https://github.com/apepper
+) for digging into this issue more!
 
 ---
 
