@@ -51,9 +51,11 @@
     "prettier": "^2.5.1"
   },
   "dependencies": {
-    "@caporal/core": "^2.0.2",
     "acorn": "^8.7.0",
-    "fast-glob": "^3.2.11"
+    "commander": "^9.4.0",
+    "fast-glob": "^3.2.11",
+    "supports-color": "^8.1.1",
+    "winston": "^3.2.1"
   },
   "engines": {
     "node": ">= 4"
