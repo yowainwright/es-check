@@ -22,10 +22,11 @@ Ensuring that JavaScript files can pass ES Check is important in a [modular and 
 
 ## Version 7 🎉
 
-Thanks to the efforts of [Anders Kaseorg](https://github.com/andersk), ES Check has switched to [Commander](https://www.npmjs.com/package/commander
-)! There appears to be no clear breaking issues but this update is being merged as a major release for your ease-of-use. Please reach out with any observations or pull requests!
-This update was made for security purposes—dependencies not being maintained. Thanks to Anders for this deeper fix, to [StudioMaX](https://github.com/StudioMaX) for the initial issue and support, and to [Alexander Pepper](https://github.com/apepper
-) for digging into this issue more!
+Thanks to the efforts of [Anders Kaseorg](https://github.com/andersk), ES Check has switched to [Commander](https://www.npmjs.com/package/commander)! There appears to be no breaking issues but this update is being published as a major release for your ease-of-use. Please reach out with observations or pull requests features/fixes!
+
+This update was made for security purposes—dependencies not being maintained.
+
+Thanks to Anders for this deeper fix, to [Pavel Starosek](https://github.com/StudioMaX) for the initial issue and support, and to [Alexander Pepper](https://github.com/apepper) for digging into this issue more!
 
 ---
 
