@@ -2,14 +2,15 @@
 
 'use strict'
 
-const { program } = require('@caporal/core')
+const { program } = require('commander')
 const acorn = require('acorn')
 const glob = require('fast-glob')
 const fs = require('fs')
 const path = require('path')
+const supportsColor = require('supports-color')
+const winston = require('winston')
 
 const pkg = require('./package.json')
-const argsArray = process.argv.slice(2)
 
 /**
  * es-check 🏆
@@ -35,10 +36,25 @@ program
     '--allow-hash-bang',
     'if the code starts with #! treat it as a comment'
   )
-  .option('--not', 'folder or file names to skip', {
-    validator: program.ARRAY
-  })
-  .action(({ logger, args, options }) => {
+  .option('--not <files>', 'folder or file names to skip')
+  .option('--no-color', 'disable use of colors in output')
+  .option('-v, --verbose', 'verbose mode: will also output debug messages')
+  .option('--quiet', 'quiet mode: only displays warn and error messages')
+  .option(
+    '--silent',
+    'silent mode: does not output anything, giving no indication of success or failure other than the exit code'
+  )
+  .action((ecmaVersionArg, filesArg, options) => {
+    const logger = winston.createLogger()
+    logger.add(new winston.transports.Console({
+      silent: options.silent,
+      level: options.verbose ? 'silly' : options.quiet ? 'warn' : 'info',
+      format: winston.format.combine(
+        ...supportsColor.stdout ? [winston.format.colorize()] : [],
+        winston.format.simple()
+      )
+    }))
+
     const configFilePath = path.resolve(process.cwd(), '.escheckrc')
 
     /**
@@ -50,18 +66,18 @@ program
     const config = fs.existsSync(configFilePath)
       ? JSON.parse(fs.readFileSync(configFilePath))
       : {}
-    const expectedEcmaVersion = args.ecmaVersion
-      ? args.ecmaVersion
+    const expectedEcmaVersion = ecmaVersionArg
+      ? ecmaVersionArg
       : config.ecmaVersion
     const files =
-      args.files && args.files.length ? args.files : [].concat(config.files)
+      filesArg && filesArg.length ? filesArg : [].concat(config.files)
     const esmodule = options.module ? options.module : config.module
     const allowHashBang = options.allowHashBang
       ? options.allowHashBang
       : config.allowHashBang
     const pathsToIgnore =
-      options.not && options.not.length
-        ? options.not
+      options.not
+        ? options.not.split(',')
         : [].concat(config.not || [])
 
     if (!expectedEcmaVersion) {
@@ -230,4 +246,4 @@ program
     logger.info(`ES-Check: there were no ES version matching errors!  🎉`)
   })
 
-program.run(argsArray)
+program.parse()
