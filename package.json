@@ -1,6 +1,6 @@
 {
   "name": "es-check",
-  "version": "6.2.1",
+  "version": "7.0.0",
   "description": "Checks the ECMAScript version of .js glob against a specified version of ECMAScript with a shell command",
   "main": "index.js",
   "license": "MIT",
@@ -9,9 +9,6 @@
   ],
   "bin": {
     "es-check": "index.js"
-  },
-  "resolutions": {
-    "ansi-regex": "5.0.1"
   },
   "scripts": {
     "chore:delete-branch": "if git show-ref --quiet refs/heads/chore-changelog; then git branch -D chore-changelog; fi",
@@ -38,7 +35,7 @@
   "devDependencies": {
     "@commitlint/cli": "^16.1.0",
     "@commitlint/config-conventional": "^17.0.3",
-    "@commitlint/prompt": "^16.1.0",
+    "@commitlint/prompt": "^17.0.3",
     "assert": "^2.0.0",
     "codecov": "^3.8.3",
     "commitizen": "^4.2.4",
@@ -51,9 +48,11 @@
     "prettier": "^2.5.1"
   },
   "dependencies": {
-    "@caporal/core": "^2.0.2",
     "acorn": "^8.7.0",
-    "fast-glob": "^3.2.11"
+    "commander": "^9.4.0",
+    "fast-glob": "^3.2.11",
+    "supports-color": "^8.1.1",
+    "winston": "^3.2.1"
   },
   "engines": {
     "node": ">= 4"
