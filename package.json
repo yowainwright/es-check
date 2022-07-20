@@ -51,7 +51,7 @@
     "acorn": "^8.7.0",
     "commander": "^9.4.0",
     "fast-glob": "^3.2.11",
-    "supports-color": "^8.1.1",
+    "supports-color": "^9.2.2",
     "winston": "^3.2.1"
   },
   "engines": {
