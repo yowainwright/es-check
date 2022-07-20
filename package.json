@@ -11,16 +11,20 @@
     "es-check": "index.js"
   },
   "scripts": {
-    "chore:delete-branch": "if git show-ref --quiet refs/heads/chore-changelog; then git branch -D chore-changelog; fi",
-    "chore:branch": "git checkout -b chore-changelog",
-    "chore:changelog": "conventional-changelog -p angular -i CHANGELOG.md -s -r 0",
-    "chore:pr": "git add . && git commit -m '[chore] updates changelog' --no-verify && git push origin chore-changelog -f",
-    "chore": "pnpm run chore:delete-branch && pnpm run chore:branch && pnpm run chore:changelog && pnpm run chore:pr",
+    "commit": "git-cz",
+    "commit-msg": "commitlint --edit $1",
+    "husky-setup": "if [[ ! -d /.husky/commit-msg ]]; then (husky install && pnpm husky-setup:commit-msg && pnpm husky-setup:post-merge && pnpm husky-setup:pre-commit); fi",
+    "husky-setup:commit-msg": "npx husky add .husky/commit-msg 'pnpm run commit-msg'",
+    "husky-setup:post-merge": "npx husky add .husky/post-merge 'pnpm run setup'",
+    "husky-setup:pre-commit": "npx husky add .husky/pre-commit 'pnpm run pre-commit'",
     "lint": "eslint index.js --fix",
     "lint:ci": "eslint index.js",
-    "prepush": "pnpm run lint && pnpm test",
-    "postpublish": "git tag $npm_package_version && git push origin --tags && pnpm run chore",
+    "pre-commit": "pnpm lint && pnpm test",
+    "prepare": "is-ci || pnpm husky-setup",
+    "prepublishOnly": "pnpm test",
+    "release": "release-it",
     "report:coverage": "nyc report --reporter=lcov > coverage.lcov && codecov",
+    "setup": "pnpm install --reporter=silent",
     "test": "nyc mocha test.js --timeout 10s --coverage"
   },
   "repository": {
@@ -45,7 +49,8 @@
     "husky": "^8.0.1",
     "mocha": "^10.0.0",
     "nyc": "^15.1.0",
-    "prettier": "^2.5.1"
+    "prettier": "^2.5.1",
+    "release-it": "^15.1.3"
   },
   "dependencies": {
     "acorn": "^8.7.0",
@@ -87,13 +92,9 @@
       ]
     }
   },
-  "husky": {
-    "hooks": {
-      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS",
-      "post-checkout": "if [[ $HUSKY_GIT_PARAMS =~ 1$ ]]; then pnpm i -r; fi",
-      "post-merge": "pnpm i -r",
-      "post-rewrite": "pnpm i -r",
-      "pre-commit": "pnpm test && pnpm lint"
+  "release-it": {
+    "github": {
+      "release": true
     }
   }
 }
