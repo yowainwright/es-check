@@ -91,5 +91,10 @@
         120
       ]
     }
+  },
+  "release-it": {
+    "github": {
+      "release": true
+    }
   }
 }
