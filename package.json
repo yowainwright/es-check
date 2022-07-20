@@ -34,7 +34,7 @@
   "homepage": "https://github.com/yowainwright/es-check#readme",
   "devDependencies": {
     "@commitlint/cli": "^16.1.0",
-    "@commitlint/config-conventional": "^16.0.0",
+    "@commitlint/config-conventional": "^17.0.3",
     "@commitlint/prompt": "^17.0.3",
     "assert": "^2.0.0",
     "codecov": "^3.8.3",
