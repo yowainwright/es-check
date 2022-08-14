@@ -104,6 +104,20 @@ it('🎉  Es Check should pass when checking a glob of es6 modules using the --m
   })
 })
 
+it('🎉  Es Check should pass when checking a glob of es6 modules using the --module flag in another order', (done) => {
+  exec('node index.js es6 ./tests/modules/*.js --module --no-color', (err, stdout, stderr) => {
+    assert(stdout)
+    if (err) {
+      console.error(err.stack)
+      console.error(stdout.toString())
+      console.error(stderr.toString())
+      done(err)
+      return
+    }
+    done()
+  })
+})
+
 it('🎉  Es Check should fail when checking a glob of es6 modules using the --module flag in any order', (done) => {
   exec('node index.js es6 --module ./tests/modules/*.js', (err, stdout) => {
     /**
