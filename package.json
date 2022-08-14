@@ -13,7 +13,7 @@
   "scripts": {
     "commit": "git-cz",
     "commit-msg": "commitlint --edit $1",
-    "husky-setup": "if [[ ! -d /.husky/commit-msg ]]; then (husky install && pnpm husky-setup:commit-msg && pnpm husky-setup:post-merge && pnpm husky-setup:pre-commit); fi",
+    "husky-setup": "path-exists .husky/commit-msg || (husky install && pnpm husky-setup:commit-msg && pnpm husky-setup:post-merge && pnpm husky-setup:pre-commit)",
     "husky-setup:commit-msg": "npx husky add .husky/commit-msg 'pnpm run commit-msg'",
     "husky-setup:post-merge": "npx husky add .husky/post-merge 'pnpm run setup'",
     "husky-setup:pre-commit": "npx husky add .husky/pre-commit 'pnpm run pre-commit'",
@@ -49,6 +49,7 @@
     "husky": "^8.0.1",
     "mocha": "^10.0.0",
     "nyc": "^15.1.0",
+    "path-exists-cli": "^2.0.0",
     "prettier": "^2.5.1",
     "release-it": "^15.1.3"
   },
