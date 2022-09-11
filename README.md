@@ -39,6 +39,7 @@ Thanks to Anders for this deeper fix, to [Pavel Starosek](https://github.com/Stu
   <a href="#debugging">Debugging</a>&nbsp;&nbsp;
   <a href="#contributing">Contributing</a>&nbsp;&nbsp;
   <a href="/issues">Issues</a>
+  <a href="#roadmap">Roadmap</a>
 </p>
 
 ---
@@ -213,3 +214,14 @@ ES Check has 3 main dependencies: [acorn](https://github.com/ternjs/acorn/), [gl
 - [Ben Junya](https://github.com/MrBenJ)
 - [Jeff Barczewski](https://github.com/jeffbski)
 - [Brandon Casey](https://github.com/BrandonOCasey)
+
+### Roadmap
+
+- Provide compilation step to support esm
+  - non-user-facing
+  - required to keep package dependencies up-to-date as more dependencies are ESM-only
+- Provide checks for _theoretical_ keywork words
+  - Things like `Map` and `Object.assign` are not keywords that fail ECMAScript
+    compilation depending on specific versions of ECMAScript. However, they hint at additions to ECMAScript that previous version did not support.
+  - This feature will enhance an already built-in confiration feature to provide more out-of-the-box support for ECMAScript checking.
+  - If enabled, this feature will warn (or fail) based on _theoretical_ ECMAScript keywords.
