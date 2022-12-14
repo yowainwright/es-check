@@ -1,0 +1,25 @@
+{
+  "codependencies": [
+    "@commitlint/cli",
+    "@commitlint/config-conventional",
+    "@commitlint/prompt",
+    "assert",
+    "codecov",
+    "codependence",
+    "commitizen",
+    "conventional-changelog-cli",
+    "eslint",
+    "eslint-config-prettier",
+    "husky",
+    "mocha",
+    "nyc",
+    "path-exists-cli",
+    "prettier",
+    "release-it",
+    "acorn",
+    "commander",
+    "fast-glob",
+    { "supports-color": "^8.1.1" },
+    "winston"
+  ]
+}
