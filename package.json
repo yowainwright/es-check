@@ -25,7 +25,8 @@
     "release": "release-it",
     "report:coverage": "nyc report --reporter=lcov > coverage.lcov && codecov",
     "setup": "pnpm install --reporter=silent",
-    "test": "nyc mocha test.js --timeout 10s --coverage"
+    "test": "nyc mocha test.js --timeout 10s --coverage",
+    "update": "codependence --update"
   },
   "repository": {
     "type": "git",
@@ -42,6 +43,7 @@
     "@commitlint/prompt": "^17.0.3",
     "assert": "^2.0.0",
     "codecov": "^3.8.3",
+    "codependence": "^0.2.6",
     "commitizen": "^4.2.4",
     "conventional-changelog-cli": "^2.2.2",
     "eslint": "^8.7.0",
