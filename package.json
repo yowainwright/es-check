@@ -25,7 +25,8 @@
     "release": "release-it",
     "report:coverage": "nyc report --reporter=lcov > coverage.lcov && codecov",
     "setup": "pnpm install --reporter=silent",
-    "test": "nyc mocha test.js --timeout 10s --coverage"
+    "test": "nyc mocha test.js --timeout 10s --coverage",
+    "update": "codependence --update"
   },
   "repository": {
     "type": "git",
@@ -37,28 +38,29 @@
   },
   "homepage": "https://github.com/yowainwright/es-check#readme",
   "devDependencies": {
-    "@commitlint/cli": "^17.0.3",
-    "@commitlint/config-conventional": "^17.0.3",
-    "@commitlint/prompt": "^17.0.3",
+    "@commitlint/cli": "^17.3.0",
+    "@commitlint/config-conventional": "^17.3.0",
+    "@commitlint/prompt": "^17.3.0",
     "assert": "^2.0.0",
     "codecov": "^3.8.3",
-    "commitizen": "^4.2.4",
+    "codependence": "^0.2.6",
+    "commitizen": "^4.2.6",
     "conventional-changelog-cli": "^2.2.2",
-    "eslint": "^8.7.0",
-    "eslint-config-prettier": "^8.3.0",
-    "husky": "^8.0.1",
-    "mocha": "^10.0.0",
+    "eslint": "^8.29.0",
+    "eslint-config-prettier": "^8.5.0",
+    "husky": "^8.0.2",
+    "mocha": "^10.2.0",
     "nyc": "^15.1.0",
     "path-exists-cli": "^2.0.0",
-    "prettier": "^2.5.1",
-    "release-it": "^15.1.3"
+    "prettier": "^2.8.1",
+    "release-it": "^15.5.1"
   },
   "dependencies": {
-    "acorn": "^8.7.0",
-    "commander": "^9.4.0",
-    "fast-glob": "^3.2.11",
+    "acorn": "^8.8.1",
+    "commander": "^9.4.1",
+    "fast-glob": "^3.2.12",
     "supports-color": "^8.1.1",
-    "winston": "^3.2.1"
+    "winston": "^3.8.2"
   },
   "engines": {
     "node": ">= 4"
