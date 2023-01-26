@@ -15,6 +15,7 @@ specifiers:
   eslint-config-prettier: ^8.5.0
   fast-glob: ^3.2.12
   husky: ^8.0.2
+  is-ci: ^3.0.1
   mocha: ^10.2.0
   nyc: ^15.1.0
   path-exists-cli: ^2.0.0
@@ -42,6 +43,7 @@ devDependencies:
   eslint: 8.29.0_supports-color@8.1.1
   eslint-config-prettier: 8.5.0_eslint@8.29.0
   husky: 8.0.2
+  is-ci: 3.0.1
   mocha: 10.2.0
   nyc: 15.1.0_supports-color@8.1.1
   path-exists-cli: 2.0.0
