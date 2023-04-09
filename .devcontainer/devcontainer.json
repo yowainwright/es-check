@@ -1,0 +1,16 @@
+{
+	"name": "Node.js",
+	"build": {
+		"dockerfile": "Dockerfile",
+		"args": { "VARIANT": "18-bullseye", "NODE_ENV": "docker-dev" }
+	},
+	"settings": {},
+	"extensions": [
+		"rvest.vs-code-prettier-eslint",
+    "ZixuanChen.vitest-explorer",
+    "wix.vscode-import-cost",
+    "eamodio.gitlens"
+	],
+	"postCreateCommand": "pnpm install --ignore-scripts",
+	"remoteUser": "node"
+}

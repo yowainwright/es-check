@@ -203,7 +203,7 @@ ES Check is a small utility using powerful tools that [Isaac Z. Schlueter](https
 
 ## Contributing
 
-ES Check has 3 main dependencies: [acorn](https://github.com/ternjs/acorn/), [glob](https://www.npmjs.com/package/glob), and [caporal](https://github.com/mattallty/Caporal.js). To contribute, file an [issue](https://github.com/yowainwright/es-check/issues) or submit a pull request.
+ES Check has 3 main dependencies: [acorn](https://github.com/ternjs/acorn/), [glob](https://www.npmjs.com/package/glob), and [caporal](https://github.com/mattallty/Caporal.js). To contribute, file an [issue](https://github.com/yowainwright/es-check/issues) or submit a pull request. To setup local development, run `./bin/setup.sh` or open the devcontainer in VSCode.
 
 ### Contributors
 
