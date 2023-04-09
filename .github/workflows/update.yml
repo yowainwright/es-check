@@ -10,7 +10,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [16.x]
+        node-version: [18.x]
 
     steps:
       - uses: actions/checkout@v3
@@ -25,7 +25,8 @@ jobs:
       - run: pnpm install --no-frozen-lockfile
       - run: pnpm build
       - run: pnpm test
-      - run: pnpm update
+      - run: pnpm run update
+      - run: pnpm install --no-frozen-lockfile
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v4
         with:
