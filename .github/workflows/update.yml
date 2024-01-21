@@ -2,7 +2,7 @@ name: update deps
 
 on:
   schedule:
-    - cron:  '0 5 * * 1'
+    - cron: '0 5 * * 1'
 
 jobs:
   udpate-deps:
@@ -10,7 +10,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [18.x]
+        node-version: [20.x]
 
     steps:
       - uses: actions/checkout@v3

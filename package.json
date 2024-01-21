@@ -38,30 +38,30 @@
   },
   "homepage": "https://github.com/yowainwright/es-check#readme",
   "devDependencies": {
-    "@commitlint/cli": "17.4.2",
-    "@commitlint/config-conventional": "17.4.2",
-    "@commitlint/prompt": "17.4.2",
-    "assert": "^2.0.0",
+    "@commitlint/cli": "18.4.4",
+    "@commitlint/config-conventional": "18.4.4",
+    "@commitlint/prompt": "18.4.4",
+    "assert": "^2.1.0",
     "codecov": "^3.8.3",
     "codependence": "^0.2.6",
     "commitizen": "4.3.0",
-    "conventional-changelog-cli": "^2.2.2",
-    "eslint": "8.32.0",
-    "eslint-config-prettier": "8.6.0",
+    "conventional-changelog-cli": "^4.1.0",
+    "eslint": "8.56.0",
+    "eslint-config-prettier": "9.1.0",
     "husky": "8.0.3",
     "is-ci": "^3.0.1",
     "mocha": "^10.2.0",
     "nyc": "^15.1.0",
     "path-exists-cli": "^2.0.0",
-    "prettier": "2.8.3",
-    "release-it": "15.6.0"
+    "prettier": "3.2.4",
+    "release-it": "17.0.1"
   },
   "dependencies": {
-    "acorn": "8.8.2",
-    "commander": "10.0.0",
-    "fast-glob": "^3.2.12",
+    "acorn": "8.11.3",
+    "commander": "11.1.0",
+    "fast-glob": "^3.3.2",
     "supports-color": "^8.1.1",
-    "winston": "^3.8.2"
+    "winston": "^3.11.0"
   },
   "engines": {
     "node": ">= 4"
