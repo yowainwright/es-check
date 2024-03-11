@@ -29,7 +29,7 @@ jobs:
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v4
         with:
-          token: ${{ secrets.PR_CREAT_TOKEN_SAVED_V1 }}
+          token: ${{ secrets.PR_CREATE_TOKEN }}
           commit-message: Update dependencies
           title: '[Codependence]  update dependencies'
           body: |
