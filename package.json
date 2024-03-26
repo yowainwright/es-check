@@ -38,30 +38,30 @@
   },
   "homepage": "https://github.com/yowainwright/es-check#readme",
   "devDependencies": {
-    "@commitlint/cli": "18.4.4",
-    "@commitlint/config-conventional": "18.4.4",
-    "@commitlint/prompt": "18.4.4",
+    "@commitlint/cli": "19.2.1",
+    "@commitlint/config-conventional": "19.1.0",
+    "@commitlint/prompt": "19.2.0",
     "assert": "^2.1.0",
     "codecov": "^3.8.3",
     "codependence": "^0.2.6",
     "commitizen": "4.3.0",
     "conventional-changelog-cli": "^4.1.0",
-    "eslint": "8.56.0",
+    "eslint": "8.57.0",
     "eslint-config-prettier": "9.1.0",
-    "husky": "8.0.3",
+    "husky": "9.0.11",
     "is-ci": "^3.0.1",
-    "mocha": "^10.2.0",
+    "mocha": "10.3.0",
     "nyc": "^15.1.0",
     "path-exists-cli": "^2.0.0",
-    "prettier": "3.2.4",
-    "release-it": "17.0.1"
+    "prettier": "3.2.5",
+    "release-it": "17.1.1"
   },
   "dependencies": {
     "acorn": "8.11.3",
-    "commander": "11.1.0",
+    "commander": "12.0.0",
     "fast-glob": "^3.3.2",
     "supports-color": "^8.1.1",
-    "winston": "^3.11.0"
+    "winston": "3.13.0"
   },
   "engines": {
     "node": ">= 4"
