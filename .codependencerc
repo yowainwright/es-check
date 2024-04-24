@@ -3,7 +3,6 @@
     "@commitlint/cli",
     "@commitlint/config-conventional",
     "@commitlint/prompt",
-    "assert",
     "codecov",
     "codependence",
     "commitizen",
