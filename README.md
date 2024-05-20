@@ -133,8 +133,20 @@ index.js es-check <ecmaVersion> [files...]
 **Not**
 
 ```sh
---not=folderName1,folderName2 An array of file/folder names or globs that you would like to ignore. Defaults to `[]`.
+
+--not=target1,target2 An array of file/folder names or globs that you would like to ignore. Defaults to `[]`.
+
 ```
+
+**Files**
+
+```sh
+
+--files=target1,target2 An array of file/folder names or globs to test the ECMAScript version against. Alias of [...files] argument.
+
+```
+
+⚠️ **NOTE:** This is primarily intended as a way to override the `files` setting in the `.escheckrc` file for specific invocations. Setting both the `[...files]` argument and `--files` flag is an error.
 
 ### Global Options
 
