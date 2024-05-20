@@ -13,14 +13,14 @@
   "scripts": {
     "commit": "git-cz",
     "commit-msg": "commitlint --edit $1",
-    "husky-setup": "path-exists .husky/commit-msg || (husky install && pnpm husky-setup:commit-msg && pnpm husky-setup:post-merge && pnpm husky-setup:pre-commit)",
-    "husky-setup:commit-msg": "npx husky add .husky/commit-msg 'pnpm run commit-msg'",
-    "husky-setup:post-merge": "npx husky add .husky/post-merge 'pnpm run setup'",
-    "husky-setup:pre-commit": "npx husky add .husky/pre-commit 'pnpm run pre-commit'",
+    "husky-setup": "path-exists .husky/commit-msg || (husky init && pnpm husky-setup:commit-msg && pnpm husky-setup:post-merge && pnpm husky-setup:pre-commit)",
+    "husky-setup:commit-msg": "echo 'pnpm run commit-msg' > .husky/commit-msg",
+    "husky-setup:post-merge": "echo 'pnpm run setup' > .husky/post-merge",
+    "husky-setup:pre-commit": "echo 'pnpm run pre-commit' > .husky/pre-commit",
     "lint": "eslint index.js --fix",
     "lint:ci": "eslint index.js",
     "pre-commit": "pnpm lint && pnpm test",
-    "prepare": "is-ci || pnpm husky-setup",
+    "prepare": "husky",
     "prepublishOnly": "pnpm test",
     "release": "release-it",
     "report:coverage": "nyc report --reporter=lcov > coverage.lcov && codecov",
@@ -104,5 +104,6 @@
     "github": {
       "release": true
     }
-  }
+  },
+  "packageManager": "pnpm@8.1.1"
 }
