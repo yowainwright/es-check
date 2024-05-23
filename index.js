@@ -30,6 +30,7 @@ program
   .argument('[files...]', 'a glob of files to to test the EcmaScript version against')
   .option('--module', 'use ES modules')
   .option('--allow-hash-bang', 'if the code starts with #! treat it as a comment')
+  .option('--files <files>', 'a glob of files to to test the EcmaScript version against (alias for [files...])')
   .option('--not <files>', 'folder or file names to skip')
   .option('--no-color', 'disable use of colors in output')
   .option('-v, --verbose', 'verbose mode: will also output debug messages')
@@ -53,6 +54,11 @@ program
 
     const configFilePath = path.resolve(process.cwd(), '.escheckrc')
 
+    if (filesArg && filesArg.length && options.files) {
+      logger.error('Cannot pass in both [files...] argument and --files flag at the same time!')
+      process.exit(1)
+    }
+
     /**
      * @note
      * Check for a configuration file.
@@ -61,7 +67,8 @@ program
      */
     const config = fs.existsSync(configFilePath) ? JSON.parse(fs.readFileSync(configFilePath)) : {}
     const expectedEcmaVersion = ecmaVersionArg ? ecmaVersionArg : config.ecmaVersion
-    const files = filesArg && filesArg.length ? filesArg : [].concat(config.files)
+    const files =
+      filesArg && filesArg.length ? filesArg : options.files ? options.files.split(',') : [].concat(config.files)
     const esmodule = options.module ? options.module : config.module
     const allowHashBang = options.allowHashBang ? options.allowHashBang : config.allowHashBang
     const pathsToIgnore = options.not ? options.not.split(',') : [].concat(config.not || [])

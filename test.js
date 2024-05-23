@@ -201,3 +201,35 @@ describe('Es Check skips folders and files included in the not flag', () => {
     })
   })
 })
+
+describe('Es Check supports the --files flag', () => {
+  it('🎉  Es Check should pass when checking a glob with es6 modules as es6 using the --files flag', (done) => {
+    exec('node index.js es6 --files=./tests/*.js', (err, stdout, stderr) => {
+      assert(stdout)
+      if (err) {
+        console.error(err.stack)
+        console.error(stdout.toString())
+        console.error(stderr.toString())
+        done(err)
+        return
+      }
+      done()
+    })
+  })
+
+  it('👌  Es Check should fail when checking a glob with es6 modules as es5 using the --files flag', (done) => {
+    exec('node index.js es5 --files=./tests/*.js', (err, stdout, stderr) => {
+      assert(err)
+      console.log(stdout)
+      done()
+    })
+  })
+
+  it('👌  Es Check should fail when given both spread files and --files flag', (done) => {
+    exec('node index.js es6 ./tests/*.js --files=./tests/*.js', (err, stdout, stderr) => {
+      assert(err)
+      console.log(stdout)
+      done()
+    })
+  })
+})
