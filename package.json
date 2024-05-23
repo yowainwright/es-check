@@ -98,6 +98,9 @@
     }
   },
   "release-it": {
+    "git": {
+      "commitMessage": "chore: release v${version}"
+    },
     "github": {
       "release": true
     }
