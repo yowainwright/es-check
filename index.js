@@ -25,7 +25,7 @@ program
   .version(pkg.version)
   .argument(
     '[ecmaVersion]',
-    'ecmaVersion to check files against. Can be: es3, es4, es5, es6/es2015, es7/es2016, es8/es2017, es9/es2018, es10/es2019',
+    'ecmaVersion to check files against. Can be: es3, es4, es5, es6/es2015, es7/es2016, es8/es2017, es9/es2018, es10/es2019, es11/es2020, es12/es2021, es2022, es2023',
   )
   .argument('[files...]', 'a glob of files to to test the EcmaScript version against')
   .option('--module', 'use ES modules')
