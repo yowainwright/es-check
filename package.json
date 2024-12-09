@@ -51,10 +51,10 @@
     "eslint-config-prettier": "9.1.0",
     "husky": "9.1.7",
     "is-ci": "^3.0.1",
-    "mocha": "10.8.2",
+    "mocha": "11.0.1",
     "nyc": "^17.1.0",
     "path-exists-cli": "^2.0.0",
-    "prettier": "3.4.1",
+    "prettier": "3.4.2",
     "release-it": "17.10.0"
   },
   "dependencies": {
