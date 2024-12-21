@@ -146,6 +146,14 @@ index.js es-check <ecmaVersion> [files...]
 
 ```
 
+**Loose Glob Matching**
+
+```sh
+
+--loose-glob-match allows for loose glob matching, default false
+
+```
+
 ⚠️ **NOTE:** This is primarily intended as a way to override the `files` setting in the `.escheckrc` file for specific invocations. Setting both the `[...files]` argument and `--files` flag is an error.
 
 ### Global Options
