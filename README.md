@@ -107,8 +107,12 @@ index.js es-check <ecmaVersion> [files...]
 
 ```sh
 
-<ecmaVersion> 'define the ECMAScript version to check for against a glob of JavaScript files' required
-[files...] 'a glob of files to test the ECMAScript version against' required
+Usage: index [options] [ecmaVersion] [files...]
+
+Arguments:
+  ecmaVersion                         ecmaVersion to check files against. Can be: es3, es4, es5, es6/es2015, es7/es2016, es8/es2017, es9/es2018, es10/es2019, es11/es2020, es12/es2021,
+                                      es13/es2022, es14/es2023
+  files                               a glob of files to to test the EcmaScript version against
 
 ```
 
@@ -126,7 +130,7 @@ index.js es-check <ecmaVersion> [files...]
 
 ```sh
 
---allow-hash-bang supports files that start with hash bang, default false
+--allowHashBang supports files that start with hash bang, default false
 
 ```
 
@@ -150,7 +154,7 @@ index.js es-check <ecmaVersion> [files...]
 
 ```sh
 
---loose-glob-match allows for loose glob matching, default false
+--looseGlobMatch allows for loose glob matching, default false
 
 ```
 
@@ -160,11 +164,18 @@ index.js es-check <ecmaVersion> [files...]
 
 ```sh
 
--h, --help         Display help
--V, --version      Display version
---no-color         Disable colors
---quiet            Quiet mode - only displays warn and error messages
--v, --verbose      Verbose mode - will also output debug messages
+Options:
+  -V, --version                       output the version number
+  --module                            use ES modules
+  --allow-hash-bang, --allowHashBang  if the code starts with #! treat it as a comment (default: false)
+  --files <files>                     a glob of files to to test the EcmaScript version against (alias for [files...])
+  --not <files>                       folder or file names to skip
+  --no-color, --noColor               disable use of colors in output (default: false)
+  -v, --verbose                       verbose mode: will also output debug messages (default: false)
+  --quiet                             quiet mode: only displays warn and error messages (default: false)
+  --looseGlobMatching                 doesn't fail if no files are found in some globs/files (default: false)
+  --silent                            silent mode: does not output anything, giving no indication of success or failure other than the exit code (default: false)
+  -h, --help                          display help for command
 
 ```
 

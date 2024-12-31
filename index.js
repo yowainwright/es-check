@@ -29,18 +29,19 @@ program
   )
   .argument('[files...]', 'a glob of files to to test the EcmaScript version against')
   .option('--module', 'use ES modules')
-  .option('--allow-hash-bang', '--allowHashBang', 'if the code starts with #! treat it as a comment', false)
+  .option('--allow-hash-bang, --allowHashBang', 'if the code starts with #! treat it as a comment', false)
   .option('--files <files>', 'a glob of files to to test the EcmaScript version against (alias for [files...])')
   .option('--not <files>', 'folder or file names to skip')
-  .option('--no-color', '--noColor', 'disable use of colors in output', false)
+  .option('--no-color, --noColor', 'disable use of colors in output', false)
   .option('-v, --verbose', 'verbose mode: will also output debug messages', false)
   .option('--quiet', 'quiet mode: only displays warn and error messages', false)
   .option('--looseGlobMatching', 'doesn\'t fail if no files are found in some globs/files', false)
   .option(
     '--silent',
-    'silent mode: does not output anything, giving no indication of success or failure other than the exit code',
+    'silent mode: does not output anything, giving no indication of success or failure other than the exit code', false
   )
   .action((ecmaVersionArg, filesArg, options) => {
+    console.log({ options, ecmaVersionArg, filesArg });
     const noColor = options?.noColor || options?.['no-color'] || false;
     const logger = winston.createLogger()
     logger.add(
@@ -202,6 +203,7 @@ program
       const code = fs.readFileSync(file, 'utf8')
       logger.debug(`ES-Check: checking ${file}`)
       try {
+        console.log({ code, acornOpts });
         acorn.parse(code, acornOpts)
       } catch (err) {
         logger.debug(`ES-Check: failed to parse file: ${file} \n - error: ${err}`)
