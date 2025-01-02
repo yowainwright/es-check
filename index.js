@@ -9,7 +9,7 @@ const fs = require('fs')
 const path = require('path')
 const supportsColor = require('supports-color')
 const winston = require('winston')
-
+const detectFeatures = require('./detectFeatures')
 const pkg = require('./package.json')
 
 /**
@@ -36,6 +36,7 @@ program
   .option('-v, --verbose', 'verbose mode: will also output debug messages', false)
   .option('--quiet', 'quiet mode: only displays warn and error messages', false)
   .option('--looseGlobMatching', 'doesn\'t fail if no files are found in some globs/files', false)
+  .option('--checkFeatures', 'check features of es version', false)
   .option(
     '--silent',
     'silent mode: does not output anything, giving no indication of success or failure other than the exit code', false
@@ -76,6 +77,7 @@ program
     const allowHashBang = options.allowHashBang || options['allow-hash-bang'] || config.allowHashBang
     const pathsToIgnore = options.not ? options.not.split(',') : [].concat(config.not || [])
     const looseGlobMatching = options.looseGlobMatching || options?.['loose-glob-matching'] || config.looseGlobMatching || false
+    const checkFeatures = options.checkFeatures || config.checkFeatures || false
 
     if (!expectedEcmaVersion) {
       logger.error(
@@ -145,19 +147,19 @@ program
         break
       case 'es11':
       case 'es2020':
-        ecmaVersion = '2020'
+        ecmaVersion = '11'
         break
       case 'es12':
       case 'es2021':
-        ecmaVersion = '2021'
+        ecmaVersion = '12'
         break
       case 'es13':
       case 'es2022':
-        ecmaVersion = '2022'
+        ecmaVersion = '13'
         break
       case 'es14':
       case 'es2023':
-        ecmaVersion = '2023'
+        ecmaVersion = '14'
         break
       default:
         logger.error('Invalid ecmaScript version, please pass a valid version, use --help for help')
@@ -212,7 +214,26 @@ program
           stack: err.stack,
           file,
         }
-        errArray.push(errorObj)
+        errArray.push(errorObj);
+        return;
+      }
+
+      if (!checkFeatures) return;
+      const parseSourceType = acornOpts.sourceType || 'script';
+      const esVersion = parseInt(ecmaVersion, 10);
+      const { foundFeatures, unsupportedFeatures } = detectFeatures(code, esVersion, parseSourceType);
+      const stringifiedFeatures = JSON.stringify(foundFeatures, null, 2);
+      logger.debug(`Features found in ${file}: ${stringifiedFeatures}`);
+      const isSupported = unsupportedFeatures.length === 0;
+      if (!isSupported) {
+        logger.error(
+          `ES-Check: The file "${file}" uses these unsupported features: ${unsupportedFeatures.join(', ')}
+          but your target is ES${ecmaVersion}.`
+        );
+        errArray.push({
+          err: new Error(`Unsupported features used: ${unsupportedFeatures.join(', ')}`),
+          file,
+        });
       }
     })
 

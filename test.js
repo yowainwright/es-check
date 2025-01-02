@@ -236,7 +236,7 @@ describe('Es Check supports the --files flag', () => {
 
 describe('Es Check supports the es2018 flag', () => {
   it('🎉  Es Check should pass when checking a file with es2018 syntax as es2018', (done) => {
-    exec('node index.js es2018 ./tests/es2018.js', (err, stdout, stderr) => {
+    exec('node index.js es2018 ./tests/es2018.js --checkFeatures', (err, stdout, stderr) => {
       if (err) {
         console.error(err.stack)
         console.error(stdout.toString())
@@ -248,7 +248,7 @@ describe('Es Check supports the es2018 flag', () => {
     })
   })
   it.only('👌 Es Check should fail when versions belows es2018 use version es2018+ features', (done) => {
-    exec('node index.js es6 ./tests/es2018.js -v', (err, stdout, stderr) => {
+    exec('node index.js es6 ./tests/es2018.js --checkFeatures', (err, stdout, stderr) => {
       console.log({ err, stdout, stderr })
       assert(err)
       done()

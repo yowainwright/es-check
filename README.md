@@ -20,13 +20,13 @@ Ensuring that JavaScript files can pass ES Check is important in a [modular and 
 
 ---
 
-## Version 7 🎉
+## Version 8 🎉
 
-Thanks to the efforts of [Anders Kaseorg](https://github.com/andersk), ES Check has switched to [Commander](https://www.npmjs.com/package/commander)! There appears to be no breaking issues but this update is being published as a major release for your ease-of-use. Please reach out with observations or pull requests features/fixes!
+**ES Check** version 8 is a major release update that can enforce actual ES version specific features checks; no longer just that a files are syntatically correct to the es version. To enable this feature, just pass the `--checkFeatures` flag. This feature will become default in version 9. Besides this, there are minor feature updates based on user feedback—glob matching updates and some optional fixes.
 
-This update was made for security purposes—dependencies not being maintained.
-
-Thanks to Anders for this deeper fix, to [Pavel Starosek](https://github.com/StudioMaX) for the initial issue and support, and to [Alexander Pepper](https://github.com/apepper) for digging into this issue more!
+```sh
+es-check es6 './dist/**/*.js' --checkFeatures
+```
 
 ---
 
@@ -160,6 +160,13 @@ Arguments:
 
 ⚠️ **NOTE:** This is primarily intended as a way to override the `files` setting in the `.escheckrc` file for specific invocations. Setting both the `[...files]` argument and `--files` flag is an error.
 
+**Check Features**
+
+
+```sh
+es-check es6 './dist/**/*.js' --checkFeatures
+```
+
 ### Global Options
 
 ```sh
@@ -174,7 +181,9 @@ Options:
   -v, --verbose                       verbose mode: will also output debug messages (default: false)
   --quiet                             quiet mode: only displays warn and error messages (default: false)
   --looseGlobMatching                 doesn't fail if no files are found in some globs/files (default: false)
-  --silent                            silent mode: does not output anything, giving no indication of success or failure other than the exit code (default: false)
+  --silent                            silent mode: does not output anything, giving no indication of success or
+  failure other than the exit code (default: false)
+  --checkFeatures                     check for actual ES version specific features (default: false)
   -h, --help                          display help for command
 
 ```
