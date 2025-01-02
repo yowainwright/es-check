@@ -9,7 +9,7 @@ const fs = require('fs')
 const path = require('path')
 const supportsColor = require('supports-color')
 const winston = require('winston')
-
+const detectFeatures = require('./detectFeatures')
 const pkg = require('./package.json')
 
 /**
@@ -25,28 +25,31 @@ program
   .version(pkg.version)
   .argument(
     '[ecmaVersion]',
-    'ecmaVersion to check files against. Can be: es3, es4, es5, es6/es2015, es7/es2016, es8/es2017, es9/es2018, es10/es2019, es11/es2020, es12/es2021, es2022, es2023',
+    'ecmaVersion to check files against. Can be: es3, es4, es5, es6/es2015, es7/es2016, es8/es2017, es9/es2018, es10/es2019, es11/es2020, es12/es2021, es13/es2022, es14/es2023',
   )
   .argument('[files...]', 'a glob of files to to test the EcmaScript version against')
   .option('--module', 'use ES modules')
-  .option('--allow-hash-bang', 'if the code starts with #! treat it as a comment')
+  .option('--allow-hash-bang, --allowHashBang', 'if the code starts with #! treat it as a comment', false)
   .option('--files <files>', 'a glob of files to to test the EcmaScript version against (alias for [files...])')
   .option('--not <files>', 'folder or file names to skip')
-  .option('--no-color', 'disable use of colors in output')
-  .option('-v, --verbose', 'verbose mode: will also output debug messages')
-  .option('--quiet', 'quiet mode: only displays warn and error messages')
+  .option('--no-color, --noColor', 'disable use of colors in output', false)
+  .option('-v, --verbose', 'verbose mode: will also output debug messages', false)
+  .option('--quiet', 'quiet mode: only displays warn and error messages', false)
+  .option('--looseGlobMatching', 'doesn\'t fail if no files are found in some globs/files', false)
+  .option('--checkFeatures', 'check features of es version', false)
   .option(
     '--silent',
-    'silent mode: does not output anything, giving no indication of success or failure other than the exit code',
+    'silent mode: does not output anything, giving no indication of success or failure other than the exit code', false
   )
   .action((ecmaVersionArg, filesArg, options) => {
+    const noColor = options?.noColor || options?.['no-color'] || false;
     const logger = winston.createLogger()
     logger.add(
       new winston.transports.Console({
         silent: options.silent,
         level: options.verbose ? 'silly' : options.quiet ? 'warn' : 'info',
         format: winston.format.combine(
-          ...(supportsColor.stdout ? [winston.format.colorize()] : []),
+          ...(supportsColor.stdout || !noColor ? [winston.format.colorize()] : []),
           winston.format.simple(),
         ),
       }),
@@ -70,8 +73,10 @@ program
     const files =
       filesArg && filesArg.length ? filesArg : options.files ? options.files.split(',') : [].concat(config.files)
     const esmodule = options.module ? options.module : config.module
-    const allowHashBang = options.allowHashBang ? options.allowHashBang : config.allowHashBang
+    const allowHashBang = options.allowHashBang || options['allow-hash-bang'] || config.allowHashBang
     const pathsToIgnore = options.not ? options.not.split(',') : [].concat(config.not || [])
+    const looseGlobMatching = options.looseGlobMatching || options?.['loose-glob-matching'] || config.looseGlobMatching || false
+    const checkFeatures = options.checkFeatures || config.checkFeatures || false
 
     if (!expectedEcmaVersion) {
       logger.error(
@@ -82,6 +87,26 @@ program
 
     if (!files || !files.length) {
       logger.error('No files were passed in please pass in a list of files to es-check!')
+      process.exit(1)
+    }
+
+    if (looseGlobMatching) {
+      logger.debug('ES-Check: loose-glob-matching is set')
+    }
+
+    const globOpts = { nodir: true }
+    let allMatchedFiles = []
+    files.forEach((pattern) => {
+      const globbedFiles = glob.sync(pattern, globOpts);
+      if (globbedFiles.length === 0 && !looseGlobMatching) {
+        logger.error(`ES-Check: Did not find any files to check for ${pattern}.`)
+        process.exit(1)
+      }
+      allMatchedFiles = allMatchedFiles.concat(globbedFiles);
+    }, []);
+
+    if (allMatchedFiles.length === 0) {
+      logger.error(`ES-Check: Did not find any files to check for ${files}.`)
       process.exit(1)
     }
 
@@ -100,52 +125,40 @@ program
         ecmaVersion = '5'
         break
       case 'es6':
-        ecmaVersion = '6'
-        break
-      case 'es7':
-        ecmaVersion = '7'
-        break
-      case 'es8':
-        ecmaVersion = '8'
-        break
-      case 'es9':
-        ecmaVersion = '9'
-        break
-      case 'es10':
-        ecmaVersion = '10'
-        break
-      case 'es11':
-        ecmaVersion = '11'
-        break
-      case 'es12':
-        ecmaVersion = '12'
-        break
       case 'es2015':
         ecmaVersion = '6'
         break
+      case 'es7':
       case 'es2016':
         ecmaVersion = '7'
         break
+      case 'es8':
       case 'es2017':
         ecmaVersion = '8'
         break
+      case 'es9':
       case 'es2018':
         ecmaVersion = '9'
         break
+      case 'es10':
       case 'es2019':
         ecmaVersion = '10'
         break
+      case 'es11':
       case 'es2020':
-        ecmaVersion = '2020'
+        ecmaVersion = '11'
         break
+      case 'es12':
       case 'es2021':
-        ecmaVersion = '2021'
+        ecmaVersion = '12'
         break
+      case 'es13':
       case 'es2022':
-        ecmaVersion = '2022'
+        ecmaVersion = '13'
         break
+      case 'es14':
       case 'es2023':
-        ecmaVersion = '2023'
+        ecmaVersion = '14'
         break
       default:
         logger.error('Invalid ecmaScript version, please pass a valid version, use --help for help')
@@ -153,8 +166,19 @@ program
     }
 
     const errArray = []
-    const globOpts = { nodir: true }
     const acornOpts = { ecmaVersion: parseInt(ecmaVersion, 10), silent: true }
+
+    logger.debug(`ES-Check: Going to check files using version ${ecmaVersion}`)
+
+    if (esmodule) {
+      acornOpts.sourceType = 'module'
+      logger.debug('ES-Check: esmodule is set')
+    }
+
+    if (allowHashBang) {
+      acornOpts.allowHashBang = true
+      logger.debug('ES-Check: allowHashBang is set')
+    }
 
     const expandedPathsToIgnore = pathsToIgnore.reduce((result, path) => {
       if (path.includes('*')) {
@@ -174,43 +198,41 @@ program
       return globbedFiles
     }
 
-    logger.debug(`ES-Check: Going to check files using version ${ecmaVersion}`)
+    const filteredFiles = filterForIgnore(allMatchedFiles)
 
-    if (esmodule) {
-      acornOpts.sourceType = 'module'
-      logger.debug('ES-Check: esmodule is set')
-    }
-
-    if (allowHashBang) {
-      acornOpts.allowHashBang = true
-      logger.debug('ES-Check: allowHashBang is set')
-    }
-
-    files.forEach((pattern) => {
-      const globbedFiles = glob.sync(pattern, globOpts)
-
-      if (globbedFiles.length === 0) {
-        logger.error(`ES-Check: Did not find any files to check for ${pattern}.`)
-        process.exit(1)
+    filteredFiles.forEach((file) => {
+      const code = fs.readFileSync(file, 'utf8')
+      logger.debug(`ES-Check: checking ${file}`)
+      try {
+        acorn.parse(code, acornOpts)
+      } catch (err) {
+        logger.debug(`ES-Check: failed to parse file: ${file} \n - error: ${err}`)
+        const errorObj = {
+          err,
+          stack: err.stack,
+          file,
+        }
+        errArray.push(errorObj);
+        return;
       }
 
-      const filteredFiles = filterForIgnore(globbedFiles)
-
-      filteredFiles.forEach((file) => {
-        const code = fs.readFileSync(file, 'utf8')
-        logger.debug(`ES-Check: checking ${file}`)
-        try {
-          acorn.parse(code, acornOpts)
-        } catch (err) {
-          logger.debug(`ES-Check: failed to parse file: ${file} \n - error: ${err}`)
-          const errorObj = {
-            err,
-            stack: err.stack,
-            file,
-          }
-          errArray.push(errorObj)
-        }
-      })
+      if (!checkFeatures) return;
+      const parseSourceType = acornOpts.sourceType || 'script';
+      const esVersion = parseInt(ecmaVersion, 10);
+      const { foundFeatures, unsupportedFeatures } = detectFeatures(code, esVersion, parseSourceType);
+      const stringifiedFeatures = JSON.stringify(foundFeatures, null, 2);
+      logger.debug(`Features found in ${file}: ${stringifiedFeatures}`);
+      const isSupported = unsupportedFeatures.length === 0;
+      if (!isSupported) {
+        logger.error(
+          `ES-Check: The file "${file}" uses these unsupported features: ${unsupportedFeatures.join(', ')}
+          but your target is ES${ecmaVersion}.`
+        );
+        errArray.push({
+          err: new Error(`Unsupported features used: ${unsupportedFeatures.join(', ')}`),
+          file,
+        });
+      }
     })
 
     if (errArray.length > 0) {

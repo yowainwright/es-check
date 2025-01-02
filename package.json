@@ -59,6 +59,7 @@
   },
   "dependencies": {
     "acorn": "8.14.0",
+    "acorn-walk": "^8.3.4",
     "commander": "12.1.0",
     "fast-glob": "^3.3.2",
     "supports-color": "8.1.1",

@@ -20,13 +20,13 @@ Ensuring that JavaScript files can pass ES Check is important in a [modular and 
 
 ---
 
-## Version 7 🎉
+## Version 8 🎉
 
-Thanks to the efforts of [Anders Kaseorg](https://github.com/andersk), ES Check has switched to [Commander](https://www.npmjs.com/package/commander)! There appears to be no breaking issues but this update is being published as a major release for your ease-of-use. Please reach out with observations or pull requests features/fixes!
+**ES Check** version 8 is a major release update that can enforce actual ES version specific features checks; no longer just that a files are syntatically correct to the es version. To enable this feature, just pass the `--checkFeatures` flag. This feature will become default in version 9. Besides this, there are minor feature updates based on user feedback—glob matching updates and some optional fixes.
 
-This update was made for security purposes—dependencies not being maintained.
-
-Thanks to Anders for this deeper fix, to [Pavel Starosek](https://github.com/StudioMaX) for the initial issue and support, and to [Alexander Pepper](https://github.com/apepper) for digging into this issue more!
+```sh
+es-check es6 './dist/**/*.js' --checkFeatures
+```
 
 ---
 
@@ -107,8 +107,12 @@ index.js es-check <ecmaVersion> [files...]
 
 ```sh
 
-<ecmaVersion> 'define the ECMAScript version to check for against a glob of JavaScript files' required
-[files...] 'a glob of files to test the ECMAScript version against' required
+Usage: index [options] [ecmaVersion] [files...]
+
+Arguments:
+  ecmaVersion                         ecmaVersion to check files against. Can be: es3, es4, es5, es6/es2015, es7/es2016, es8/es2017, es9/es2018, es10/es2019, es11/es2020, es12/es2021,
+                                      es13/es2022, es14/es2023
+  files                               a glob of files to to test the EcmaScript version against
 
 ```
 
@@ -126,7 +130,7 @@ index.js es-check <ecmaVersion> [files...]
 
 ```sh
 
---allow-hash-bang supports files that start with hash bang, default false
+--allowHashBang supports files that start with hash bang, default false
 
 ```
 
@@ -146,17 +150,41 @@ index.js es-check <ecmaVersion> [files...]
 
 ```
 
+**Loose Glob Matching**
+
+```sh
+
+--looseGlobMatch allows for loose glob matching, default false
+
+```
+
 ⚠️ **NOTE:** This is primarily intended as a way to override the `files` setting in the `.escheckrc` file for specific invocations. Setting both the `[...files]` argument and `--files` flag is an error.
+
+**Check Features**
+
+
+```sh
+es-check es6 './dist/**/*.js' --checkFeatures
+```
 
 ### Global Options
 
 ```sh
 
--h, --help         Display help
--V, --version      Display version
---no-color         Disable colors
---quiet            Quiet mode - only displays warn and error messages
--v, --verbose      Verbose mode - will also output debug messages
+Options:
+  -V, --version                       output the version number
+  --module                            use ES modules
+  --allow-hash-bang, --allowHashBang  if the code starts with #! treat it as a comment (default: false)
+  --files <files>                     a glob of files to to test the EcmaScript version against (alias for [files...])
+  --not <files>                       folder or file names to skip
+  --no-color, --noColor               disable use of colors in output (default: false)
+  -v, --verbose                       verbose mode: will also output debug messages (default: false)
+  --quiet                             quiet mode: only displays warn and error messages (default: false)
+  --looseGlobMatching                 doesn't fail if no files are found in some globs/files (default: false)
+  --silent                            silent mode: does not output anything, giving no indication of success or
+  failure other than the exit code (default: false)
+  --checkFeatures                     check for actual ES version specific features (default: false)
+  -h, --help                          display help for command
 
 ```
 
@@ -215,7 +243,13 @@ ES Check is a small utility using powerful tools that [Isaac Z. Schlueter](https
 
 ## Contributing
 
-ES Check has 3 main dependencies: [acorn](https://github.com/ternjs/acorn/), [glob](https://www.npmjs.com/package/glob), and [caporal](https://github.com/mattallty/Caporal.js). To contribute, file an [issue](https://github.com/yowainwright/es-check/issues) or submit a pull request. To setup local development, run `./bin/setup.sh` or open the devcontainer in VSCode.
+ES Check has 6 dependencies: [acorn and acorn-walk](https://github.com/ternjs/acorn/), [fast-glob](https://github.com/mrmlnc/fast-glob), [supports-color](github.com/chalk/supports-color), [winston](https://github.com/winstonjs/winston), and [commander](https://github.com/tj/commander). To contribute, file an [issue](https://github.com/yowainwright/es-check/issues) or submit a pull request.
+
+To update es versions, check out these lines of code [here](https://github.com/yowainwright/es-check/blob/main/index.js#L92-L153) and [here (in acorn.js)](https://github.com/acornjs/acorn/blob/3221fa54f9dea30338228b97210c4f1fd332652d/acorn/src/acorn.d.ts#L586).
+
+To update es feature detection, update these files [here](./utils.js) and [here](./constants.js) as enabled feature testing using [acorn walk](https://github.com/acornjs/acorn/blob/master/acorn-walk/README.md).
+
+[tests](./test.js) to go with new version and/or feature detection updates are great to have!
 
 ### Contributors
 
@@ -226,14 +260,3 @@ ES Check has 3 main dependencies: [acorn](https://github.com/ternjs/acorn/), [gl
 - [Ben Junya](https://github.com/MrBenJ)
 - [Jeff Barczewski](https://github.com/jeffbski)
 - [Brandon Casey](https://github.com/BrandonOCasey)
-
-### Roadmap
-
-- Provide compilation step to support esm
-  - non-user-facing
-  - required to keep package dependencies up-to-date as more dependencies are ESM-only
-- Provide checks for _theoretical_ keywork words
-  - Things like `Map` and `Object.assign` are not keywords that fail ECMAScript
-    compilation depending on specific versions of ECMAScript. However, they hint at additions to ECMAScript that previous version did not support.
-  - This feature will enhance an already built-in confiration feature to provide more out-of-the-box support for ECMAScript checking.
-  - If enabled, this feature will warn (or fail) based on _theoretical_ ECMAScript keywords.
