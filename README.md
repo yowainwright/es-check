@@ -243,7 +243,13 @@ ES Check is a small utility using powerful tools that [Isaac Z. Schlueter](https
 
 ## Contributing
 
-ES Check has 3 main dependencies: [acorn](https://github.com/ternjs/acorn/), [glob](https://www.npmjs.com/package/glob), and [caporal](https://github.com/mattallty/Caporal.js). To contribute, file an [issue](https://github.com/yowainwright/es-check/issues) or submit a pull request. To setup local development, run `./bin/setup.sh` or open the devcontainer in VSCode.
+ES Check has 6 dependencies: [acorn and acorn-walk](https://github.com/ternjs/acorn/), [fast-glob](https://github.com/mrmlnc/fast-glob), [supports-color](github.com/chalk/supports-color), [winston](https://github.com/winstonjs/winston), and [commander](https://github.com/tj/commander). To contribute, file an [issue](https://github.com/yowainwright/es-check/issues) or submit a pull request.
+
+To update es versions, check out these lines of code [here](https://github.com/yowainwright/es-check/blob/main/index.js#L92-L153) and [here (in acorn.js)](https://github.com/acornjs/acorn/blob/3221fa54f9dea30338228b97210c4f1fd332652d/acorn/src/acorn.d.ts#L586).
+
+To update es feature detection, update these files [here](./utils.js) and [here](./constants.js) as enabled feature testing using [acorn walk](https://github.com/acornjs/acorn/blob/master/acorn-walk/README.md).
+
+[tests](./test.js) to go with new version and/or feature detection updates are great to have!
 
 ### Contributors
 
@@ -254,14 +260,3 @@ ES Check has 3 main dependencies: [acorn](https://github.com/ternjs/acorn/), [gl
 - [Ben Junya](https://github.com/MrBenJ)
 - [Jeff Barczewski](https://github.com/jeffbski)
 - [Brandon Casey](https://github.com/BrandonOCasey)
-
-### Roadmap
-
-- Provide compilation step to support esm
-  - non-user-facing
-  - required to keep package dependencies up-to-date as more dependencies are ESM-only
-- Provide checks for _theoretical_ keywork words
-  - Things like `Map` and `Object.assign` are not keywords that fail ECMAScript
-    compilation depending on specific versions of ECMAScript. However, they hint at additions to ECMAScript that previous version did not support.
-  - This feature will enhance an already built-in confiration feature to provide more out-of-the-box support for ECMAScript checking.
-  - If enabled, this feature will warn (or fail) based on _theoretical_ ECMAScript keywords.

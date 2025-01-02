@@ -40,8 +40,6 @@ const detectFeatures = (code, ecmaVersion, sourceType) => {
       });
   };
 
-  console.log({ foundFeatures, ecmaVersion });
-
   /**
    * @note Build the visitors object for acorn-walk.
    * Each unique nodeType gets the same universalVisitor.
@@ -65,8 +63,6 @@ const detectFeatures = (code, ecmaVersion, sourceType) => {
     }
     return acc;
   }, []);
-
-  console.log({ unsupportedFeatures });
 
   /**
    * @note Fail if any unsupported features were used.

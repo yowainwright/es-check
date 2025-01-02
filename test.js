@@ -38,7 +38,7 @@ it('👌  Es Check should fail when checking an array of es6 files as es5', (don
 })
 
 it('🎉  Es Check should pass when checking a glob of es6 files as es6', (done) => {
-  exec('node index.js es6 "./tests/*.js"', (err, stdout, stderr) => {
+  exec('node index.js es6 "./tests/es6.js"', (err, stdout, stderr) => {
     if (err) {
       console.error(err.stack)
       console.error(stdout.toString())
@@ -204,7 +204,7 @@ describe('Es Check skips folders and files included in the not flag', () => {
 
 describe('Es Check supports the --files flag', () => {
   it('🎉  Es Check should pass when checking a glob with es6 modules as es6 using the --files flag', (done) => {
-    exec('node index.js es6 --files=./tests/*.js', (err, stdout, stderr) => {
+    exec('node index.js es6 --files=./tests/es6.js', (err, stdout, stderr) => {
       assert(stdout)
       if (err) {
         console.error(err.stack)
@@ -218,7 +218,7 @@ describe('Es Check supports the --files flag', () => {
   })
 
   it('👌  Es Check should fail when checking a glob with es6 modules as es5 using the --files flag', (done) => {
-    exec('node index.js es5 --files=./tests/*.js', (err, stdout, stderr) => {
+    exec('node index.js es5 --files=./tests/es6.js', (err, stdout, stderr) => {
       assert(err)
       console.log(stdout)
       done()
@@ -226,7 +226,7 @@ describe('Es Check supports the --files flag', () => {
   })
 
   it('👌  Es Check should fail when given both spread files and --files flag', (done) => {
-    exec('node index.js es6 ./tests/*.js --files=./tests/*.js', (err, stdout, stderr) => {
+    exec('node index.js es6 ./tests/es6.js --files=./tests/es6.js', (err, stdout, stderr) => {
       assert(err)
       console.log(stdout)
       done()
@@ -247,11 +247,99 @@ describe('Es Check supports the es2018 flag', () => {
       done()
     })
   })
-  it.only('👌 Es Check should fail when versions belows es2018 use version es2018+ features', (done) => {
+  it('👌 Es Check should fail when versions belows es2018 use version es2018+ features', (done) => {
     exec('node index.js es6 ./tests/es2018.js --checkFeatures', (err, stdout, stderr) => {
       console.log({ err, stdout, stderr })
       assert(err)
       done()
     })
+  });
+});
+
+describe('ES7 / ES2016 Feature Tests', () => {
+  it('🎉  Es Check should pass when checking an ES7 file as es7', (done) => {
+    exec('node index.js es7 ./tests/es7.js --checkFeatures', (err, stdout, stderr) => {
+      if (err) {
+        console.error(err.stack);
+        console.error(stdout.toString());
+        console.error(stderr.toString());
+        return done(err);
+      }
+      done();
+    });
+  });
+
+  it('👌  Es Check should fail when checking an ES7 file as es6', (done) => {
+    exec('node index.js es6 ./tests/es7.js --checkFeatures', (err, stdout, stderr) => {
+      console.log(stdout);
+      assert(err, 'Expected an error but command ran successfully');
+      done();
+    });
+  });
+});
+
+describe('ES10 / ES2019 Feature Tests', () => {
+  it('🎉  Es Check should pass when checking an ES10 file as es10', (done) => {
+    exec('node index.js es10 ./tests/es10.js --checkFeatures', (err, stdout, stderr) => {
+      if (err) {
+        console.error(err.stack);
+        console.error(stdout.toString());
+        console.error(stderr.toString());
+        return done(err);
+      }
+      done();
+    });
+  });
+
+  it('👌  Es Check should fail when checking an ES10 file as es6', (done) => {
+    exec('node index.js es6 ./tests/es10.js --checkFeatures', (err, stdout, stderr) => {
+      console.log(stdout);
+      assert(err, 'Expected an error but command ran successfully');
+      done();
+    });
+  });
+});
+
+describe('ES11 / ES2020 Feature Tests', () => {
+  it('🎉  Es Check should pass when checking an ES11 file as es11', (done) => {
+    exec('node index.js es11 ./tests/es11.js --checkFeatures', (err, stdout, stderr) => {
+      if (err) {
+        console.error(err.stack);
+        console.error(stdout.toString());
+        console.error(stderr.toString());
+        return done(err);
+      }
+      done();
+    });
+  });
+
+  it('👌  Es Check should fail when checking an ES11 file as es6', (done) => {
+    exec('node index.js es6 ./tests/es11.js --checkFeatures', (err, stdout, stderr) => {
+      console.log(stdout);
+      assert(err, 'Expected an error but command ran successfully');
+      done();
+    });
+  });
+});
+
+describe('ES12 / ES2021 Feature Tests', () => {
+  it('🎉  Es Check should pass when checking an ES12 file as es12', (done) => {
+    exec('node index.js es12 ./tests/es12.js --checkFeatures', (err, stdout, stderr) => {
+      if (err) {
+        console.error(err.stack);
+        console.error(stdout.toString());
+        console.error(stderr.toString());
+        return done(err);
+      }
+      done();
+    });
+  });
+
+  it('👌  Es Check should fail when checking an ES12 file as es6', (done) => {
+    exec('node index.js es6 ./tests/es12.js --checkFeatures', (err, stdout, stderr) => {
+      console.log(stdout);
+      assert(err, 'Expected an error but command ran successfully');
+      done();
+    });
   });
 });

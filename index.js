@@ -42,7 +42,6 @@ program
     'silent mode: does not output anything, giving no indication of success or failure other than the exit code', false
   )
   .action((ecmaVersionArg, filesArg, options) => {
-    console.log({ options, ecmaVersionArg, filesArg });
     const noColor = options?.noColor || options?.['no-color'] || false;
     const logger = winston.createLogger()
     logger.add(
@@ -205,7 +204,6 @@ program
       const code = fs.readFileSync(file, 'utf8')
       logger.debug(`ES-Check: checking ${file}`)
       try {
-        console.log({ code, acornOpts });
         acorn.parse(code, acornOpts)
       } catch (err) {
         logger.debug(`ES-Check: failed to parse file: ${file} \n - error: ${err}`)
