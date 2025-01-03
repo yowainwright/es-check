@@ -22,7 +22,7 @@ Ensuring that JavaScript files can pass ES Check is important in a [modular and 
 
 ## Version 8 🎉
 
-**ES Check** version 8 is a major release update that can enforce actual ES version specific features checks; no longer just that a files are syntatically correct to the es version. To enable this feature, just pass the `--checkFeatures` flag. This feature will become default in version 9. Besides this, there are minor feature updates based on user feedback—glob matching updates and some optional fixes.
+**ES Check** version 8 is a major release update that can enforce actual ES version specific features checks; no longer just that a files are syntatically correct to the es version. To enable this feature, just pass the `--checkFeatures` flag. This feature will become default in version 9. Besides this, there are minor feature updates based on user feedback—glob matching updates and some optional fixes. This should not break any existing scripts. Please report any issues!
 
 ```sh
 es-check es6 './dist/**/*.js' --checkFeatures
@@ -39,7 +39,6 @@ es-check es6 './dist/**/*.js' --checkFeatures
   <a href="#debugging">Debugging</a>&nbsp;&nbsp;
   <a href="#contributing">Contributing</a>&nbsp;&nbsp;
   <a href="/issues">Issues</a>
-  <a href="#roadmap">Roadmap</a>
 </p>
 
 ---
@@ -73,6 +72,10 @@ es-check es5 './vendor/js/*.js' './dist/**/*.js'
 
 In modern JavaScript builds, files are bundled up so they can be served in an optimized manner in the browsers. It is assumed by developers that future JavaScript—like ES8 will be transpiled (changed from future JavaScript to current JavaScript) appropriately by a tool like Babel. Sometimes there is an issue where files are not transpiled. There was no efficient way to test for files that weren't transpiled—until now. That's what ES Check does.
 
+## What features does ES Check check for?
+
+ES Check checks syntax out of the box—to protect against breaking errors going to production. Additionally, by adding the `--checkFeatures` flag, ES Check will check for actual ES version specific features. This ensures that your code is syntactically correct and only using features that are available in the specified ES version. Look here to view/add [features](./constants.js) that ES Check checks for with the `--checkFeatures` flag!
+
 ---
 
 ## Walk through
@@ -99,7 +102,7 @@ Fail
 
 # USAGE
 
-index.js es-check <ecmaVersion> [files...]
+es-check <ecmaVersion> [files...]
 
 ```
 

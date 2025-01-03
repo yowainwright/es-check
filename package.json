@@ -25,7 +25,7 @@
     "release": "release-it",
     "report:coverage": "nyc report --reporter=lcov > coverage.lcov && codecov",
     "setup": "pnpm install --reporter=silent",
-    "test": "nyc mocha test.js --timeout 10s --coverage",
+    "test": "nyc mocha test.js utils.test.js --timeout 10s",
     "update": "codependence --update"
   },
   "repository": {
