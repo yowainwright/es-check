@@ -5,7 +5,10 @@
   "main": "index.js",
   "license": "MIT",
   "files": [
-    "index.js"
+    "index.js",
+    "utils.js",
+    "detectFeatures.js",
+    "constants.js"
   ],
   "bin": {
     "es-check": "index.js"
