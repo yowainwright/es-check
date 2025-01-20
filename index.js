@@ -2,7 +2,7 @@
 
 'use strict'
 
-const { program } = require('commander')
+const { program, Option } = require('commander')
 const acorn = require('acorn')
 const glob = require('fast-glob')
 const fs = require('fs')
@@ -29,10 +29,12 @@ program
   )
   .argument('[files...]', 'a glob of files to to test the EcmaScript version against')
   .option('--module', 'use ES modules')
-  .option('--allow-hash-bang, --allowHashBang', 'if the code starts with #! treat it as a comment', false)
+  .addOption(new Option('--allow-hash-bang', 'if the code starts with #! treat it as a comment').default(false).hideHelp())
+  .option('--allowHashBang', 'if the code starts with #! treat it as a comment', false)
   .option('--files <files>', 'a glob of files to to test the EcmaScript version against (alias for [files...])')
   .option('--not <files>', 'folder or file names to skip')
-  .option('--no-color, --noColor', 'disable use of colors in output', false)
+  .addOption(new Option('--no-color', 'disable use of colors in output').default(false).hideHelp())
+  .option('--noColor', 'disable use of colors in output', false)
   .option('-v, --verbose', 'verbose mode: will also output debug messages', false)
   .option('--quiet', 'quiet mode: only displays warn and error messages', false)
   .option('--looseGlobMatching', 'doesn\'t fail if no files are found in some globs/files', false)
