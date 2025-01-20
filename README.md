@@ -177,15 +177,14 @@ es-check es6 './dist/**/*.js' --checkFeatures
 Options:
   -V, --version                       output the version number
   --module                            use ES modules
-  --allow-hash-bang, --allowHashBang  if the code starts with #! treat it as a comment (default: false)
+  --allowHashBang                     if the code starts with #! treat it as a comment (default: false)
   --files <files>                     a glob of files to to test the EcmaScript version against (alias for [files...])
   --not <files>                       folder or file names to skip
-  --no-color, --noColor               disable use of colors in output (default: false)
+  --noColor                           disable use of colors in output (default: false)
   -v, --verbose                       verbose mode: will also output debug messages (default: false)
   --quiet                             quiet mode: only displays warn and error messages (default: false)
   --looseGlobMatching                 doesn't fail if no files are found in some globs/files (default: false)
-  --silent                            silent mode: does not output anything, giving no indication of success or
-  failure other than the exit code (default: false)
+  --silent                            silent mode: does not output anything, giving no indication of success or failure     other than the exit code (default: false)
   --checkFeatures                     check for actual ES version specific features (default: false)
   -h, --help                          display help for command
 
