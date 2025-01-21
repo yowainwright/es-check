@@ -162,6 +162,10 @@ program
       case 'es2023':
         ecmaVersion = '14'
         break
+      case 'es15':
+      case 'es2024':
+        ecmaVersion = '15'
+        break
       default:
         logger.error('Invalid ecmaScript version, please pass a valid version, use --help for help')
         process.exit(1)
