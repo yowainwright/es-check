@@ -126,4 +126,40 @@ describe('Check Functions', function () {
     });
   });
 
+  describe('checkCallExpression', () => {
+    const { checkMap } = require('./utils');
+  
+    it('correctly distinguishes between global calls and member expressions', () => {
+      const symbolNode = {
+        type: 'CallExpression',
+        callee: {
+          type: 'Identifier',
+          name: 'Symbol'
+        }
+      };
+      
+      const getElementNode = {
+        type: 'CallExpression',
+        callee: {
+          type: 'MemberExpression',
+          object: {
+            type: 'Identifier',
+            name: 'window'
+          },
+          property: {
+            type: 'Identifier',
+            name: 'getElementById'
+          }
+        }
+      };
+  
+      assert.strictEqual(checkMap.CallExpression(symbolNode, { callee: 'Symbol' }), true);    
+      assert.strictEqual(checkMap.CallExpression(getElementNode, { callee: 'getElementById' }), false);
+      assert.strictEqual(checkMap.CallExpression(getElementNode, { 
+        object: 'window',
+        property: 'getElementById'
+      }), true);
+    });
+  });
+
 });

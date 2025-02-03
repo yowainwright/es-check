@@ -38,37 +38,40 @@ const checkDefault = () => {
  *   - objectMethod => object: 'Object', property: 'fromEntries', etc.
  */
 const checkCallExpression = (node, astInfo) => {
-  // Must be `CallExpression`
   if (node.type !== 'CallExpression') return false;
-
-  // We might check if node.callee is a MemberExpression, e.g. array.includes(...)
-  // or if node.callee is an Identifier, e.g. Symbol(...).
   if (node.callee.type === 'MemberExpression') {
     const { object, property } = astInfo;
-    // e.g. object: 'Object', property: 'entries'
-    // => node.callee.object.name === 'Object' && node.callee.property.name === 'entries'
-    if (object) {
-      if (
-        !node.callee.object ||
-        node.callee.object.type !== 'Identifier' ||
-        node.callee.object.name !== object
-      ) {
-        return false;
+
+    if (object || property) {
+
+      if (object) {
+        if (
+          !node.callee.object ||
+          node.callee.object.type !== 'Identifier' ||
+          node.callee.object.name !== object
+        ) {
+          return false;
+        }
       }
-    }
-    if (property) {
-      // e.g. property: 'includes'
-      if (!node.callee.property || node.callee.property.name !== property) {
-        return false;
+
+      if (property) {
+        if (
+          !node.callee.property || 
+          node.callee.property.type !== 'Identifier' ||
+          node.callee.property.name !== property
+        ) {
+          return false;
+        }
       }
-    }
-    return true;
-  } else if (node.callee.type === 'Identifier') {
-    // e.g. Symbol("desc")
-    const { callee } = astInfo;
-    // If astInfo.callee is "Symbol", check node.callee.name
-    if (callee && node.callee.name === callee) {
       return true;
+    }
+    return false;
+  } 
+  
+  if (node.callee.type === 'Identifier') {
+    const { callee } = astInfo;
+    if (callee && !astInfo.object && !astInfo.property) {
+      return node.callee.name === callee;
     }
   }
 

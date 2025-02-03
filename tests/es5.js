@@ -4,4 +4,5 @@ function test() {
 	function bfunc() {}
 	bfunc();
 }
+window.getElementById('test');
 test();
