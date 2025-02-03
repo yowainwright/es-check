@@ -10,6 +10,7 @@ const path = require('path')
 const supportsColor = require('supports-color')
 const winston = require('winston')
 const detectFeatures = require('./detectFeatures')
+const { formatError } = require('./utils')
 const pkg = require('./package.json')
 
 /**
@@ -226,13 +227,11 @@ program
       logger.debug(`Features found in ${file}: ${stringifiedFeatures}`);
       const isSupported = unsupportedFeatures.length === 0;
       if (!isSupported) {
-        logger.error(
-          `ES-Check: The file "${file}" uses these unsupported features: ${unsupportedFeatures.join(', ')}
-          but your target is ES${ecmaVersion}.`
-        );
+        const error = new Error(`Unsupported features used: ${unsupportedFeatures.join(', ')} but your target is ES${ecmaVersion}.`);
         errArray.push({
-          err: new Error(`Unsupported features used: ${unsupportedFeatures.join(', ')}`),
+          err: error,
           file,
+          stack: error.stack
         });
       }
     })

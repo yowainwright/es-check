@@ -68,10 +68,14 @@ const detectFeatures = (code, ecmaVersion, sourceType) => {
    * @note Fail if any unsupported features were used.
    */
   if (unsupportedFeatures.length > 0) {
-    throw new Error(
+    const error = new Error(
       `Unsupported features detected: ${unsupportedFeatures.join(', ')}. ` +
       `These require a higher ES version than ${ecmaVersion}.`
     );
+    error.type = 'ES-Check';
+    error.features = unsupportedFeatures;
+    error.ecmaVersion = ecmaVersion;
+    throw error;
   }
 
   return {

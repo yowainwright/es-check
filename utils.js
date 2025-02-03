@@ -158,10 +158,25 @@ const checkMap = {
   default: () => false,
 };
 
+const formatError = (filePath, error) => {
+  console.error('error: ES-Check: there were 1 ES version matching errors.');
+  console.info(`
+          ES-Check Error:
+          ----
+          · erroring file: ${filePath}
+          · error: ${error.message}
+          · see the printed err.stack below for context
+          ----
+          
+          ${error.stack}
+  `);
+};
+
 module.exports = {
   checkVarKindMatch,
   checkCalleeMatch,
   checkOperatorMatch,
   checkDefault,
   checkMap,
+  formatError,
 };
