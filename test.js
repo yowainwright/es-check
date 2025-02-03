@@ -343,3 +343,25 @@ describe('ES12 / ES2021 Feature Tests', () => {
     });
   });
 });
+
+describe('ES6 / Proxy Feature Tests', () => {
+  it('👌  Es Check should fail when checking a file with `new Proxy(...)` as es5', (done) => {
+    exec('node index.js es5 ./tests/proxy.js --checkFeatures', (err, stdout, stderr) => {
+      console.log(stdout);
+      assert(err, 'Expected an error but command ran successfully');
+      done();
+    });
+  });
+
+  it('🎉  Es Check should pass when checking a file with `new Proxy(...)` as es6', (done) => {
+    exec('node index.js es6 ./tests/proxy.js --checkFeatures', (err, stdout, stderr) => {
+      if (err) {
+        console.error(err.stack);
+        console.error(stdout.toString());
+        console.error(stderr.toString());
+        return done(err);
+      }
+      done();
+    });
+  });
+});
