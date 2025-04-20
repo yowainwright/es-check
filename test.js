@@ -4,8 +4,23 @@ const exec = require('child_process').exec;
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 
-// Remove global beforeEach and afterEach
+// Helper function to create a unique config file for each test
+function createUniqueConfigFile(config, testName) {
+  // Create a hash of the test name to ensure uniqueness
+  const hash = crypto.createHash('md5').update(testName).digest('hex').substring(0, 8);
+  const configFileName = `.escheckrc.${hash}`;
+  fs.writeFileSync(configFileName, JSON.stringify(config));
+  return configFileName;
+}
+
+// Helper function to clean up config files
+function removeConfigFile(configFileName) {
+  if (fs.existsSync(configFileName)) {
+    fs.unlinkSync(configFileName);
+  }
+}
 
 it('🎉  Es Check should pass when checking an array of es5 files as es5', (done) => {
   exec('node index.js es5 ./tests/es5.js ./tests/es5-2.js', (err, stdout, stderr) => {
@@ -142,9 +157,12 @@ it('👌 Es Check should read from an .escheckrc file for config', (done) => {
     ecmaVersion: 'es5',
     files: './tests/es5.js'
   };
-  fs.writeFileSync('.escheckrc', JSON.stringify(config));
+  const configFileName = createUniqueConfigFile(config, 'read-from-escheckrc');
 
-  exec('node index.js', (err, stdout, stderr) => {
+  exec(`node index.js --config=${configFileName}`, (err, stdout, stderr) => {
+    // Clean up the config file
+    removeConfigFile(configFileName);
+
     if (err) {
       console.error(err.stack);
       console.error(stdout.toString());
@@ -157,11 +175,7 @@ it('👌 Es Check should read from an .escheckrc file for config', (done) => {
 })
 
 describe('Es Check skips folders and files included in the not flag', () => {
-  afterEach(() => {
-    if (fs.existsSync('.escheckrc')) {
-      fs.unlinkSync('.escheckrc');
-    }
-  });
+  // No need for afterEach to clean up .escheckrc as we're using unique config files
 
   it('👌  non-glob', (done) => {
     exec('node index.js es5 ./tests/es5.js ./tests/modules/* --not=./tests/modules', (err, stdout, stderr) => {
@@ -211,9 +225,12 @@ describe('Es Check skips folders and files included in the not flag', () => {
       files: ['./tests/es5.js', './tests/skipped/es6-skipped.js'],
       not: ['./tests/skipped/*']
     };
-    fs.writeFileSync('.escheckrc', JSON.stringify(config));
+    const configFileName = createUniqueConfigFile(config, 'not-flag-escheckrc');
 
-    exec('node index.js', (err, stdout, stderr) => {
+    exec(`node index.js --config=${configFileName}`, (err, stdout, stderr) => {
+      // Clean up the config file
+      removeConfigFile(configFileName);
+
       if (err) {
         console.error(err.stack);
         console.error(stdout.toString());
@@ -403,9 +420,7 @@ describe('Array Configuration', () => {
   });
 
   afterEach(() => {
-    if (fs.existsSync('.escheckrc')) {
-      fs.unlinkSync('.escheckrc');
-    }
+    // Only clean up the test directories, not the config files
     if (fs.existsSync('tests/es5')) {
       fs.rmSync('tests/es5', { recursive: true, force: true });
     }
@@ -426,9 +441,12 @@ describe('Array Configuration', () => {
         files: './tests/module/valid.js'
       }
     ];
-    fs.writeFileSync('.escheckrc', JSON.stringify(config));
+    const configFileName = createUniqueConfigFile(config, 'multiple-configurations');
 
-    exec('node index.js', (err, stdout, stderr) => {
+    exec(`node index.js --config=${configFileName}`, (err, stdout, stderr) => {
+      // Clean up the config file
+      removeConfigFile(configFileName);
+
       if (err) {
         console.error(err.stack);
         console.error(stdout.toString());

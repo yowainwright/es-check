@@ -11,6 +11,7 @@ const winston = require('winston')
 const detectFeatures = require('./detectFeatures')
 const pkg = require('./package.json')
 const { lilconfig } = require('lilconfig');
+const { parseIgnoreList } = require('./utils');
 
 /**
  * es-check 🏆
@@ -43,9 +44,25 @@ program
     '--silent',
     'silent mode: does not output anything, giving no indication of success or failure other than the exit code', false
   )
+  .option('--ignore <features>', 'comma-separated list of features to ignore, e.g., "ErrorCause,TopLevelAwait"')
+  .option('--ignore-file <path>', 'path to JSON file containing features to ignore')
+  .option('--config <path>', 'path to custom .escheckrc config file')
 
-async function loadConfig() {
+async function loadConfig(customConfigPath) {
   try {
+    // If a custom config path is provided, load it directly
+    if (customConfigPath) {
+      try {
+        const content = fs.readFileSync(customConfigPath, 'utf8');
+        const config = JSON.parse(content);
+        // Ensure we always return an array of configs
+        return Array.isArray(config) ? config : [config];
+      } catch (err) {
+        throw new Error(`Error loading custom config file ${customConfigPath}: ${err.message}`);
+      }
+    }
+
+    // Otherwise use lilconfig to search for config files
     const configExplorer = lilconfig('escheck', {
       searchPlaces: ['.escheckrc', '.escheckrc.json', 'package.json'],
       loaders: {
@@ -91,8 +108,8 @@ program
       process.exit(1)
     }
 
-    const configs = await loadConfig();
-    
+    const configs = await loadConfig(options.config);
+
     // If command line arguments are provided, they override all configs
     if (ecmaVersionArg || filesArg?.length || options.files) {
       const singleConfig = {
@@ -102,7 +119,9 @@ program
         allowHashBang: options.allowHashBang || options['allow-hash-bang'],
         not: options.not?.split(','),
         looseGlobMatching: options.looseGlobMatching || options['loose-glob-matching'],
-        checkFeatures: options.checkFeatures
+        checkFeatures: options.checkFeatures,
+        ignore: options.ignore,
+        ignoreFile: options.ignoreFile
       };
       return runChecks([singleConfig], logger);
     }
@@ -248,6 +267,12 @@ async function runChecks(configs, logger) {
 
     const filteredFiles = filterForIgnore(allMatchedFiles)
 
+    const ignoreList = parseIgnoreList(config);
+
+    if (ignoreList.size > 0) {
+      logger.debug('ES-Check: ignoring features:', Array.from(ignoreList).join(', '));
+    }
+
     filteredFiles.forEach((file) => {
       const code = fs.readFileSync(file, 'utf8')
       logger.debug(`ES-Check: checking ${file}`)
@@ -267,7 +292,12 @@ async function runChecks(configs, logger) {
       if (!checkFeatures) return;
       const parseSourceType = acornOpts.sourceType || 'script';
       const esVersion = parseInt(ecmaVersion, 10);
-      const { foundFeatures, unsupportedFeatures } = detectFeatures(code, esVersion, parseSourceType);
+      const { foundFeatures, unsupportedFeatures } = detectFeatures(
+        code,
+        esVersion,
+        parseSourceType,
+        ignoreList
+      );
       const stringifiedFeatures = JSON.stringify(foundFeatures, null, 2);
       logger.debug(`Features found in ${file}: ${stringifiedFeatures}`);
       const isSupported = unsupportedFeatures.length === 0;

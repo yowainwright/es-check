@@ -3,7 +3,7 @@ const walk = require('acorn-walk');
 const { ES_FEATURES } = require('./constants');
 const { checkMap } = require('./utils');
 
-const detectFeatures = (code, ecmaVersion, sourceType) => {
+const detectFeatures = (code, ecmaVersion, sourceType, ignoreList = new Set()) => {
   const ast = acorn.parse(code, {
     ecmaVersion: 'latest',
     sourceType,
