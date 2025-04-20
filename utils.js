@@ -1,29 +1,69 @@
 const fs = require('fs');
 
+/**
+ * Parse ignore list from options
+ * @param {Object} options - Options object
+ * @param {string} [options.ignore] - Comma-separated list of features to ignore
+ * @param {string} [options.ignoreFile] - Path to JSON file containing features to ignore
+ * @returns {Set<string>} Set of features to ignore
+ */
 function parseIgnoreList(options) {
-  let ignoreList = new Set();
+  // Handle case where options is undefined or null
+  if (!options) {
+    return new Set();
+  }
+
+  const ignoreList = new Set();
 
   // Handle comma-separated CLI list
   if (options.ignore) {
-    options.ignore.split(',').forEach(feature =>
-      ignoreList.add(feature.trim())
-    );
+    // Early return if ignore is empty
+    if (options.ignore.trim() === '') {
+      return ignoreList;
+    }
+
+    options.ignore.split(',').forEach(feature => {
+      const trimmed = feature.trim();
+      if (trimmed) {
+        ignoreList.add(trimmed);
+      }
+    });
+  }
+
+  // If no ignore file is specified, return early with what we have
+  if (!options.ignoreFile) {
+    return ignoreList;
   }
 
   // Handle ignore file
-  if (options.ignoreFile) {
-    try {
-      const fileContent = fs.readFileSync(options.ignoreFile, 'utf8');
-      const ignoreConfig = JSON.parse(fileContent);
-
-      if (Array.isArray(ignoreConfig.features)) {
-        ignoreConfig.features.forEach(feature =>
-          ignoreList.add(feature)
-        );
-      }
-    } catch (err) {
-      throw new Error(`Failed to parse ignore file: ${err.message}`);
+  try {
+    // Check if file exists
+    if (!fs.existsSync(options.ignoreFile)) {
+      throw new Error(`Ignore file not found: ${options.ignoreFile}`);
     }
+
+    const fileContent = fs.readFileSync(options.ignoreFile, 'utf8');
+
+    // Early return if file is empty
+    if (!fileContent.trim()) {
+      return ignoreList;
+    }
+
+    const ignoreConfig = JSON.parse(fileContent);
+
+    if (!ignoreConfig) {
+      return ignoreList;
+    }
+
+    if (Array.isArray(ignoreConfig.features)) {
+      ignoreConfig.features.forEach(feature => {
+        if (feature && typeof feature === 'string') {
+          ignoreList.add(feature.trim());
+        }
+      });
+    }
+  } catch (err) {
+    throw new Error(`Failed to parse ignore file: ${err.message}`);
   }
 
   return ignoreList;
