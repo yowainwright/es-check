@@ -1,8 +1,11 @@
-'use strict'
+'use strict';
 
-const exec = require('child_process').exec
-const assert = require('assert')
-const fs = require('fs')
+const exec = require('child_process').exec;
+const assert = require('assert');
+const fs = require('fs');
+const path = require('path');
+
+// Remove global beforeEach and afterEach
 
 it('🎉  Es Check should pass when checking an array of es5 files as es5', (done) => {
   exec('node index.js es5 ./tests/es5.js ./tests/es5-2.js', (err, stdout, stderr) => {
@@ -134,19 +137,32 @@ it('🎉  Es Check should fail when checking a glob of es6 modules using the --m
 })
 
 it('👌 Es Check should read from an .escheckrc file for config', (done) => {
+  // Create basic config file
+  const config = {
+    ecmaVersion: 'es5',
+    files: './tests/es5.js'
+  };
+  fs.writeFileSync('.escheckrc', JSON.stringify(config));
+
   exec('node index.js', (err, stdout, stderr) => {
     if (err) {
-      console.error(err.stack)
-      console.error(stdout.toString())
-      console.error(stderr.toString())
-      done(err)
-      return
+      console.error(err.stack);
+      console.error(stdout.toString());
+      console.error(stderr.toString());
+      done(err);
+      return;
     }
-    done()
-  })
+    done();
+  });
 })
 
 describe('Es Check skips folders and files included in the not flag', () => {
+  afterEach(() => {
+    if (fs.existsSync('.escheckrc')) {
+      fs.unlinkSync('.escheckrc');
+    }
+  });
+
   it('👌  non-glob', (done) => {
     exec('node index.js es5 ./tests/es5.js ./tests/modules/* --not=./tests/modules', (err, stdout, stderr) => {
       if (err) {
@@ -190,7 +206,6 @@ describe('Es Check skips folders and files included in the not flag', () => {
   })
 
   it('👌  .escheckrc', (done) => {
-    // Create a config file that excludes the skipped directory
     const config = {
       ecmaVersion: 'es5',
       files: ['./tests/es5.js', './tests/skipped/es6-skipped.js'],
@@ -377,7 +392,6 @@ describe('ES6 / Proxy Feature Tests', () => {
 
 describe('Array Configuration', () => {
   beforeEach(() => {
-    // Ensure test files exist
     if (!fs.existsSync('tests/es5')) {
       fs.mkdirSync('tests/es5', { recursive: true });
     }
@@ -389,9 +403,14 @@ describe('Array Configuration', () => {
   });
 
   afterEach(() => {
-    // Cleanup test files
     if (fs.existsSync('.escheckrc')) {
       fs.unlinkSync('.escheckrc');
+    }
+    if (fs.existsSync('tests/es5')) {
+      fs.rmSync('tests/es5', { recursive: true, force: true });
+    }
+    if (fs.existsSync('tests/module')) {
+      fs.rmSync('tests/module', { recursive: true, force: true });
     }
   });
 
