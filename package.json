@@ -16,12 +16,8 @@
   "scripts": {
     "commit": "git-cz",
     "commit-msg": "commitlint --edit $1",
-    "husky-setup": "path-exists .husky/commit-msg || (husky init && pnpm husky-setup:commit-msg && pnpm husky-setup:post-merge && pnpm husky-setup:pre-commit)",
-    "husky-setup:commit-msg": "echo 'pnpm run commit-msg' > .husky/commit-msg",
-    "husky-setup:post-merge": "echo 'pnpm run setup' > .husky/post-merge",
-    "husky-setup:pre-commit": "echo 'pnpm run pre-commit' > .husky/pre-commit",
     "lint": "eslint index.js --fix",
-    "lint:ci": "eslint index.js",
+    "lint:ci": "eslint index.js utils.js detectFeatures.js constants.js",
     "pre-commit": "pnpm lint && pnpm test",
     "prepare": "husky",
     "prepublishOnly": "pnpm test",
@@ -65,6 +61,7 @@
     "acorn-walk": "^8.3.4",
     "commander": "13.1.0",
     "fast-glob": "^3.3.3",
+    "lilconfig": "^3.0.0",
     "supports-color": "8.1.1",
     "winston": "3.17.0"
   },

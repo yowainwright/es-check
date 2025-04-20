@@ -6,12 +6,11 @@ const { program, Option } = require('commander')
 const acorn = require('acorn')
 const glob = require('fast-glob')
 const fs = require('fs')
-const path = require('path')
 const supportsColor = require('supports-color')
 const winston = require('winston')
 const detectFeatures = require('./detectFeatures')
-const { formatError } = require('./utils')
 const pkg = require('./package.json')
+const { lilconfig } = require('lilconfig');
 
 /**
  * es-check 🏆
@@ -44,7 +43,36 @@ program
     '--silent',
     'silent mode: does not output anything, giving no indication of success or failure other than the exit code', false
   )
-  .action((ecmaVersionArg, filesArg, options) => {
+
+async function loadConfig() {
+  try {
+    const configExplorer = lilconfig('escheck', {
+      searchPlaces: ['.escheckrc', '.escheckrc.json', 'package.json'],
+      loaders: {
+        '.escheckrc': (filepath, content) => {
+          try {
+            return JSON.parse(content);
+          } catch (err) {
+            throw new Error(`Invalid JSON in ${filepath}`);
+          }
+        }
+      }
+    });
+
+    const result = await configExplorer.search();
+    if (!result) return [{}];
+
+    const config = result.config;
+    // Ensure we always return an array of configs
+    return Array.isArray(config) ? config : [config];
+  } catch (err) {
+    logger.error(`Error loading config: ${err.message}`);
+    process.exit(1);
+  }
+}
+
+program
+  .action(async (ecmaVersionArg, filesArg, options) => {
     const noColor = options?.noColor || options?.['no-color'] || false;
     const logger = winston.createLogger()
     logger.add(
@@ -58,39 +86,56 @@ program
       }),
     )
 
-    const configFilePath = path.resolve(process.cwd(), '.escheckrc')
-
     if (filesArg && filesArg.length && options.files) {
       logger.error('Cannot pass in both [files...] argument and --files flag at the same time!')
       process.exit(1)
     }
 
-    /**
-     * @note
-     * Check for a configuration file.
-     * - If one exists, default to those options
-     * - If no command line arguments are passed in
-     */
-    const config = fs.existsSync(configFilePath) ? JSON.parse(fs.readFileSync(configFilePath)) : {}
-    const expectedEcmaVersion = ecmaVersionArg ? ecmaVersionArg : config.ecmaVersion
-    const files =
-      filesArg && filesArg.length ? filesArg : options.files ? options.files.split(',') : [].concat(config.files)
-    const esmodule = options.module ? options.module : config.module
-    const allowHashBang = options.allowHashBang || options['allow-hash-bang'] || config.allowHashBang
-    const pathsToIgnore = options.not ? options.not.split(',') : [].concat(config.not || [])
-    const looseGlobMatching = options.looseGlobMatching || options?.['loose-glob-matching'] || config.looseGlobMatching || false
-    const checkFeatures = options.checkFeatures || config.checkFeatures || false
-
-    if (!expectedEcmaVersion) {
-      logger.error(
-        'No ecmaScript version passed in or found in .escheckrc. Please set your ecmaScript version in the CLI or in .escheckrc',
-      )
-      process.exit(1)
+    const configs = await loadConfig();
+    
+    // If command line arguments are provided, they override all configs
+    if (ecmaVersionArg || filesArg?.length || options.files) {
+      const singleConfig = {
+        ecmaVersion: ecmaVersionArg,
+        files: filesArg?.length ? filesArg : options.files?.split(','),
+        module: options.module,
+        allowHashBang: options.allowHashBang || options['allow-hash-bang'],
+        not: options.not?.split(','),
+        looseGlobMatching: options.looseGlobMatching || options['loose-glob-matching'],
+        checkFeatures: options.checkFeatures
+      };
+      return runChecks([singleConfig], logger);
     }
 
-    if (!files || !files.length) {
-      logger.error('No files were passed in please pass in a list of files to es-check!')
-      process.exit(1)
+    // Otherwise use config file
+    if (!configs.length) {
+      logger.error('No configuration found. Please provide command line arguments or a config file.');
+      process.exit(1);
+    }
+
+    return runChecks(configs, logger);
+  })
+
+async function runChecks(configs, logger) {
+  let hasErrors = false;
+
+  for (const config of configs) {
+    const expectedEcmaVersion = config.ecmaVersion;
+    const files = [].concat(config.files || []);
+    const esmodule = config.module;
+    const allowHashBang = config.allowHashBang;
+    const pathsToIgnore = [].concat(config.not || []);
+    const looseGlobMatching = config.looseGlobMatching;
+    const checkFeatures = config.checkFeatures;
+
+    if (!expectedEcmaVersion) {
+      logger.error('No ecmaScript version specified in configuration');
+      process.exit(1);
+    }
+
+    if (!files.length) {
+      logger.error('No files specified in configuration');
+      process.exit(1);
     }
 
     if (looseGlobMatching) {
@@ -252,6 +297,11 @@ program
       process.exit(1)
     }
     logger.info(`ES-Check: there were no ES version matching errors!  🎉`)
-  })
+  }
+
+  if (hasErrors) {
+    process.exit(1);
+  }
+}
 
 program.parse()

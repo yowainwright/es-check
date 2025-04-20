@@ -2,6 +2,7 @@
 
 const exec = require('child_process').exec
 const assert = require('assert')
+const fs = require('fs')
 
 it('🎉  Es Check should pass when checking an array of es5 files as es5', (done) => {
   exec('node index.js es5 ./tests/es5.js ./tests/es5-2.js', (err, stdout, stderr) => {
@@ -189,16 +190,24 @@ describe('Es Check skips folders and files included in the not flag', () => {
   })
 
   it('👌  .escheckrc', (done) => {
-    exec('node index.js es5 ./tests/es5.js ./tests/skipped/es6-skipped.js', (err, stdout, stderr) => {
+    // Create a config file that excludes the skipped directory
+    const config = {
+      ecmaVersion: 'es5',
+      files: ['./tests/es5.js', './tests/skipped/es6-skipped.js'],
+      not: ['./tests/skipped/*']
+    };
+    fs.writeFileSync('.escheckrc', JSON.stringify(config));
+
+    exec('node index.js', (err, stdout, stderr) => {
       if (err) {
-        console.error(err.stack)
-        console.error(stdout.toString())
-        console.error(stderr.toString())
-        done(err)
-        return
+        console.error(err.stack);
+        console.error(stdout.toString());
+        console.error(stderr.toString());
+        done(err);
+        return;
       }
-      done()
-    })
+      done();
+    });
   })
 })
 
@@ -361,6 +370,54 @@ describe('ES6 / Proxy Feature Tests', () => {
         console.error(stderr.toString());
         return done(err);
       }
+      done();
+    });
+  });
+});
+
+describe('Array Configuration', () => {
+  beforeEach(() => {
+    // Ensure test files exist
+    if (!fs.existsSync('tests/es5')) {
+      fs.mkdirSync('tests/es5', { recursive: true });
+    }
+    if (!fs.existsSync('tests/module')) {
+      fs.mkdirSync('tests/module', { recursive: true });
+    }
+    fs.writeFileSync('tests/es5/valid.js', 'var foo = "bar";');
+    fs.writeFileSync('tests/module/valid.js', 'export const foo = "bar";');
+  });
+
+  afterEach(() => {
+    // Cleanup test files
+    if (fs.existsSync('.escheckrc')) {
+      fs.unlinkSync('.escheckrc');
+    }
+  });
+
+  it('should support multiple configurations in .escheckrc', (done) => {
+    const config = [
+      {
+        ecmaVersion: 'es5',
+        files: './tests/es5/valid.js'
+      },
+      {
+        ecmaVersion: 'es6',
+        module: true,
+        files: './tests/module/valid.js'
+      }
+    ];
+    fs.writeFileSync('.escheckrc', JSON.stringify(config));
+
+    exec('node index.js', (err, stdout, stderr) => {
+      if (err) {
+        console.error(err.stack);
+        console.error(stdout.toString());
+        console.error(stderr.toString());
+        done(err);
+        return;
+      }
+      assert(stdout.includes('no ES version matching errors'), 'Should indicate successful check');
       done();
     });
   });
