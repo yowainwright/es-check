@@ -223,7 +223,24 @@ Here's an example of what an `.escheckrc` file will look like:
 }
 ```
 
-⚠️ **NOTE:** Using command line arguments while there is an `.escheckrc` file in the project directory will override the configuration values in `.escheckrc`.
+For projects with multiple bundle types (like UMD, CJS, and ESM), you can specify different configurations using an array:
+
+```json
+[
+  {
+    "ecmaVersion": "es6",
+    "module": false,
+    "files": "{cjs,umd}/index.{cjs,js}"
+  },
+  {
+    "ecmaVersion": "es2020",
+    "module": true,
+    "files": "esm/index.mjs"
+  }
+]
+```
+
+⚠️ **NOTE:** Using command line arguments while there is an `.escheckrc` file in the project directory will override all configurations in `.escheckrc`.
 
 ## Debugging
 
