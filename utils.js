@@ -30,19 +30,22 @@ function parseIgnoreList(options) {
     });
   }
 
+  // Get ignoreFile from either camelCase or kebab-case option
+  const ignoreFilePath = options.ignoreFile || options['ignore-file'];
+
   // If no ignore file is specified, return early with what we have
-  if (!options.ignoreFile) {
+  if (!ignoreFilePath) {
     return ignoreList;
   }
 
   // Handle ignore file
   try {
     // Check if file exists
-    if (!fs.existsSync(options.ignoreFile)) {
-      throw new Error(`Ignore file not found: ${options.ignoreFile}`);
+    if (!fs.existsSync(ignoreFilePath)) {
+      throw new Error(`Ignore file not found: ${ignoreFilePath}`);
     }
 
-    const fileContent = fs.readFileSync(options.ignoreFile, 'utf8');
+    const fileContent = fs.readFileSync(ignoreFilePath, 'utf8');
 
     // Early return if file is empty
     if (!fileContent.trim()) {

@@ -45,7 +45,8 @@ program
     'silent mode: does not output anything, giving no indication of success or failure other than the exit code', false
   )
   .option('--ignore <features>', 'comma-separated list of features to ignore, e.g., "ErrorCause,TopLevelAwait"')
-  .option('--ignore-file <path>', 'path to JSON file containing features to ignore')
+  .addOption(new Option('--ignore-file <path>', 'path to JSON file containing features to ignore').hideHelp())
+  .option('--ignoreFile <path>', 'path to JSON file containing features to ignore')
   .option('--config <path>', 'path to custom .escheckrc config file')
 
 async function loadConfig(customConfigPath) {
@@ -112,9 +113,12 @@ program
 
     // If command line arguments are provided, they override all configs
     if (ecmaVersionArg || filesArg?.length || options.files) {
+      // Get ignoreFile from either camelCase or kebab-case option
+      const ignoreFilePath = options.ignoreFile || options['ignore-file'];
+
       // If ignoreFile is specified but doesn't exist, warn the user
-      if (options.ignoreFile && !fs.existsSync(options.ignoreFile) && logger.isLevelEnabled('warn')) {
-        logger.warn(`Warning: Ignore file '${options.ignoreFile}' does not exist or is not accessible`);
+      if (ignoreFilePath && !fs.existsSync(ignoreFilePath) && logger.isLevelEnabled('warn')) {
+        logger.warn(`Warning: Ignore file '${ignoreFilePath}' does not exist or is not accessible`);
       }
 
       const singleConfig = {
@@ -126,7 +130,7 @@ program
         looseGlobMatching: options.looseGlobMatching || options['loose-glob-matching'],
         checkFeatures: options.checkFeatures,
         ignore: options.ignore,
-        ignoreFile: options.ignoreFile
+        ignoreFile: options.ignoreFile || options['ignore-file']
       };
       return runChecks([singleConfig], logger);
     }
@@ -153,9 +157,12 @@ async function runChecks(configs, logger) {
     const looseGlobMatching = config.looseGlobMatching;
     const checkFeatures = config.checkFeatures;
 
+    // Get ignoreFile from either camelCase or kebab-case option
+    const ignoreFilePath = config.ignoreFile || config['ignore-file'];
+
     // If ignoreFile is specified but doesn't exist, warn the user
-    if (config.ignoreFile && !fs.existsSync(config.ignoreFile) && logger.isLevelEnabled('warn')) {
-      logger.warn(`Warning: Ignore file '${config.ignoreFile}' does not exist or is not accessible`);
+    if (ignoreFilePath && !fs.existsSync(ignoreFilePath) && logger.isLevelEnabled('warn')) {
+      logger.warn(`Warning: Ignore file '${ignoreFilePath}' does not exist or is not accessible`);
     }
 
     if (!expectedEcmaVersion) {

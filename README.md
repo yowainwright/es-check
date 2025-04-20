@@ -137,7 +137,7 @@ Here's a comprehensive list of all available options:
 | `--silent` | Silent mode: does not output anything, giving no indication of success or failure other than the exit code (default: false) |
 | `--checkFeatures` | Check for actual ES version specific features (default: false) |
 | `--ignore <features>` | Comma-separated list of features to ignore, e.g., "ErrorCause,TopLevelAwait" |
-| `--ignore-file <path>` | Path to JSON file containing features to ignore |
+| `--ignoreFile <path>` | Path to JSON file containing features to ignore |
 | `--config <path>` | Path to custom .escheckrc config file |
 | `-h, --help` | Display help for command |
 
@@ -294,7 +294,7 @@ es-check es6 './dist/**/*.js' --checkFeatures --ignore="ErrorCause,TopLevelAwait
 1. Via ignore file:
 
 ```sh
-es-check es6 './dist/**/*.js' --checkFeatures --ignore-file=".escheckignore"
+es-check es6 './dist/**/*.js' --checkFeatures --ignoreFile=".escheckignore"
 ```
 
 Example `.escheckignore` file:
