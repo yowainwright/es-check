@@ -9,7 +9,8 @@
     "utils.js",
     "detectFeatures.js",
     "constants.js",
-    "browserslist.js"
+    "browserslist.js",
+    "polyfillDetector.js"
   ],
   "bin": {
     "es-check": "index.js"
@@ -18,14 +19,14 @@
     "commit": "git-cz",
     "commit-msg": "commitlint --edit $1",
     "lint": "eslint index.js --fix",
-    "lint:ci": "eslint index.js utils.js detectFeatures.js constants.js browserslist.js",
+    "lint:ci": "eslint index.js utils.js detectFeatures.js constants.js browserslist.js polyfillDetector.js",
     "pre-commit": "pnpm lint && pnpm test",
     "prepare": "husky",
     "prepublishOnly": "pnpm test",
     "release": "release-it",
     "report:coverage": "nyc report --reporter=lcov > coverage.lcov && codecov",
     "setup": "pnpm install --reporter=silent",
-    "test": "nyc mocha test.js utils.test.js browserslist.test.js --timeout 10s",
+    "test": "nyc mocha test.js utils.test.js browserslist.test.js polyfill.test.js --timeout 10s",
     "update": "codependence --update"
   },
   "repository": {

@@ -136,12 +136,13 @@ Here's a comprehensive list of all available options:
 | `--looseGlobMatching` | Doesn't fail if no files are found in some globs/files (default: false) |
 | `--silent` | Silent mode: does not output anything, giving no indication of success or failure other than the exit code (default: false) |
 | `--checkFeatures` | Check for actual ES version specific features (default: false) |
+| `--checkForPolyfills` | Consider polyfills when checking features (only works with --checkFeatures) (default: false) |
 | `--ignore <features>` | Comma-separated list of features to ignore, e.g., "ErrorCause,TopLevelAwait" |
 | `--ignoreFile <path>` | Path to JSON file containing features to ignore |
 | `--allowList <features>` | Comma-separated list of features to allow even in lower ES versions, e.g., "const,let" |
-| `--checkBrowser` | Use browserslist configuration to determine ES version |
-| `--browserslistPath <path>` | Path to custom browserslist configuration |
-| `--browserslistEnv <env>` | Browserslist environment to use |
+| `--checkBrowser` | Use browserslist configuration to determine ES version (default: false) |
+| `--browserslistPath <path>` | Path to custom browserslist configuration (default: uses standard browserslist config resolution) |
+| `--browserslistEnv <env>` | Browserslist environment to use (default: production) |
 | `--config <path>` | Path to custom .escheckrc config file |
 | `-h, --help` | Display help for command |
 
@@ -185,6 +186,12 @@ es-check es5 './dist/**/*.js' './optional/**/*.js' --looseGlobMatching
 es-check es6 './dist/**/*.js' --checkFeatures
 ```
 
+**Considering polyfills when checking features:**
+
+```sh
+es-check es2022 './dist/**/*.js' --checkFeatures --checkForPolyfills
+```
+
 **Using a custom config file:**
 
 ```sh
@@ -224,7 +231,12 @@ Here's an example of what an `.escheckrc` file will look like:
   "allowHashBang": false,
   "looseGlobMatching": false,
   "checkFeatures": true,
-  "ignore": ["ErrorCause", "TopLevelAwait"]
+  "checkForPolyfills": true,
+  "ignore": ["ErrorCause", "TopLevelAwait"],
+  "allowList": ["ArrayToSorted", "ObjectHasOwn"],
+  "checkBrowser": false,
+  "browserslistPath": "./config/.browserslistrc",
+  "browserslistEnv": "production"
 }
 ```
 
@@ -239,7 +251,12 @@ Here's an example of what an `.escheckrc` file will look like:
 | `allowHashBang` | Boolean | Whether to allow hash bang in files |
 | `looseGlobMatching` | Boolean | Whether to ignore missing files in globs |
 | `checkFeatures` | Boolean | Whether to check for ES version specific features |
+| `checkForPolyfills` | Boolean | Whether to consider polyfills when checking features |
 | `ignore` | Array | Features to ignore when checking |
+| `allowList` | Array | Features to allow even in lower ES versions |
+| `checkBrowser` | Boolean | Whether to use browserslist configuration to determine ES version |
+| `browserslistPath` | String | Path to custom browserslist configuration |
+| `browserslistEnv` | String | Browserslist environment to use |
 
 ### Multiple Configurations
 
@@ -257,6 +274,11 @@ For projects with multiple bundle types (like UMD, CJS, and ESM), you can specif
     "module": true,
     "files": "esm/index.mjs",
     "checkFeatures": true
+  },
+  {
+    "files": "legacy/*.js",
+    "checkBrowser": true,
+    "browserslistEnv": "legacy"
   }
 ]
 ```
@@ -313,6 +335,48 @@ Example `.escheckignore` file:
 ```
 
 ⚠️ **NOTE:** The ignore feature is intended as a temporary solution while working on fixes. It's recommended to remove ignored features once the underlying issues are resolved.
+
+---
+
+## Polyfill Detection
+
+When using polyfills like core-js to add support for modern JavaScript features in older environments, you might encounter false positives with the `--checkFeatures` flag. ES Check provides the `--checkForPolyfills` option to handle this scenario:
+
+```sh
+es-check es2022 './dist/**/*.js' --checkFeatures --checkForPolyfills
+```
+
+This option tells ES Check to look for common polyfill patterns in your code and avoid flagging features that have been polyfilled. Currently, it supports detection of:
+
+- Core-js polyfills (both direct usage and imports)
+- Common polyfill patterns for Array, String, Object, Promise, and RegExp methods
+
+### Comparing Polyfill Handling Options
+
+ES Check provides three ways to handle polyfilled features:
+
+1. **--checkForPolyfills**: Automatically detects polyfills in your code
+   ```sh
+   es-check es2022 './dist/**/*.js' --checkFeatures --checkForPolyfills
+   ```
+
+2. **--allowList**: Explicitly specify features to allow regardless of ES version
+   ```sh
+   es-check es2022 './dist/**/*.js' --checkFeatures --allowList="ArrayToSorted,ObjectHasOwn"
+   ```
+
+3. **--ignore**: Completely ignore specific features during checking
+   ```sh
+   es-check es2022 './dist/**/*.js' --checkFeatures --ignore="ArrayToSorted,ObjectHasOwn"
+   ```
+
+#### When to use each option:
+
+- Use `--checkForPolyfills` when you have a standard polyfill setup (like core-js) and want automatic detection
+- Use `--allowList` when you have custom polyfills or want to be explicit about which features are allowed
+- Use `--ignore` as a temporary solution when you're working on fixes
+
+⚠️ **NOTE:** The polyfill detection is not exhaustive and may not catch all polyfill patterns. For complex polyfill setups, you might need to combine it with `--allowList`.
 
 ---
 

@@ -9,6 +9,7 @@ const fs = require('fs')
 const supportsColor = require('supports-color')
 const winston = require('winston')
 const detectFeatures = require('./detectFeatures')
+let polyfillDetector = null; // Lazy-loaded only when needed
 const pkg = require('./package.json')
 const { lilconfig } = require('lilconfig');
 const { parseIgnoreList } = require('./utils');
@@ -40,6 +41,7 @@ program
   .option('--quiet', 'quiet mode: only displays warn and error messages', false)
   .option('--looseGlobMatching', 'doesn\'t fail if no files are found in some globs/files', false)
   .option('--checkFeatures', 'check features of es version', false)
+  .option('--checkForPolyfills', 'consider polyfills when checking features (only works with --checkFeatures)', false)
   .option(
     '--silent',
     'silent mode: does not output anything, giving no indication of success or failure other than the exit code', false
@@ -133,6 +135,7 @@ program
         not: options.not?.split(','),
         looseGlobMatching: options.looseGlobMatching || options['loose-glob-matching'],
         checkFeatures: options.checkFeatures,
+        checkForPolyfills: options.checkForPolyfills,
         ignore: options.ignore,
         ignoreFile: options.ignoreFile || options['ignore-file'],
         allowList: options.allowList,
@@ -164,6 +167,7 @@ async function runChecks(configs, logger) {
     const pathsToIgnore = [].concat(config.not || []);
     const looseGlobMatching = config.looseGlobMatching;
     const checkFeatures = config.checkFeatures;
+    const checkForPolyfills = config.checkForPolyfills;
 
     // Get ignoreFile from either camelCase or kebab-case option
     const ignoreFilePath = config.ignoreFile || config['ignore-file'];
@@ -347,19 +351,42 @@ async function runChecks(configs, logger) {
       if (!checkFeatures) return;
       const parseSourceType = acornOpts.sourceType || 'script';
       const esVersion = parseInt(ecmaVersion, 10);
+
+      // Run the standard feature detection
       const { foundFeatures, unsupportedFeatures } = detectFeatures(
         code,
         esVersion,
         parseSourceType,
         ignoreList
       );
+
       if (logger.isLevelEnabled('debug')) {
         const stringifiedFeatures = JSON.stringify(foundFeatures, null, 2);
         logger.debug(`Features found in ${file}: ${stringifiedFeatures}`);
       }
-      const isSupported = unsupportedFeatures.length === 0;
+
+      // Check for polyfills if enabled
+      let filteredUnsupportedFeatures = unsupportedFeatures;
+      if (checkForPolyfills && unsupportedFeatures.length > 0) {
+        // Lazy-load the polyfill detector only when needed
+        if (!polyfillDetector) {
+          polyfillDetector = require('./polyfillDetector');
+        }
+
+        // Detect polyfills in the code
+        const polyfills = polyfillDetector.detectPolyfills(code, logger);
+
+        // Filter out polyfilled features from unsupported features
+        filteredUnsupportedFeatures = polyfillDetector.filterPolyfilled(unsupportedFeatures, polyfills);
+
+        if (logger.isLevelEnabled('debug') && filteredUnsupportedFeatures.length !== unsupportedFeatures.length) {
+          logger.debug(`ES-Check: Polyfills reduced unsupported features from ${unsupportedFeatures.length} to ${filteredUnsupportedFeatures.length}`);
+        }
+      }
+
+      const isSupported = filteredUnsupportedFeatures.length === 0;
       if (!isSupported) {
-        const error = new Error(`Unsupported features used: ${unsupportedFeatures.join(', ')} but your target is ES${ecmaVersion}.`);
+        const error = new Error(`Unsupported features used: ${filteredUnsupportedFeatures.join(', ')} but your target is ES${ecmaVersion}.`);
         errArray.push({
           err: error,
           file,
