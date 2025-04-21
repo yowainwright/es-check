@@ -138,6 +138,10 @@ Here's a comprehensive list of all available options:
 | `--checkFeatures` | Check for actual ES version specific features (default: false) |
 | `--ignore <features>` | Comma-separated list of features to ignore, e.g., "ErrorCause,TopLevelAwait" |
 | `--ignoreFile <path>` | Path to JSON file containing features to ignore |
+| `--allowList <features>` | Comma-separated list of features to allow even in lower ES versions, e.g., "const,let" |
+| `--checkBrowser` | Use browserslist configuration to determine ES version |
+| `--browserslistPath <path>` | Path to custom browserslist configuration |
+| `--browserslistEnv <env>` | Browserslist environment to use |
 | `--config <path>` | Path to custom .escheckrc config file |
 | `-h, --help` | Display help for command |
 
@@ -312,6 +316,38 @@ Example `.escheckignore` file:
 
 ---
 
+## Browserslist Integration
+
+ES-Check can use your project's browserslist configuration to automatically determine which ES version to check against:
+
+```sh
+es-check --checkBrowser ./dist/**/*.js
+```
+
+This will read your browserslist configuration (from `.browserslistrc`, `package.json`, etc.) and determine the appropriate ES version based on your targeted browsers.
+
+### Examples with Browserslist
+
+**Using a custom browserslist path:**
+
+```sh
+es-check --checkBrowser --browserslistPath="./config/.browserslistrc" ./dist/**/*.js
+```
+
+**Using a specific browserslist environment:**
+
+```sh
+es-check --checkBrowser --browserslistEnv="production" ./dist/**/*.js
+```
+
+**Combining with feature checking:**
+
+```sh
+es-check --checkBrowser --checkFeatures ./dist/**/*.js
+```
+
+---
+
 ## Acknowledgements
 
 ES Check is a small utility using powerful tools that [Isaac Z. Schlueter](https://github.com/isaacs), [Marijn Haverbeke](https://github.com/marijnh), and [Matthias Etienne](https://github.com/mattallty) built. [ES Checker](https://github.com/ruanyf/es-checker) by [Ruan YiFeng](https://github.com/ruanyf) checks the JavaScript version supported within a [browser](http://ruanyf.github.io/es-checker/) at run time. ES Check offers similar feedback to ES Checker but at build time and is specific to the product that is using it. ES Check was started after reading this [post](https://philipwalton.com/articles/deploying-es2015-code-in-production-today/) about [deploying es2015 code to production today] by [Philip Walton](https://github.com/philipwalton).
@@ -320,7 +356,7 @@ ES Check is a small utility using powerful tools that [Isaac Z. Schlueter](https
 
 ## Contributing
 
-ES Check has 6 dependencies: [acorn and acorn-walk](https://github.com/ternjs/acorn/), [fast-glob](https://github.com/mrmlnc/fast-glob), [supports-color](github.com/chalk/supports-color), [winston](https://github.com/winstonjs/winston), and [commander](https://github.com/tj/commander). To contribute, file an [issue](https://github.com/yowainwright/es-check/issues) or submit a pull request.
+ES Check has 7 dependencies: [acorn and acorn-walk](https://github.com/ternjs/acorn/), [fast-glob](https://github.com/mrmlnc/fast-glob), [supports-color](github.com/chalk/supports-color), [winston](https://github.com/winstonjs/winston), [browserslist](https://github.com/browserslist/browserslist), and [commander](https://github.com/tj/commander). To contribute, file an [issue](https://github.com/yowainwright/es-check/issues) or submit a pull request.
 
 To update es versions, check out these lines of code [here](https://github.com/yowainwright/es-check/blob/main/index.js#L92-L153) and [here (in acorn.js)](https://github.com/acornjs/acorn/blob/3221fa54f9dea30338228b97210c4f1fd332652d/acorn/src/acorn.d.ts#L586).
 

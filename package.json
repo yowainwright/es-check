@@ -8,7 +8,8 @@
     "index.js",
     "utils.js",
     "detectFeatures.js",
-    "constants.js"
+    "constants.js",
+    "browserslist.js"
   ],
   "bin": {
     "es-check": "index.js"
@@ -17,14 +18,14 @@
     "commit": "git-cz",
     "commit-msg": "commitlint --edit $1",
     "lint": "eslint index.js --fix",
-    "lint:ci": "eslint index.js utils.js detectFeatures.js constants.js",
+    "lint:ci": "eslint index.js utils.js detectFeatures.js constants.js browserslist.js",
     "pre-commit": "pnpm lint && pnpm test",
     "prepare": "husky",
     "prepublishOnly": "pnpm test",
     "release": "release-it",
     "report:coverage": "nyc report --reporter=lcov > coverage.lcov && codecov",
     "setup": "pnpm install --reporter=silent",
-    "test": "nyc mocha test.js utils.test.js --timeout 10s",
+    "test": "nyc mocha test.js utils.test.js browserslist.test.js --timeout 10s",
     "update": "codependence --update"
   },
   "repository": {
@@ -59,6 +60,7 @@
   "dependencies": {
     "acorn": "8.14.1",
     "acorn-walk": "^8.3.4",
+    "browserslist": "^4.23.3",
     "commander": "13.1.0",
     "fast-glob": "^3.3.3",
     "lilconfig": "^3.0.0",

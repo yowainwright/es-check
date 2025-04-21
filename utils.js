@@ -30,6 +30,21 @@ function parseIgnoreList(options) {
     });
   }
 
+  // Handle allowList (features to allow even in lower ES versions)
+  if (options.allowList) {
+    // Early return if allowList is empty
+    if (options.allowList.trim() === '') {
+      return ignoreList;
+    }
+
+    options.allowList.split(',').forEach(feature => {
+      const trimmed = feature.trim();
+      if (trimmed) {
+        ignoreList.add(trimmed);
+      }
+    });
+  }
+
   // Get ignoreFile from either camelCase or kebab-case option
   const ignoreFilePath = options.ignoreFile || options['ignore-file'];
 

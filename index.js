@@ -47,6 +47,10 @@ program
   .option('--ignore <features>', 'comma-separated list of features to ignore, e.g., "ErrorCause,TopLevelAwait"')
   .addOption(new Option('--ignore-file <path>', 'path to JSON file containing features to ignore').hideHelp())
   .option('--ignoreFile <path>', 'path to JSON file containing features to ignore')
+  .option('--allowList <features>', 'comma-separated list of features to allow even in lower ES versions, e.g., "const,let"')
+  .option('--checkBrowser', 'use browserslist configuration to determine ES version')
+  .option('--browserslistPath <path>', 'path to custom browserslist configuration')
+  .option('--browserslistEnv <env>', 'browserslist environment to use')
   .option('--config <path>', 'path to custom .escheckrc config file')
 
 async function loadConfig(customConfigPath) {
@@ -130,7 +134,11 @@ program
         looseGlobMatching: options.looseGlobMatching || options['loose-glob-matching'],
         checkFeatures: options.checkFeatures,
         ignore: options.ignore,
-        ignoreFile: options.ignoreFile || options['ignore-file']
+        ignoreFile: options.ignoreFile || options['ignore-file'],
+        allowList: options.allowList,
+        checkBrowser: options.checkBrowser,
+        browserslistPath: options.browserslistPath,
+        browserslistEnv: options.browserslistEnv
       };
       return runChecks([singleConfig], logger);
     }
@@ -199,7 +207,29 @@ async function runChecks(configs, logger) {
      * @note define ecmaScript version
      */
     let ecmaVersion
-    switch (expectedEcmaVersion) {
+
+    // If checkBrowser option is enabled, use browserslist to determine ES version
+    if (config.checkBrowser) {
+      try {
+        const { getESVersionFromBrowserslist } = require('./browserslist');
+        const esVersionFromBrowserslist = getESVersionFromBrowserslist({
+          browserslistPath: config.browserslistPath,
+          browserslistEnv: config.browserslistEnv
+        });
+
+        // Override the ecmaVersion with the browserslist-determined version
+        ecmaVersion = esVersionFromBrowserslist.toString();
+
+        if (logger.isLevelEnabled('debug')) {
+          logger.debug(`ES-Check: Using ES${ecmaVersion} based on browserslist configuration`);
+        }
+      } catch (err) {
+        logger.error(`Error determining ES version from browserslist: ${err.message}`);
+        process.exit(1);
+      }
+    } else {
+      // Use the specified ES version
+      switch (expectedEcmaVersion) {
       case 'es3':
         ecmaVersion = '3'
         break
@@ -248,6 +278,7 @@ async function runChecks(configs, logger) {
       default:
         logger.error('Invalid ecmaScript version, please pass a valid version, use --help for help')
         process.exit(1)
+      }
     }
 
     const errArray = []

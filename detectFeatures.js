@@ -58,7 +58,8 @@ const detectFeatures = (code, ecmaVersion, sourceType, ignoreList = new Set()) =
    */
   const unsupportedFeatures = Object.entries(ES_FEATURES).reduce((acc = [], [featureName, { minVersion }]) => {
     // If feature is used but requires a newer version than ecmaVersion, it's unsupported
-    if (foundFeatures[featureName] && minVersion > ecmaVersion) {
+    // Skip features that are in the ignoreList
+    if (foundFeatures[featureName] && minVersion > ecmaVersion && !ignoreList.has(featureName)) {
       acc.push(featureName);
     }
     return acc;
