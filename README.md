@@ -20,9 +20,9 @@ Ensuring that JavaScript files can pass ES Check is important in a [modular and 
 
 ---
 
-## Version 8 🎉
+## Version 9 (beta) 🎉
 
-**ES Check** version 8 is a major release update that can enforce actual ES version specific features checks; no longer just that a files are syntatically correct to the es version. To enable this feature, just pass the `--checkFeatures` flag. This feature will become default in version 9. Besides this, there are minor feature updates based on user feedback—glob matching updates and some optional fixes. This should not break any existing scripts. Please report any issues!
+**ES Check** version 9 is a major release update that can enforce actual ES version specific features checks, implements intitial browserslist integration, basic (naive) polyfill detection, and supports an allowlist. To enable ecmaVersion specific checks, pass the `--checkFeatures` flag. To enable browserslist integration, pass the `--checkBrowser` flag. To enable polyfill detection, pass the `--checkForPolyfills` flag. There is also more config file support. Besides this, there are other feature updates based on user feedback. This version should not break any existing scripts. Please report any issues!
 
 ```sh
 es-check es6 './dist/**/*.js' --checkFeatures
