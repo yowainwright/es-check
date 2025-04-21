@@ -1,182 +1,154 @@
+const fs = require('fs');
+
 /**
- * @note Checks if node.kind === astInfo.kind (e.g., 'const', 'let').
+ * Parse ignore list from options
+ * @param {Object} options - Options object
+ * @param {string} [options.ignore] - Comma-separated list of features to ignore
+ * @param {string} [options.ignoreFile] - Path to JSON file containing features to ignore
+ * @returns {Set<string>} Set of features to ignore
  */
-const checkVarKindMatch = (node, astInfo) => {
+function parseIgnoreList(options) {
+  // Handle case where options is undefined or null
+  if (!options) {
+    return new Set();
+  }
+
+  const ignoreList = new Set();
+
+  // Handle comma-separated CLI list
+  if (options.ignore) {
+    // Early return if ignore is empty
+    if (options.ignore.trim() === '') {
+      return ignoreList;
+    }
+
+    options.ignore.split(',').forEach(feature => {
+      const trimmed = feature.trim();
+      if (trimmed) {
+        ignoreList.add(trimmed);
+      }
+    });
+  }
+
+  // Handle allowList (features to allow even in lower ES versions)
+  if (options.allowList) {
+    // Early return if allowList is empty
+    if (options.allowList.trim() === '') {
+      return ignoreList;
+    }
+
+    options.allowList.split(',').forEach(feature => {
+      const trimmed = feature.trim();
+      if (trimmed) {
+        ignoreList.add(trimmed);
+      }
+    });
+  }
+
+  // Get ignoreFile from either camelCase or kebab-case option
+  const ignoreFilePath = options.ignoreFile || options['ignore-file'];
+
+  // If no ignore file is specified, return early with what we have
+  if (!ignoreFilePath) {
+    return ignoreList;
+  }
+
+  // Handle ignore file
+  try {
+    // Check if file exists
+    if (!fs.existsSync(ignoreFilePath)) {
+      throw new Error(`Ignore file not found: ${ignoreFilePath}`);
+    }
+
+    const fileContent = fs.readFileSync(ignoreFilePath, 'utf8');
+
+    // Early return if file is empty
+    if (!fileContent.trim()) {
+      return ignoreList;
+    }
+
+    const ignoreConfig = JSON.parse(fileContent);
+
+    if (!ignoreConfig) {
+      return ignoreList;
+    }
+
+    if (Array.isArray(ignoreConfig.features)) {
+      ignoreConfig.features.forEach(feature => {
+        if (feature && typeof feature === 'string') {
+          ignoreList.add(feature.trim());
+        }
+      });
+    }
+  } catch (err) {
+    throw new Error(`Failed to parse ignore file: ${err.message}`);
+  }
+
+  return ignoreList;
+}
+
+// Check if node.kind matches astInfo.kind
+function checkVarKindMatch(node, astInfo) {
   if (!astInfo.kind) return false;
   return node.kind === astInfo.kind;
 }
 
-/**
- * @note Checks if a NewExpression node's callee is an Identifier
- * that matches astInfo.callee (e.g. "Promise", "WeakRef").
- */
-const checkCalleeMatch = (node, astInfo) => {
+// Check if node.callee.name matches astInfo.callee
+function checkCalleeMatch(node, astInfo) {
   if (!astInfo.callee) return false;
-  // e.g. node.callee.type === 'Identifier' && node.callee.name === 'Promise'
-  if (!node.callee || node.callee.type !== 'Identifier') return false;
+  if (!node.callee) return false;
+  if (node.callee.type !== 'Identifier') return false;
   return node.callee.name === astInfo.callee;
 }
 
-/**
- * @note Checks if a LogicalExpression node's operator matches astInfo.operator (e.g., '??').
- */
-const checkOperatorMatch = (node, astInfo) =>{
+// Check if node.operator matches astInfo.operator
+function checkOperatorMatch(node, astInfo) {
   if (!astInfo.operator) return false;
   return node.operator === astInfo.operator;
 }
 
-/**
- * @note For simple presence-based checks (e.g., ArrowFunctionExpression).
- */
-const checkDefault = () => {
+// Default check function that always returns true
+function checkDefault() {
   return true;
 }
 
-/**
- * @note A more "universal" check for a CallExpression, used for many ES features:
- *   - arrayMethod => property: 'flat', 'includes', 'at', etc.
- *   - objectMethod => object: 'Object', property: 'fromEntries', etc.
- */
-const checkCallExpression = (node, astInfo) => {
-  if (node.type !== 'CallExpression') return false;
-  if (node.callee.type === 'MemberExpression') {
-    const { object, property } = astInfo;
-
-    if (object || property) {
-
-      if (object) {
-        if (
-          !node.callee.object ||
-          node.callee.object.type !== 'Identifier' ||
-          node.callee.object.name !== object
-        ) {
-          return false;
-        }
-      }
-
-      if (property) {
-        if (
-          !node.callee.property || 
-          node.callee.property.type !== 'Identifier' ||
-          node.callee.property.name !== property
-        ) {
-          return false;
-        }
-      }
-      return true;
-    }
-    return false;
-  } 
-  
-  if (node.callee.type === 'Identifier') {
-    const { callee } = astInfo;
-    if (callee && !astInfo.object && !astInfo.property) {
-      return node.callee.name === callee;
-    }
-  }
-
-  return false;
-}
-
-/**
- * @note Check ObjectExpression for childType, e.g. 'SpreadElement'
- */
-const checkObjectExpression = (node, astInfo) => {
-  // If we want to detect object spread, we might check if node.properties
-  // contain a SpreadElement
-  if (astInfo.childType === 'SpreadElement') {
-    return node.properties.some((p) => p.type === 'SpreadElement');
-  }
-  return false;
-}
-
-/**
- * @note Check ClassDeclaration presence or superClass usage
- */
-const checkClassDeclaration = (node, astInfo) => {
-  // Just having a ClassDeclaration means classes are used.
-  // If astInfo has `property: 'superClass'`, it means "extends" usage
-  if (astInfo.property === 'superClass') {
-    return !!node.superClass; // if superClass is not null, "extends" is used
-  }
-  return true; // default: any ClassDeclaration means the feature is used
-}
-
-/**
- * @note Example check for BinaryExpression (e.g., exponent operator `**`).
- */
-const checkBinaryExpression = (node, astInfo) => {
-  if (!astInfo.operator) return false;
-  return node.operator === astInfo.operator;
-}
-
-const checkForAwaitStatement = (node) => {
-  return true;
-}
-
-/**
- * @note Example check for CatchClause with no param => optional catch binding
- */
-const checkCatchClause = (node, astInfo) => {
-  if (astInfo.noParam) {
-    return !node.param;
-  }
-  return false;
-}
-
-/**
- * @note Example check for BigIntLiteral or numeric with underscore
- */
-const checkBigIntLiteral = (node) =>{
-  if (typeof node.value === 'bigint') {
-    return true;
-  }
-  return false;
-}
-
-/**
- * @note the "catch-all" object mapping node types to specialized checkers
- */
+// Map of node types to check functions
 const checkMap = {
-  VariableDeclaration: (node, astInfo) => checkVarKindMatch(node, astInfo),
-  ArrowFunctionExpression: () => checkDefault(),
-  ChainExpression: () => checkDefault(),
-  LogicalExpression: (node, astInfo) => checkOperatorMatch(node, astInfo),
-  NewExpression: (node, astInfo) => checkCalleeMatch(node, astInfo),
-  CallExpression: (node, astInfo) => checkCallExpression(node, astInfo),
-  ObjectExpression: (node, astInfo) => checkObjectExpression(node, astInfo),
-  ClassDeclaration: (node, astInfo) => checkClassDeclaration(node, astInfo),
-  BinaryExpression: (node, astInfo) => checkBinaryExpression(node, astInfo),
-  ForAwaitStatement: (node) => checkForAwaitStatement(node),
-  CatchClause: (node, astInfo) => checkCatchClause(node, astInfo),
-  Literal: (node, astInfo) => {
-    if (astInfo.nodeType === 'BigIntLiteral') {
-      return checkBigIntLiteral(node);
+  VariableDeclaration: checkVarKindMatch,
+  LogicalExpression: checkOperatorMatch,
+  ArrowFunctionExpression: checkDefault,
+  CallExpression: (node, astInfo) => {
+    // Handle member expressions (e.g., window.getElementById)
+    if (node.callee.type === 'MemberExpression') {
+      // If astInfo has object and property, check if they match
+      if (astInfo.object && astInfo.property) {
+        return (
+          node.callee.object.type === 'Identifier' &&
+          node.callee.object.name === astInfo.object &&
+          node.callee.property.type === 'Identifier' &&
+          node.callee.property.name === astInfo.property
+        );
+      }
+      // If astInfo only has callee, it's not a match for a member expression
+      return false;
+    } else if (node.callee.type === 'Identifier') {
+      // e.g. Symbol("desc")
+      const { callee } = astInfo;
+      // If astInfo.callee is "Symbol", check node.callee.name
+      if (callee && node.callee.name === callee) {
+        return true;
+      }
     }
     return false;
   },
-  default: () => false,
-};
-
-const formatError = (filePath, error) => {
-  console.error('error: ES-Check: there were 1 ES version matching errors.');
-  console.info(`
-          ES-Check Error:
-          ----
-          · erroring file: ${filePath}
-          · error: ${error.message}
-          · see the printed err.stack below for context
-          ----
-          
-          ${error.stack}
-  `);
+  default: () => false
 };
 
 module.exports = {
+  parseIgnoreList,
   checkVarKindMatch,
   checkCalleeMatch,
   checkOperatorMatch,
   checkDefault,
-  checkMap,
-  formatError,
+  checkMap
 };

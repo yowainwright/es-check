@@ -121,73 +121,81 @@ Arguments:
 
 ### Options
 
-**Modules Flag**
+Here's a comprehensive list of all available options:
+
+| Option | Description |
+|--------|-------------|
+| `-V, --version` | Output the version number |
+| `--module` | Use ES modules (default: false) |
+| `--allowHashBang` | If the code starts with #! treat it as a comment (default: false) |
+| `--files <files>` | A glob of files to test the ECMAScript version against (alias for [files...]) |
+| `--not <files>` | Folder or file names to skip |
+| `--noColor` | Disable use of colors in output (default: false) |
+| `-v, --verbose` | Verbose mode: will also output debug messages (default: false) |
+| `--quiet` | Quiet mode: only displays warn and error messages (default: false) |
+| `--looseGlobMatching` | Doesn't fail if no files are found in some globs/files (default: false) |
+| `--silent` | Silent mode: does not output anything, giving no indication of success or failure other than the exit code (default: false) |
+| `--checkFeatures` | Check for actual ES version specific features (default: false) |
+| `--checkForPolyfills` | Consider polyfills when checking features (only works with --checkFeatures) (default: false) |
+| `--ignore <features>` | Comma-separated list of features to ignore, e.g., "ErrorCause,TopLevelAwait" |
+| `--ignoreFile <path>` | Path to JSON file containing features to ignore |
+| `--allowList <features>` | Comma-separated list of features to allow even in lower ES versions, e.g., "const,let" |
+| `--checkBrowser` | Use browserslist configuration to determine ES version (default: false) |
+| `--browserslistPath <path>` | Path to custom browserslist configuration (default: uses standard browserslist config resolution) |
+| `--browserslistEnv <env>` | Browserslist environment to use (default: production) |
+| `--config <path>` | Path to custom .escheckrc config file |
+| `-h, --help` | Display help for command |
+
+#### Examples
+
+**Using ES modules:**
 
 ```sh
-
---module use ES modules, default false
-
+es-check es6 './dist/**/*.js' --module
 ```
 
-**Allow Hash Bang**
+**Checking files with hash bang:**
 
 ```sh
-
---allowHashBang supports files that start with hash bang, default false
-
+es-check es6 './bin/*.js' --allowHashBang
 ```
 
-**Not**
+**Skipping specific files or directories:**
 
 ```sh
-
---not=target1,target2 An array of file/folder names or globs that you would like to ignore. Defaults to `[]`.
-
+es-check es5 './dist/**/*.js' --not=./dist/vendor,./dist/polyfills
 ```
 
-**Files**
+**Using the files option instead of arguments:**
 
 ```sh
-
---files=target1,target2 An array of file/folder names or globs to test the ECMAScript version against. Alias of [...files] argument.
-
+es-check es6 --files=./dist/main.js,./dist/utils.js
 ```
 
-**Loose Glob Matching**
+⚠️ **NOTE:** Setting both the `[...files]` argument and `--files` flag is an error.
+
+**Using loose glob matching:**
 
 ```sh
-
---looseGlobMatch allows for loose glob matching, default false
-
+es-check es5 './dist/**/*.js' './optional/**/*.js' --looseGlobMatching
 ```
 
-⚠️ **NOTE:** This is primarily intended as a way to override the `files` setting in the `.escheckrc` file for specific invocations. Setting both the `[...files]` argument and `--files` flag is an error.
-
-**Check Features**
-
+**Checking for ES version specific features:**
 
 ```sh
 es-check es6 './dist/**/*.js' --checkFeatures
 ```
 
-### Global Options
+**Considering polyfills when checking features:**
 
 ```sh
+es-check es2022 './dist/**/*.js' --checkFeatures --checkForPolyfills
+```
 
-Options:
-  -V, --version                       output the version number
-  --module                            use ES modules
-  --allowHashBang                     if the code starts with #! treat it as a comment (default: false)
-  --files <files>                     a glob of files to to test the EcmaScript version against (alias for [files...])
-  --not <files>                       folder or file names to skip
-  --noColor                           disable use of colors in output (default: false)
-  -v, --verbose                       verbose mode: will also output debug messages (default: false)
-  --quiet                             quiet mode: only displays warn and error messages (default: false)
-  --looseGlobMatching                 doesn't fail if no files are found in some globs/files (default: false)
-  --silent                            silent mode: does not output anything, giving no indication of success or failure     other than the exit code (default: false)
-  --checkFeatures                     check for actual ES version specific features (default: false)
-  -h, --help                          display help for command
+**Using a custom config file:**
 
+```sh
+es-check --config=./configs/production.escheckrc.json
 ```
 
 ---
@@ -219,9 +227,38 @@ Here's an example of what an `.escheckrc` file will look like:
   "ecmaVersion": "es6",
   "module": false,
   "files": "./dist/**/*.js",
-  "not": ["./dist/skip/*.js"]
+  "not": ["./dist/skip/*.js"],
+  "allowHashBang": false,
+  "looseGlobMatching": false,
+  "checkFeatures": true,
+  "checkForPolyfills": true,
+  "ignore": ["ErrorCause", "TopLevelAwait"],
+  "allowList": ["ArrayToSorted", "ObjectHasOwn"],
+  "checkBrowser": false,
+  "browserslistPath": "./config/.browserslistrc",
+  "browserslistEnv": "production"
 }
 ```
+
+### Configuration Options
+
+| Option | Type | Description |
+|--------|------|-------------|
+| `ecmaVersion` | String | ECMAScript version to check against (e.g., "es5", "es6", "es2020") |
+| `files` | String or Array | Files or glob patterns to check |
+| `module` | Boolean | Whether to parse files as ES modules |
+| `not` | Array | Files or glob patterns to exclude |
+| `allowHashBang` | Boolean | Whether to allow hash bang in files |
+| `looseGlobMatching` | Boolean | Whether to ignore missing files in globs |
+| `checkFeatures` | Boolean | Whether to check for ES version specific features |
+| `checkForPolyfills` | Boolean | Whether to consider polyfills when checking features |
+| `ignore` | Array | Features to ignore when checking |
+| `allowList` | Array | Features to allow even in lower ES versions |
+| `checkBrowser` | Boolean | Whether to use browserslist configuration to determine ES version |
+| `browserslistPath` | String | Path to custom browserslist configuration |
+| `browserslistEnv` | String | Browserslist environment to use |
+
+### Multiple Configurations
 
 For projects with multiple bundle types (like UMD, CJS, and ESM), you can specify different configurations using an array:
 
@@ -235,12 +272,28 @@ For projects with multiple bundle types (like UMD, CJS, and ESM), you can specif
   {
     "ecmaVersion": "es2020",
     "module": true,
-    "files": "esm/index.mjs"
+    "files": "esm/index.mjs",
+    "checkFeatures": true
+  },
+  {
+    "files": "legacy/*.js",
+    "checkBrowser": true,
+    "browserslistEnv": "legacy"
   }
 ]
 ```
 
+### Custom Config Path
+
 ⚠️ **NOTE:** Using command line arguments while there is an `.escheckrc` file in the project directory will override all configurations in `.escheckrc`.
+
+You can also specify a custom config file path using the `--config` option:
+
+```sh
+es-check --config=./configs/my-custom-config.json
+```
+
+This is useful for projects that need different configurations for different environments or test scenarios.
 
 ## Debugging
 
@@ -254,6 +307,111 @@ As of ES-Check version **2.0.2**, a better debugging interface is provided. When
 
 ---
 
+## Ignoring Features
+
+Sometimes you may need to temporarily ignore certain feature detections while working on fixes. ES Check provides two ways to ignore features:
+
+1. Via command line:
+
+```sh
+es-check es6 './dist/**/*.js' --checkFeatures --ignore="ErrorCause,TopLevelAwait"
+```
+
+1. Via ignore file:
+
+```sh
+es-check es6 './dist/**/*.js' --checkFeatures --ignoreFile=".escheckignore"
+```
+
+Example `.escheckignore` file:
+
+```json
+{
+  "features": [
+    "ErrorCause",
+    "TopLevelAwait"
+  ]
+}
+```
+
+⚠️ **NOTE:** The ignore feature is intended as a temporary solution while working on fixes. It's recommended to remove ignored features once the underlying issues are resolved.
+
+---
+
+## Polyfill Detection
+
+When using polyfills like core-js to add support for modern JavaScript features in older environments, you might encounter false positives with the `--checkFeatures` flag. ES Check provides the `--checkForPolyfills` option to handle this scenario:
+
+```sh
+es-check es2022 './dist/**/*.js' --checkFeatures --checkForPolyfills
+```
+
+This option tells ES Check to look for common polyfill patterns in your code and avoid flagging features that have been polyfilled. Currently, it supports detection of:
+
+- Core-js polyfills (both direct usage and imports)
+- Common polyfill patterns for Array, String, Object, Promise, and RegExp methods
+
+### Comparing Polyfill Handling Options
+
+ES Check provides three ways to handle polyfilled features:
+
+1. **--checkForPolyfills**: Automatically detects polyfills in your code
+   ```sh
+   es-check es2022 './dist/**/*.js' --checkFeatures --checkForPolyfills
+   ```
+
+2. **--allowList**: Explicitly specify features to allow regardless of ES version
+   ```sh
+   es-check es2022 './dist/**/*.js' --checkFeatures --allowList="ArrayToSorted,ObjectHasOwn"
+   ```
+
+3. **--ignore**: Completely ignore specific features during checking
+   ```sh
+   es-check es2022 './dist/**/*.js' --checkFeatures --ignore="ArrayToSorted,ObjectHasOwn"
+   ```
+
+#### When to use each option:
+
+- Use `--checkForPolyfills` when you have a standard polyfill setup (like core-js) and want automatic detection
+- Use `--allowList` when you have custom polyfills or want to be explicit about which features are allowed
+- Use `--ignore` as a temporary solution when you're working on fixes
+
+⚠️ **NOTE:** The polyfill detection is not exhaustive and may not catch all polyfill patterns. For complex polyfill setups, you might need to combine it with `--allowList`.
+
+---
+
+## Browserslist Integration
+
+ES-Check can use your project's browserslist configuration to automatically determine which ES version to check against:
+
+```sh
+es-check --checkBrowser ./dist/**/*.js
+```
+
+This will read your browserslist configuration (from `.browserslistrc`, `package.json`, etc.) and determine the appropriate ES version based on your targeted browsers.
+
+### Examples with Browserslist
+
+**Using a custom browserslist path:**
+
+```sh
+es-check --checkBrowser --browserslistPath="./config/.browserslistrc" ./dist/**/*.js
+```
+
+**Using a specific browserslist environment:**
+
+```sh
+es-check --checkBrowser --browserslistEnv="production" ./dist/**/*.js
+```
+
+**Combining with feature checking:**
+
+```sh
+es-check --checkBrowser --checkFeatures ./dist/**/*.js
+```
+
+---
+
 ## Acknowledgements
 
 ES Check is a small utility using powerful tools that [Isaac Z. Schlueter](https://github.com/isaacs), [Marijn Haverbeke](https://github.com/marijnh), and [Matthias Etienne](https://github.com/mattallty) built. [ES Checker](https://github.com/ruanyf/es-checker) by [Ruan YiFeng](https://github.com/ruanyf) checks the JavaScript version supported within a [browser](http://ruanyf.github.io/es-checker/) at run time. ES Check offers similar feedback to ES Checker but at build time and is specific to the product that is using it. ES Check was started after reading this [post](https://philipwalton.com/articles/deploying-es2015-code-in-production-today/) about [deploying es2015 code to production today] by [Philip Walton](https://github.com/philipwalton).
@@ -262,7 +420,7 @@ ES Check is a small utility using powerful tools that [Isaac Z. Schlueter](https
 
 ## Contributing
 
-ES Check has 6 dependencies: [acorn and acorn-walk](https://github.com/ternjs/acorn/), [fast-glob](https://github.com/mrmlnc/fast-glob), [supports-color](github.com/chalk/supports-color), [winston](https://github.com/winstonjs/winston), and [commander](https://github.com/tj/commander). To contribute, file an [issue](https://github.com/yowainwright/es-check/issues) or submit a pull request.
+ES Check has 7 dependencies: [acorn and acorn-walk](https://github.com/ternjs/acorn/), [fast-glob](https://github.com/mrmlnc/fast-glob), [supports-color](github.com/chalk/supports-color), [winston](https://github.com/winstonjs/winston), [browserslist](https://github.com/browserslist/browserslist), and [commander](https://github.com/tj/commander). To contribute, file an [issue](https://github.com/yowainwright/es-check/issues) or submit a pull request.
 
 To update es versions, check out these lines of code [here](https://github.com/yowainwright/es-check/blob/main/index.js#L92-L153) and [here (in acorn.js)](https://github.com/acornjs/acorn/blob/3221fa54f9dea30338228b97210c4f1fd332652d/acorn/src/acorn.d.ts#L586).
 

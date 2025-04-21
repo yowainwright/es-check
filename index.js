@@ -9,8 +9,10 @@ const fs = require('fs')
 const supportsColor = require('supports-color')
 const winston = require('winston')
 const detectFeatures = require('./detectFeatures')
+let polyfillDetector = null; // Lazy-loaded only when needed
 const pkg = require('./package.json')
 const { lilconfig } = require('lilconfig');
+const { parseIgnoreList } = require('./utils');
 
 /**
  * es-check 🏆
@@ -39,13 +41,35 @@ program
   .option('--quiet', 'quiet mode: only displays warn and error messages', false)
   .option('--looseGlobMatching', 'doesn\'t fail if no files are found in some globs/files', false)
   .option('--checkFeatures', 'check features of es version', false)
+  .option('--checkForPolyfills', 'consider polyfills when checking features (only works with --checkFeatures)', false)
   .option(
     '--silent',
     'silent mode: does not output anything, giving no indication of success or failure other than the exit code', false
   )
+  .option('--ignore <features>', 'comma-separated list of features to ignore, e.g., "ErrorCause,TopLevelAwait"')
+  .addOption(new Option('--ignore-file <path>', 'path to JSON file containing features to ignore').hideHelp())
+  .option('--ignoreFile <path>', 'path to JSON file containing features to ignore')
+  .option('--allowList <features>', 'comma-separated list of features to allow even in lower ES versions, e.g., "const,let"')
+  .option('--checkBrowser', 'use browserslist configuration to determine ES version')
+  .option('--browserslistPath <path>', 'path to custom browserslist configuration')
+  .option('--browserslistEnv <env>', 'browserslist environment to use')
+  .option('--config <path>', 'path to custom .escheckrc config file')
 
-async function loadConfig() {
+async function loadConfig(customConfigPath) {
   try {
+    // If a custom config path is provided, load it directly
+    if (customConfigPath) {
+      try {
+        const content = fs.readFileSync(customConfigPath, 'utf8');
+        const config = JSON.parse(content);
+        // Ensure we always return an array of configs
+        return Array.isArray(config) ? config : [config];
+      } catch (err) {
+        throw new Error(`Error loading custom config file ${customConfigPath}: ${err.message}`);
+      }
+    }
+
+    // Otherwise use lilconfig to search for config files
     const configExplorer = lilconfig('escheck', {
       searchPlaces: ['.escheckrc', '.escheckrc.json', 'package.json'],
       loaders: {
@@ -91,10 +115,18 @@ program
       process.exit(1)
     }
 
-    const configs = await loadConfig();
-    
+    const configs = await loadConfig(options.config);
+
     // If command line arguments are provided, they override all configs
     if (ecmaVersionArg || filesArg?.length || options.files) {
+      // Get ignoreFile from either camelCase or kebab-case option
+      const ignoreFilePath = options.ignoreFile || options['ignore-file'];
+
+      // If ignoreFile is specified but doesn't exist, warn the user
+      if (ignoreFilePath && !fs.existsSync(ignoreFilePath) && logger.isLevelEnabled('warn')) {
+        logger.warn(`Warning: Ignore file '${ignoreFilePath}' does not exist or is not accessible`);
+      }
+
       const singleConfig = {
         ecmaVersion: ecmaVersionArg,
         files: filesArg?.length ? filesArg : options.files?.split(','),
@@ -102,7 +134,14 @@ program
         allowHashBang: options.allowHashBang || options['allow-hash-bang'],
         not: options.not?.split(','),
         looseGlobMatching: options.looseGlobMatching || options['loose-glob-matching'],
-        checkFeatures: options.checkFeatures
+        checkFeatures: options.checkFeatures,
+        checkForPolyfills: options.checkForPolyfills,
+        ignore: options.ignore,
+        ignoreFile: options.ignoreFile || options['ignore-file'],
+        allowList: options.allowList,
+        checkBrowser: options.checkBrowser,
+        browserslistPath: options.browserslistPath,
+        browserslistEnv: options.browserslistEnv
       };
       return runChecks([singleConfig], logger);
     }
@@ -120,6 +159,7 @@ async function runChecks(configs, logger) {
   let hasErrors = false;
 
   for (const config of configs) {
+    // Basic validation of config values
     const expectedEcmaVersion = config.ecmaVersion;
     const files = [].concat(config.files || []);
     const esmodule = config.module;
@@ -127,6 +167,15 @@ async function runChecks(configs, logger) {
     const pathsToIgnore = [].concat(config.not || []);
     const looseGlobMatching = config.looseGlobMatching;
     const checkFeatures = config.checkFeatures;
+    const checkForPolyfills = config.checkForPolyfills;
+
+    // Get ignoreFile from either camelCase or kebab-case option
+    const ignoreFilePath = config.ignoreFile || config['ignore-file'];
+
+    // If ignoreFile is specified but doesn't exist, warn the user
+    if (ignoreFilePath && !fs.existsSync(ignoreFilePath) && logger.isLevelEnabled('warn')) {
+      logger.warn(`Warning: Ignore file '${ignoreFilePath}' does not exist or is not accessible`);
+    }
 
     if (!expectedEcmaVersion) {
       logger.error('No ecmaScript version specified in configuration');
@@ -138,7 +187,7 @@ async function runChecks(configs, logger) {
       process.exit(1);
     }
 
-    if (looseGlobMatching) {
+    if (looseGlobMatching && logger.isLevelEnabled('debug')) {
       logger.debug('ES-Check: loose-glob-matching is set')
     }
 
@@ -162,7 +211,29 @@ async function runChecks(configs, logger) {
      * @note define ecmaScript version
      */
     let ecmaVersion
-    switch (expectedEcmaVersion) {
+
+    // If checkBrowser option is enabled, use browserslist to determine ES version
+    if (config.checkBrowser) {
+      try {
+        const { getESVersionFromBrowserslist } = require('./browserslist');
+        const esVersionFromBrowserslist = getESVersionFromBrowserslist({
+          browserslistPath: config.browserslistPath,
+          browserslistEnv: config.browserslistEnv
+        });
+
+        // Override the ecmaVersion with the browserslist-determined version
+        ecmaVersion = esVersionFromBrowserslist.toString();
+
+        if (logger.isLevelEnabled('debug')) {
+          logger.debug(`ES-Check: Using ES${ecmaVersion} based on browserslist configuration`);
+        }
+      } catch (err) {
+        logger.error(`Error determining ES version from browserslist: ${err.message}`);
+        process.exit(1);
+      }
+    } else {
+      // Use the specified ES version
+      switch (expectedEcmaVersion) {
       case 'es3':
         ecmaVersion = '3'
         break
@@ -211,50 +282,63 @@ async function runChecks(configs, logger) {
       default:
         logger.error('Invalid ecmaScript version, please pass a valid version, use --help for help')
         process.exit(1)
+      }
     }
 
     const errArray = []
     const acornOpts = { ecmaVersion: parseInt(ecmaVersion, 10), silent: true }
 
-    logger.debug(`ES-Check: Going to check files using version ${ecmaVersion}`)
+    if (logger.isLevelEnabled('debug')) {
+      logger.debug(`ES-Check: Going to check files using version ${ecmaVersion}`)
+    }
 
     if (esmodule) {
       acornOpts.sourceType = 'module'
-      logger.debug('ES-Check: esmodule is set')
+      if (logger.isLevelEnabled('debug')) {
+        logger.debug('ES-Check: esmodule is set')
+      }
     }
 
     if (allowHashBang) {
       acornOpts.allowHashBang = true
-      logger.debug('ES-Check: allowHashBang is set')
+      if (logger.isLevelEnabled('debug')) {
+        logger.debug('ES-Check: allowHashBang is set')
+      }
     }
 
-    const expandedPathsToIgnore = pathsToIgnore.reduce((result, path) => {
-      if (path.includes('*')) {
-        return result.concat(glob.sync(path, globOpts))
-      } else {
-        return result.concat(path)
-      }
-    }, [])
+    const expandedPathsToIgnore = pathsToIgnore.reduce((result, path) =>
+      path.includes('*') ? result.concat(glob.sync(path, globOpts)) : result.concat(path)
+    , [])
 
     const filterForIgnore = (globbedFiles) => {
       if (expandedPathsToIgnore && expandedPathsToIgnore.length > 0) {
-        const filtered = globbedFiles.filter(
-          (filePath) => !expandedPathsToIgnore.some((ignoreValue) => filePath.includes(ignoreValue)),
-        )
-        return filtered
+        return globbedFiles.filter(
+          (filePath) => !expandedPathsToIgnore.some((ignoreValue) => filePath.includes(ignoreValue))
+        );
       }
-      return globbedFiles
+      return globbedFiles;
     }
 
     const filteredFiles = filterForIgnore(allMatchedFiles)
 
+    const ignoreList = parseIgnoreList(config);
+
+    // Only log ignored features if debug logging is enabled and there are features to ignore
+    if (ignoreList.size > 0 && logger.isLevelEnabled('debug')) {
+      logger.debug('ES-Check: ignoring features:', Array.from(ignoreList).join(', '));
+    }
+
     filteredFiles.forEach((file) => {
       const code = fs.readFileSync(file, 'utf8')
-      logger.debug(`ES-Check: checking ${file}`)
+      if (logger.isLevelEnabled('debug')) {
+        logger.debug(`ES-Check: checking ${file}`)
+      }
       try {
         acorn.parse(code, acornOpts)
       } catch (err) {
-        logger.debug(`ES-Check: failed to parse file: ${file} \n - error: ${err}`)
+        if (logger.isLevelEnabled('debug')) {
+          logger.debug(`ES-Check: failed to parse file: ${file} \n - error: ${err}`)
+        }
         const errorObj = {
           err,
           stack: err.stack,
@@ -267,12 +351,42 @@ async function runChecks(configs, logger) {
       if (!checkFeatures) return;
       const parseSourceType = acornOpts.sourceType || 'script';
       const esVersion = parseInt(ecmaVersion, 10);
-      const { foundFeatures, unsupportedFeatures } = detectFeatures(code, esVersion, parseSourceType);
-      const stringifiedFeatures = JSON.stringify(foundFeatures, null, 2);
-      logger.debug(`Features found in ${file}: ${stringifiedFeatures}`);
-      const isSupported = unsupportedFeatures.length === 0;
+
+      // Run the standard feature detection
+      const { foundFeatures, unsupportedFeatures } = detectFeatures(
+        code,
+        esVersion,
+        parseSourceType,
+        ignoreList
+      );
+
+      if (logger.isLevelEnabled('debug')) {
+        const stringifiedFeatures = JSON.stringify(foundFeatures, null, 2);
+        logger.debug(`Features found in ${file}: ${stringifiedFeatures}`);
+      }
+
+      // Check for polyfills if enabled
+      let filteredUnsupportedFeatures = unsupportedFeatures;
+      if (checkForPolyfills && unsupportedFeatures.length > 0) {
+        // Lazy-load the polyfill detector only when needed
+        if (!polyfillDetector) {
+          polyfillDetector = require('./polyfillDetector');
+        }
+
+        // Detect polyfills in the code
+        const polyfills = polyfillDetector.detectPolyfills(code, logger);
+
+        // Filter out polyfilled features from unsupported features
+        filteredUnsupportedFeatures = polyfillDetector.filterPolyfilled(unsupportedFeatures, polyfills);
+
+        if (logger.isLevelEnabled('debug') && filteredUnsupportedFeatures.length !== unsupportedFeatures.length) {
+          logger.debug(`ES-Check: Polyfills reduced unsupported features from ${unsupportedFeatures.length} to ${filteredUnsupportedFeatures.length}`);
+        }
+      }
+
+      const isSupported = filteredUnsupportedFeatures.length === 0;
       if (!isSupported) {
-        const error = new Error(`Unsupported features used: ${unsupportedFeatures.join(', ')} but your target is ES${ecmaVersion}.`);
+        const error = new Error(`Unsupported features used: ${filteredUnsupportedFeatures.join(', ')} but your target is ES${ecmaVersion}.`);
         errArray.push({
           err: error,
           file,
@@ -294,6 +408,7 @@ async function runChecks(configs, logger) {
           ${o.stack}
         `)
       })
+      hasErrors = true;
       process.exit(1)
     }
     logger.info(`ES-Check: there were no ES version matching errors!  🎉`)
