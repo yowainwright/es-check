@@ -143,6 +143,24 @@ const ES_FEATURES = {
       callee: 'Promise',
     },
   },
+  PromiseResolve: {
+    minVersion: 6,
+    example: 'Promise.resolve(value)',
+    astInfo: {
+      nodeType: 'CallExpression',
+      object: 'Promise',
+      property: 'resolve',
+    },
+  },
+  PromiseReject: {
+    minVersion: 6,
+    example: 'Promise.reject(value)',
+    astInfo: {
+      nodeType: 'CallExpression',
+      object: 'Promise',
+      property: 'reject',
+    },
+  },
   Symbol: {
     minVersion: 6,
     example: 'Symbol("desc")',
