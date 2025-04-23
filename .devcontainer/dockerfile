@@ -1,3 +1,3 @@
-ARG VARIANT="18-bullseye"
+ARG VARIANT="23-bullseye"
 FROM mcr.microsoft.com/vscode/devcontainers/javascript-node:0-${VARIANT}
-RUN su node -c "npm install -g pnpm"
+RUN npm install -g pnpm@10.9.0
