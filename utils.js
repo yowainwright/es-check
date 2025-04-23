@@ -141,6 +141,16 @@ const checkMap = {
     }
     return false;
   },
+  NewExpression: (node, astInfo) => {
+    if (!astInfo.callee) {
+      return false;
+    }
+    // e.g. node.callee.type === 'Identifier' && node.callee.name === 'Promise'
+    if (!node.callee || node.callee.type !== 'Identifier') {
+      return false;
+    }
+    return node.callee.name === astInfo.callee;
+  },
   default: () => false
 };
 
