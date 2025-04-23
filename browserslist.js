@@ -117,16 +117,17 @@ function getESVersionForBrowser(browser, version) {
 /**
  * Determines the minimum ES version required to support all browsers in the browserslist
  * @param {Object} options - Options object
+ * @param {string} [options.browserslistQuery]
  * @param {string} [options.browserslistPath] - Optional custom path to browserslist config
  * @param {string} [options.browserslistEnv] - Optional browserslist environment to use
  * @returns {number} - The ES version to use (e.g., 5, 6, etc.)
  */
 function getESVersionFromBrowserslist(options = {}) {
-  const { browserslistPath, browserslistEnv } = options;
+  const { browserslistPath, browserslistEnv, browserslistQuery } = options;
 
   try {
     // Get the browserslist configuration
-    const browsers = browserslist(null, {
+    const browsers = browserslist(browserslistQuery ?? null, {
       path: browserslistPath,
       env: browserslistEnv
     });

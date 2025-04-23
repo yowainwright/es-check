@@ -51,6 +51,7 @@ program
   .option('--ignoreFile <path>', 'path to JSON file containing features to ignore')
   .option('--allowList <features>', 'comma-separated list of features to allow even in lower ES versions, e.g., "const,let"')
   .option('--checkBrowser', 'use browserslist configuration to determine ES version')
+  .option('--browserslistQuery <query>', 'browserslist query')
   .option('--browserslistPath <path>', 'path to custom browserslist configuration')
   .option('--browserslistEnv <env>', 'browserslist environment to use')
   .option('--config <path>', 'path to custom .escheckrc config file')
@@ -140,6 +141,7 @@ program
         ignoreFile: options.ignoreFile || options['ignore-file'],
         allowList: options.allowList,
         checkBrowser: options.checkBrowser,
+        browserslistQuery: options.browserslistQuery,
         browserslistPath: options.browserslistPath,
         browserslistEnv: options.browserslistEnv
       };
@@ -217,6 +219,7 @@ async function runChecks(configs, logger) {
       try {
         const { getESVersionFromBrowserslist } = require('./browserslist');
         const esVersionFromBrowserslist = getESVersionFromBrowserslist({
+          browserslistQuery: config.browserslistQuery,
           browserslistPath: config.browserslistPath,
           browserslistEnv: config.browserslistEnv
         });
