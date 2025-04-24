@@ -20,9 +20,9 @@ Ensuring that JavaScript files can pass ES Check is important in a [modular and 
 
 ---
 
-## Version 9 (beta) 🎉
+## Version 9 🎉
 
-**ES Check** version 9 is a major release update that can enforce actual ES version specific features checks, implements intitial browserslist integration, basic (naive) polyfill detection, and supports an allowlist. To enable ecmaVersion specific checks, pass the `--checkFeatures` flag. To enable browserslist integration, pass the `--checkBrowser` flag. To enable polyfill detection, pass the `--checkForPolyfills` flag. There is also more config file support. Besides this, there are other feature updates based on user feedback. This version should not break any existing scripts. Please report any issues!
+**ES Check** version 9 is a major release update that can enforce more ES version specific features checks, implements initial browserslist integration, basic (naive) polyfill detection, and supports an allowlist. To enable ecmaVersion specific checks, pass the `--checkFeatures` flag. To enable browserslist integration, pass the `--checkBrowser` flag. To enable polyfill detection, pass the `--checkForPolyfills` flag. There is also more config file support. Besides this, there are other feature updates based on user feedback. This version should not break any existing scripts but, as significant changes/features have been added and it's know that es-check supports protecting against breaking errors going to production, a major version bump feels appropriate. Please report any issues!
 
 ```sh
 es-check es6 './dist/**/*.js' --checkFeatures
@@ -141,6 +141,7 @@ Here's a comprehensive list of all available options:
 | `--ignoreFile <path>` | Path to JSON file containing features to ignore |
 | `--allowList <features>` | Comma-separated list of features to allow even in lower ES versions, e.g., "const,let" |
 | `--checkBrowser` | Use browserslist configuration to determine ES version (default: false) |
+| `--browserslistQuery <query>` | Custom browserslist query (e.g., "last 2 versions") |
 | `--browserslistPath <path>` | Path to custom browserslist configuration (default: uses standard browserslist config resolution) |
 | `--browserslistEnv <env>` | Browserslist environment to use (default: production) |
 | `--config <path>` | Path to custom .escheckrc config file |
@@ -198,6 +199,16 @@ es-check es2022 './dist/**/*.js' --checkFeatures --checkForPolyfills
 es-check --config=./configs/production.escheckrc.json
 ```
 
+**Using a custom browserslist query:**
+```sh
+es-check --checkBrowser --browserslistQuery="last 2 versions" ./dist/**/*.js
+```
+
+**Using browserslist with custom query and feature checking:**
+```sh
+es-check --checkBrowser --browserslistQuery=">0.5%, not dead" --checkFeatures ./dist/**/*.js
+```
+
 ---
 
 ## Usage
@@ -235,6 +246,7 @@ Here's an example of what an `.escheckrc` file will look like:
   "ignore": ["ErrorCause", "TopLevelAwait"],
   "allowList": ["ArrayToSorted", "ObjectHasOwn"],
   "checkBrowser": false,
+  "browserslistQuery": "last 2 versions",
   "browserslistPath": "./config/.browserslistrc",
   "browserslistEnv": "production"
 }
@@ -255,6 +267,7 @@ Here's an example of what an `.escheckrc` file will look like:
 | `ignore` | Array | Features to ignore when checking |
 | `allowList` | Array | Features to allow even in lower ES versions |
 | `checkBrowser` | Boolean | Whether to use browserslist configuration to determine ES version |
+| `browserslistQuery` | String | Custom browserslist query to use |
 | `browserslistPath` | String | Path to custom browserslist configuration |
 | `browserslistEnv` | String | Browserslist environment to use |
 
