@@ -65,6 +65,7 @@
     "commander": "13.1.0",
     "fast-glob": "^3.3.3",
     "lilconfig": "^3.0.0",
+    "source-map": "^0.7.4",
     "supports-color": "8.1.1",
     "winston": "3.17.0"
   },
