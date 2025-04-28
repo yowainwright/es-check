@@ -63,3 +63,6 @@ package-lock.json
 .dccache
 .husky
 .pnpm-store
+
+.specstory/.project.json
+.specstory
