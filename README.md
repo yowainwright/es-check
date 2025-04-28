@@ -462,6 +462,22 @@ es-check --checkBrowser --checkFeatures ./dist/**/*.js
 
 ---
 
+## Checking node_modules Dependencies
+
+To check node_modules dependencies for ES compatibility:
+
+```sh
+// Check a specific package
+npx es-check es5 ./node_modules/some-package/dist/index.js
+
+// Check all JS files in node_modules
+npx es-check es5 './node_modules/**/*.js'
+```
+
+A simple example script is available in `examples/check-node-modules.js`.
+
+---
+
 ## Acknowledgements
 
 ES Check is a small utility using powerful tools that [Isaac Z. Schlueter](https://github.com/isaacs), [Marijn Haverbeke](https://github.com/marijnh), and [Matthias Etienne](https://github.com/mattallty) built. [ES Checker](https://github.com/ruanyf/es-checker) by [Ruan YiFeng](https://github.com/ruanyf) checks the JavaScript version supported within a [browser](http://ruanyf.github.io/es-checker/) at run time. ES Check offers similar feedback to ES Checker but at build time and is specific to the product that is using it. ES Check was started after reading this [post](https://philipwalton.com/articles/deploying-es2015-code-in-production-today/) about [deploying es2015 code to production today] by [Philip Walton](https://github.com/philipwalton).
