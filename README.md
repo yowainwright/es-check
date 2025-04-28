@@ -147,6 +147,43 @@ Here's a comprehensive list of all available options:
 | `--config <path>` | Path to custom .escheckrc config file |
 | `-h, --help` | Display help for command |
 
+### Shell Completion
+
+ES Check supports shell tab completion for commands and options. You can generate completion scripts for bash and zsh shells:
+
+```sh
+# Generate completion script for bash (default)
+es-check completion
+
+# Generate completion script for zsh
+es-check completion zsh
+```
+
+To enable completions in your shell:
+
+**Bash:**
+
+```sh
+# Add to ~/.bashrc or ~/.bash_profile
+es-check completion > ~/.es-check-completion.bash
+echo 'source ~/.es-check-completion.bash' >> ~/.bashrc
+```
+
+**Zsh:**
+
+```sh
+# Add to ~/.zshrc
+es-check completion zsh > ~/.es-check-completion.zsh
+echo 'source ~/.es-check-completion.zsh' >> ~/.zshrc
+```
+
+Once enabled, you can use tab completion for:
+
+- ES versions (es5, es6, etc.)
+- Commands (completion)
+- Options (--module, --checkFeatures, etc.)
+- File paths
+
 #### Examples
 
 **Using ES modules:**

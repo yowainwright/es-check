@@ -1,3 +1,6 @@
 [tools]
 node = "23"
 pnpm = "latest"
+
+[experimental]
+shell_hook = false

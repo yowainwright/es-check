@@ -14,6 +14,17 @@ const pkg = require('./package.json')
 const { lilconfig } = require('lilconfig');
 const { parseIgnoreList } = require('./utils');
 
+// Register completion command (hidden from help)
+program.configureOutput({
+  writeOut: (str) => process.stdout.write(str),
+  writeErr: (str) => process.stderr.write(str),
+  outputError: (str, write) => write(str)
+});
+
+program.showHelpAfterError();
+program.enablePositionalOptions();
+program.showSuggestionAfterError();
+
 /**
  * es-check 🏆
  * ----
@@ -23,6 +34,170 @@ const { parseIgnoreList } = require('./utils');
  *   to to test the EcmaScript version of each file
  * - error failures
  */
+// Add completion command
+program
+  .command('completion')
+  .description('generate shell completion script')
+  .argument('[shell]', 'shell type: bash, zsh', 'bash')
+  .action((shell) => {
+    // Generate completion script for the specified shell
+    let completionScript;
+
+    // Get all available commands and options
+    const commands = ['completion'];
+    const options = [];
+
+    // Extract all options from the program
+    program.options.forEach(opt => {
+      const flag = opt.long || opt.short;
+      if (flag) {
+        options.push(flag.replace(/^-+/, ''));
+      }
+    });
+
+    switch (shell) {
+      case 'bash':
+        completionScript = generateBashCompletion('es-check', commands, options);
+        break;
+      case 'zsh':
+        completionScript = generateZshCompletion('es-check', commands, options);
+        break;
+      default:
+        console.error(`Shell "${shell}" not supported for completion. Supported shells: bash, zsh`);
+        process.exit(1);
+    }
+
+    console.log(completionScript);
+  });
+
+// Generate bash completion script
+function generateBashCompletion(cmdName, commands, options) {
+  const cmdsStr = commands.join(' ');
+  const optsStr = options.map(opt => '--' + opt).join(' ');
+
+  return `
+# es-check bash completion script
+# Install by adding to ~/.bashrc:
+# source /path/to/es-check-completion.bash
+
+_es_check_completion() {
+  local cur prev opts cmds
+  COMPREPLY=()
+  cur="\${COMP_WORDS[COMP_CWORD]}"
+  prev="\${COMP_WORDS[COMP_CWORD-1]}"
+
+  # List of commands
+  cmds="${cmdsStr}"
+
+  # List of options
+  opts="${optsStr}"
+
+  # ES versions
+  es_versions="es3 es5 es6 es2015 es7 es2016 es8 es2017 es9 es2018 es10 es2019 es11 es2020 es12 es2021 es13 es2022 es14 es2023"
+
+  # Handle special cases based on previous argument
+  case "\$prev" in
+    ${cmdName})
+      # After the main command, suggest ES versions or commands
+      COMPREPLY=( \$(compgen -W "\$es_versions \$cmds \$opts" -- "\$cur") )
+      return 0
+      ;;
+    completion)
+      # After 'completion' command, suggest shell types
+      COMPREPLY=( \$(compgen -W "bash zsh" -- "\$cur") )
+      return 0
+      ;;
+    *)
+      # Default case: suggest options or files
+      if [[ "\$cur" == -* ]]; then
+        # If current word starts with a dash, suggest options
+        COMPREPLY=( \$(compgen -W "\$opts" -- "\$cur") )
+      else
+        # Otherwise suggest files
+        COMPREPLY=( \$(compgen -f -- "\$cur") )
+      fi
+      return 0
+      ;;
+  esac
+}
+
+complete -F _es_check_completion ${cmdName}
+`;
+}
+
+// Generate zsh completion script
+function generateZshCompletion(cmdName, commands, options) {
+  const optionsStr = options.map(opt => `"--${opt}[Option description]"`).join('\n    ');
+  const commandsStr = commands.map(cmd => `"${cmd}:Command description"`).join('\n    ');
+
+  return `
+#compdef ${cmdName}
+
+_es_check() {
+  local -a commands options es_versions
+
+  # ES versions
+  es_versions=(
+    "es3:ECMAScript 3"
+    "es5:ECMAScript 5"
+    "es6:ECMAScript 2015"
+    "es2015:ECMAScript 2015"
+    "es7:ECMAScript 2016"
+    "es2016:ECMAScript 2016"
+    "es8:ECMAScript 2017"
+    "es2017:ECMAScript 2017"
+    "es9:ECMAScript 2018"
+    "es2018:ECMAScript 2018"
+    "es10:ECMAScript 2019"
+    "es2019:ECMAScript 2019"
+    "es11:ECMAScript 2020"
+    "es2020:ECMAScript 2020"
+    "es12:ECMAScript 2021"
+    "es2021:ECMAScript 2021"
+    "es13:ECMAScript 2022"
+    "es2022:ECMAScript 2022"
+    "es14:ECMAScript 2023"
+    "es2023:ECMAScript 2023"
+  )
+
+  # Commands
+  commands=(
+    ${commandsStr}
+  )
+
+  # Options
+  options=(
+    ${optionsStr}
+  )
+
+  # Handle subcommands
+  if (( CURRENT > 2 )); then
+    case \${words[2]} in
+      completion)
+        _arguments "1:shell:(bash zsh)"
+        return
+        ;;
+    esac
+  fi
+
+  # Main completion
+  _arguments -C \\
+    "1: :{_describe 'command or ES version' es_versions -- commands}" \\
+    "*:: :->args"
+
+  case \$state in
+    args)
+      _arguments -s : \\
+        \$options \\
+        "*:file:_files"
+      ;;
+  esac
+}
+
+_es_check
+`;
+}
+
 program
   .version(pkg.version)
   .argument(
