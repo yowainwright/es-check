@@ -27,7 +27,8 @@
     "report:coverage": "nyc report --reporter=lcov > coverage.lcov && codecov",
     "setup": "pnpm install --reporter=silent",
     "test": "nyc mocha test.js utils.test.js browserslist.test.js polyfill.test.js completion.test.js --timeout 10s",
-    "update": "codependence --update"
+    "update": "codependence --update",
+    "benchmark": "node benchmarks/generate-test-files.js 100 && node benchmarks/compare-tools.js 5 ./benchmarks/test-files"
   },
   "repository": {
     "type": "git",
