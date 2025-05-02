@@ -183,7 +183,7 @@ const tools = [
   {
     name: 'acorn (direct)',
     run: async (testFiles) => {
-      // Create a simple script to check files with Acorn directly
+
       const acornCheckScript = `
         const acorn = require('acorn');
         const fs = require('fs');
@@ -219,9 +219,9 @@ const tools = [
       try {
         await execFileAsync('node', [tempScriptPath]);
       } catch (error) {
-        // Ignore errors - we're just measuring performance
+
       } finally {
-        // Clean up temp script
+
         fs.unlinkSync(tempScriptPath);
       }
       return performance.now() - startTime;
@@ -230,7 +230,7 @@ const tools = [
   {
     name: 'eslint',
     run: async (testFiles) => {
-      // Check if eslint is installed
+
       try {
         fs.accessSync('./node_modules/eslint');
       } catch (error) {
@@ -238,7 +238,7 @@ const tools = [
         await execFileAsync('npm', ['install', '--no-save', 'eslint', 'eslint-plugin-es5']);
       }
 
-      // Create a temporary ESLint config
+
       const eslintConfig = {
         "plugins": ["es5"],
         "extends": "plugin:es5/no-es2015",
@@ -253,7 +253,7 @@ const tools = [
       const tempConfigPath = path.join(__dirname, '.eslintrc.json');
       fs.writeFileSync(tempConfigPath, JSON.stringify(eslintConfig, null, 2));
 
-      // Create a simple script to check files with ESLint
+
       const eslintCheckScript = `
         const { ESLint } = require('eslint');
         const fs = require('fs');
@@ -267,7 +267,7 @@ const tools = [
 
           const files = ${JSON.stringify(testFiles)};
 
-          // Only lint files, don't care about results for benchmark
+
           await eslint.lintFiles(files);
         }
 
@@ -281,9 +281,9 @@ const tools = [
       try {
         await execFileAsync('node', [tempScriptPath]);
       } catch (error) {
-        // Ignore errors - we're just measuring performance
+
       } finally {
-        // Clean up temp files
+
         fs.unlinkSync(tempScriptPath);
         fs.unlinkSync(tempConfigPath);
       }
@@ -323,7 +323,7 @@ async function runBenchmarks() {
     process.exit(1);
   }
 
-  // Sample a subset of files if there are too many
+
   const maxFiles = 100;
   const filesToTest = testFiles.length > maxFiles
     ? testFiles.slice(0, maxFiles)
@@ -345,7 +345,7 @@ async function runBenchmarks() {
       process.stdout.write(`${time.toFixed(2)}ms\n`);
     }
 
-    // Calculate statistics
+
     const sum = times.reduce((a, b) => a + b, 0);
     const avg = sum / times.length;
     const min = Math.min(...times);
