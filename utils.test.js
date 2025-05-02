@@ -128,7 +128,7 @@ describe('Check Functions', function () {
 
   describe('checkCallExpression', () => {
     const { checkMap } = require('./utils');
-  
+
     it('correctly distinguishes between global calls and member expressions', () => {
       const symbolNode = {
         type: 'CallExpression',
@@ -137,7 +137,7 @@ describe('Check Functions', function () {
           name: 'Symbol'
         }
       };
-      
+
       const getElementNode = {
         type: 'CallExpression',
         callee: {
@@ -152,13 +152,97 @@ describe('Check Functions', function () {
           }
         }
       };
-  
-      assert.strictEqual(checkMap.CallExpression(symbolNode, { callee: 'Symbol' }), true);    
+
+      assert.strictEqual(checkMap.CallExpression(symbolNode, { callee: 'Symbol' }), true);
       assert.strictEqual(checkMap.CallExpression(getElementNode, { callee: 'getElementById' }), false);
-      assert.strictEqual(checkMap.CallExpression(getElementNode, { 
+      assert.strictEqual(checkMap.CallExpression(getElementNode, {
         object: 'window',
         property: 'getElementById'
       }), true);
+    });
+  });
+
+  describe('checkNewExpression for ErrorCause', () => {
+    it('should return false for Error without cause option', () => {
+      const node = {
+        type: 'NewExpression',
+        callee: {
+          type: 'Identifier',
+          name: 'Error'
+        },
+        arguments: [
+          {
+            type: 'Literal',
+            value: 'Something went wrong'
+          }
+        ]
+      };
+
+      const astInfo = {
+        callee: 'Error',
+        hasOptionsCause: true
+      };
+
+      const result = checkMap.NewExpression(node, astInfo);
+      assert.strictEqual(result, false);
+    });
+
+    it('should return true for Error with cause option', () => {
+      const node = {
+        type: 'NewExpression',
+        callee: {
+          type: 'Identifier',
+          name: 'Error'
+        },
+        arguments: [
+          {
+            type: 'Literal',
+            value: 'Something went wrong'
+          },
+          {
+            type: 'ObjectExpression',
+            properties: [
+              {
+                type: 'Property',
+                key: {
+                  type: 'Identifier',
+                  name: 'cause'
+                },
+                value: {
+                  type: 'Identifier',
+                  name: 'e'
+                }
+              }
+            ]
+          }
+        ]
+      };
+
+      const astInfo = {
+        callee: 'Error',
+        hasOptionsCause: true
+      };
+
+      const result = checkMap.NewExpression(node, astInfo);
+      assert.strictEqual(result, true);
+    });
+
+    it('should return true for other NewExpressions without hasOptionsCause', () => {
+      const node = {
+        type: 'NewExpression',
+        callee: {
+          type: 'Identifier',
+          name: 'Promise'
+        },
+        arguments: []
+      };
+
+      const astInfo = {
+        callee: 'Promise'
+      };
+
+      const result = checkMap.NewExpression(node, astInfo);
+      assert.strictEqual(result, true);
     });
   });
 

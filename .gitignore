@@ -65,4 +65,5 @@ package-lock.json
 .pnpm-store
 
 .specstory/.project.json
-.specstory
+.specstory/*
+.specstory/.what-is-this.md
