@@ -126,24 +126,19 @@ function generateTestFiles() {
 
   ensureDirectoryExists(outputDir);
 
-  // Calculate number of files for each ES version
   const es5Count = Math.floor(numFiles * 0.4); // 40% ES5
   const es6Count = Math.floor(numFiles * 0.4); // 40% ES6
   const es2020Count = numFiles - es5Count - es6Count; // Remaining as ES2020+
 
-  // Generate ES5 files
   for (let i = 0; i < es5Count; i++) {
     const filePath = path.join(outputDir, `es5-file-${i + 1}.js`);
     writeFileSync(filePath, es5Template);
   }
-
-  // Generate ES6 files
   for (let i = 0; i < es6Count; i++) {
     const filePath = path.join(outputDir, `es6-file-${i + 1}.js`);
     writeFileSync(filePath, es6Template);
   }
 
-  // Generate ES2020+ files
   for (let i = 0; i < es2020Count; i++) {
     const filePath = path.join(outputDir, `es2020-file-${i + 1}.js`);
     writeFileSync(filePath, es2020Template);
