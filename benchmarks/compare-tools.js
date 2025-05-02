@@ -73,7 +73,7 @@ const tools = [
   {
     name: 'swc/core (rustpack)',
     run: async (testFiles) => {
-      // Check if @swc/core is installed
+
       try {
         fs.accessSync('./node_modules/@swc/core');
       } catch (error) {
@@ -81,7 +81,7 @@ const tools = [
         await execFileAsync('npm', ['install', '--no-save', '@swc/core']);
       }
 
-      // Create a simple script to check files with SWC
+
       const swcCheckScript = `
         const swc = require('@swc/core');
         const fs = require('fs');
@@ -117,9 +117,9 @@ const tools = [
       try {
         await execFileAsync('node', [tempScriptPath]);
       } catch (error) {
-        // Ignore errors - we're just measuring performance
+
       } finally {
-        // Clean up temp script
+
         fs.unlinkSync(tempScriptPath);
       }
       return performance.now() - startTime;
@@ -128,7 +128,7 @@ const tools = [
   {
     name: 'babel-parser',
     run: async (testFiles) => {
-      // Check if @babel/parser is installed
+
       try {
         fs.accessSync('./node_modules/@babel/parser');
       } catch (error) {
@@ -136,7 +136,7 @@ const tools = [
         await execFileAsync('npm', ['install', '--no-save', '@babel/parser']);
       }
 
-      // Create a simple script to check files with Babel parser
+
       const babelCheckScript = `
         const parser = require('@babel/parser');
         const fs = require('fs');
