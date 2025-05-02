@@ -149,7 +149,29 @@ const checkMap = {
     if (!node.callee || node.callee.type !== 'Identifier') {
       return false;
     }
-    return node.callee.name === astInfo.callee;
+
+    if (node.callee.name !== astInfo.callee) {
+      return false;
+    }
+
+    if (astInfo.hasOptionsCause) {
+      if (!node.arguments || node.arguments.length < 2) {
+        return false;
+      }
+
+      const secondArg = node.arguments[1];
+      if (secondArg.type !== 'ObjectExpression') {
+        return false;
+      }
+
+      return secondArg.properties.some(prop =>
+        prop.key &&
+        prop.key.type === 'Identifier' &&
+        prop.key.name === 'cause'
+      );
+    }
+
+    return true;
   },
   default: () => false
 };
