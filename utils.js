@@ -150,36 +150,27 @@ const checkMap = {
       return false;
     }
 
-    // Basic check: callee name must match
     if (node.callee.name !== astInfo.callee) {
       return false;
     }
 
-    // If we're checking for ErrorCause (hasOptionsCause is true), we need to check
-    // if the Error constructor is called with a cause option
     if (astInfo.hasOptionsCause) {
-      // We need at least 2 arguments for Error constructor with cause
       if (!node.arguments || node.arguments.length < 2) {
         return false;
       }
 
-      // The second argument should be an object expression
       const secondArg = node.arguments[1];
       if (secondArg.type !== 'ObjectExpression') {
         return false;
       }
 
-      // Check if any of the properties has a key named 'cause'
-      const hasCauseProperty = secondArg.properties.some(prop =>
+      return secondArg.properties.some(prop =>
         prop.key &&
         prop.key.type === 'Identifier' &&
         prop.key.name === 'cause'
       );
-
-      return hasCauseProperty;
     }
 
-    // For other NewExpression checks, just matching the callee name is enough
     return true;
   },
   default: () => false
