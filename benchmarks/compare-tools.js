@@ -1,18 +1,5 @@
 #!/usr/bin/env node
 
-/**
- * Benchmark script to compare es-check with similar tools
- *
- * This script measures the performance of es-check and other similar tools
- * like are-you-es5 when checking JavaScript files for ES compatibility.
- *
- * Usage:
- *   node benchmarks/compare-tools.js [iterations] [testDir]
- *
- * Example:
- *   node benchmarks/compare-tools.js 5 ./test-files
- */
-
 const { execFile } = require('child_process');
 const { promisify } = require('util');
 const fs = require('fs');
@@ -21,16 +8,12 @@ const { performance } = require('perf_hooks');
 
 const execFileAsync = promisify(execFile);
 
-// Configuration
 const iterations = parseInt(process.argv[2], 10) || 5;
 const testDir = process.argv[3] || './node_modules';
 const esVersion = 'es5';
-
-// Tools to benchmark
 const tools = [
   {
     name: 'es-check',
-    // Run es-check on all JS files in the test directory
     run: async (testFiles) => {
       const startTime = performance.now();
       try {
@@ -48,9 +31,8 @@ const tools = [
   },
   {
     name: 'are-you-es5',
-    // Run are-you-es5 on the test directory
     run: async (testFiles) => {
-      // Check if are-you-es5 is installed
+
       try {
         fs.accessSync('./node_modules/.bin/are-you-es5');
       } catch (error) {
@@ -65,14 +47,13 @@ const tools = [
           testFiles.join(',')
         ]);
       } catch (error) {
-        // Ignore errors - we're just measuring performance
+
       }
       return performance.now() - startTime;
     }
   },
   {
     name: 'es-check-bundled',
-    // Run es-check with the --module flag to simulate checking bundled code
     run: async (testFiles) => {
       const startTime = performance.now();
       try {
@@ -84,14 +65,13 @@ const tools = [
           '--silent'
         ]);
       } catch (error) {
-        // Ignore errors - we're just measuring performance
+
       }
       return performance.now() - startTime;
     }
   },
   {
     name: 'swc/core (rustpack)',
-    // Run SWC to check ES compatibility
     run: async (testFiles) => {
       // Check if @swc/core is installed
       try {
@@ -147,7 +127,6 @@ const tools = [
   },
   {
     name: 'babel-parser',
-    // Run Babel parser to check ES compatibility
     run: async (testFiles) => {
       // Check if @babel/parser is installed
       try {
@@ -203,7 +182,6 @@ const tools = [
   },
   {
     name: 'acorn (direct)',
-    // Run Acorn parser directly (what es-check uses under the hood)
     run: async (testFiles) => {
       // Create a simple script to check files with Acorn directly
       const acornCheckScript = `
@@ -251,7 +229,6 @@ const tools = [
   },
   {
     name: 'eslint',
-    // Run ESLint to check ES compatibility
     run: async (testFiles) => {
       // Check if eslint is installed
       try {
@@ -315,15 +292,11 @@ const tools = [
   }
 ];
 
-/**
- * Find JavaScript files in a directory
- * @param {string} dir - Directory to search
- * @returns {Promise<string[]>} - Array of file paths
- */
+
 async function findJsFiles(dir) {
   const files = [];
 
-  // Use glob pattern to find JS files
+
   try {
     const { default: glob } = await import('fast-glob');
     return await glob(`${dir}/**/*.js`, {
@@ -336,13 +309,11 @@ async function findJsFiles(dir) {
   }
 }
 
-/**
- * Run benchmarks for all tools
- */
+
 async function runBenchmarks() {
   console.log(`Running benchmarks (${iterations} iterations each)...`);
 
-  // Find test files
+
   console.log(`Finding JavaScript files in ${testDir}...`);
   const testFiles = await findJsFiles(testDir);
   console.log(`Found ${testFiles.length} JavaScript files to test`);
@@ -360,7 +331,7 @@ async function runBenchmarks() {
 
   console.log(`Testing with ${filesToTest.length} files`);
 
-  // Run benchmarks for each tool
+
   const results = {};
 
   for (const tool of tools) {
@@ -387,7 +358,7 @@ async function runBenchmarks() {
     console.log(`  Max: ${max.toFixed(2)}ms`);
   }
 
-  // Compare results
+
   console.log('\n=== COMPARISON ===');
   const sortedTools = Object.keys(results).sort((a, b) => results[a].avg - results[b].avg);
 
@@ -400,7 +371,7 @@ async function runBenchmarks() {
     console.log(`${index + 1}. ${toolName}: ${avg.toFixed(2)}ms ${index === 0 ? '(fastest)' : `(${percentSlower.toFixed(2)}% slower)`}`);
   });
 
-  // Generate markdown table
+
   console.log('\n=== MARKDOWN TABLE ===');
   console.log('| Tool | Average (ms) | Min (ms) | Max (ms) | Relative Performance |');
   console.log('|------|-------------|----------|----------|----------------------|');
@@ -416,7 +387,7 @@ async function runBenchmarks() {
   });
 }
 
-// Run the benchmarks
+
 runBenchmarks().catch(error => {
   console.error('Error running benchmarks:', error);
   process.exit(1);
