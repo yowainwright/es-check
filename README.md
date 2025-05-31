@@ -237,11 +237,13 @@ es-check --config=./configs/production.escheckrc.json
 ```
 
 **Using a custom browserslist query:**
+
 ```sh
 es-check --checkBrowser --browserslistQuery="last 2 versions" ./dist/**/*.js
 ```
 
 **Using browserslist with custom query and feature checking:**
+
 ```sh
 es-check --checkBrowser --browserslistQuery=">0.5%, not dead" --checkFeatures ./dist/**/*.js
 ```
@@ -256,10 +258,10 @@ Here are some example of **es check** scripts that could be run:
 
 ```sh
 # globs
-es-check ./js/*.js
+es-check es6 ./js/*.js
 
 # array of arguments
-es-check ./js/*.js ./dist/*.js
+es-check es6 ./js/*.js ./dist/*.js
 ```
 
 ---

@@ -202,7 +202,7 @@ program
   .version(pkg.version)
   .argument(
     '[ecmaVersion]',
-    'ecmaVersion to check files against. Can be: es3, es4, es5, es6/es2015, es7/es2016, es8/es2017, es9/es2018, es10/es2019, es11/es2020, es12/es2021, es13/es2022, es14/es2023',
+    'ecmaVersion to check files against. Can be: es3, es4, es5, es6/es2015, es7/es2016, es8/es2017, es9/es2018, es10/es2019, es11/es2020, es12/es2021, es13/es2022, es14/es2023, checkBrowser',
   )
   .argument('[files...]', 'a glob of files to to test the EcmaScript version against')
   .option('--module', 'use ES modules')
@@ -225,7 +225,7 @@ program
   .addOption(new Option('--ignore-file <path>', 'path to JSON file containing features to ignore').hideHelp())
   .option('--ignoreFile <path>', 'path to JSON file containing features to ignore')
   .option('--allowList <features>', 'comma-separated list of features to allow even in lower ES versions, e.g., "const,let"')
-  .option('--checkBrowser', 'use browserslist configuration to determine ES version')
+  .addOption(new Option('--checkBrowser', 'use browserslist configuration to determine ES version, use checkBrowser argument instead of ecmaVersion').hideHelp())
   .option('--browserslistQuery <query>', 'browserslist query')
   .option('--browserslistPath <path>', 'path to custom browserslist configuration')
   .option('--browserslistEnv <env>', 'browserslist environment to use')
@@ -303,6 +303,7 @@ program
         logger.warn(`Warning: Ignore file '${ignoreFilePath}' does not exist or is not accessible`);
       }
 
+
       const singleConfig = {
         ecmaVersion: ecmaVersionArg,
         files: filesArg?.length ? filesArg : options.files?.split(','),
@@ -354,8 +355,8 @@ async function runChecks(configs, logger) {
       logger.warn(`Warning: Ignore file '${ignoreFilePath}' does not exist or is not accessible`);
     }
 
-    if (!expectedEcmaVersion) {
-      logger.error('No ecmaScript version specified in configuration');
+    if (!expectedEcmaVersion && !config.checkBrowser) {
+      logger.error('No ecmaScript version or checkBrowser option specified in configuration');
       process.exit(1);
     }
 
@@ -389,8 +390,8 @@ async function runChecks(configs, logger) {
      */
     let ecmaVersion
 
-    // If checkBrowser option is enabled, use browserslist to determine ES version
-    if (config.checkBrowser) {
+    const isBrowserslistCheck = config.checkBrowser || expectedEcmaVersion === 'checkBrowser';
+    if (isBrowserslistCheck) {
       try {
         const { getESVersionFromBrowserslist } = require('./browserslist');
         const esVersionFromBrowserslist = getESVersionFromBrowserslist({
