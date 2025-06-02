@@ -512,7 +512,133 @@ const NODE_TYPES = {
   NEW_EXPRESSION: 'NewExpression',
 };
 
+const BROWSER_TO_ES_VERSION = {
+  ie: {
+    '11': 5
+  },
+  edge: {
+    '15': 6,
+    '16': 7,
+    '17': 8,
+    '18': 9,
+    '79': 10, // Chromium-based Edge
+    '80': 11
+  },
+  firefox: {
+    '52': 6,
+    '55': 7,
+    '60': 8,
+    '65': 9,
+    '70': 10,
+    '75': 11
+  },
+  chrome: {
+    '51': 6,
+    '55': 7,
+    '60': 8,
+    '70': 9,
+    '75': 10,
+    '80': 11
+  },
+  safari: {
+    '10': 6,
+    '10.1': 7,
+    '11': 8,
+    '12': 9,
+    '13': 10,
+    '13.1': 11
+  },
+  opera: {
+    '38': 6,
+    '42': 7,
+    '47': 8,
+    '57': 9,
+    '62': 10,
+    '67': 11
+  },
+  ios_saf: {
+    '10': 6,
+    '10.3': 7,
+    '11': 8,
+    '12': 9,
+    '13': 10,
+    '13.4': 11
+  },
+  android: {
+    '67': 6,
+    '76': 7,
+    '80': 8,
+    '85': 9,
+    '90': 10,
+    '95': 11
+  }
+};
+
+/**
+ * Maps feature names from ES_FEATURES to their polyfill patterns
+ * This helps us identify which features are being polyfilled
+ */
+const FEATURE_TO_POLYFILL_MAP = {
+  // Array methods
+  'ArrayToSorted': [
+    /Array\.prototype\.toSorted/,
+    /from\s+['"]core-js\/modules\/es\.array\.to-sorted['"]/
+  ],
+  'ArrayFindLast': [
+    /Array\.prototype\.findLast/,
+    /from\s+['"]core-js\/modules\/es\.array\.find-last['"]/
+  ],
+  'ArrayFindLastIndex': [
+    /Array\.prototype\.findLastIndex/,
+    /from\s+['"]core-js\/modules\/es\.array\.find-last-index['"]/
+  ],
+  'ArrayAt': [
+    /Array\.prototype\.at/,
+    /from\s+['"]core-js\/modules\/es\.array\.at['"]/
+  ],
+
+  // String methods
+  'StringReplaceAll': [
+    /String\.prototype\.replaceAll/,
+    /from\s+['"]core-js\/modules\/es\.string\.replace-all['"]/
+  ],
+  'StringMatchAll': [
+    /String\.prototype\.matchAll/,
+    /from\s+['"]core-js\/modules\/es\.string\.match-all['"]/
+  ],
+  'StringAt': [
+    /String\.prototype\.at/,
+    /from\s+['"]core-js\/modules\/es\.string\.at['"]/
+  ],
+
+  // Object methods
+  'ObjectHasOwn': [
+    /Object\.hasOwn/,
+    /from\s+['"]core-js\/modules\/es\.object\.has-own['"]/
+  ],
+
+  // Promise methods
+  'PromiseAny': [
+    /Promise\.any/,
+    /from\s+['"]core-js\/modules\/es\.promise\.any['"]/
+  ],
+
+  // RegExp methods
+  'RegExpExec': [
+    /RegExp\.prototype\.exec/,
+    /from\s+['"]core-js\/modules\/es\.regexp\.exec['"]/
+  ],
+
+  // Global methods
+  'GlobalThis': [
+    /globalThis/,
+    /from\s+['"]core-js\/modules\/es\.global-this['"]/
+  ],
+};
+
 module.exports = {
   ES_FEATURES,
   NODE_TYPES,
+  BROWSER_TO_ES_VERSION,
+  FEATURE_TO_POLYFILL_MAP
 };

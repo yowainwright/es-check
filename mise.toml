@@ -1,5 +1,5 @@
 [tools]
-node = "23"
+node = "24"
 pnpm = "latest"
 
 [experimental]
