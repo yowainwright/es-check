@@ -26,7 +26,7 @@
     "release": "release-it --no-git.requireUpstream",
     "report:coverage": "nyc report --reporter=lcov > coverage.lcov && codecov",
     "setup": "pnpm install --reporter=silent",
-    "test": "nyc mocha test.js utils.test.js browserslist.test.js polyfill.test.js completion.test.js --timeout 10s",
+    "test": "nyc mocha test.js utils.test.js browserslist.test.js polyfill.test.js detectFeatures.test.js --timeout 10s",
     "update": "codependence --update",
     "benchmark": "./benchmarks/run-benchmarks.sh"
   },
