@@ -1,13 +1,10 @@
 const assert = require('assert');
-const { exec } = require('child_process');
 const {
   checkVarKindMatch,
   checkCalleeMatch,
   checkOperatorMatch,
   checkDefault,
   checkMap,
-  generateBashCompletion,
-  generateZshCompletion
 } = require('./utils');
 
 describe('Check Functions', function () {
@@ -325,7 +322,3 @@ describe('Check Functions', function () {
     });
   });
 });
-
-// Shell Completion Functions tests removed
-
-// Edge cases for utility functions tests removed
