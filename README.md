@@ -237,11 +237,13 @@ es-check --config=./configs/production.escheckrc.json
 ```
 
 **Using a custom browserslist query:**
+
 ```sh
 es-check --checkBrowser --browserslistQuery="last 2 versions" ./dist/**/*.js
 ```
 
 **Using browserslist with custom query and feature checking:**
+
 ```sh
 es-check --checkBrowser --browserslistQuery=">0.5%, not dead" --checkFeatures ./dist/**/*.js
 ```
@@ -256,10 +258,10 @@ Here are some example of **es check** scripts that could be run:
 
 ```sh
 # globs
-es-check ./js/*.js
+es-check es6 ./js/*.js
 
 # array of arguments
-es-check ./js/*.js ./dist/*.js
+es-check es6 ./js/*.js ./dist/*.js
 ```
 
 ---
@@ -435,17 +437,21 @@ ES Check provides three ways to handle polyfilled features:
 ES-Check can use your project's browserslist configuration to automatically determine which ES version to check against:
 
 ```sh
-es-check --checkBrowser ./dist/**/*.js
+# Using --checkBrowser flag with browserslist query
+es-check --checkBrowser --browserslistQuery="last 2 versions" ./dist/**/*.js
+
+# Using 'checkBrowser' as the ES version argument
+es-check checkBrowser --browserslistQuery="last 2 versions" ./dist/**/*.js
 ```
 
 This will read your browserslist configuration (from `.browserslistrc`, `package.json`, etc.) and determine the appropriate ES version based on your targeted browsers.
 
 ### Examples with Browserslist
 
-**Using a custom browserslist path:**
+**Using a custom browserslist query:**
 
 ```sh
-es-check --checkBrowser --browserslistPath="./config/.browserslistrc" ./dist/**/*.js
+es-check --checkBrowser --browserslistQuery="last 2 versions" ./dist/**/*.js
 ```
 
 **Using a specific browserslist environment:**
@@ -459,6 +465,8 @@ es-check --checkBrowser --browserslistEnv="production" ./dist/**/*.js
 ```sh
 es-check --checkBrowser --checkFeatures ./dist/**/*.js
 ```
+
+⚠️ **NOTE:** When using `--checkBrowser`, you must also provide a `--browserslistQuery` or have a valid browserslist configuration in your project.
 
 ---
 

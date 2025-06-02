@@ -1,4 +1,6 @@
 const fs = require('fs');
+const winston = require('winston');
+const supportsColor = require('supports-color');
 
 /**
  * Parse ignore list from options
@@ -8,16 +10,13 @@ const fs = require('fs');
  * @returns {Set<string>} Set of features to ignore
  */
 function parseIgnoreList(options) {
-  // Handle case where options is undefined or null
   if (!options) {
     return new Set();
   }
 
   const ignoreList = new Set();
 
-  // Handle comma-separated CLI list
   if (options.ignore) {
-    // Early return if ignore is empty
     if (options.ignore.trim() === '') {
       return ignoreList;
     }
@@ -30,9 +29,7 @@ function parseIgnoreList(options) {
     });
   }
 
-  // Handle allowList (features to allow even in lower ES versions)
   if (options.allowList) {
-    // Early return if allowList is empty
     if (options.allowList.trim() === '') {
       return ignoreList;
     }
@@ -45,24 +42,19 @@ function parseIgnoreList(options) {
     });
   }
 
-  // Get ignoreFile from either camelCase or kebab-case option
   const ignoreFilePath = options.ignoreFile || options['ignore-file'];
 
-  // If no ignore file is specified, return early with what we have
   if (!ignoreFilePath) {
     return ignoreList;
   }
 
-  // Handle ignore file
   try {
-    // Check if file exists
     if (!fs.existsSync(ignoreFilePath)) {
       throw new Error(`Ignore file not found: ${ignoreFilePath}`);
     }
 
     const fileContent = fs.readFileSync(ignoreFilePath, 'utf8');
 
-    // Early return if file is empty
     if (!fileContent.trim()) {
       return ignoreList;
     }
@@ -87,13 +79,11 @@ function parseIgnoreList(options) {
   return ignoreList;
 }
 
-// Check if node.kind matches astInfo.kind
 function checkVarKindMatch(node, astInfo) {
   if (!astInfo.kind) return false;
   return node.kind === astInfo.kind;
 }
 
-// Check if node.callee.name matches astInfo.callee
 function checkCalleeMatch(node, astInfo) {
   if (!astInfo.callee) return false;
   if (!node.callee) return false;
@@ -101,26 +91,21 @@ function checkCalleeMatch(node, astInfo) {
   return node.callee.name === astInfo.callee;
 }
 
-// Check if node.operator matches astInfo.operator
 function checkOperatorMatch(node, astInfo) {
   if (!astInfo.operator) return false;
   return node.operator === astInfo.operator;
 }
 
-// Default check function that always returns true
 function checkDefault() {
   return true;
 }
 
-// Map of node types to check functions
 const checkMap = {
   VariableDeclaration: checkVarKindMatch,
   LogicalExpression: checkOperatorMatch,
   ArrowFunctionExpression: checkDefault,
   CallExpression: (node, astInfo) => {
-    // Handle member expressions (e.g., window.getElementById)
     if (node.callee.type === 'MemberExpression') {
-      // If astInfo has object and property, check if they match
       if (astInfo.object && astInfo.property) {
         return (
           node.callee.object.type === 'Identifier' &&
@@ -129,12 +114,10 @@ const checkMap = {
           node.callee.property.name === astInfo.property
         );
       }
-      // If astInfo only has callee, it's not a match for a member expression
+
       return false;
     } else if (node.callee.type === 'Identifier') {
-      // e.g. Symbol("desc")
       const { callee } = astInfo;
-      // If astInfo.callee is "Symbol", check node.callee.name
       if (callee && node.callee.name === callee) {
         return true;
       }
@@ -145,7 +128,7 @@ const checkMap = {
     if (!astInfo.callee) {
       return false;
     }
-    // e.g. node.callee.type === 'Identifier' && node.callee.name === 'Promise'
+
     if (!node.callee || node.callee.type !== 'Identifier') {
       return false;
     }
@@ -176,11 +159,183 @@ const checkMap = {
   default: () => false
 };
 
+/**
+ * Create a configured logger instance
+ * @param {Object} options - Options object
+ * @param {boolean} [options.noColor] - Disable color output
+ * @param {boolean} [options['no-color']] - Disable color output (kebab-case alternative)
+ * @param {boolean} [options.verbose] - Enable verbose logging
+ * @param {boolean} [options.quiet] - Enable quiet mode (only warnings and errors)
+ * @param {boolean} [options.silent] - Disable all output
+ * @returns {winston.Logger} Configured logger instance
+ */
+function createLogger(options = {}) {
+  const noColor = options?.noColor || options?.['no-color'] || false;
+  const level = options?.verbose ? 'debug' : options?.quiet ? 'warn' : 'info';
+
+  return winston.createLogger({
+    transports: [
+      new winston.transports.Console({
+        silent: options.silent || false,
+        level,
+        stderrLevels: ['error', 'warn'],
+        format: winston.format.combine(
+          ...(supportsColor.stdout || !noColor ? [winston.format.colorize()] : []),
+          winston.format.simple(),
+        ),
+      })
+    ]
+  });
+}
+
+/**
+ * Generate bash completion script for es-check
+ * @param {string} cmdName - Command name
+ * @param {string[]} commands - List of subcommands
+ * @param {string[]} options - List of options
+ * @returns {string} Bash completion script
+ */
+function generateBashCompletion(cmdName, commands, options) {
+  const cmdsStr = commands.join(' ');
+  const optsStr = options.map(opt => '--' + opt).join(' ');
+
+  return `
+# es-check bash completion script
+# Install by adding to ~/.bashrc:
+# source /path/to/es-check-completion.bash
+
+_${cmdName.replace(/-/g, '_')}_completion() {
+  local cur prev opts cmds
+  COMPREPLY=()
+  cur="\${COMP_WORDS[COMP_CWORD]}"
+  prev="\${COMP_WORDS[COMP_CWORD-1]}"
+
+  # List of commands
+  cmds="${cmdsStr}"
+
+  # List of options
+  opts="${optsStr}"
+
+  # ES versions
+  es_versions="es3 es5 es6 es2015 es7 es2016 es8 es2017 es9 es2018 es10 es2019 es11 es2020 es12 es2021 es13 es2022 es14 es2023"
+
+  # Handle special cases based on previous argument
+  case "\$prev" in
+    ${cmdName})
+      # After the main command, suggest ES versions or commands
+      COMPREPLY=( \$(compgen -W "\$es_versions \$cmds \$opts" -- "\$cur") )
+      return 0
+      ;;
+    completion)
+      # After 'completion' command, suggest shell types
+      COMPREPLY=( \$(compgen -W "bash zsh" -- "\$cur") )
+      return 0
+      ;;
+    *)
+      # Default case: suggest options or files
+      if [[ "\$cur" == -* ]]; then
+        # If current word starts with a dash, suggest options
+        COMPREPLY=( \$(compgen -W "\$opts" -- "\$cur") )
+      else
+        # Otherwise suggest files
+        COMPREPLY=( \$(compgen -f -- "\$cur") )
+      fi
+      return 0
+      ;;
+  esac
+}
+
+complete -F _${cmdName.replace(/-/g, '_')}_completion ${cmdName}
+`;
+}
+
+/**
+ * Generate zsh completion script for es-check
+ * @param {string} cmdName - Command name
+ * @param {string[]} commands - List of subcommands
+ * @param {string[]} options - List of options
+ * @returns {string} Zsh completion script
+ */
+function generateZshCompletion(cmdName, commands, options) {
+  const optionsStr = options.map(opt => `"--${opt}[Option description]"`).join('\n    ');
+  const commandsStr = commands.map(cmd => `"${cmd}:Command description"`).join('\n    ');
+
+  return `
+#compdef ${cmdName}
+
+_${cmdName.replace(/-/g, '_')}() {
+  local -a commands options es_versions
+
+  # ES versions
+  es_versions=(
+    "es3:ECMAScript 3"
+    "es5:ECMAScript 5"
+    "es6:ECMAScript 2015"
+    "es2015:ECMAScript 2015"
+    "es7:ECMAScript 2016"
+    "es2016:ECMAScript 2016"
+    "es8:ECMAScript 2017"
+    "es2017:ECMAScript 2017"
+    "es9:ECMAScript 2018"
+    "es2018:ECMAScript 2018"
+    "es10:ECMAScript 2019"
+    "es2019:ECMAScript 2019"
+    "es11:ECMAScript 2020"
+    "es2020:ECMAScript 2020"
+    "es12:ECMAScript 2021"
+    "es2021:ECMAScript 2021"
+    "es13:ECMAScript 2022"
+    "es2022:ECMAScript 2022"
+    "es14:ECMAScript 2023"
+    "es2023:ECMAScript 2023"
+  )
+
+  # Commands
+  commands=(
+    ${commandsStr}
+  )
+
+  # Options
+  options=(
+    ${optionsStr}
+  )
+
+  # Handle subcommands
+  if (( CURRENT > 2 )); then
+    case \${words[2]} in
+      completion)
+        _arguments "1:shell:(bash zsh)"
+        return
+        ;;
+    esac
+  fi
+
+  # Main completion
+  _arguments -C \\
+    "1: :{_describe 'command or ES version' es_versions -- commands}" \\
+    "*:: :->args"
+
+  case \$state in
+    args)
+      _arguments -s : \\
+        \$options \\
+        "*:file:_files"
+      ;;
+  esac
+}
+
+_${cmdName.replace(/-/g, '_')}
+`;
+}
+
 module.exports = {
   parseIgnoreList,
   checkVarKindMatch,
   checkCalleeMatch,
   checkOperatorMatch,
   checkDefault,
-  checkMap
+  checkMap,
+  createLogger,
+  generateBashCompletion,
+  generateZshCompletion
 };
