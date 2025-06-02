@@ -52,7 +52,7 @@
     "codependence": "^0.3.1",
     "commitizen": "4.3.1",
     "conventional-changelog-cli": "^5.0.0",
-    "eslint": "9.27.0",
+    "eslint": "9.28.0",
     "eslint-config-prettier": "10.1.5",
     "eslint-plugin-es5": "^1.5.0",
     "husky": "9.1.7",
@@ -61,7 +61,7 @@
     "nyc": "^17.1.0",
     "path-exists-cli": "^2.0.0",
     "prettier": "3.5.3",
-    "release-it": "19.0.2"
+    "release-it": "19.0.3"
   },
   "dependencies": {
     "acorn": "8.14.1",
