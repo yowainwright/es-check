@@ -67,3 +67,5 @@ package-lock.json
 .specstory/.project.json
 .specstory/*
 .specstory/.what-is-this.md
+.cursorignore
+.vscode
