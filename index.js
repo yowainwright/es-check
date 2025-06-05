@@ -146,6 +146,7 @@ program
     }
 
     const configs = await loadConfig(options.config);
+    const baseConfig = configs[0] || {};
 
     if (ecmaVersionArg || filesArg?.length || options.files) {
       const ignoreFilePath = options.ignoreFile || options['ignore-file'];
@@ -154,24 +155,33 @@ program
         logger.warn(`Warning: Ignore file '${ignoreFilePath}' does not exist or is not accessible`);
       }
 
-
-      const singleConfig = {
-        ecmaVersion: ecmaVersionArg,
-        files: filesArg?.length ? filesArg : options.files?.split(','),
+       const singleConfig = {
+        ...baseConfig,
         module: options.module,
         allowHashBang: options.allowHashBang || options['allow-hash-bang'],
-        not: options.not?.split(','),
-        looseGlobMatching: options.looseGlobMatching || options['loose-glob-matching'],
         checkFeatures: options.checkFeatures,
         checkForPolyfills: options.checkForPolyfills,
-        ignore: options.ignore,
-        ignoreFile: options.ignoreFile || options['ignore-file'],
-        allowList: options.allowList,
+        ignore: options.ignore !== undefined ? options.ignore : baseConfig.ignore,
+        ignoreFile: ignoreFilePath !== undefined ? ignoreFilePath : baseConfig.ignoreFile,
+        not: options.not ? options.not.split(',').map(n => n.trim()).filter(Boolean) : baseConfig.not,
+        looseGlobMatching: options.looseGlobMatching,
+        allowList: options.allowList !== undefined ? options.allowList : baseConfig.allowList,
         checkBrowser: options.checkBrowser,
-        browserslistQuery: options.browserslistQuery,
-        browserslistPath: options.browserslistPath,
-        browserslistEnv: options.browserslistEnv
+        browserslistQuery: options.browserslistQuery !== undefined ? options.browserslistQuery : baseConfig.browserslistQuery,
+        browserslistPath: options.browserslistPath !== undefined ? options.browserslistPath : baseConfig.browserslistPath,
+        browserslistEnv: options.browserslistEnv !== undefined ? options.browserslistEnv : baseConfig.browserslistEnv,
       };
+
+      if (ecmaVersionArg !== undefined) {
+        singleConfig.ecmaVersion = ecmaVersionArg;
+      }
+      // `filesArg` (positional) takes precedence. If not present, use `options.files` (flag). Else, stick with baseConfig.files.
+      if (filesArg?.length) {
+        singleConfig.files = filesArg;
+      } else if (options.files) {
+        singleConfig.files = options.files.split(',').map(f => f.trim()).filter(Boolean);
+      }
+
       return runChecks([singleConfig], logger);
     }
 
@@ -188,7 +198,16 @@ async function runChecks(configs, logger) {
 
   for (const config of configs) {
     const expectedEcmaVersion = config.ecmaVersion;
-    const files = [].concat(config.files || []);
+    let patternsToGlob = [];
+    const configFilesValue = config.files;
+    if (configFilesValue) {
+      if (Array.isArray(configFilesValue)) {
+        patternsToGlob = configFilesValue.map(p => String(p).trim()).filter(Boolean);
+      } else if (typeof configFilesValue === 'string') {
+        patternsToGlob = configFilesValue.split(',').map(p => p.trim()).filter(Boolean);
+      }
+    }
+
     const esmodule = config.module;
     const allowHashBang = config.allowHashBang;
     const pathsToIgnore = [].concat(config.not || []);
@@ -207,29 +226,33 @@ async function runChecks(configs, logger) {
       process.exit(1);
     }
 
-    if (!files.length) {
-      logger.error('No files specified in configuration');
-      process.exit(1);
-    }
-
     if (looseGlobMatching && logger.isLevelEnabled('debug')) {
       logger.debug('ES-Check: loose-glob-matching is set');
     }
 
     const globOpts = { nodir: true }
-    let allMatchedFiles = []
-    files.forEach((pattern) => {
+    let allMatchedFiles = [];
+    if (patternsToGlob.length === 0 && !looseGlobMatching) {
+        logger.error('ES-Check: No file patterns specified to check.');
+        process.exit(1);
+    }
+
+    patternsToGlob.forEach((pattern) => {
       const globbedFiles = glob.sync(pattern, globOpts);
       if (globbedFiles.length === 0 && !looseGlobMatching) {
-        logger.error(`ES-Check: Did not find any files to check for ${pattern}.`)
-        process.exit(1)
+        logger.error(`ES-Check: Did not find any files to check for pattern: ${pattern}.`);
+        process.exit(1);
       }
       allMatchedFiles = allMatchedFiles.concat(globbedFiles);
-    }, []);
+    });
 
     if (allMatchedFiles.length === 0) {
-      logger.error(`ES-Check: Did not find any files to check for ${files}.`)
-      process.exit(1)
+      if (patternsToGlob.length > 0) {
+        logger.error(`ES-Check: Did not find any files to check across all patterns: ${patternsToGlob.join(', ')}.`);
+        process.exit(1);
+      } else if (looseGlobMatching) {
+        logger.warn('ES-Check: No file patterns specified or no files found (running in loose mode).');
+      }
     }
 
     let ecmaVersion
@@ -237,12 +260,6 @@ async function runChecks(configs, logger) {
     const isBrowserslistCheck = Boolean(expectedEcmaVersion === 'checkBrowser' || checkBrowser);
     if (isBrowserslistCheck) {
       const browserslistQuery = config.browserslistQuery;
-      const hasBrowserslistQuery = Boolean(browserslistQuery && browserslistQuery.length > 0);
-      if (!hasBrowserslistQuery) {
-        const errorMsg = 'When using --checkBrowser, you must also provide a --browserslistQuery.';
-        logger.error(errorMsg);
-        process.exit(1);
-      }
       try {
         const { getESVersionFromBrowserslist } = require('./browserslist');
         const esVersionFromBrowserslist = getESVersionFromBrowserslist({

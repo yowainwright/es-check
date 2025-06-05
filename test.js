@@ -575,16 +575,6 @@ describe('CheckBrowser Tests', () => {
     });
   });
 
-  it('👌 Es Check should fail when using --checkBrowser without browserslistQuery', (done) => {
-    exec('node index.js --checkBrowser --files=./tests/checkbrowser/es6.js', (err, stdout, stderr) => {
-      assert(err, 'Expected an error but command ran successfully');
-      const output = stdout.toString() + stderr.toString();
-      assert(output.includes('When using --checkBrowser, you must also provide a --browserslistQuery'),
-        'Should show error related to missing browserslist query');
-      done();
-    });
-  });
-
   it('👌 Es Check should fail when ES6 file is checked against ES5 browsers', (done) => {
     exec('node index.js es6 --checkBrowser --browserslistQuery="IE 11" ./tests/checkbrowser/es6.js', (err, stdout, stderr) => {
       assert(err, 'Expected an error but command ran successfully');
@@ -747,6 +737,36 @@ describe('Shell Completion', () => {
 
         assert(script.includes('_test_cmd()'), 'Should convert hyphens to underscores in function name');
         assert(script.includes('#compdef test-cmd'), 'Should use original command name in compdef directive');
+      });
+    });
+  });
+
+  describe('🔬 Limited Tests for Addressed Scenarios (No New Files Constraint)', () => {
+    it('🎉 Should run with "checkBrowser" and an existing ES5 file, relying on browserslist default or ancestor configs', (done) => {
+      exec('node index.js checkBrowser ./tests/es5.js', (err, stdout, stderr) => {
+        if (err) {
+          console.error(err.stack);
+          console.error(stdout.toString());
+          console.error(stderr.toString());
+          done(err);
+          return;
+        }
+        assert(stdout.includes('no ES version matching errors'), 'ES5 file should pass with default browserslist behavior.');
+        done();
+      });
+    });
+
+    it('🎉 Should use --browserslistQuery from CLI with --checkBrowser, effectively overriding a positional esVersion', (done) => {
+      exec('node index.js es5 --checkBrowser --browserslistQuery="Chrome >= 100" ./tests/es6.js', (err, stdout, stderr) => {
+        if (err) {
+          console.error(err.stack);
+          console.error(stdout.toString());
+          console.error(stderr.toString());
+          done(err);
+          return;
+        }
+        assert(stdout.includes('no ES version matching errors'), 'ES6 file should pass when --checkBrowser and a modern --browserslistQuery are used.');
+        done();
       });
     });
   });
