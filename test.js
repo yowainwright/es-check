@@ -7,6 +7,8 @@ const path = require('path');
 const crypto = require('crypto');
 const { generateBashCompletion, generateZshCompletion } = require('./utils');
 
+const generatedFixturesRoot = path.join(process.cwd(), 'fixtures');
+
 function createUniqueConfigFile(config, testName) {
   const hash = crypto.createHash('md5').update(testName).digest('hex').substring(0, 8);
   const configFileName = `.escheckrc.${hash}`;
@@ -766,6 +768,95 @@ describe('Shell Completion', () => {
           return;
         }
         assert(stdout.includes('no ES version matching errors'), 'ES6 file should pass when --checkBrowser and a modern --browserslistQuery are used.');
+        done();
+      });
+    });
+  });
+});
+
+describe('🔬 Fixture-Based Tests for Addressed Scenarios', () => {
+
+  before(() => {
+    if (fs.existsSync(generatedFixturesRoot)) {
+      fs.rmSync(generatedFixturesRoot, { recursive: true, force: true });
+    }
+    fs.mkdirSync(generatedFixturesRoot, { recursive: true });
+  });
+
+  after(() => {
+    if (fs.existsSync(generatedFixturesRoot)) {
+      fs.rmSync(generatedFixturesRoot, { recursive: true, force: true });
+    }
+  });
+
+  describe('Auto-loading package.json for browserslist', () => {
+    it('👌 Should auto-load browserslist from a generated package.json and fail for incompatible ES version', (done) => {
+      const scenarioDirName = 's1_pkg_json_fixture';
+      const testDir = path.join(generatedFixturesRoot, scenarioDirName);
+      fs.mkdirSync(testDir, { recursive: true });
+
+      const es6JsContent = 'const myVar = 123; let another = () => myVar;';
+      fs.writeFileSync(path.join(testDir, 'uses_es6.js'), es6JsContent);
+
+      const packageJsonContent = {
+        name: "s1-fixture-pkg",
+        version: "1.0.0",
+        browserslist: ["IE 11"]
+      };
+      fs.writeFileSync(path.join(testDir, 'package.json'), JSON.stringify(packageJsonContent));
+
+      const pathToIndexJs = path.relative(testDir, path.join(process.cwd(), 'index.js'));
+      const targetJsFile = 'uses_es6.js';
+
+      exec(`node ${pathToIndexJs} checkBrowser ${targetJsFile}`, { cwd: testDir }, (err) => {
+        assert(err, 'Expected es-check to fail (ES6 file vs IE 11 from generated package.json).');
+        done();
+      });
+    });
+  });
+
+  describe('Comma-separated files string from config', () => {
+    it('👌 Should process comma-separated files string from a generated .escheckrc and fail if one file is non-compliant', (done) => {
+      const scenarioJsFilesDirName = 's3_js_files_fixture';
+      const jsFilesDir = path.join(generatedFixturesRoot, scenarioJsFilesDirName);
+      fs.mkdirSync(jsFilesDir, { recursive: true });
+
+      const es5JsContent = 'var testVar = "ES5 content";';
+      const es6JsContent = 'const testConst = "ES6 content"; let testLet = true;';
+      fs.writeFileSync(path.join(jsFilesDir, 'actual_es5.js'), es5JsContent);
+      fs.writeFileSync(path.join(jsFilesDir, 'actual_es6.js'), es6JsContent);
+
+      const es5RelPath = path.join(path.basename(generatedFixturesRoot), scenarioJsFilesDirName, 'actual_es5.js');
+      const es6RelPath = path.join(path.basename(generatedFixturesRoot), scenarioJsFilesDirName, 'actual_es6.js');
+
+      const configForS3 = {
+        ecmaVersion: 'es5',
+        files: `${es5RelPath}, ${es6RelPath}`
+      };
+      const configFileName = createUniqueConfigFile(configForS3, 's3_comma_files_rc');
+
+      exec(`node index.js --config=${configFileName}`, (err, stdout, stderr) => {
+        removeConfigFile(configFileName);
+
+        assert(err, 'Expected es-check to fail because actual_es6.js (ES6) was checked as ES5.');
+        assert(stdout.includes('actual_es6.js') && (stdout.includes('ES version matching errors') || stderr.includes('ES version matching errors')), 'Error output should mention the non-compliant ES6 file.');
+        done();
+      });
+    });
+  });
+
+  describe('CLI options merge with file config for browserslist (using createUniqueConfigFile)', () => {
+    it('👌 Should use browserslistQuery from .escheckrc when CLI provides --files', (done) => {
+      const es6TestFile = './tests/checkbrowser/es6.js';
+      const config = {
+        ecmaVersion: 'checkBrowser',
+        browserslistQuery: 'IE 11'
+      };
+      const configFileName = createUniqueConfigFile(config, 's2_cli_merge_rc_fixture');
+
+      exec(`node index.js --config=${configFileName} --files=${es6TestFile}`, (err) => {
+        removeConfigFile(configFileName);
+        assert(err, `Expected es-check to fail (ES6 file ${es6TestFile} vs "IE 11" from ${configFileName}).`);
         done();
       });
     });
