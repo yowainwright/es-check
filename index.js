@@ -93,7 +93,7 @@ program
   .addOption(new Option('--ignore-file <path>', 'path to JSON file containing features to ignore').hideHelp())
   .option('--ignoreFile <path>', 'path to JSON file containing features to ignore')
   .option('--allowList <features>', 'comma-separated list of features to allow even in lower ES versions, e.g., "const,let"')
-  .addOption(new Option('--checkBrowser', 'use browserslist configuration to determine ES version, use checkBrowser argument instead of ecmaVersion').hideHelp())
+  .addOption(new Option('--checkBrowser', 'use browserslist configuration to determine ES version, use checkBrowser argument instead of ecmaVersion', false).hideHelp())
   .option('--browserslistQuery <query>', 'browserslist query')
   .option('--browserslistPath <path>', 'path to custom browserslist configuration')
   .option('--browserslistEnv <env>', 'browserslist environment to use')
@@ -265,7 +265,7 @@ async function runChecks(configs, logger) {
 
     let ecmaVersion
 
-    const isBrowserslistCheck = Boolean(expectedEcmaVersion === 'checkBrowser' || checkBrowser);
+    const isBrowserslistCheck = Boolean(expectedEcmaVersion === 'checkBrowser' || checkBrowser !== undefined);
     if (isBrowserslistCheck) {
       const browserslistQuery = config.browserslistQuery;
       try {
