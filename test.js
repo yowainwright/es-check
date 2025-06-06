@@ -944,4 +944,18 @@ describe('🔬 Fixture-Based Tests for Addressed Scenarios', () => {
       done();
     });
   });
+
+  it('🎉 should PASS when file argument is passed before the --checkBrowser flag', (done) => {
+    const command = 'node index.js --checkBrowser ./tests/checkbrowser/es6.js';
+
+    exec(command, (err, stdout, stderr) => {
+      if (err) {
+        console.error('Test failed unexpectedly:', stdout, stderr);
+        done(err);
+        return;
+      }
+      assert(stdout.includes('no ES version matching errors'), 'Should pass successfully');
+      done();
+    });
+  });
 });
