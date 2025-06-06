@@ -248,6 +248,18 @@ es-check --checkBrowser --browserslistQuery="last 2 versions" ./dist/**/*.js
 es-check --checkBrowser --browserslistQuery=">0.5%, not dead" --checkFeatures ./dist/**/*.js
 ```
 
+**Using browserlist just like an es version**
+
+```sh
+es-check checkBrowser ./dist/**/*.js --browserslistQuery=">0.5%, not dead"
+```
+
+**Using browserlist with a pre-defined browserlist**
+
+```sh
+es-check checkBrowser ./dist/**/*.js
+```
+
 ---
 
 ## Usage
@@ -442,6 +454,9 @@ es-check --checkBrowser --browserslistQuery="last 2 versions" ./dist/**/*.js
 
 # Using 'checkBrowser' as the ES version argument
 es-check checkBrowser --browserslistQuery="last 2 versions" ./dist/**/*.js
+
+# Using a pre-defined browserslist configuration
+es-check checkBrowser ./dist/**/*.js
 ```
 
 This will read your browserslist configuration (from `.browserslistrc`, `package.json`, etc.) and determine the appropriate ES version based on your targeted browsers.
@@ -466,7 +481,7 @@ es-check --checkBrowser --browserslistEnv="production" ./dist/**/*.js
 es-check --checkBrowser --checkFeatures ./dist/**/*.js
 ```
 
-⚠️ **NOTE:** When using `--checkBrowser`, you must also provide a `--browserslistQuery` or have a valid browserslist configuration in your project.
+⚠️ **NOTE:** When using `--checkBrowser`, you must also provide a `--browserslistQuery` or have a valid browserslist configuration in your project. You cannot have a files directly after your `--checkBrowser` option; it will read as 
 
 ---
 

@@ -574,6 +574,13 @@ const BROWSER_TO_ES_VERSION = {
   }
 };
 
+const JS_VERSIONS = [
+  'es3', 'es4', 'es5', 'es6', 'es2015',
+  'es7', 'es2016', 'es8', 'es2017', 'es9', 'es2018',
+  'es10', 'es2019', 'es11', 'es2020', 'es12', 'es2021',
+  'es13', 'es2022', 'es14', 'es2023', 'checkBrowser'
+];
+
 /**
  * Maps feature names from ES_FEATURES to their polyfill patterns
  * This helps us identify which features are being polyfilled
@@ -640,5 +647,6 @@ module.exports = {
   ES_FEATURES,
   NODE_TYPES,
   BROWSER_TO_ES_VERSION,
-  FEATURE_TO_POLYFILL_MAP
+  FEATURE_TO_POLYFILL_MAP,
+  JS_VERSIONS,
 };
