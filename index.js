@@ -10,6 +10,7 @@ const detectFeatures = require('./detectFeatures')
 let polyfillDetector = null;
 const pkg = require('./package.json')
 const { lilconfig } = require('lilconfig');
+const { JS_VERSIONS } = require('./constants');
 const { parseIgnoreList, createLogger, generateBashCompletion, generateZshCompletion } = require('./utils');
 
 program.configureOutput({
@@ -143,6 +144,13 @@ program
     if (filesArg && filesArg.length && options.files) {
       logger.error('Cannot pass in both [files...] argument and --files flag at the same time!')
       process.exit(1)
+    }
+
+    const validEcmaVersionValues = new Set(JS_VERSIONS);
+
+    if (options.checkBrowser && ecmaVersionArg && !validEcmaVersionValues.has(ecmaVersionArg)) {
+      filesArg.unshift(ecmaVersionArg);
+      ecmaVersionArg = 'checkBrowser';
     }
 
     const configs = await loadConfig(options.config);

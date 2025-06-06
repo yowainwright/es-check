@@ -861,4 +861,61 @@ describe('🔬 Fixture-Based Tests for Addressed Scenarios', () => {
       });
     });
   });
+
+  it('🎉 should PASS when --checkBrowser is used with a single positional file argument', (done) => {
+    exec('node index.js --checkBrowser --browserslistQuery="Chrome >= 100" ./tests/checkbrowser/es6.js', (err, stdout, stderr) => {
+      if (err) {
+        console.error('Test failed unexpectedly:');
+        console.error(err.stack);
+        console.error(stdout.toString());
+        console.error(stderr.toString());
+        done(err);
+        return;
+      }
+      assert(stdout.includes('no ES version matching errors'), 'Should pass successfully');
+      done();
+    });
+  });
+
+  it('🎉 should PASS when checking a SCRIPT file (es6.js) with --checkBrowser', (done) => {
+    exec('node index.js --checkBrowser --browserslistQuery="Chrome >= 100" ./tests/checkbrowser/es6.js', (err, stdout, stderr) => {
+      if (err) {
+        console.error('Test failed unexpectedly:');
+        console.error(err.stack);
+        console.error(stdout.toString());
+        console.error(stderr.toString());
+        done(err);
+        return;
+      }
+      assert(stdout.includes('no ES version matching errors'), 'Should pass successfully');
+      done();
+    });
+  });
+
+
+  it('🎉 should PASS when checking a SCRIPT file (es6.js) with --checkBrowser', (done) => {
+    const command = 'node index.js --checkBrowser --browserslistQuery="Chrome >= 100" ./tests/checkbrowser/es6.js';
+    exec(command, (err, stdout, stderr) => {
+      if (err) {
+        console.error('Test for es6.js failed unexpectedly:', stdout, stderr);
+        done(err);
+        return;
+      }
+      assert(stdout.includes('no ES version matching errors'), 'Should pass successfully');
+      done();
+    });
+  });
+
+  it('🎉 should PASS when checking a MODULE file (es2020.js) by setting the version explicitly', (done) => {
+    const command = 'node index.js es2020 --module ./tests/checkbrowser/es2020.js';
+    exec(command, (err, stdout, stderr) => {
+      if (err) {
+        console.error('Test for es2020.js failed unexpectedly:', stdout, stderr);
+        done(err);
+        return;
+      }
+      assert(stdout.includes('no ES version matching errors'), 'Should pass successfully');
+      done();
+    });
+  });
 });
