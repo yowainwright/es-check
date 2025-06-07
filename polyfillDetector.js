@@ -9,52 +9,46 @@ const { FEATURE_TO_POLYFILL_MAP } = require('./constants');
 function detectPolyfills(code, logger) {
   const polyfills = new Set();
 
-  if (!code) {
-    return polyfills;
-  }
+  if (!code) return polyfills;
+  const hasImport = code.includes('import');
+  const hasCoreJS = code.includes('core-js');
 
-  if (code.includes('import') && code.includes('core-js')) {
-    if (code.includes('core-js/modules/es.array.to-sorted')) {
-      polyfills.add('ArrayToSorted');
-    }
-    if (code.includes('core-js/modules/es.object.has-own')) {
-      polyfills.add('ObjectHasOwn');
-    }
-    if (code.includes('core-js/modules/es.string.replace-all')) {
-      polyfills.add('StringReplaceAll');
-    }
+  if (hasImport && hasCoreJS) {
+    const hasArrayToSorted = code.includes('core-js/modules/es.array.to-sorted');
+    const hasObjectHasOwn = code.includes('core-js/modules/es.object.has-own');
+    const hasStringReplaceAll = code.includes('core-js/modules/es.string.replace-all');
+    if (hasArrayToSorted) polyfills.add('ArrayToSorted');
+    if (hasObjectHasOwn) polyfills.add('ObjectHasOwn');
+    if (hasStringReplaceAll) polyfills.add('StringReplaceAll');
+    const hasPolyfills = polyfills.size > 0;
+    if (hasPolyfills) return polyfills;
 
-    if (polyfills.size > 0) {
-      return polyfills;
-    }
-
-    for (const [featureName, patterns] of Object.entries(FEATURE_TO_POLYFILL_MAP)) {
-      for (const pattern of patterns) {
-        if (pattern.test(code)) {
-          polyfills.add(featureName);
-          break;
-        }
+    Object.entries(FEATURE_TO_POLYFILL_MAP).reduce((acc, [featureName, patterns]) => {
+      if (patterns.some(pattern => pattern.test(code))) {
+        acc.add(featureName);
       }
+      return acc;
+    }, polyfills);
+  }
+
+  const hasMatches = ['Array.prototype', 'Object.', 'String.prototype'].some(term => code.includes(term));
+  const hasPolyfill = polyfills.size > 0;
+  if (!hasPolyfill && !hasMatches) {
+    if (logger?.isLevelEnabled?.('debug')) {
+      logger.debug('ES-Check: No polyfills detected, skipping further checks');
     }
-  }
-
-  if (polyfills.size === 0 && (code.includes('polyfill') || code.includes('Array.prototype') || code.includes('Object.') || code.includes('String.prototype'))) {
-  } else if (polyfills.size > 0) {
     return polyfills;
-  } else if (!code.includes('core-js') && !code.includes('polyfill') && !code.includes('Array.prototype')) {
-    return polyfills;
-  }
+  } else if (hasPolyfill) return polyfills;
+  else if (!hasMatches) return polyfills;
 
-  for (const [featureName, patterns] of Object.entries(FEATURE_TO_POLYFILL_MAP)) {
-    for (const pattern of patterns) {
-      if (pattern.test(code)) {
-        polyfills.add(featureName);
-        break;
-      }
+  Object.entries(FEATURE_TO_POLYFILL_MAP).reduce((acc, [featureName, patterns]) => {
+    if (patterns.some(pattern => pattern.test(code))) {
+      acc.add(featureName);
     }
-  }
+    return acc;
+  }, polyfills);
 
-  if (logger?.isLevelEnabled?.('debug') && polyfills.size > 0) {
+  if (logger?.isLevelEnabled?.('debug') && hasPolyfill) {
     logger.debug(`ES-Check: Detected polyfills: ${Array.from(polyfills).join(', ')}`);
   }
 
@@ -68,10 +62,8 @@ function detectPolyfills(code, logger) {
  * @returns {Array<string>} - Filtered list of unsupported features
  */
 function filterPolyfilled(unsupportedFeatures, polyfills) {
-  if (!polyfills || polyfills.size === 0) {
-    return unsupportedFeatures;
-  }
-
+  const hasPolyfills = polyfills && polyfills.size > 0;
+  if (!hasPolyfills) return unsupportedFeatures;
   return unsupportedFeatures.filter(feature => !polyfills.has(feature));
 }
 
