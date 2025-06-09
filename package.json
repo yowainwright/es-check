@@ -64,7 +64,7 @@
     "release-it": "19.0.3"
   },
   "dependencies": {
-    "acorn": "8.14.1",
+    "acorn": "8.15.0",
     "acorn-walk": "^8.3.4",
     "browserslist": "^4.23.3",
     "commander": "14.0.0",
