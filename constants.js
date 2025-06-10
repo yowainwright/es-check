@@ -582,65 +582,68 @@ const JS_VERSIONS = [
 ];
 
 /**
- * Maps feature names from ES_FEATURES to their polyfill patterns
- * This helps us identify which features are being polyfilled
+ * Maps feature names from ES_FEATURES to their polyfill patterns.
+ * This version uses standardized keys and robust regex for both manual and module polyfills.
  */
 const FEATURE_TO_POLYFILL_MAP = {
-  // Array methods
-  'ArrayToSorted': [
-    /Array\.prototype\.toSorted/,
-    /from\s+['"]core-js\/modules\/es\.array\.to-sorted['"]/
-  ],
-  'ArrayFindLast': [
-    /Array\.prototype\.findLast/,
-    /from\s+['"]core-js\/modules\/es\.array\.find-last['"]/
-  ],
-  'ArrayFindLastIndex': [
-    /Array\.prototype\.findLastIndex/,
-    /from\s+['"]core-js\/modules\/es\.array\.find-last-index['"]/
-  ],
-  'ArrayAt': [
-    /Array\.prototype\.at/,
-    /from\s+['"]core-js\/modules\/es\.array\.at['"]/
-  ],
+    // ES2015 (ES6)
+    'Array.from': [/\bArray\.from\s*=/, /['"]core-js\/modules\/es\.array\.from['"]/],
+    'Array.of': [/\bArray\.of\s*=/, /['"]core-js\/modules\/es\.array\.of['"]/],
+    'Array.prototype.find': [/\bArray\.prototype\.find\s*=/, /['"]core-js\/modules\/es\.array\.find['"]/],
+    'Array.prototype.findIndex': [/\bArray\.prototype\.findIndex\s*=/, /['"]core-js\/modules\/es\.array\.find-index['"]/],
+    'Object.assign': [/\bObject\.assign\s*=/, /['"]core-js\/modules\/es\.object\.assign['"]/, /object-assign/],
+    'Promise': [/\bPromise\s*=/, /['"]core-js\/modules\/es\.promise['"]/, /es6-promise/],
+    'String.prototype.startsWith': [/\bString\.prototype\.startsWith\s*=/, /['"]core-js\/modules\/es\.string\.starts-with['"]/],
+    'String.prototype.endsWith': [/\bString\.prototype\.endsWith\s*=/, /['"]core-js\/modules\/es\.string\.ends-with['"]/],
+    'String.prototype.includes': [/\bString\.prototype\.includes\s*=/, /['"]core-js\/modules\/es\.string\.includes['"]/],
+    'Symbol': [/\bSymbol\s*=/, /['"]core-js\/modules\/es\.symbol['"]/],
+    'Map': [/\bMap\s*=/, /['"]core-js\/modules\/es\.map['"]/],
+    'Set': [/\bSet\s*=/, /['"]core-js\/modules\/es\.set['"]/],
+    'WeakMap': [/\bWeakMap\s*=/, /['"]core-js\/modules\/es\.weak-map['"]/],
+    'WeakSet': [/\bWeakSet\s*=/, /['"]core-js\/modules\/es\.weak-set['"]/],
 
-  // String methods
-  'StringReplaceAll': [
-    /String\.prototype\.replaceAll/,
-    /from\s+['"]core-js\/modules\/es\.string\.replace-all['"]/
-  ],
-  'StringMatchAll': [
-    /String\.prototype\.matchAll/,
-    /from\s+['"]core-js\/modules\/es\.string\.match-all['"]/
-  ],
-  'StringAt': [
-    /String\.prototype\.at/,
-    /from\s+['"]core-js\/modules\/es\.string\.at['"]/
-  ],
+    // ES2016
+    'Array.prototype.includes': [/\bArray\.prototype\.includes\s*=/, /['"]core-js\/modules\/es\.array\.includes['"]/],
 
-  // Object methods
-  'ObjectHasOwn': [
-    /Object\.hasOwn/,
-    /from\s+['"]core-js\/modules\/es\.object\.has-own['"]/
-  ],
+    // ES2017
+    'Object.values': [/\bObject\.values\s*=/, /['"]core-js\/modules\/es\.object\.values['"]/],
+    'Object.entries': [/\bObject\.entries\s*=/, /['"]core-js\/modules\/es\.object\.entries['"]/],
+    'Object.getOwnPropertyDescriptors': [/\bObject\.getOwnPropertyDescriptors\s*=/, /['"]core-js\/modules\/es\.object\.get-own-property-descriptors['"]/],
+    'String.prototype.padStart': [/\bString\.prototype\.padStart\s*=/, /['"]core-js\/modules\/es\.string\.pad-start['"]/],
+    'String.prototype.padEnd': [/\bString\.prototype\.padEnd\s*=/, /['"]core-js\/modules\/es\.string\.pad-end['"]/],
 
-  // Promise methods
-  'PromiseAny': [
-    /Promise\.any/,
-    /from\s+['"]core-js\/modules\/es\.promise\.any['"]/
-  ],
+    // ES2018
+    'Promise.prototype.finally': [/\bPromise\.prototype\.finally\s*=/, /['"]core-js\/modules\/es\.promise\.finally['"]/],
 
-  // RegExp methods
-  'RegExpExec': [
-    /RegExp\.prototype\.exec/,
-    /from\s+['"]core-js\/modules\/es\.regexp\.exec['"]/
-  ],
+    // ES2019
+    'Array.prototype.flat': [/\bArray\.prototype\.flat\s*=/, /['"]core-js\/modules\/es\.array\.flat['"]/],
+    'Array.prototype.flatMap': [/\bArray\.prototype\.flatMap\s*=/, /['"]core-js\/modules\/es\.array\.flat-map['"]/],
+    'Object.fromEntries': [/\bObject\.fromEntries\s*=/, /['"]core-js\/modules\/es\.object\.from-entries['"]/],
+    'String.prototype.trimStart': [/\bString\.prototype\.trimStart\s*=/, /['"]core-js\/modules\/es\.string\.trim-start['"]/],
+    'String.prototype.trimEnd': [/\bString\.prototype\.trimEnd\s*=/, /['"]core-js\/modules\/es\.string\.trim-end['"]/],
 
-  // Global methods
-  'GlobalThis': [
-    /globalThis/,
-    /from\s+['"]core-js\/modules\/es\.global-this['"]/
-  ],
+    // ES2020
+    'Promise.allSettled': [/\bPromise\.allSettled\s*=/, /['"]core-js\/modules\/es\.promise\.all-settled['"]/],
+    'String.prototype.matchAll': [/\bString\.prototype\.matchAll\s*=/, /['"]core-js\/modules\/es\.string\.match-all['"]/],
+    'globalThis': [/globalThis\s*=/, /['"]core-js\/modules\/es\.global-this['"]/],
+    'BigInt': [/\bBigInt\s*=/, /['"]core-js\/modules\/es\.bigint['"]/],
+
+    // ES2021
+    'Promise.any': [/\bPromise\.any\s*=/, /['"]core-js\/modules\/es\.promise\.any['"]/],
+    'String.prototype.replaceAll': [/\bString\.prototype\.replaceAll\s*=/, /['"]core-js\/modules\/es\.string\.replace-all['"]/],
+
+    // ES2022
+    'Array.prototype.at': [/\bArray\.prototype\.at\s*=/, /['"]core-js\/modules\/es\.array\.at['"]/],
+    'String.prototype.at': [/\bString\.prototype\.at\s*=/, /['"]core-js\/modules\/es\.string\.at['"]/],
+    'Object.hasOwn': [/\bObject\.hasOwn\s*=/, /['"]core-js\/modules\/es\.object\.has-own['"]/],
+
+    // ES2023
+    'Array.prototype.findLast': [/\bArray\.prototype\.findLast\s*=/, /['"]core-js\/modules\/es\.array\.find-last['"]/],
+    'Array.prototype.findLastIndex': [/\bArray\.prototype\.findLastIndex\s*=/, /['"]core-js\/modules\/es\.array\.find-last-index['"]/],
+    'Array.prototype.toReversed': [/\bArray\.prototype\.toReversed\s*=/, /['"]core-js\/modules\/es\.array\.to-reversed['"]/],
+    'Array.prototype.toSorted': [/\bArray\.prototype\.toSorted\s*=/, /['"]core-js\/modules\/es\.array\.to-sorted['"]/],
+    'Array.prototype.toSpliced': [/\bArray\.prototype\.toSpliced\s*=/, /['"]core-js\/modules\/es\.array\.to-spliced['"]/],
+    'Array.prototype.with': [/\bArray\.prototype\.with\s*=/, /['"]core-js\/modules\/es\.array\.with['"]/],
 };
 
 module.exports = {

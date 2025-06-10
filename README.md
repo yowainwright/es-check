@@ -24,8 +24,17 @@ Ensuring that JavaScript files can pass ES Check is important in a [modular and 
 
 **ES Check** version 9 is a major release update that can enforce more ES version specific features checks, implements initial browserslist integration, basic (naive) polyfill detection, and supports an allowlist. To enable ecmaVersion specific checks, pass the `--checkFeatures` flag. To enable browserslist integration, pass the `--checkBrowser` flag. To enable polyfill detection, pass the `--checkForPolyfills` flag. There is also more config file support. Besides this, there are other feature updates based on user feedback. This version should not break any existing scripts but, as significant changes/features have been added and it's know that es-check supports protecting against breaking errors going to production, a major version bump feels appropriate. Please report any issues!
 
+
+### `--checkFeatures`
+
 ```sh
 es-check es6 './dist/**/*.js' --checkFeatures
+```
+
+### `checkBrowser --browserslistQuery='<broswerslist query>'`
+
+```sh
+es-check checkBrowser ./dist/**/*.js --browserslistQuery="last 2 versions"
 ```
 
 ---
@@ -82,10 +91,12 @@ ES Check checks syntax out of the box—to protect against breaking errors going
 
 The images below demonstrate command line scripts and their corresponding logged results.
 
-Pass
+### Pass
+
 ![pass](https://user-images.githubusercontent.com/1074042/31471487-d7be22ee-ae9d-11e7-86e2-2c0f71cfffe6.jpg)
 
-Fail
+### Fail
+
 ![fail](https://user-images.githubusercontent.com/1074042/31471486-d65c3a80-ae9d-11e7-94fd-68b7acdb2d89.jpg)
 
 **ES Check** is run above with node commands. It can also be run within npm scripts, ci tools, or testing suites.
