@@ -24,8 +24,17 @@ Ensuring that JavaScript files can pass ES Check is important in a [modular and 
 
 **ES Check** version 9 is a major release update that can enforce more ES version specific features checks, implements initial browserslist integration, basic (naive) polyfill detection, and supports an allowlist. To enable ecmaVersion specific checks, pass the `--checkFeatures` flag. To enable browserslist integration, pass the `--checkBrowser` flag. To enable polyfill detection, pass the `--checkForPolyfills` flag. There is also more config file support. Besides this, there are other feature updates based on user feedback. This version should not break any existing scripts but, as significant changes/features have been added and it's know that es-check supports protecting against breaking errors going to production, a major version bump feels appropriate. Please report any issues!
 
+
+### `--checkFeatures`
+
 ```sh
 es-check es6 './dist/**/*.js' --checkFeatures
+```
+
+### `checkBrowser --browserslistQuery='<broswerslist query>'`
+
+```sh
+es-check checkBrowser ./dist/**/*.js --browserslistQuery="last 2 versions"
 ```
 
 ---
@@ -82,10 +91,12 @@ ES Check checks syntax out of the box—to protect against breaking errors going
 
 The images below demonstrate command line scripts and their corresponding logged results.
 
-Pass
+### Pass
+
 ![pass](https://user-images.githubusercontent.com/1074042/31471487-d7be22ee-ae9d-11e7-86e2-2c0f71cfffe6.jpg)
 
-Fail
+### Fail
+
 ![fail](https://user-images.githubusercontent.com/1074042/31471486-d65c3a80-ae9d-11e7-94fd-68b7acdb2d89.jpg)
 
 **ES Check** is run above with node commands. It can also be run within npm scripts, ci tools, or testing suites.
@@ -237,13 +248,27 @@ es-check --config=./configs/production.escheckrc.json
 ```
 
 **Using a custom browserslist query:**
+
 ```sh
 es-check --checkBrowser --browserslistQuery="last 2 versions" ./dist/**/*.js
 ```
 
 **Using browserslist with custom query and feature checking:**
+
 ```sh
 es-check --checkBrowser --browserslistQuery=">0.5%, not dead" --checkFeatures ./dist/**/*.js
+```
+
+**Using browserlist just like an es version**
+
+```sh
+es-check checkBrowser ./dist/**/*.js --browserslistQuery=">0.5%, not dead"
+```
+
+**Using browserlist with a pre-defined browserlist**
+
+```sh
+es-check checkBrowser ./dist/**/*.js
 ```
 
 ---
@@ -256,10 +281,10 @@ Here are some example of **es check** scripts that could be run:
 
 ```sh
 # globs
-es-check ./js/*.js
+es-check es6 ./js/*.js
 
 # array of arguments
-es-check ./js/*.js ./dist/*.js
+es-check es6 ./js/*.js ./dist/*.js
 ```
 
 ---
@@ -435,17 +460,24 @@ ES Check provides three ways to handle polyfilled features:
 ES-Check can use your project's browserslist configuration to automatically determine which ES version to check against:
 
 ```sh
-es-check --checkBrowser ./dist/**/*.js
+# Using --checkBrowser flag with browserslist query
+es-check --checkBrowser --browserslistQuery="last 2 versions" ./dist/**/*.js
+
+# Using 'checkBrowser' as the ES version argument
+es-check checkBrowser --browserslistQuery="last 2 versions" ./dist/**/*.js
+
+# Using a pre-defined browserslist configuration
+es-check checkBrowser ./dist/**/*.js
 ```
 
 This will read your browserslist configuration (from `.browserslistrc`, `package.json`, etc.) and determine the appropriate ES version based on your targeted browsers.
 
 ### Examples with Browserslist
 
-**Using a custom browserslist path:**
+**Using a custom browserslist query:**
 
 ```sh
-es-check --checkBrowser --browserslistPath="./config/.browserslistrc" ./dist/**/*.js
+es-check --checkBrowser --browserslistQuery="last 2 versions" ./dist/**/*.js
 ```
 
 **Using a specific browserslist environment:**
@@ -459,6 +491,8 @@ es-check --checkBrowser --browserslistEnv="production" ./dist/**/*.js
 ```sh
 es-check --checkBrowser --checkFeatures ./dist/**/*.js
 ```
+
+⚠️ **NOTE:** When using `--checkBrowser`, you must also provide a `--browserslistQuery` or have a valid browserslist configuration in your project. You cannot have a files directly after your `--checkBrowser` option; it will read as 
 
 ---
 

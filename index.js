@@ -6,15 +6,13 @@ const { program, Option } = require('commander')
 const acorn = require('acorn')
 const glob = require('fast-glob')
 const fs = require('fs')
-const supportsColor = require('supports-color')
-const winston = require('winston')
 const detectFeatures = require('./detectFeatures')
-let polyfillDetector = null; // Lazy-loaded only when needed
+let polyfillDetector = null;
 const pkg = require('./package.json')
 const { lilconfig } = require('lilconfig');
-const { parseIgnoreList } = require('./utils');
+const { JS_VERSIONS } = require('./constants');
+const { parseIgnoreList, createLogger, generateBashCompletion, generateZshCompletion } = require('./utils');
 
-// Register completion command (hidden from help)
 program.configureOutput({
   writeOut: (str) => process.stdout.write(str),
   writeErr: (str) => process.stderr.write(str),
@@ -34,20 +32,18 @@ program.showSuggestionAfterError();
  *   to to test the EcmaScript version of each file
  * - error failures
  */
-// Add completion command
 program
   .command('completion')
   .description('generate shell completion script')
   .argument('[shell]', 'shell type: bash, zsh', 'bash')
   .action((shell) => {
-    // Generate completion script for the specified shell
+    const logger = createLogger();
+
     let completionScript;
 
-    // Get all available commands and options
     const commands = ['completion'];
     const options = [];
 
-    // Extract all options from the program
     program.options.forEach(opt => {
       const flag = opt.long || opt.short;
       if (flag) {
@@ -63,146 +59,18 @@ program
         completionScript = generateZshCompletion('es-check', commands, options);
         break;
       default:
-        console.error(`Shell "${shell}" not supported for completion. Supported shells: bash, zsh`);
+        logger.error(`Shell "${shell}" not supported for completion. Supported shells: bash, zsh`);
         process.exit(1);
     }
 
-    console.log(completionScript);
+    logger.info(completionScript);
   });
-
-// Generate bash completion script
-function generateBashCompletion(cmdName, commands, options) {
-  const cmdsStr = commands.join(' ');
-  const optsStr = options.map(opt => '--' + opt).join(' ');
-
-  return `
-# es-check bash completion script
-# Install by adding to ~/.bashrc:
-# source /path/to/es-check-completion.bash
-
-_es_check_completion() {
-  local cur prev opts cmds
-  COMPREPLY=()
-  cur="\${COMP_WORDS[COMP_CWORD]}"
-  prev="\${COMP_WORDS[COMP_CWORD-1]}"
-
-  # List of commands
-  cmds="${cmdsStr}"
-
-  # List of options
-  opts="${optsStr}"
-
-  # ES versions
-  es_versions="es3 es5 es6 es2015 es7 es2016 es8 es2017 es9 es2018 es10 es2019 es11 es2020 es12 es2021 es13 es2022 es14 es2023"
-
-  # Handle special cases based on previous argument
-  case "\$prev" in
-    ${cmdName})
-      # After the main command, suggest ES versions or commands
-      COMPREPLY=( \$(compgen -W "\$es_versions \$cmds \$opts" -- "\$cur") )
-      return 0
-      ;;
-    completion)
-      # After 'completion' command, suggest shell types
-      COMPREPLY=( \$(compgen -W "bash zsh" -- "\$cur") )
-      return 0
-      ;;
-    *)
-      # Default case: suggest options or files
-      if [[ "\$cur" == -* ]]; then
-        # If current word starts with a dash, suggest options
-        COMPREPLY=( \$(compgen -W "\$opts" -- "\$cur") )
-      else
-        # Otherwise suggest files
-        COMPREPLY=( \$(compgen -f -- "\$cur") )
-      fi
-      return 0
-      ;;
-  esac
-}
-
-complete -F _es_check_completion ${cmdName}
-`;
-}
-
-// Generate zsh completion script
-function generateZshCompletion(cmdName, commands, options) {
-  const optionsStr = options.map(opt => `"--${opt}[Option description]"`).join('\n    ');
-  const commandsStr = commands.map(cmd => `"${cmd}:Command description"`).join('\n    ');
-
-  return `
-#compdef ${cmdName}
-
-_es_check() {
-  local -a commands options es_versions
-
-  # ES versions
-  es_versions=(
-    "es3:ECMAScript 3"
-    "es5:ECMAScript 5"
-    "es6:ECMAScript 2015"
-    "es2015:ECMAScript 2015"
-    "es7:ECMAScript 2016"
-    "es2016:ECMAScript 2016"
-    "es8:ECMAScript 2017"
-    "es2017:ECMAScript 2017"
-    "es9:ECMAScript 2018"
-    "es2018:ECMAScript 2018"
-    "es10:ECMAScript 2019"
-    "es2019:ECMAScript 2019"
-    "es11:ECMAScript 2020"
-    "es2020:ECMAScript 2020"
-    "es12:ECMAScript 2021"
-    "es2021:ECMAScript 2021"
-    "es13:ECMAScript 2022"
-    "es2022:ECMAScript 2022"
-    "es14:ECMAScript 2023"
-    "es2023:ECMAScript 2023"
-  )
-
-  # Commands
-  commands=(
-    ${commandsStr}
-  )
-
-  # Options
-  options=(
-    ${optionsStr}
-  )
-
-  # Handle subcommands
-  if (( CURRENT > 2 )); then
-    case \${words[2]} in
-      completion)
-        _arguments "1:shell:(bash zsh)"
-        return
-        ;;
-    esac
-  fi
-
-  # Main completion
-  _arguments -C \\
-    "1: :{_describe 'command or ES version' es_versions -- commands}" \\
-    "*:: :->args"
-
-  case \$state in
-    args)
-      _arguments -s : \\
-        \$options \\
-        "*:file:_files"
-      ;;
-  esac
-}
-
-_es_check
-`;
-}
 
 program
   .version(pkg.version)
   .argument(
     '[ecmaVersion]',
-    'ecmaVersion to check files against. Can be: es3, es4, es5, es6/es2015, es7/es2016, es8/es2017, es9/es2018, es10/es2019, es11/es2020, es12/es2021, es13/es2022, es14/es2023',
+    'ecmaVersion to check files against. Can be: es3, es4, es5, es6/es2015, es7/es2016, es8/es2017, es9/es2018, es10/es2019, es11/es2020, es12/es2021, es13/es2022, es14/es2023, checkBrowser',
   )
   .argument('[files...]', 'a glob of files to to test the EcmaScript version against')
   .option('--module', 'use ES modules')
@@ -225,27 +93,26 @@ program
   .addOption(new Option('--ignore-file <path>', 'path to JSON file containing features to ignore').hideHelp())
   .option('--ignoreFile <path>', 'path to JSON file containing features to ignore')
   .option('--allowList <features>', 'comma-separated list of features to allow even in lower ES versions, e.g., "const,let"')
-  .option('--checkBrowser', 'use browserslist configuration to determine ES version')
+  .addOption(new Option('--checkBrowser', 'use browserslist configuration to determine ES version, use checkBrowser argument instead of ecmaVersion', false).hideHelp())
   .option('--browserslistQuery <query>', 'browserslist query')
   .option('--browserslistPath <path>', 'path to custom browserslist configuration')
   .option('--browserslistEnv <env>', 'browserslist environment to use')
   .option('--config <path>', 'path to custom .escheckrc config file')
 
 async function loadConfig(customConfigPath) {
+  const logger = createLogger();
+
   try {
-    // If a custom config path is provided, load it directly
     if (customConfigPath) {
       try {
         const content = fs.readFileSync(customConfigPath, 'utf8');
         const config = JSON.parse(content);
-        // Ensure we always return an array of configs
         return Array.isArray(config) ? config : [config];
       } catch (err) {
         throw new Error(`Error loading custom config file ${customConfigPath}: ${err.message}`);
       }
     }
 
-    // Otherwise use lilconfig to search for config files
     const configExplorer = lilconfig('escheck', {
       searchPlaces: ['.escheckrc', '.escheckrc.json', 'package.json'],
       loaders: {
@@ -263,7 +130,6 @@ async function loadConfig(customConfigPath) {
     if (!result) return [{}];
 
     const config = result.config;
-    // Ensure we always return an array of configs
     return Array.isArray(config) ? config : [config];
   } catch (err) {
     logger.error(`Error loading config: ${err.message}`);
@@ -273,57 +139,60 @@ async function loadConfig(customConfigPath) {
 
 program
   .action(async (ecmaVersionArg, filesArg, options) => {
-    const noColor = options?.noColor || options?.['no-color'] || false;
-    const logger = winston.createLogger()
-    logger.add(
-      new winston.transports.Console({
-        silent: options.silent,
-        level: options.verbose ? 'silly' : options.quiet ? 'warn' : 'info',
-        format: winston.format.combine(
-          ...(supportsColor.stdout || !noColor ? [winston.format.colorize()] : []),
-          winston.format.simple(),
-        ),
-      }),
-    )
+    const logger = createLogger(options);
 
     if (filesArg && filesArg.length && options.files) {
       logger.error('Cannot pass in both [files...] argument and --files flag at the same time!')
       process.exit(1)
     }
 
-    const configs = await loadConfig(options.config);
+    const validEcmaVersionValues = new Set(JS_VERSIONS);
 
-    // If command line arguments are provided, they override all configs
+    if (options.checkBrowser && ecmaVersionArg && !validEcmaVersionValues.has(ecmaVersionArg)) {
+      filesArg.unshift(ecmaVersionArg);
+      ecmaVersionArg = 'checkBrowser';
+    }
+
+    const configs = await loadConfig(options.config);
+    const baseConfig = configs[0] || {};
+
     if (ecmaVersionArg || filesArg?.length || options.files) {
-      // Get ignoreFile from either camelCase or kebab-case option
       const ignoreFilePath = options.ignoreFile || options['ignore-file'];
 
-      // If ignoreFile is specified but doesn't exist, warn the user
       if (ignoreFilePath && !fs.existsSync(ignoreFilePath) && logger.isLevelEnabled('warn')) {
         logger.warn(`Warning: Ignore file '${ignoreFilePath}' does not exist or is not accessible`);
       }
 
-      const singleConfig = {
-        ecmaVersion: ecmaVersionArg,
-        files: filesArg?.length ? filesArg : options.files?.split(','),
+       const singleConfig = {
+        ...baseConfig,
         module: options.module,
         allowHashBang: options.allowHashBang || options['allow-hash-bang'],
-        not: options.not?.split(','),
-        looseGlobMatching: options.looseGlobMatching || options['loose-glob-matching'],
         checkFeatures: options.checkFeatures,
         checkForPolyfills: options.checkForPolyfills,
-        ignore: options.ignore,
-        ignoreFile: options.ignoreFile || options['ignore-file'],
-        allowList: options.allowList,
+        ignore: options.ignore !== undefined ? options.ignore : baseConfig.ignore,
+        ignoreFile: ignoreFilePath !== undefined ? ignoreFilePath : baseConfig.ignoreFile,
+        not: options.not ? options.not.split(',').map(n => n.trim()).filter(Boolean) : baseConfig.not,
+        looseGlobMatching: options.looseGlobMatching,
+        allowList: options.allowList !== undefined ? options.allowList : baseConfig.allowList,
         checkBrowser: options.checkBrowser,
-        browserslistQuery: options.browserslistQuery,
-        browserslistPath: options.browserslistPath,
-        browserslistEnv: options.browserslistEnv
+        browserslistQuery: options.browserslistQuery !== undefined ? options.browserslistQuery : baseConfig.browserslistQuery,
+        browserslistPath: options.browserslistPath !== undefined ? options.browserslistPath : baseConfig.browserslistPath,
+        browserslistEnv: options.browserslistEnv !== undefined ? options.browserslistEnv : baseConfig.browserslistEnv,
       };
+
+      if (ecmaVersionArg !== undefined) {
+        singleConfig.ecmaVersion = ecmaVersionArg;
+      }
+      // `filesArg` (positional) takes precedence. If not present, use `options.files` (flag). Else, stick with baseConfig.files.
+      if (filesArg?.length) {
+        singleConfig.files = filesArg;
+      } else if (options.files) {
+        singleConfig.files = options.files.split(',').map(f => f.trim()).filter(Boolean);
+      }
+
       return runChecks([singleConfig], logger);
     }
 
-    // Otherwise use config file
     if (!configs.length) {
       logger.error('No configuration found. Please provide command line arguments or a config file.');
       process.exit(1);
@@ -336,70 +205,77 @@ async function runChecks(configs, logger) {
   let hasErrors = false;
 
   for (const config of configs) {
-    // Basic validation of config values
     const expectedEcmaVersion = config.ecmaVersion;
-    const files = [].concat(config.files || []);
+    let patternsToGlob = [];
+    const configFilesValue = config.files;
+    if (configFilesValue) {
+      if (Array.isArray(configFilesValue)) {
+        patternsToGlob = configFilesValue.map(p => String(p).trim()).filter(Boolean);
+      } else if (typeof configFilesValue === 'string') {
+        patternsToGlob = configFilesValue.split(',').map(p => p.trim()).filter(Boolean);
+      }
+    }
+
     const esmodule = config.module;
     const allowHashBang = config.allowHashBang;
     const pathsToIgnore = [].concat(config.not || []);
     const looseGlobMatching = config.looseGlobMatching;
     const checkFeatures = config.checkFeatures;
     const checkForPolyfills = config.checkForPolyfills;
-
-    // Get ignoreFile from either camelCase or kebab-case option
+    const checkBrowser = config.checkBrowser;
     const ignoreFilePath = config.ignoreFile || config['ignore-file'];
 
-    // If ignoreFile is specified but doesn't exist, warn the user
     if (ignoreFilePath && !fs.existsSync(ignoreFilePath) && logger.isLevelEnabled('warn')) {
       logger.warn(`Warning: Ignore file '${ignoreFilePath}' does not exist or is not accessible`);
     }
 
-    if (!expectedEcmaVersion) {
-      logger.error('No ecmaScript version specified in configuration');
-      process.exit(1);
-    }
-
-    if (!files.length) {
-      logger.error('No files specified in configuration');
+    if (!expectedEcmaVersion && !config.checkBrowser) {
+      logger.error('No ecmaScript version or checkBrowser option specified in configuration');
       process.exit(1);
     }
 
     if (looseGlobMatching && logger.isLevelEnabled('debug')) {
-      logger.debug('ES-Check: loose-glob-matching is set')
+      logger.debug('ES-Check: loose-glob-matching is set');
     }
 
     const globOpts = { nodir: true }
-    let allMatchedFiles = []
-    files.forEach((pattern) => {
-      const globbedFiles = glob.sync(pattern, globOpts);
-      if (globbedFiles.length === 0 && !looseGlobMatching) {
-        logger.error(`ES-Check: Did not find any files to check for ${pattern}.`)
-        process.exit(1)
-      }
-      allMatchedFiles = allMatchedFiles.concat(globbedFiles);
-    }, []);
-
-    if (allMatchedFiles.length === 0) {
-      logger.error(`ES-Check: Did not find any files to check for ${files}.`)
-      process.exit(1)
+    let allMatchedFiles = [];
+    if (patternsToGlob.length === 0 && !looseGlobMatching) {
+        logger.error('ES-Check: No file patterns specified to check.');
+        process.exit(1);
     }
 
-    /**
-     * @note define ecmaScript version
-     */
+    patternsToGlob.forEach((pattern) => {
+      const globbedFiles = glob.sync(pattern, globOpts);
+      if (globbedFiles.length === 0 && !looseGlobMatching) {
+        logger.error(`ES-Check: Did not find any files to check for pattern: ${pattern}.`);
+        process.exit(1);
+      }
+      allMatchedFiles = allMatchedFiles.concat(globbedFiles);
+    });
+
+    if (allMatchedFiles.length === 0) {
+      if (patternsToGlob.length > 0) {
+        logger.error(`ES-Check: Did not find any files to check across all patterns: ${patternsToGlob.join(', ')}.`);
+        process.exit(1);
+      } else if (looseGlobMatching) {
+        logger.warn('ES-Check: No file patterns specified or no files found (running in loose mode).');
+      }
+    }
+
     let ecmaVersion
 
-    // If checkBrowser option is enabled, use browserslist to determine ES version
-    if (config.checkBrowser) {
+    const isBrowserslistCheck = Boolean(expectedEcmaVersion === 'checkBrowser' || checkBrowser !== undefined);
+    if (isBrowserslistCheck) {
+      const browserslistQuery = config.browserslistQuery;
       try {
         const { getESVersionFromBrowserslist } = require('./browserslist');
         const esVersionFromBrowserslist = getESVersionFromBrowserslist({
-          browserslistQuery: config.browserslistQuery,
+          browserslistQuery,
           browserslistPath: config.browserslistPath,
           browserslistEnv: config.browserslistEnv
         });
 
-        // Override the ecmaVersion with the browserslist-determined version
         ecmaVersion = esVersionFromBrowserslist.toString();
 
         if (logger.isLevelEnabled('debug')) {
@@ -410,7 +286,6 @@ async function runChecks(configs, logger) {
         process.exit(1);
       }
     } else {
-      // Use the specified ES version
       switch (expectedEcmaVersion) {
       case 'es3':
         ecmaVersion = '3'
@@ -501,7 +376,6 @@ async function runChecks(configs, logger) {
 
     const ignoreList = parseIgnoreList(config);
 
-    // Only log ignored features if debug logging is enabled and there are features to ignore
     if (ignoreList.size > 0 && logger.isLevelEnabled('debug')) {
       logger.debug('ES-Check: ignoring features:', Array.from(ignoreList).join(', '));
     }
@@ -530,7 +404,6 @@ async function runChecks(configs, logger) {
       const parseSourceType = acornOpts.sourceType || 'script';
       const esVersion = parseInt(ecmaVersion, 10);
 
-      // Run the standard feature detection
       const { foundFeatures, unsupportedFeatures } = detectFeatures(
         code,
         esVersion,
@@ -543,18 +416,14 @@ async function runChecks(configs, logger) {
         logger.debug(`Features found in ${file}: ${stringifiedFeatures}`);
       }
 
-      // Check for polyfills if enabled
       let filteredUnsupportedFeatures = unsupportedFeatures;
       if (checkForPolyfills && unsupportedFeatures.length > 0) {
-        // Lazy-load the polyfill detector only when needed
         if (!polyfillDetector) {
           polyfillDetector = require('./polyfillDetector');
         }
 
-        // Detect polyfills in the code
         const polyfills = polyfillDetector.detectPolyfills(code, logger);
 
-        // Filter out polyfilled features from unsupported features
         filteredUnsupportedFeatures = polyfillDetector.filterPolyfilled(unsupportedFeatures, polyfills);
 
         if (logger.isLevelEnabled('debug') && filteredUnsupportedFeatures.length !== unsupportedFeatures.length) {
@@ -588,6 +457,7 @@ async function runChecks(configs, logger) {
       })
       hasErrors = true;
       process.exit(1)
+      return;
     }
     logger.info(`ES-Check: there were no ES version matching errors!  🎉`)
   }

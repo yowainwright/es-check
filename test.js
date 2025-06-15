@@ -5,17 +5,17 @@ const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const { generateBashCompletion, generateZshCompletion } = require('./utils');
 
-// Helper function to create a unique config file for each test
+const generatedFixturesRoot = path.join(process.cwd(), 'fixtures');
+
 function createUniqueConfigFile(config, testName) {
-  // Create a hash of the test name to ensure uniqueness
   const hash = crypto.createHash('md5').update(testName).digest('hex').substring(0, 8);
   const configFileName = `.escheckrc.${hash}`;
   fs.writeFileSync(configFileName, JSON.stringify(config));
   return configFileName;
 }
 
-// Helper function to clean up config files
 function removeConfigFile(configFileName) {
   if (fs.existsSync(configFileName)) {
     fs.unlinkSync(configFileName);
@@ -482,7 +482,6 @@ describe('Array Configuration', () => {
   });
 
   afterEach(() => {
-    // Only clean up the test directories, not the config files
     if (fs.existsSync('tests/es5')) {
       fs.rmSync('tests/es5', { recursive: true, force: true });
     }
@@ -506,7 +505,6 @@ describe('Array Configuration', () => {
     const configFileName = createUniqueConfigFile(config, 'multiple-configurations');
 
     exec(`node index.js --config=${configFileName}`, (err, stdout, stderr) => {
-      // Clean up the config file
       removeConfigFile(configFileName);
 
       if (err) {
@@ -517,6 +515,446 @@ describe('Array Configuration', () => {
         return;
       }
       assert(stdout.includes('no ES version matching errors'), 'Should indicate successful check');
+      done();
+    });
+  });
+});
+
+describe('CheckBrowser Tests', () => {
+  it('🎉 Es Check should pass when using --checkBrowser without specifying ES version', (done) => {
+    exec('node index.js es6 --checkBrowser --browserslistQuery="Chrome >= 100" ./tests/checkbrowser/es6.js', (err, stdout, stderr) => {
+      if (err) {
+        console.error(err.stack);
+        console.error(stdout.toString());
+        console.error(stderr.toString());
+        done(err);
+        return;
+      }
+      assert(stdout.includes('no ES version matching errors'), 'Should indicate successful check');
+      done();
+    });
+  });
+
+  it('🎉 Es Check should pass when using "checkBrowser" as ES version', (done) => {
+    exec('node index.js checkBrowser --browserslistQuery="Chrome >= 100" ./tests/checkbrowser/es6.js', (err, stdout, stderr) => {
+      if (err) {
+        console.error(err.stack);
+        console.error(stdout.toString());
+        console.error(stderr.toString());
+        done(err);
+        return;
+      }
+      assert(stdout.includes('no ES version matching errors'), 'Should indicate successful check');
+      done();
+    });
+  });
+
+  it('🎉 Es Check should pass when using only --checkBrowser flag without ES version', (done) => {
+    exec('node index.js --checkBrowser --browserslistQuery="Chrome >= 100" --files=./tests/checkbrowser/es6.js', (err, stdout, stderr) => {
+      if (err) {
+        console.error(err.stack);
+        console.error(stdout.toString());
+        console.error(stderr.toString());
+        done(err);
+        return;
+      }
+      assert(stdout.includes('no ES version matching errors'), 'Should indicate successful check');
+      done();
+    });
+  });
+
+  it('🎉 Es Check should pass when using --files with --checkBrowser without ES version', (done) => {
+    exec('node index.js --checkBrowser --browserslistQuery="Chrome >= 100" --files=./tests/checkbrowser/es6.js', (err, stdout, stderr) => {
+      if (err) {
+        console.error(err.stack);
+        console.error(stdout.toString());
+        console.error(stderr.toString());
+        done(err);
+        return;
+      }
+      assert(stdout.includes('no ES version matching errors'), 'Should indicate successful check');
+      done();
+    });
+  });
+
+  it('👌 Es Check should fail when ES6 file is checked against ES5 browsers', (done) => {
+    exec('node index.js es6 --checkBrowser --browserslistQuery="IE 11" ./tests/checkbrowser/es6.js', (err, stdout, stderr) => {
+      assert(err, 'Expected an error but command ran successfully');
+      console.log(stdout);
+      done();
+    });
+  });
+
+  it('👌 Es Check should fail when ES6 file is checked against ES5 browsers using only --checkBrowser', (done) => {
+    exec('node index.js --checkBrowser --browserslistQuery="IE 11" ./tests/checkbrowser/es6.js', (err, stdout, stderr) => {
+      assert(err, 'Expected an error but command ran successfully');
+      console.log(stdout);
+      done();
+    });
+  });
+
+  it('🎉 Es Check should pass when ES2020 file is checked against modern browsers', (done) => {
+    exec('node index.js es2020 --checkBrowser --browserslistQuery="Chrome >= 85" ./tests/checkbrowser/es6.js', (err, stdout, stderr) => {
+      if (err) {
+        console.error(err.stack);
+        console.error(stdout.toString());
+        console.error(stderr.toString());
+        done(err);
+        return;
+      }
+      done();
+    });
+  });
+
+  it('👌 Es Check should fail when ES2020 file is checked against older browsers', (done) => {
+    exec('node index.js es6 --checkBrowser --browserslistQuery="Chrome >= 60, Firefox >= 60" ./tests/checkbrowser/es2020.js --checkFeatures', (err, stdout, stderr) => {
+      assert(err, 'Expected an error but command ran successfully');
+      console.log(stdout);
+      done();
+    });
+  });
+});
+
+describe('Shell Completion', () => {
+  // CLI Integration Tests
+  describe('CLI Commands', () => {
+    it('should generate bash completion script', (done) => {
+      exec('node index.js completion', (err, stdout, stderr) => {
+        if (err) {
+          console.error(err.stack);
+          console.error(stdout.toString());
+          console.error(stderr.toString());
+          done(err);
+          return;
+        }
+
+        // Check for key elements in the bash completion script
+        assert(stdout.includes('_es_check_completion()'), 'Should include completion function');
+        assert(stdout.includes('es_versions='), 'Should include ES versions');
+        assert(stdout.includes('complete -F _es_check_completion'), 'Should include complete command');
+
+        done();
+      });
+    });
+
+    it('should generate zsh completion script', (done) => {
+      exec('node index.js completion zsh', (err, stdout, stderr) => {
+        if (err) {
+          console.error(err.stack);
+          console.error(stdout.toString());
+          console.error(stderr.toString());
+          done(err);
+          return;
+        }
+
+        // Check for key elements in the zsh completion script
+        assert(stdout.includes('#compdef es-check'), 'Should include compdef directive');
+        assert(stdout.includes('_es_check()'), 'Should include completion function');
+        assert(stdout.includes('es_versions=('), 'Should include ES versions');
+
+        done();
+      });
+    });
+
+    it('should show error for unsupported shell', (done) => {
+      exec('node index.js completion unsupported-shell', (err, stdout, stderr) => {
+        assert(err, 'Should exit with error');
+        assert(stderr.includes('not supported for completion'), 'Should show error message for unsupported shell');
+        done();
+      });
+    });
+  });
+
+  // Unit Tests for Utility Functions
+  describe('Utility Functions', () => {
+    describe('generateBashCompletion', () => {
+      it('should generate bash completion script', () => {
+        const cmdName = 'test-cmd';
+        const commands = ['completion', 'help'];
+        const options = ['module', 'files', 'verbose'];
+
+        const script = generateBashCompletion(cmdName, commands, options);
+
+        assert(script.includes(`_${cmdName.replace(/-/g, '_')}_completion()`), 'Should include completion function');
+        assert(script.includes('es_versions='), 'Should include ES versions');
+        assert(script.includes(`complete -F _${cmdName.replace(/-/g, '_')}_completion ${cmdName}`), 'Should include complete command');
+
+        commands.forEach(cmd => {
+          assert(script.includes(cmd), `Should include command: ${cmd}`);
+        });
+
+        options.forEach(opt => {
+          assert(script.includes(`--${opt}`), `Should include option: --${opt}`);
+        });
+      });
+
+      it('should handle empty commands and options arrays', () => {
+        const script = generateBashCompletion('test-cmd', [], []);
+
+        assert(script.includes('_test_cmd_completion()'), 'Should include completion function');
+        assert(script.includes('cmds=""') || script.includes('cmds=()'), 'Should handle empty commands');
+        assert(script.includes('opts=""') || script.includes('opts=()'), 'Should handle empty options');
+      });
+
+      it('should handle command names with hyphens', () => {
+        const script = generateBashCompletion('test-cmd', ['help'], ['verbose']);
+
+        assert(script.includes('_test_cmd_completion()'), 'Should convert hyphens to underscores in function name');
+        assert(script.includes('complete -F _test_cmd_completion test-cmd'),
+          'Should use original command name in complete directive');
+      });
+    });
+
+    describe('generateZshCompletion', () => {
+      it('should generate zsh completion script', () => {
+        const cmdName = 'test-cmd';
+        const commands = ['completion', 'help'];
+        const options = ['module', 'files', 'verbose'];
+
+        const script = generateZshCompletion(cmdName, commands, options);
+
+        assert(script.includes(`#compdef ${cmdName}`), 'Should include compdef directive');
+        assert(script.includes(`_${cmdName.replace(/-/g, '_')}()`), 'Should include completion function');
+        assert(script.includes('es_versions=('), 'Should include ES versions');
+
+        commands.forEach(cmd => {
+          assert(script.includes(`"${cmd}:`), `Should include command: ${cmd}`);
+        });
+
+        options.forEach(opt => {
+          assert(script.includes(`"--${opt}[`), `Should include option: --${opt}`);
+        });
+      });
+
+      it('should handle empty commands and options arrays', () => {
+        const script = generateZshCompletion('test-cmd', [], []);
+
+        assert(script.includes('_test_cmd()'), 'Should include completion function');
+        assert(script.includes('commands=('), 'Should include commands array');
+        assert(script.includes('options=('), 'Should include options array');
+      });
+
+      it('should handle command names with hyphens', () => {
+        const script = generateZshCompletion('test-cmd', ['help'], ['verbose']);
+
+        assert(script.includes('_test_cmd()'), 'Should convert hyphens to underscores in function name');
+        assert(script.includes('#compdef test-cmd'), 'Should use original command name in compdef directive');
+      });
+    });
+  });
+
+  describe('🔬 Limited Tests for Addressed Scenarios (No New Files Constraint)', () => {
+    it('🎉 Should run with "checkBrowser" and an existing ES5 file, relying on browserslist default or ancestor configs', (done) => {
+      exec('node index.js checkBrowser ./tests/es5.js', (err, stdout, stderr) => {
+        if (err) {
+          console.error(err.stack);
+          console.error(stdout.toString());
+          console.error(stderr.toString());
+          done(err);
+          return;
+        }
+        assert(stdout.includes('no ES version matching errors'), 'ES5 file should pass with default browserslist behavior.');
+        done();
+      });
+    });
+
+    it('🎉 Should use --browserslistQuery from CLI with --checkBrowser, effectively overriding a positional esVersion', (done) => {
+      exec('node index.js es5 --checkBrowser --browserslistQuery="Chrome >= 100" ./tests/es6.js', (err, stdout, stderr) => {
+        if (err) {
+          console.error(err.stack);
+          console.error(stdout.toString());
+          console.error(stderr.toString());
+          done(err);
+          return;
+        }
+        assert(stdout.includes('no ES version matching errors'), 'ES6 file should pass when --checkBrowser and a modern --browserslistQuery are used.');
+        done();
+      });
+    });
+  });
+});
+
+describe('🔬 Fixture-Based Tests for Addressed Scenarios', () => {
+
+  before(() => {
+    if (fs.existsSync(generatedFixturesRoot)) {
+      fs.rmSync(generatedFixturesRoot, { recursive: true, force: true });
+    }
+    fs.mkdirSync(generatedFixturesRoot, { recursive: true });
+  });
+
+  after(() => {
+    if (fs.existsSync(generatedFixturesRoot)) {
+      fs.rmSync(generatedFixturesRoot, { recursive: true, force: true });
+    }
+  });
+
+  describe('Auto-loading package.json for browserslist', () => {
+    it('👌 Should auto-load browserslist from a generated package.json and fail for incompatible ES version', (done) => {
+      const scenarioDirName = 's1_pkg_json_fixture';
+      const testDir = path.join(generatedFixturesRoot, scenarioDirName);
+      fs.mkdirSync(testDir, { recursive: true });
+
+      const es6JsContent = 'const myVar = 123; let another = () => myVar;';
+      fs.writeFileSync(path.join(testDir, 'uses_es6.js'), es6JsContent);
+
+      const packageJsonContent = {
+        name: "s1-fixture-pkg",
+        version: "1.0.0",
+        browserslist: ["IE 11"]
+      };
+      fs.writeFileSync(path.join(testDir, 'package.json'), JSON.stringify(packageJsonContent));
+
+      const pathToIndexJs = path.relative(testDir, path.join(process.cwd(), 'index.js'));
+      const targetJsFile = 'uses_es6.js';
+
+      exec(`node ${pathToIndexJs} checkBrowser ${targetJsFile}`, { cwd: testDir }, (err) => {
+        assert(err, 'Expected es-check to fail (ES6 file vs IE 11 from generated package.json).');
+        done();
+      });
+    });
+  });
+
+  describe('Comma-separated files string from config', () => {
+    it('👌 Should process comma-separated files string from a generated .escheckrc and fail if one file is non-compliant', (done) => {
+      const scenarioJsFilesDirName = 's3_js_files_fixture';
+      const jsFilesDir = path.join(generatedFixturesRoot, scenarioJsFilesDirName);
+      fs.mkdirSync(jsFilesDir, { recursive: true });
+
+      const es5JsContent = 'var testVar = "ES5 content";';
+      const es6JsContent = 'const testConst = "ES6 content"; let testLet = true;';
+      fs.writeFileSync(path.join(jsFilesDir, 'actual_es5.js'), es5JsContent);
+      fs.writeFileSync(path.join(jsFilesDir, 'actual_es6.js'), es6JsContent);
+
+      const es5RelPath = path.join(path.basename(generatedFixturesRoot), scenarioJsFilesDirName, 'actual_es5.js');
+      const es6RelPath = path.join(path.basename(generatedFixturesRoot), scenarioJsFilesDirName, 'actual_es6.js');
+
+      const configForS3 = {
+        ecmaVersion: 'es5',
+        files: `${es5RelPath}, ${es6RelPath}`
+      };
+      const configFileName = createUniqueConfigFile(configForS3, 's3_comma_files_rc');
+
+      exec(`node index.js --config=${configFileName}`, (err, stdout, stderr) => {
+        removeConfigFile(configFileName);
+
+        assert(err, 'Expected es-check to fail because actual_es6.js (ES6) was checked as ES5.');
+        assert(stdout.includes('actual_es6.js') && (stdout.includes('ES version matching errors') || stderr.includes('ES version matching errors')), 'Error output should mention the non-compliant ES6 file.');
+        done();
+      });
+    });
+  });
+
+  describe('CLI options merge with file config for browserslist (using createUniqueConfigFile)', () => {
+    it('👌 Should use browserslistQuery from .escheckrc when CLI provides --files', (done) => {
+      const es6TestFile = './tests/checkbrowser/es6.js';
+      const config = {
+        ecmaVersion: 'checkBrowser',
+        browserslistQuery: 'IE 11'
+      };
+      const configFileName = createUniqueConfigFile(config, 's2_cli_merge_rc_fixture');
+
+      exec(`node index.js --config=${configFileName} --files=${es6TestFile}`, (err) => {
+        removeConfigFile(configFileName);
+        assert(err, `Expected es-check to fail (ES6 file ${es6TestFile} vs "IE 11" from ${configFileName}).`);
+        done();
+      });
+    });
+  });
+
+  it('🎉 should PASS when --checkBrowser is used with a single positional file argument', (done) => {
+    exec('node index.js --checkBrowser --browserslistQuery="Chrome >= 100" ./tests/checkbrowser/es6.js', (err, stdout, stderr) => {
+      if (err) {
+        console.error('Test failed unexpectedly:');
+        console.error(err.stack);
+        console.error(stdout.toString());
+        console.error(stderr.toString());
+        done(err);
+        return;
+      }
+      assert(stdout.includes('no ES version matching errors'), 'Should pass successfully');
+      done();
+    });
+  });
+
+  it('🎉 should PASS when checking a SCRIPT file (es6.js) with --checkBrowser', (done) => {
+    const command = 'node index.js --checkBrowser --browserslistQuery="Chrome >= 100" ./tests/checkbrowser/es6.js';
+    exec(command, (err, stdout, stderr) => {
+      if (err) {
+        console.error('Test for es6.js failed unexpectedly:', stdout, stderr);
+        done(err);
+        return;
+      }
+      assert(stdout.includes('no ES version matching errors'), 'Should pass successfully');
+      done();
+    });
+  });
+
+  it('🎉 should PASS when checking a MODULE file (es2020.js) by setting the version explicitly', (done) => {
+    const command = 'node index.js es2020 --module ./tests/checkbrowser/es2020.js';
+    exec(command, (err, stdout, stderr) => {
+      if (err) {
+        console.error('Test for es2020.js failed unexpectedly:', stdout, stderr);
+        done(err);
+        return;
+      }
+      assert(stdout.includes('no ES version matching errors'), 'Should pass successfully');
+      done();
+    });
+  });
+
+  it('🎉 should PASS when file argument is passed before the --checkBrowser flag', (done) => {
+    const command = 'node index.js ./tests/checkbrowser/es6.js --checkBrowser --browserslistQuery="Chrome >= 100"';
+
+    exec(command, (err, stdout, stderr) => {
+      if (err) {
+        console.error('Test failed unexpectedly:', stdout, stderr);
+        done(err);
+        return;
+      }
+      assert(stdout.includes('no ES version matching errors'), 'Should pass successfully');
+      done();
+    });
+  });
+
+  it('🎉 should PASS when file argument is passed before the --checkBrowser flag', (done) => {
+    const command = 'node index.js checkBrowser ./tests/checkbrowser/es6.js --browserslistQuery="Chrome >= 100"';
+
+    exec(command, (err, stdout, stderr) => {
+      if (err) {
+        console.error('Test failed unexpectedly:', stdout, stderr);
+        done(err);
+        return;
+      }
+      assert(stdout.includes('no ES version matching errors'), 'Should pass successfully');
+      done();
+    });
+  });
+
+  it('🎉 should PASS when file argument is passed before the --checkBrowser flag', (done) => {
+    const command = 'node index.js --checkBrowser ./tests/checkbrowser/es6.js --browserslistQuery="Chrome >= 100"';
+
+    exec(command, (err, stdout, stderr) => {
+      if (err) {
+        console.error('Test failed unexpectedly:', stdout, stderr);
+        done(err);
+        return;
+      }
+      assert(stdout.includes('no ES version matching errors'), 'Should pass successfully');
+      done();
+    });
+  });
+
+  it('🎉 should PASS when file argument is passed before the --checkBrowser flag', (done) => {
+    const command = 'node index.js --checkBrowser ./tests/checkbrowser/es6.js';
+
+    exec(command, (err, stdout, stderr) => {
+      if (err) {
+        console.error('Test failed unexpectedly:', stdout, stderr);
+        done(err);
+        return;
+      }
+      assert(stdout.includes('no ES version matching errors'), 'Should pass successfully');
       done();
     });
   });

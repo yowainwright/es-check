@@ -2,7 +2,7 @@
 	"name": "Node.js",
 	"build": {
 		"dockerfile": "Dockerfile",
-		"args": { "VARIANT": "23-bullseye", "NODE_ENV": "docker-dev" }
+		"args": { "VARIANT": "24-bullseye", "NODE_ENV": "docker-dev" }
 	},
 	"settings": {},
 	"extensions": [
