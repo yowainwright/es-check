@@ -19,23 +19,19 @@ describe('Utils Module Tests', () => {
 
   let originalConsoleError;
   let originalWinstonFormatColorize;
-  let originalSupportsColorDescriptor; // To store original property descriptor
+  let originalSupportsColorDescriptor;
 
   beforeEach(() => {
     originalConsoleError = console.error;
     console.error = () => {};
 
     originalWinstonFormatColorize = winston.format.colorize;
-
-    // Save the original property descriptor to handle the getter
     originalSupportsColorDescriptor = Object.getOwnPropertyDescriptor(supportsColor, 'stdout');
   });
 
   afterEach(() => {
     console.error = originalConsoleError;
     winston.format.colorize = originalWinstonFormatColorize;
-
-    // Restore the original getter for supports-color
     if (originalSupportsColorDescriptor) {
       Object.defineProperty(supportsColor, 'stdout', originalSupportsColorDescriptor);
     }
