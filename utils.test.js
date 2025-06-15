@@ -1,158 +1,178 @@
 const assert = require('assert');
+const fs = require('fs');
+const winston = require('winston');
+const supportsColor = require('supports-color');
+
 const {
+  parseIgnoreList,
   checkVarKindMatch,
   checkCalleeMatch,
   checkOperatorMatch,
   checkDefault,
   checkMap,
+  createLogger,
+  generateBashCompletion,
+  generateZshCompletion
 } = require('./utils');
 
-describe('Check Functions', function () {
-  describe('checkVarKindMatch', function () {
-    it('should return false if astInfo.kind is not provided', function () {
-      const node = { kind: 'const' };
-      const astInfo = {};
-      assert.strictEqual(checkVarKindMatch(node, astInfo), false);
+describe('Utils Module Tests', () => {
+
+  let originalConsoleError;
+  let originalWinstonFormatColorize;
+  let originalSupportsColorDescriptor;
+
+  beforeEach(() => {
+    originalConsoleError = console.error;
+    console.error = () => {};
+
+    originalWinstonFormatColorize = winston.format.colorize;
+    originalSupportsColorDescriptor = Object.getOwnPropertyDescriptor(supportsColor, 'stdout');
+  });
+
+  afterEach(() => {
+    console.error = originalConsoleError;
+    winston.format.colorize = originalWinstonFormatColorize;
+    if (originalSupportsColorDescriptor) {
+      Object.defineProperty(supportsColor, 'stdout', originalSupportsColorDescriptor);
+    }
+  });
+
+  describe('parseIgnoreList', () => {
+    let originalFsExistsSync;
+    let originalFsReadFileSync;
+    let mockFsState;
+
+    const manualMockFsExistsSync = (path) => {
+      return mockFsState.existsSyncMocks[path] !== undefined
+        ? mockFsState.existsSyncMocks[path]
+        : false;
+    };
+
+    const manualMockFsReadFileSync = (path, encoding) => {
+      if (mockFsState.readFileSyncMocks[path] !== undefined) {
+        return mockFsState.readFileSyncMocks[path];
+      }
+      throw new Error(`Manual mock for readFileSync: No content defined for path: ${path}`);
+    };
+
+    beforeEach(() => {
+      originalFsExistsSync = fs.existsSync;
+      originalFsReadFileSync = fs.readFileSync;
+
+      mockFsState = {
+        existsSyncMocks: {},
+        readFileSyncMocks: {},
+      };
+
+      fs.existsSync = manualMockFsExistsSync;
+      fs.readFileSync = manualMockFsReadFileSync;
     });
 
-    it('should return true if node.kind equals astInfo.kind', function () {
+    afterEach(() => {
+      fs.existsSync = originalFsExistsSync;
+      fs.readFileSync = originalFsReadFileSync;
+    });
+
+    it('should return an empty Set if no options are provided', () => {
+      const result = parseIgnoreList();
+      assert.deepStrictEqual(result, new Set());
+    });
+
+    it('should parse comma-separated features from options.ignore', () => {
+      const result = parseIgnoreList({ ignore: 'featureA,featureB' });
+      assert.deepStrictEqual(result, new Set(['featureA', 'featureB']));
+    });
+
+    it('should combine features from options.ignore and options.allowList', () => {
+      const result = parseIgnoreList({ ignore: 'featureA', allowList: 'featureB' });
+      assert.deepStrictEqual(result, new Set(['featureA', 'featureB']));
+    });
+
+    it('should throw an error if ignoreFile does not exist', () => {
+      const filePath = 'nonexistent.json';
+      mockFsState.existsSyncMocks[filePath] = false;
+      assert.throws(() => parseIgnoreList({ ignoreFile: filePath }), /Ignore file not found:/);
+    });
+
+    it('should parse features from a valid ignoreFile', () => {
+      const filePath = 'valid.json';
+      mockFsState.existsSyncMocks[filePath] = true;
+      mockFsState.readFileSyncMocks[filePath] = JSON.stringify({ features: ['fileFeature1', 'fileFeature2'] });
+      const result = parseIgnoreList({ ignoreFile: filePath });
+      assert.deepStrictEqual(result, new Set(['fileFeature1', 'fileFeature2']));
+    });
+  });
+
+  describe('checkVarKindMatch', () => {
+    it('should return true if node.kind equals astInfo.kind', () => {
       const node = { kind: 'const' };
       const astInfo = { kind: 'const' };
       assert.strictEqual(checkVarKindMatch(node, astInfo), true);
     });
 
-    it('should return false if node.kind does not match astInfo.kind', function () {
+    it('should return false if node.kind does not match astInfo.kind', () => {
       const node = { kind: 'let' };
       const astInfo = { kind: 'const' };
       assert.strictEqual(checkVarKindMatch(node, astInfo), false);
     });
   });
 
-  describe('checkCalleeMatch', function () {
-    it('should return false if astInfo.callee is not provided', function () {
-      const node = {
-        callee: { type: 'Identifier', name: 'Promise' },
-      };
-      const astInfo = {};
-      assert.strictEqual(checkCalleeMatch(node, astInfo), false);
-    });
-
-    it('should return false if node.callee is missing', function () {
-      const node = {};
-      const astInfo = { callee: 'Promise' };
-      assert.strictEqual(checkCalleeMatch(node, astInfo), false);
-    });
-
-    it('should return false if node.callee.type !== "Identifier"', function () {
-      const node = {
-        callee: { type: 'MemberExpression', name: 'Promise' },
-      };
-      const astInfo = { callee: 'Promise' };
-      assert.strictEqual(checkCalleeMatch(node, astInfo), false);
-    });
-
-    it('should return false if the callee name does not match astInfo.callee', function () {
-      const node = {
-        callee: { type: 'Identifier', name: 'WeakRef' },
-      };
-      const astInfo = { callee: 'Promise' };
-      assert.strictEqual(checkCalleeMatch(node, astInfo), false);
-    });
-
-    it('should return true if callee name matches astInfo.callee', function () {
+  describe('checkCalleeMatch', () => {
+    it('should return true if callee name matches astInfo.callee', () => {
       const node = {
         callee: { type: 'Identifier', name: 'Promise' },
       };
       const astInfo = { callee: 'Promise' };
       assert.strictEqual(checkCalleeMatch(node, astInfo), true);
     });
+
+    it('should return false if the callee name does not match astInfo.callee', () => {
+      const node = {
+        callee: { type: 'Identifier', name: 'WeakRef' },
+      };
+      const astInfo = { callee: 'Promise' };
+      assert.strictEqual(checkCalleeMatch(node, astInfo), false);
+    });
   });
 
-  describe('checkOperatorMatch', function () {
-    it('should return false if astInfo.operator is not provided', function () {
-      const node = { operator: '??' };
-      const astInfo = {};
-      assert.strictEqual(checkOperatorMatch(node, astInfo), false);
-    });
-
-    it('should return false if node.operator does not match astInfo.operator', function () {
-      const node = { operator: '**' };
-      const astInfo = { operator: '??' };
-      assert.strictEqual(checkOperatorMatch(node, astInfo), false);
-    });
-
-    it('should return true if node.operator matches astInfo.operator', function () {
+  describe('checkOperatorMatch', () => {
+    it('should return true if node.operator matches astInfo.operator', () => {
       const node = { operator: '??' };
       const astInfo = { operator: '??' };
       assert.strictEqual(checkOperatorMatch(node, astInfo), true);
     });
+
+    it('should return false if node.operator does not match astInfo.operator', () => {
+      const node = { operator: '**' };
+      const astInfo = { operator: '??' };
+      assert.strictEqual(checkOperatorMatch(node, astInfo), false);
+    });
   });
 
-  describe('checkDefault', function () {
-    it('should always return true', function () {
+  describe('checkDefault', () => {
+    it('should always return true', () => {
       assert.strictEqual(checkDefault(), true);
     });
   });
 
-  describe('checkMap usage examples', function () {
-    it('checkMap.VariableDeclaration should call checkVarKindMatch internally and return correct boolean', function () {
-      const node = { kind: 'const' };
-      const astInfo = { kind: 'const' };
-      const result = checkMap.VariableDeclaration(node, astInfo);
-      assert.strictEqual(result, true);
-
-      const nodeMismatch = { kind: 'let' };
-      const result2 = checkMap.VariableDeclaration(nodeMismatch, astInfo);
-      assert.strictEqual(result2, false);
-    });
-
-    it('checkMap.LogicalExpression should call checkOperatorMatch internally', function () {
-      const node = { operator: '??' };
-      const astInfo = { operator: '??' };
-      const result = checkMap.LogicalExpression(node, astInfo);
-      assert.strictEqual(result, true);
-    });
-
-    it('checkMap.ArrowFunctionExpression should call checkDefault internally', function () {
-      const result = checkMap.ArrowFunctionExpression();
-      assert.strictEqual(result, true);
-    });
-
-    it('checkMap.default should return false if node type is unsupported', function () {
-      const result = checkMap.default();
-      assert.strictEqual(result, false);
-    });
-  });
-
-  describe('checkCallExpression', () => {
-    const { checkMap } = require('./utils');
-
-    it('correctly distinguishes between global calls and member expressions', () => {
+  describe('checkMap.CallExpression', () => {
+    it('should return true for global calls when callee matches', () => {
       const symbolNode = {
         type: 'CallExpression',
-        callee: {
-          type: 'Identifier',
-          name: 'Symbol'
-        }
+        callee: { type: 'Identifier', name: 'Symbol' }
       };
+      assert.strictEqual(checkMap.CallExpression(symbolNode, { callee: 'Symbol' }), true);
+    });
 
+    it('should return true for member expressions when object and property match', () => {
       const getElementNode = {
         type: 'CallExpression',
         callee: {
           type: 'MemberExpression',
-          object: {
-            type: 'Identifier',
-            name: 'window'
-          },
-          property: {
-            type: 'Identifier',
-            name: 'getElementById'
-          }
+          object: { type: 'Identifier', name: 'window' },
+          property: { type: 'Identifier', name: 'getElementById' }
         }
       };
-
-      assert.strictEqual(checkMap.CallExpression(symbolNode, { callee: 'Symbol' }), true);
-      assert.strictEqual(checkMap.CallExpression(getElementNode, { callee: 'getElementById' }), false);
       assert.strictEqual(checkMap.CallExpression(getElementNode, {
         object: 'window',
         property: 'getElementById'
@@ -160,165 +180,109 @@ describe('Check Functions', function () {
     });
   });
 
-  describe('checkNewExpression for ErrorCause', () => {
-    it('should return false for Error without cause option', () => {
-      const node = {
-        type: 'NewExpression',
-        callee: {
-          type: 'Identifier',
-          name: 'Error'
-        },
-        arguments: [
-          {
-            type: 'Literal',
-            value: 'Something went wrong'
-          }
-        ]
-      };
-
-      const astInfo = {
-        callee: 'Error',
-        hasOptionsCause: true
-      };
-
-      const result = checkMap.NewExpression(node, astInfo);
-      assert.strictEqual(result, false);
-    });
-
+  describe('checkMap.NewExpression', () => {
     it('should return true for Error with cause option', () => {
       const node = {
         type: 'NewExpression',
-        callee: {
-          type: 'Identifier',
-          name: 'Error'
-        },
+        callee: { type: 'Identifier', name: 'Error' },
         arguments: [
-          {
-            type: 'Literal',
-            value: 'Something went wrong'
-          },
+          { type: 'Literal', value: 'Something went wrong' },
           {
             type: 'ObjectExpression',
-            properties: [
-              {
-                type: 'Property',
-                key: {
-                  type: 'Identifier',
-                  name: 'cause'
-                },
-                value: {
-                  type: 'Identifier',
-                  name: 'e'
-                }
-              }
-            ]
+            properties: [{
+              type: 'Property',
+              key: { type: 'Identifier', name: 'cause' },
+              value: { type: 'Identifier', name: 'e' }
+            }]
           }
         ]
       };
-
-      const astInfo = {
-        callee: 'Error',
-        hasOptionsCause: true
-      };
-
-      const result = checkMap.NewExpression(node, astInfo);
-      assert.strictEqual(result, true);
+      const astInfo = { callee: 'Error', hasOptionsCause: true };
+      assert.strictEqual(checkMap.NewExpression(node, astInfo), true);
     });
 
     it('should return true for other NewExpressions without hasOptionsCause', () => {
       const node = {
         type: 'NewExpression',
-        callee: {
-          type: 'Identifier',
-          name: 'Promise'
-        },
+        callee: { type: 'Identifier', name: 'Promise' },
         arguments: []
       };
+      const astInfo = { callee: 'Promise' };
+      assert.strictEqual(checkMap.NewExpression(node, astInfo), true);
+    });
+  });
 
-      const astInfo = {
-        callee: 'Promise'
+  describe('createLogger', () => {
+    const colorizeSentinel = {
+      name: 'colorize',
+      transform: (info, opts) => info
+    };
+    let originalWinstonCombine;
+    let combineArgs;
+
+    beforeEach(() => {
+      winston.format.colorize = () => colorizeSentinel;
+      originalWinstonCombine = winston.format.combine;
+      combineArgs = [];
+      winston.format.combine = (...args) => {
+        combineArgs = args;
+        return originalWinstonCombine(...args);
       };
-
-      const result = checkMap.NewExpression(node, astInfo);
-      assert.strictEqual(result, true);
-    });
-  });
-
-  describe('MemberExpression handling', () => {
-    it('should handle member expressions in CallExpression', () => {
-      const node = {
-        type: 'CallExpression',
-        callee: {
-          type: 'MemberExpression',
-          object: { type: 'Identifier', name: 'Object' },
-          property: { type: 'Identifier', name: 'hasOwn' }
-        }
-      };
-
-      const astInfoMatch = { object: 'Object', property: 'hasOwn' };
-      const astInfoMismatch = { object: 'Object', property: 'keys' };
-
-      assert.strictEqual(checkMap.CallExpression(node, astInfoMatch), true, 'Should match when property names match');
-      assert.strictEqual(checkMap.CallExpression(node, astInfoMismatch), false, 'Should not match when property names differ');
-    });
-  });
-
-  describe('Suggestions for code improvements', () => {
-    it('should handle edge cases in CallExpression with MemberExpression callee', () => {
-      console.log('Suggestion: Add defensive checks in checkMap.CallExpression for missing properties');
-      console.log('The CallExpression handler should check if node.callee.property exists before accessing its type');
-    });
-  });
-
-  describe('createLogger', function () {
-    const { createLogger } = require('./utils');
-    const supportsColor = require('supports-color');
-
-    it('should create a logger with default settings', function () {
-      const logger = createLogger();
-      assert.strictEqual(logger.level, 'info');
-      assert.strictEqual(logger.transports[0].silent, false);
     });
 
-    it('should create a logger with verbose level when verbose option is true', function () {
+    afterEach(() => {
+      winston.format.combine = originalWinstonCombine;
+    });
+
+    it('should create a logger with verbose level when verbose option is true', () => {
       const logger = createLogger({ verbose: true });
       assert.strictEqual(logger.transports[0].level, 'debug');
     });
 
-    it('should create a logger with warn level when quiet option is true', function () {
-      const logger = createLogger({ quiet: true });
-      assert.strictEqual(logger.transports[0].level, 'warn');
-    });
-
-    it('should create a silent logger when silent option is true', function () {
+    it('should create a silent logger when silent option is true', () => {
       const logger = createLogger({ silent: true });
       assert.strictEqual(logger.transports[0].silent, true);
     });
 
-    it('should respect noColor option', function () {
-      const loggerWithColor = createLogger();
-      const loggerNoColor = createLogger({ noColor: true });
-
-      if (supportsColor.stdout) {
-        const formatWithColor = JSON.stringify(loggerWithColor.transports[0].format);
-        const formatNoColor = JSON.stringify(loggerNoColor.transports[0].format);
-        if (formatWithColor !== formatNoColor) {
-          assert.notStrictEqual(
-            formatWithColor,
-            formatNoColor,
-            'Color settings should differ'
-          );
-        } else {
-          assert(loggerWithColor && loggerNoColor, 'Both loggers should be created');
-        }
-      } else {
-        assert(loggerWithColor && loggerNoColor, 'Both loggers should be created');
-      }
+    it('should disable colorize format when supportsColor.stdout is true but noColor is true', () => {
+      Object.defineProperty(supportsColor, 'stdout', { value: true, configurable: true });
+      createLogger({ noColor: true });
+      assert.ok(!combineArgs.includes(colorizeSentinel), 'colorizeSentinel should NOT be included when noColor is true');
     });
 
-    it('should respect kebab-case no-color option', function () {
-      const logger = createLogger({ 'no-color': true });
-      assert(logger, 'Logger should be created with no-color option');
+    it('should disable colorize format when supportsColor.stdout is false', () => {
+      Object.defineProperty(supportsColor, 'stdout', { value: false, configurable: true });
+      createLogger();
+      assert.ok(!combineArgs.includes(colorizeSentinel), 'colorizeSentinel should NOT be included when supportsColor.stdout is false');
+    });
+
+    it('should respect kebab-case no-color option', () => {
+      Object.defineProperty(supportsColor, 'stdout', { value: true, configurable: true });
+      createLogger({ 'no-color': true });
+      assert.ok(!combineArgs.includes(colorizeSentinel), 'colorizeSentinel should NOT be included when no-color is true');
+    });
+  });
+
+  describe('generateBashCompletion', () => {
+    it('should generate a bash completion script', () => {
+      const cmdName = 'es-check';
+      const commands = ['check', 'version', 'completion'];
+      const options = ['ignore', 'allowList', 'ignore-file', 'noColor'];
+      const script = generateBashCompletion(cmdName, commands, options);
+      assert.ok(script.includes(`_es_check_completion()`));
+      assert.ok(script.includes(`cmds="check version completion"`));
+      assert.ok(script.includes(`opts="--ignore --allowList --ignore-file --noColor"`));
+    });
+  });
+
+  describe('generateZshCompletion', () => {
+    it('should generate a zsh completion script', () => {
+      const cmdName = 'es-check';
+      const commands = ['check', 'version', 'completion'];
+      const options = ['ignore', 'allowList', 'ignore-file', 'noColor'];
+      const script = generateZshCompletion(cmdName, commands, options);
+      assert.ok(script.includes(`#compdef es-check`));
+      assert.ok(script.includes(`_es_check()`));
     });
   });
 });

@@ -1,6 +1,6 @@
 const acorn = require('acorn');
 const walk = require('acorn-walk');
-const { ES_FEATURES } = require('./constants');
+const { ES_FEATURES, POLYFILL_PATTERNS, IMPORT_PATTERNS } = require('./constants');
 const { checkMap } = require('./utils');
 
 /**
@@ -8,47 +8,21 @@ const { checkMap } = require('./utils');
  * @param {string} code - The source code to check
  * @param {Set} polyfills - Set to store detected polyfills
  */
-function detectPolyfills(code, polyfills) {
+const detectPolyfills = (
+  code,
+  polyfills,
+  {
+    polyfillPatterns = POLYFILL_PATTERNS,
+    importPatterns = IMPORT_PATTERNS
+  } = {}) => {
   if (code.includes('core-js') || code.includes('polyfill')) {
-    const polyfillPatterns = [
-      { pattern: /Array\.prototype\.toSorted/, feature: 'ArrayToSorted' },
-      { pattern: /Array\.prototype\.findLast/, feature: 'ArrayFindLast' },
-      { pattern: /Array\.prototype\.findLastIndex/, feature: 'ArrayFindLastIndex' },
-      { pattern: /Array\.prototype\.at/, feature: 'ArrayAt' },
-      { pattern: /String\.prototype\.replaceAll/, feature: 'StringReplaceAll' },
-      { pattern: /String\.prototype\.matchAll/, feature: 'StringMatchAll' },
-      { pattern: /String\.prototype\.at/, feature: 'StringAt' },
-      { pattern: /Object\.hasOwn/, feature: 'ObjectHasOwn' },
-      { pattern: /Promise\.any/, feature: 'PromiseAny' },
-      { pattern: /RegExp\.prototype\.exec/, feature: 'RegExpExec' },
-      { pattern: /globalThis/, feature: 'GlobalThis' },
-    ];
-
     for (const { pattern, feature } of polyfillPatterns) {
-      if (pattern.test(code)) {
-        polyfills.add(feature);
-      }
+      if (pattern.test(code)) polyfills.add(feature);
     }
 
     if (code.includes('import') && code.includes('core-js')) {
-      const importPatterns = [
-        { pattern: /from\s+['"]core-js\/modules\/es\.array\.to-sorted['"]/, feature: 'ArrayToSorted' },
-        { pattern: /from\s+['"]core-js\/modules\/es\.array\.find-last['"]/, feature: 'ArrayFindLast' },
-        { pattern: /from\s+['"]core-js\/modules\/es\.array\.find-last-index['"]/, feature: 'ArrayFindLastIndex' },
-        { pattern: /from\s+['"]core-js\/modules\/es\.array\.at['"]/, feature: 'ArrayAt' },
-        { pattern: /from\s+['"]core-js\/modules\/es\.string\.replace-all['"]/, feature: 'StringReplaceAll' },
-        { pattern: /from\s+['"]core-js\/modules\/es\.string\.match-all['"]/, feature: 'StringMatchAll' },
-        { pattern: /from\s+['"]core-js\/modules\/es\.string\.at['"]/, feature: 'StringAt' },
-        { pattern: /from\s+['"]core-js\/modules\/es\.object\.has-own['"]/, feature: 'ObjectHasOwn' },
-        { pattern: /from\s+['"]core-js\/modules\/es\.promise\.any['"]/, feature: 'PromiseAny' },
-        { pattern: /from\s+['"]core-js\/modules\/es\.regexp\.exec['"]/, feature: 'RegExpExec' },
-        { pattern: /from\s+['"]core-js\/modules\/es\.global-this['"]/, feature: 'GlobalThis' },
-      ];
-
       for (const { pattern, feature } of importPatterns) {
-        if (pattern.test(code)) {
-          polyfills.add(feature);
-        }
+        if (pattern.test(code)) polyfills.add(feature);
       }
     }
   }
@@ -58,9 +32,7 @@ const detectFeatures = (code, ecmaVersion, sourceType, ignoreList = new Set(), o
   const { checkForPolyfills } = options;
 
   const polyfills = new Set();
-  if (checkForPolyfills) {
-    detectPolyfills(code, polyfills);
-  }
+  if (checkForPolyfills) detectPolyfills(code, polyfills);
 
   const ast = acorn.parse(code, {
     ecmaVersion: 'latest',

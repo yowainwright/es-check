@@ -180,7 +180,7 @@ function createLogger(options = {}) {
         level,
         stderrLevels: ['error', 'warn'],
         format: winston.format.combine(
-          ...(supportsColor.stdout || !noColor ? [winston.format.colorize()] : []),
+          ...(supportsColor.stdout && !noColor ? [winston.format.colorize()] : []),
           winston.format.simple(),
         ),
       })
