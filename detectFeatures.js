@@ -15,7 +15,6 @@ const detectPolyfills = (
     polyfillPatterns = POLYFILL_PATTERNS,
     importPatterns = IMPORT_PATTERNS
   } = {}) => {
-  // Check for core-js polyfills
   if (code.includes('core-js') || code.includes('polyfill')) {
     for (const { pattern, feature } of polyfillPatterns) {
       if (pattern.test(code)) polyfills.add(feature);
