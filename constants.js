@@ -512,7 +512,48 @@ const NODE_TYPES = {
   NEW_EXPRESSION: 'NewExpression',
 };
 
+const POLYFILL_PATTERNS = [
+  // Array methods
+  { pattern: /Array\.prototype\.toSorted/, feature: 'ArrayToSorted' },
+  { pattern: /Array\.prototype\.findLast/, feature: 'ArrayFindLast' },
+  { pattern: /Array\.prototype\.findLastIndex/, feature: 'ArrayFindLastIndex' },
+  { pattern: /Array\.prototype\.at/, feature: 'ArrayAt' },
+
+  // String methods
+  { pattern: /String\.prototype\.replaceAll/, feature: 'StringReplaceAll' },
+  { pattern: /String\.prototype\.matchAll/, feature: 'StringMatchAll' },
+  { pattern: /String\.prototype\.at/, feature: 'StringAt' },
+
+  // Object methods
+  { pattern: /Object\.hasOwn/, feature: 'ObjectHasOwn' },
+
+  // Promise methods
+  { pattern: /Promise\.any/, feature: 'PromiseAny' },
+
+  // RegExp methods
+  { pattern: /RegExp\.prototype\.exec/, feature: 'RegExpExec' },
+
+  // Global methods
+  { pattern: /globalThis/, feature: 'GlobalThis' },
+];
+
+const IMPORT_PATTERNS = [
+  { pattern: /from\s+['"]core-js\/modules\/es\.array\.to-sorted['"]/, feature: 'ArrayToSorted' },
+  { pattern: /from\s+['"]core-js\/modules\/es\.array\.find-last['"]/, feature: 'ArrayFindLast' },
+  { pattern: /from\s+['"]core-js\/modules\/es\.array\.find-last-index['"]/, feature: 'ArrayFindLastIndex' },
+  { pattern: /from\s+['"]core-js\/modules\/es\.array\.at['"]/, feature: 'ArrayAt' },
+  { pattern: /from\s+['"]core-js\/modules\/es\.string\.replace-all['"]/, feature: 'StringReplaceAll' },
+  { pattern: /from\s+['"]core-js\/modules\/es\.string\.match-all['"]/, feature: 'StringMatchAll' },
+  { pattern: /from\s+['"]core-js\/modules\/es\.string\.at['"]/, feature: 'StringAt' },
+  { pattern: /from\s+['"]core-js\/modules\/es\.object\.has-own['"]/, feature: 'ObjectHasOwn' },
+  { pattern: /from\s+['"]core-js\/modules\/es\.promise\.any['"]/, feature: 'PromiseAny' },
+  { pattern: /from\s+['"]core-js\/modules\/es\.regexp\.exec['"]/, feature: 'RegExpExec' },
+  { pattern: /from\s+['"]core-js\/modules\/es\.global-this['"]/, feature: 'GlobalThis' },
+];
+
 module.exports = {
   ES_FEATURES,
   NODE_TYPES,
+  POLYFILL_PATTERNS,
+  IMPORT_PATTERNS,
 };
