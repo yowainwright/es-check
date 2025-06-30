@@ -52,15 +52,15 @@
     "codependence": "^0.3.1",
     "commitizen": "4.3.1",
     "conventional-changelog-cli": "^5.0.0",
-    "eslint": "9.29.0",
+    "eslint": "9.30.0",
     "eslint-config-prettier": "10.1.5",
     "eslint-plugin-es5": "^1.5.0",
     "husky": "9.1.7",
     "is-ci": "^3.0.1",
-    "mocha": "11.7.0",
+    "mocha": "11.7.1",
     "nyc": "^17.1.0",
     "path-exists-cli": "^2.0.0",
-    "prettier": "3.6.0",
+    "prettier": "3.6.2",
     "release-it": "19.0.3"
   },
   "dependencies": {
