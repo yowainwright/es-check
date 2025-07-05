@@ -20,9 +20,11 @@ Parameters:
 - `outputDir` (optional): Directory to output files (default: ./benchmarks/test-files)
 
 The script generates:
-- 40% ES5-compatible files
-- 40% ES6 files with features like arrow functions, const/let, etc.
-- 20% ES2020+ files with features like nullish coalescing, optional chaining, etc.
+- 30% ES5-compatible files
+- 30% ES6 files with features like arrow functions, const/let, classes, etc.
+- 20% ES2020 files with features like nullish coalescing, optional chaining, BigInt, etc.
+- 10% ES2024 files with features like Array.prototype.findLast, toReversed, String well-formed methods, etc.
+- 10% ES2025 files with features like Array.prototype.group, Promise.try, etc.
 
 ### 2. Compare Tools
 
@@ -133,11 +135,12 @@ These benchmarks highlight the different approaches taken by JavaScript syntax c
 
 es-check stands out with its comprehensive capabilities:
 
-- Specific ES version targeting (ES5 through ES2022+)
+- Specific ES version targeting (ES5 through ES2025+)
 - Detailed feature detection with the `--checkFeatures` flag
 - Flexible configuration options
 - Clear error reporting
 - Support for various module formats
+- ES2024 and ES2025 feature detection including Array methods, String well-formed methods, Promise.try, and more
 
 For most real-world projects, these features provide significant value that outweighs small differences in execution time. es-check's design prioritizes correctness and developer experience, making it an excellent choice for projects where accurate ECMAScript version validation is critical.
 

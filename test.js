@@ -385,6 +385,142 @@ describe('ES12 / ES2021 Feature Tests', () => {
   });
 });
 
+describe('ES13 / ES2022 Feature Tests', () => {
+  it('🎉  Es Check should pass when checking an ES13 file as es13', (done) => {
+    exec('node index.js es13 ./tests/es13.js --checkFeatures', (err, stdout, stderr) => {
+      if (err) {
+        console.error(err.stack);
+        console.error(stdout.toString());
+        console.error(stderr.toString());
+        return done(err);
+      }
+      done();
+    });
+  });
+
+  it('🎉  Es Check should pass when checking an ES13 file as es2022', (done) => {
+    exec('node index.js es2022 ./tests/es13.js --checkFeatures', (err, stdout, stderr) => {
+      if (err) {
+        console.error(err.stack);
+        console.error(stdout.toString());
+        console.error(stderr.toString());
+        return done(err);
+      }
+      done();
+    });
+  });
+
+  it('👌  Es Check should fail when checking an ES13 file as es6', (done) => {
+    exec('node index.js es6 ./tests/es13.js --checkFeatures', (err, stdout, stderr) => {
+      console.log(stdout);
+      assert(err, 'Expected an error but command ran successfully');
+      done();
+    });
+  });
+});
+
+describe('ES14 / ES2023 Feature Tests', () => {
+  it('🎉  Es Check should pass when checking an ES14 file as es14', (done) => {
+    exec('node index.js es14 ./tests/es14.js --checkFeatures --allow-hash-bang', (err, stdout, stderr) => {
+      if (err) {
+        console.error(err.stack);
+        console.error(stdout.toString());
+        console.error(stderr.toString());
+        return done(err);
+      }
+      done();
+    });
+  });
+
+  it('🎉  Es Check should pass when checking an ES14 file as es2023', (done) => {
+    exec('node index.js es2023 ./tests/es14.js --checkFeatures --allow-hash-bang', (err, stdout, stderr) => {
+      if (err) {
+        console.error(err.stack);
+        console.error(stdout.toString());
+        console.error(stderr.toString());
+        return done(err);
+      }
+      done();
+    });
+  });
+
+  it('👌  Es Check should fail when checking an ES14 file as es6', (done) => {
+    exec('node index.js es6 ./tests/es14.js --checkFeatures --allow-hash-bang', (err, stdout, stderr) => {
+      console.log(stdout);
+      assert(err, 'Expected an error but command ran successfully');
+      done();
+    });
+  });
+});
+
+describe('ES15 / ES2024 Feature Tests', () => {
+  it('🎉  Es Check should pass when checking an ES15 file as es15', (done) => {
+    exec('node index.js es15 ./tests/es15.js --checkFeatures', (err, stdout, stderr) => {
+      if (err) {
+        console.error(err.stack);
+        console.error(stdout.toString());
+        console.error(stderr.toString());
+        return done(err);
+      }
+      done();
+    });
+  });
+
+  it('🎉  Es Check should pass when checking an ES15 file as es2024', (done) => {
+    exec('node index.js es2024 ./tests/es15.js --checkFeatures', (err, stdout, stderr) => {
+      if (err) {
+        console.error(err.stack);
+        console.error(stdout.toString());
+        console.error(stderr.toString());
+        return done(err);
+      }
+      done();
+    });
+  });
+
+  it('👌  Es Check should fail when checking an ES15 file as es6', (done) => {
+    exec('node index.js es6 ./tests/es15.js --checkFeatures', (err, stdout, stderr) => {
+      console.log(stdout);
+      assert(err, 'Expected an error but command ran successfully');
+      done();
+    });
+  });
+});
+
+describe('ES16 / ES2025 Feature Tests', () => {
+  it('🎉  Es Check should pass when checking an ES16 file as es16', (done) => {
+    exec('node index.js es16 ./tests/es16.js --checkFeatures', (err, stdout, stderr) => {
+      if (err) {
+        console.error(err.stack);
+        console.error(stdout.toString());
+        console.error(stderr.toString());
+        return done(err);
+      }
+      done();
+    });
+  });
+
+  it('🎉  Es Check should pass when checking an ES16 file as es2025', (done) => {
+    exec('node index.js es2025 ./tests/es16.js --checkFeatures', (err, stdout, stderr) => {
+      if (err) {
+        console.error(err.stack);
+        console.error(stdout.toString());
+        console.error(stderr.toString());
+        return done(err);
+      }
+      done();
+    });
+  });
+
+  it('👌  Es Check should fail when checking an ES16 file as es6', (done) => {
+    exec('node index.js es6 ./tests/es16.js --checkFeatures', (err, stdout, stderr) => {
+      console.log(stdout);
+      assert(err, 'Expected an error but command ran successfully');
+      done();
+    });
+  });
+});
+
 describe('ES6 / Proxy Feature Tests', () => {
   it('👌  Es Check should fail when checking a file with `new Proxy(...)` as es5', (done) => {
     exec('node index.js es5 ./tests/proxy.js --checkFeatures', (err, stdout, stderr) => {

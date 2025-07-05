@@ -113,6 +113,55 @@ let y = 0;
 y ||= 42;
 `;
 
+const es2024Template = `
+// ES2024 / ES2015 features
+const numbers = [1, 2, 3, 4, 5, 4, 3, 2, 1];
+
+// Array.prototype.findLast and findLastIndex
+const lastEven = numbers.findLast(x => x % 2 === 0);
+const lastEvenIndex = numbers.findLastIndex(x => x % 2 === 0);
+
+// Array.prototype.toReversed, toSorted, toSpliced, with
+const originalArray = [3, 1, 4, 1, 5];
+const reversedArray = originalArray.toReversed();
+const sortedArray = originalArray.toSorted();
+const splicedArray = originalArray.toSpliced(1, 2, 'new', 'items');
+const withReplacedElement = originalArray.with(0, 'first');
+
+// String well-formed methods
+const wellFormedString = 'Hello, World!';
+const malformedString = '\uD800'; // Lone surrogate
+const isWellFormed = wellFormedString.isWellFormed();
+const correctedString = malformedString.toWellFormed();
+`;
+
+const es2025Template = `
+// ES2025 / ES2016 features (proposed)
+const items = [
+  { category: 'fruit', name: 'apple' },
+  { category: 'fruit', name: 'banana' },
+  { category: 'vegetable', name: 'carrot' },
+  { category: 'vegetable', name: 'broccoli' },
+  { category: 'fruit', name: 'orange' }
+];
+
+// Array.prototype.group and groupToMap
+const groupedByCategory = items.group(item => item.category);
+const groupedMap = items.groupToMap(item => item.category);
+
+// Promise.try for handling sync/async functions uniformly
+function maybeAsyncFunction(shouldBeAsync) {
+  if (shouldBeAsync) {
+    return Promise.resolve('async result');
+  } else {
+    return 'sync result';
+  }
+}
+
+const result1 = Promise.try(() => maybeAsyncFunction(false));
+const result2 = Promise.try(() => maybeAsyncFunction(true));
+`;
+
 
 function ensureDirectoryExists(dir) {
   if (!fs.existsSync(dir)) {
@@ -126,9 +175,11 @@ function generateTestFiles() {
 
   ensureDirectoryExists(outputDir);
 
-  const es5Count = Math.floor(numFiles * 0.4); // 40% ES5
-  const es6Count = Math.floor(numFiles * 0.4); // 40% ES6
-  const es2020Count = numFiles - es5Count - es6Count; // Remaining as ES2020+
+  const es5Count = Math.floor(numFiles * 0.3); // 30% ES5
+  const es6Count = Math.floor(numFiles * 0.3); // 30% ES6
+  const es2020Count = Math.floor(numFiles * 0.2); // 20% ES2020
+  const es2024Count = Math.floor(numFiles * 0.1); // 10% ES2024
+  const es2025Count = numFiles - es5Count - es6Count - es2020Count - es2024Count; // Remaining as ES2025
 
   for (let i = 0; i < es5Count; i++) {
     const filePath = path.join(outputDir, `es5-file-${i + 1}.js`);
@@ -138,13 +189,20 @@ function generateTestFiles() {
     const filePath = path.join(outputDir, `es6-file-${i + 1}.js`);
     writeFileSync(filePath, es6Template);
   }
-
   for (let i = 0; i < es2020Count; i++) {
     const filePath = path.join(outputDir, `es2020-file-${i + 1}.js`);
     writeFileSync(filePath, es2020Template);
   }
+  for (let i = 0; i < es2024Count; i++) {
+    const filePath = path.join(outputDir, `es2024-file-${i + 1}.js`);
+    writeFileSync(filePath, es2024Template);
+  }
+  for (let i = 0; i < es2025Count; i++) {
+    const filePath = path.join(outputDir, `es2025-file-${i + 1}.js`);
+    writeFileSync(filePath, es2025Template);
+  }
 
-  console.log(`Generated ${es5Count} ES5 files, ${es6Count} ES6 files, and ${es2020Count} ES2020+ files.`);
+  console.log(`Generated ${es5Count} ES5, ${es6Count} ES6, ${es2020Count} ES2020, ${es2024Count} ES2024, and ${es2025Count} ES2025 files.`);
 }
 
 

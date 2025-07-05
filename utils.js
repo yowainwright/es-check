@@ -113,6 +113,12 @@ const checkMap = {
           node.callee.property.type === 'Identifier' &&
           node.callee.property.name === astInfo.property
         );
+      } else if (astInfo.property) {
+        // Check for method calls with any object when only property is specified
+        return (
+          node.callee.property.type === 'Identifier' &&
+          node.callee.property.name === astInfo.property
+        );
       }
 
       return false;
@@ -217,7 +223,7 @@ _${cmdName.replace(/-/g, '_')}_completion() {
   opts="${optsStr}"
 
   # ES versions
-  es_versions="es3 es5 es6 es2015 es7 es2016 es8 es2017 es9 es2018 es10 es2019 es11 es2020 es12 es2021 es13 es2022 es14 es2023"
+  es_versions="es3 es5 es6 es2015 es7 es2016 es8 es2017 es9 es2018 es10 es2019 es11 es2020 es12 es2021 es13 es2022 es14 es2023 es15 es2024 es16 es2025"
 
   # Handle special cases based on previous argument
   case "\$prev" in
@@ -288,6 +294,10 @@ _${cmdName.replace(/-/g, '_')}() {
     "es2022:ECMAScript 2022"
     "es14:ECMAScript 2023"
     "es2023:ECMAScript 2023"
+    "es15:ECMAScript 2024"
+    "es2024:ECMAScript 2024"
+    "es16:ECMAScript 2025"
+    "es2025:ECMAScript 2025"
   )
 
   # Commands
