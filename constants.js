@@ -796,12 +796,4 @@ module.exports = {
   BROWSER_TO_ES_VERSION,
   FEATURE_TO_POLYFILL_MAP,
   JS_VERSIONS,
-  es15: {
-    minVersion: 15,
-    features: ['ArrayFindLast', 'ArrayFindLastIndex', 'ObjectHasOwn', 'StringIsWellFormed', 'StringToWellFormed', 'RegExpUnicodeSetFlag'],
-  },
-  es16: {
-    minVersion: 16,
-    features: ['ArrayGroup', 'ArrayGroupToMap', 'PromiseTry', 'DuplicateNamedCaptureGroups'],
-  },
 };

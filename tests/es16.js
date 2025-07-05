@@ -1,4 +1,4 @@
-// ES16 / ES2025 Features (Proposed)
+// ES16 / ES2025 Features
 
 // Array.prototype.group()
 const items = [
@@ -28,15 +28,6 @@ function maybeAsyncFunction(shouldBeAsync) {
 const result1 = Promise.try(() => maybeAsyncFunction(false));
 const result2 = Promise.try(() => maybeAsyncFunction(true));
 
-// Duplicate named capture groups in RegExp (proposed)
-// This allows the same group name to be used in different branches
-// const regexWithDuplicateGroups = /(?<name>Mr\\.\\s+\\w+)|(?<name>Ms\\.\\s+\\w+)/;
-// const match1 = regexWithDuplicateGroups.exec('Mr. Smith');
-// const match2 = regexWithDuplicateGroups.exec('Ms. Johnson');
-
-// Temporal API (if available - proposed for future ES versions)
-// const now = Temporal.Now.instant();
-// const today = Temporal.Now.plainDateISO();
 
 console.log({
   groupedByCategory,

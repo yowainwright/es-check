@@ -24,15 +24,6 @@ const lastEven = numbers.findLast(x => x % 2 === 0);
 // Array.prototype.findLastIndex()
 const lastEvenIndex = numbers.findLastIndex(x => x % 2 === 0);
 
-// Test the actual ES2023 features that might be confused with ES2024
-const testNumbers = [1, 2, 3, 4, 5, 4, 3, 2, 1];
-const lastEvenFromTest = testNumbers.findLast(x => x % 2 === 0);
-const lastEvenIndexFromTest = testNumbers.findLastIndex(x => x % 2 === 0);
-
-// WeakMap symbol as keys (extends existing WeakMap functionality)
-const symbolKey = Symbol('key');
-const weakMapWithSymbol = new WeakMap();
-// weakMapWithSymbol.set(symbolKey, 'value'); // This would need object key
 
 console.log({
   originalArray,

@@ -38,8 +38,6 @@ function throwErrorWithCause() {
 const obj = { prop: 'value' };
 const hasProperty = Object.hasOwn(obj, 'prop');
 
-// Top-level await (only works in modules, commented out for script mode)
-// await new Promise(resolve => setTimeout(resolve, 1000));
 
 // RegExp match indices
 const regex = /a+(?<Z>z)?/d;

@@ -91,18 +91,12 @@ const nestedValue = obj?.nested?.value;
 // BigInt
 const bigNumber = 1234567890123456789012345678901234567890n;
 
-// Dynamic import (commented to avoid actual execution)
-// const module = await import('./some-module.js');
-
 // Promise.allSettled
 const promises = [
   Promise.resolve(1),
   Promise.reject(new Error('error')),
   Promise.resolve(3)
 ];
-
-// Commented to avoid actual execution
-// const results = await Promise.allSettled(promises);
 
 // Nullish assignment
 let x;
@@ -114,7 +108,7 @@ y ||= 42;
 `;
 
 const es2024Template = `
-// ES2024 / ES2015 features
+// ES2024 features
 const numbers = [1, 2, 3, 4, 5, 4, 3, 2, 1];
 
 // Array.prototype.findLast and findLastIndex
@@ -136,7 +130,7 @@ const correctedString = malformedString.toWellFormed();
 `;
 
 const es2025Template = `
-// ES2025 / ES2016 features (proposed)
+// ES2025 features
 const items = [
   { category: 'fruit', name: 'apple' },
   { category: 'fruit', name: 'banana' },
