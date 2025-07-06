@@ -502,6 +502,100 @@ const ES_FEATURES = {
       property: 'with',
     },
   },
+
+  // ----------------------------------------------------------
+  // ES14 / ES2023 (continued)
+  // ----------------------------------------------------------
+  ArrayFindLast: {
+    minVersion: 14,
+    example: 'arr.findLast(x => x > 5)',
+    astInfo: {
+      nodeType: 'CallExpression',
+      property: 'findLast',
+    },
+  },
+  ArrayFindLastIndex: {
+    minVersion: 14,
+    example: 'arr.findLastIndex(x => x > 5)',
+    astInfo: {
+      nodeType: 'CallExpression',
+      property: 'findLastIndex',
+    },
+  },
+
+  // ----------------------------------------------------------
+  // ES15 / ES2024
+  // ----------------------------------------------------------
+  ObjectHasOwn: {
+    minVersion: 13,
+    example: 'Object.hasOwn(obj, "prop")',
+    astInfo: {
+      nodeType: 'CallExpression',
+      object: 'Object',
+      property: 'hasOwn',
+    },
+  },
+  StringIsWellFormed: {
+    minVersion: 15,
+    example: 'str.isWellFormed()',
+    astInfo: {
+      nodeType: 'CallExpression',
+      property: 'isWellFormed',
+    },
+  },
+  StringToWellFormed: {
+    minVersion: 15,
+    example: 'str.toWellFormed()',
+    astInfo: {
+      nodeType: 'CallExpression',
+      property: 'toWellFormed',
+    },
+  },
+  RegExpUnicodeSetFlag: {
+    minVersion: 15,
+    example: '/pattern/v',
+    astInfo: {
+      nodeType: 'RegExpLiteral',
+      flags: 'v',
+    },
+  },
+
+  // ----------------------------------------------------------
+  // ES16 / ES2025
+  // ----------------------------------------------------------
+  ArrayGroup: {
+    minVersion: 16,
+    example: 'arr.group(x => x.category)',
+    astInfo: {
+      nodeType: 'CallExpression',
+      property: 'group',
+    },
+  },
+  ArrayGroupToMap: {
+    minVersion: 16,
+    example: 'arr.groupToMap(x => x.category)',
+    astInfo: {
+      nodeType: 'CallExpression',
+      property: 'groupToMap',
+    },
+  },
+  PromiseTry: {
+    minVersion: 16,
+    example: 'Promise.try(() => syncOrAsyncFunction())',
+    astInfo: {
+      nodeType: 'CallExpression',
+      object: 'Promise',
+      property: 'try',
+    },
+  },
+  DuplicateNamedCaptureGroups: {
+    minVersion: 16,
+    example: '/(?<name>a)|(?<name>b)/',
+    astInfo: {
+      nodeType: 'RegExpLiteral',
+      duplicateNamedGroups: true,
+    },
+  },
 };
 
 const NODE_TYPES = {
@@ -617,7 +711,7 @@ const JS_VERSIONS = [
   'es3', 'es4', 'es5', 'es6', 'es2015',
   'es7', 'es2016', 'es8', 'es2017', 'es9', 'es2018',
   'es10', 'es2019', 'es11', 'es2020', 'es12', 'es2021',
-  'es13', 'es2022', 'es14', 'es2023', 'checkBrowser'
+  'es13', 'es2022', 'es14', 'es2023', 'es15', 'es2024', 'es16', 'es2025', 'checkBrowser'
 ];
 
 /**
@@ -674,7 +768,6 @@ const FEATURE_TO_POLYFILL_MAP = {
     // ES2022
     'Array.prototype.at': [/\bArray\.prototype\.at\s*=/, /['"]core-js\/modules\/es\.array\.at['"]/],
     'String.prototype.at': [/\bString\.prototype\.at\s*=/, /['"]core-js\/modules\/es\.string\.at['"]/],
-    'Object.hasOwn': [/\bObject\.hasOwn\s*=/, /['"]core-js\/modules\/es\.object\.has-own['"]/],
 
     // ES2023
     'Array.prototype.findLast': [/\bArray\.prototype\.findLast\s*=/, /['"]core-js\/modules\/es\.array\.find-last['"]/],
@@ -683,6 +776,16 @@ const FEATURE_TO_POLYFILL_MAP = {
     'Array.prototype.toSorted': [/\bArray\.prototype\.toSorted\s*=/, /['"]core-js\/modules\/es\.array\.to-sorted['"]/],
     'Array.prototype.toSpliced': [/\bArray\.prototype\.toSpliced\s*=/, /['"]core-js\/modules\/es\.array\.to-spliced['"]/],
     'Array.prototype.with': [/\bArray\.prototype\.with\s*=/, /['"]core-js\/modules\/es\.array\.with['"]/],
+
+    // ES2024
+    'Object.hasOwn': [/\bObject\.hasOwn\s*=/, /['"]core-js\/modules\/es\.object\.has-own['"]/],
+    'String.prototype.isWellFormed': [/\bString\.prototype\.isWellFormed\s*=/, /['"]core-js\/modules\/es\.string\.is-well-formed['"]/],
+    'String.prototype.toWellFormed': [/\bString\.prototype\.toWellFormed\s*=/, /['"]core-js\/modules\/es\.string\.to-well-formed['"]/],
+
+    // ES2025
+    'Array.prototype.group': [/\bArray\.prototype\.group\s*=/, /['"]core-js\/modules\/es\.array\.group['"]/],
+    'Array.prototype.groupToMap': [/\bArray\.prototype\.groupToMap\s*=/, /['"]core-js\/modules\/es\.array\.group-to-map['"]/],
+    'Promise.try': [/\bPromise\.try\s*=/, /['"]core-js\/modules\/es\.promise\.try['"]/],
 };
 
 module.exports = {

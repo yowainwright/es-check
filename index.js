@@ -70,7 +70,7 @@ program
   .version(pkg.version)
   .argument(
     '[ecmaVersion]',
-    'ecmaVersion to check files against. Can be: es3, es4, es5, es6/es2015, es7/es2016, es8/es2017, es9/es2018, es10/es2019, es11/es2020, es12/es2021, es13/es2022, es14/es2023, checkBrowser',
+    'ecmaVersion to check files against. Can be: es3, es4, es5, es6/es2015, es7/es2016, es8/es2017, es9/es2018, es10/es2019, es11/es2020, es12/es2021, es13/es2022, es14/es2023, es15/es2024, es16/es2025, checkBrowser',
   )
   .argument('[files...]', 'a glob of files to to test the EcmaScript version against')
   .option('--module', 'use ES modules')
@@ -331,6 +331,14 @@ async function runChecks(configs, logger) {
       case 'es14':
       case 'es2023':
         ecmaVersion = '14'
+        break
+      case 'es15':
+      case 'es2024':
+        ecmaVersion = '15'
+        break
+      case 'es16':
+      case 'es2025':
+        ecmaVersion = '16'
         break
       default:
         logger.error('Invalid ecmaScript version, please pass a valid version, use --help for help')
