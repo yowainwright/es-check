@@ -1,54 +1,60 @@
-# Documentation Template
+# ES Check Documentation Site
 
-Thank you for purchasing this template. I hope you build something great with it!
+This is the documentation site for ES Check, built with Astro.
 
-## Features
+## Development
 
-- Made with Astro, Markdown, Tailwind CSS and daisyUI
-- Search functionality
-- SEO friendly, Lightweight and fast
-- Dark mode and Light mode
+```bash
+# Install dependencies
+pnpm install
 
-## Including
+# Start development server
+pnpm dev
 
-- Homepage with features sections, code demo, contributors images, testimonials and installation guide
-- Document pages made from Markdown files with Sidebar, page content links, sponsors section
-- Search bar using Algolia DocSearch
-- Theme switch button with dark theme and light theme (compatible with all daisyUI themes)
+# Build for production
+pnpm build
 
-## Getting Started
-
-1. Install dependencies
-
-```
-npm install
+# Preview production build
+pnpm preview
 ```
 
-2. Run the dev server
+## Deployment
 
-```
-npm run dev
-```
+The site is automatically deployed to GitHub Pages when changes are pushed to the `main` branch.
 
-3. Build for production
+### Manual Deployment
 
-```
-npm run build
-```
+To manually trigger a deployment:
+1. Go to the Actions tab in the GitHub repository
+2. Select "Deploy ES Check Documentation Site" workflow
+3. Click "Run workflow"
 
-## Setup Algolia DocSearch
+### GitHub Pages Configuration
 
-1. Create an account on [Algolia DocSearch](https://docsearch.algolia.com/)
-2. Add your website
-3. Create a `.env` file in the root directory
-4. Add your Algolia DocSearch API details to the `.env` file like this:
+The site is configured to be deployed at: https://yowainwright.github.io/es-check/
 
-```
-VITE_ALGOLIA_APP_ID=XXXXXXXXXX
-VITE_ALGOLIA_API_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-VITE_ALGOLIA_INDEX_NAME=xxxxxxxx
-```
+Make sure GitHub Pages is enabled in the repository settings:
+1. Go to Settings > Pages
+2. Source: Deploy from a branch
+3. Branch: gh-pages / (root)
 
-## Icons credit
+## Structure
 
-[Credit: Icons from Flat Icons](https://www.flaticon.com/free-icons)
+- `/src/pages` - Page routes
+- `/src/content/docs` - Documentation content (MDX files)
+- `/src/components` - Reusable components
+- `/src/layouts` - Page layouts
+- `/public` - Static assets
+
+## Adding Documentation
+
+To add new documentation pages:
+1. Create a new `.mdx` file in `/src/content/docs/`
+2. Add frontmatter with `title` and `description`
+3. Update the sidebar configuration in `/src/constants/sidebar.ts`
+
+## Themes
+
+The site supports light and dark themes with custom blue colors:
+- Light mode: White background with #4486c6 blue accents
+- Dark mode: Dark blue background with lighter blue accents

@@ -92,6 +92,13 @@ export const searchData: SearchItem[] = [
     category: "Contribute"
   },
   {
+    title: "Contributing Guidelines",
+    description: "Guidelines for contributing to ES Check",
+    href: "/documentation/contributing-guideline",
+    content: "Contributing guidelines code standards pull request process testing requirements MIT license",
+    category: "Contribute"
+  },
+  {
     title: "Report Issues",
     description: "How to report bugs and issues",
     href: "/documentation/having-an-issue",

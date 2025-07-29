@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import Fuse from 'fuse.js';
 import { searchData, type SearchItem } from './SearchData';
 
@@ -31,16 +32,7 @@ export function SimpleSearch() {
     }
   }, [query]);
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  // Remove the click outside handler as we're using a backdrop now
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -74,74 +66,108 @@ export function SimpleSearch() {
           setIsOpen(true);
           setTimeout(() => inputRef.current?.focus(), 100);
         }}
-        className="btn btn-sm btn-ghost gap-2"
+        className="flex items-center gap-3 px-4 py-2 bg-base-200/50 hover:bg-base-200 rounded-lg transition-all duration-200 min-w-[200px] text-left"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-base-content/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
         </svg>
-        <span className="hidden sm:inline">Search</span>
-        <kbd className="kbd kbd-sm hidden sm:inline-flex">⌘K</kbd>
+        <span className="text-sm text-base-content/50 flex-1">Search docs...</span>
+        <kbd className="px-1.5 py-0.5 text-xs rounded border border-base-300 bg-base-100 font-mono text-base-content/70"><span className="text-sm">⌘</span> K</kbd>
       </button>
 
-      {isOpen && (
-        <div className="absolute top-12 right-0 w-96 z-50">
-          <div className="bg-base-100 rounded-lg shadow-2xl border border-base-300 overflow-hidden">
-            <div className="p-4 border-b border-base-300">
-              <div className="relative">
-                <input
-                  ref={inputRef}
-                  type="text"
-                  placeholder="Search documentation..."
-                  className="input input-bordered w-full pr-10"
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  autoFocus
-                />
-                <div className="absolute right-3 top-1/2 -translate-y-1/2 text-xs opacity-60">
-                  <kbd className="kbd kbd-xs">ESC</kbd>
-                </div>
-              </div>
-            </div>
-            
-            {Object.keys(groupedResults).length > 0 && (
-              <div className="max-h-96 overflow-y-auto">
-                {Object.entries(groupedResults).map(([category, items]) => (
-                  <div key={category} className="px-4 py-2">
-                    <div className="text-xs font-semibold opacity-60 mb-2">{category}</div>
-                    {items.map((result, index) => (
-                      <a
-                        key={`${category}-${index}`}
-                        href={result.href}
-                        className="block p-3 hover:bg-base-200 rounded-lg -mx-2 mb-1"
-                        onClick={() => {
-                          setIsOpen(false);
-                          setQuery('');
-                        }}
-                      >
-                        <div className="font-semibold text-sm">{result.title}</div>
-                        <div className="text-xs opacity-70 mt-1">{result.description}</div>
-                      </a>
-                    ))}
+      {isOpen && typeof document !== 'undefined' && createPortal(
+        <>
+          {/* Full page backdrop */}
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9998]" onClick={() => setIsOpen(false)} />
+          
+          {/* Centered modal */}
+          <div className="fixed inset-0 z-[9999] flex items-start justify-center pt-[10vh] pointer-events-none">
+            <div className="bg-base-100 rounded-2xl shadow-2xl border border-base-300 overflow-hidden w-full max-w-2xl mx-4 pointer-events-auto">
+              {/* Search header */}
+              <div className="p-6">
+                <div className="relative">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 absolute left-5 top-1/2 -translate-y-1/2 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                  <input
+                    ref={inputRef}
+                    type="text"
+                    placeholder="Search documentation..."
+                    className="w-full pl-14 pr-20 py-4 bg-transparent border-0 text-lg font-medium placeholder:text-base-content/40 focus:outline-none"
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    autoFocus
+                  />
+                  <div className="absolute right-5 top-1/2 -translate-y-1/2">
+                    <kbd className="px-2 py-1 text-sm rounded border border-base-300 bg-base-200 font-mono text-base-content/70">ESC</kbd>
                   </div>
-                ))}
+                </div>
+                <div className="h-px bg-gradient-to-r from-transparent via-base-300 to-transparent mt-6"></div>
               </div>
-            )}
             
-            {query.length > 1 && Object.keys(groupedResults).length === 0 && (
-              <div className="p-8 text-center">
-                <div className="opacity-60">No results found for "{query}"</div>
-                <div className="text-sm opacity-40 mt-2">Try searching for "installation" or "configuration"</div>
-              </div>
-            )}
+              {/* Search results */}
+              {Object.keys(groupedResults).length > 0 && (
+                <div className="max-h-[60vh] overflow-y-auto">
+                  {Object.entries(groupedResults).map(([category, items]) => (
+                    <div key={category}>
+                      <div className="px-4 pt-3 pb-2">
+                        <div className="text-xs font-semibold text-base-content/60 uppercase tracking-wider">{category}</div>
+                      </div>
+                      {items.map((result, index) => (
+                        <a
+                          key={`${category}-${index}`}
+                          href={result.href}
+                          className="block px-4 py-3 hover:bg-primary/10 focus:bg-primary/10 focus:outline-none transition-colors border-l-2 border-transparent hover:border-primary focus:border-primary"
+                          onClick={() => {
+                            setIsOpen(false);
+                            setQuery('');
+                          }}
+                        >
+                          <div className="font-medium text-base-content">{result.title}</div>
+                          <div className="text-sm text-base-content/60 mt-0.5">{result.description}</div>
+                        </a>
+                      ))}
+                    </div>
+                  ))}
+                </div>
+              )}
+            
+              {/* No results state */}
+              {query.length > 1 && Object.keys(groupedResults).length === 0 && (
+                <div className="p-12 text-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto text-base-content/20 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <div className="text-base-content/60">No results found for "{query}"</div>
+                  <div className="text-sm text-base-content/40 mt-2">Try searching for "installation" or "configuration"</div>
+                </div>
+              )}
 
-            {query.length <= 1 && (
-              <div className="p-8 text-center">
-                <div className="opacity-60">Start typing to search...</div>
-                <div className="text-sm opacity-40 mt-2">Search docs, commands, and features</div>
-              </div>
-            )}
+              {/* Initial state */}
+              {query.length <= 1 && (
+                <div className="p-12 text-center">
+                  <div className="text-base-content/60">Start typing to search...</div>
+                  <div className="text-sm text-base-content/40 mt-2">Search docs, commands, and features</div>
+                  <div className="flex justify-center gap-6 mt-6">
+                    <div className="flex items-center gap-2 text-xs text-base-content/40">
+                      <kbd className="px-1.5 py-0.5 text-xs rounded border border-base-300 bg-base-200 font-mono">↑↓</kbd>
+                      <span>Navigate</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-base-content/40">
+                      <kbd className="px-1.5 py-0.5 text-xs rounded border border-base-300 bg-base-200 font-mono">↵</kbd>
+                      <span>Select</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-base-content/40">
+                      <kbd className="px-1.5 py-0.5 text-xs rounded border border-base-300 bg-base-200 font-mono">ESC</kbd>
+                      <span>Close</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+        </>,
+        document.body
       )}
     </div>
   );

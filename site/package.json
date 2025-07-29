@@ -1,13 +1,13 @@
 {
   "name": "es-check-docs",
   "type": "module",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "scripts": {
-    "dev": "npx astro dev",
-    "start": "npx astro dev",
-    "build": "npx astro build",
-    "preview": "npx astro preview",
-    "astro": "npx astro"
+    "dev": "pnpm dlx astro dev",
+    "start": "pnpm dlx astro dev",
+    "build": "pnpm dlx astro build",
+    "preview": "pnpm dlx astro preview",
+    "astro": "pnpm dlx astro"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.4",

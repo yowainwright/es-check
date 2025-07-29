@@ -29,10 +29,10 @@
     "test": "nyc mocha test.js utils.test.js browserslist.test.js polyfillDetector.test.js detectFeatures.test.js --timeout 10s",
     "update": "codependence --update",
     "benchmark": "./benchmarks/run-benchmarks.sh",
-    "site:dev": "cd site && npm run dev",
-    "site:build": "cd site && npm run build",
-    "site:preview": "cd site && npm run preview",
-    "site:install": "cd site && npm install"
+    "site:dev": "pnpm --filter es-check-docs run dev",
+    "site:build": "pnpm --filter es-check-docs run build",
+    "site:preview": "pnpm --filter es-check-docs run preview",
+    "site:install": "pnpm --filter es-check-docs install"
   },
   "repository": {
     "type": "git",
