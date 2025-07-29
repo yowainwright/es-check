@@ -1,0 +1,47 @@
+---
+title: Hooks Guide
+description: "Quasi sapiente voluptates aut minima non doloribus similique quisquam. In quo expedita ipsum nostrum corrupti incidunt. Et aut eligendi ea perferendis."
+---
+
+## Overview
+
+Hooks are a powerful feature in Access Shield that allow you to integrate authentication functionality into your React application with ease. By using hooks, you can access authentication state and perform authentication-related actions within your components.
+
+## Available Hooks
+
+Our Authentication Library provides the following hooks:
+
+### `useAuthentication`
+
+The `useAuthentication` hook allows you to access the authentication state and perform authentication-related actions, such as login, logout, and checking authentication status.
+
+### `useUser`
+
+The `useUser` hook allows you to access the user object, including user information and authentication status.
+
+### `useError`
+
+The `useError` hook allows you to access and handle authentication errors.
+
+## Usage
+
+Here's an example of how to use the `useAuthentication` hook:
+
+<div class="max-w-sm md:max-w-2xl" >
+
+```jsx
+import { useAuthentication } from 'access-shield';
+
+function LoginButton() {
+  const { login } = useAuthentication();
+
+  const handleLogin = () => {
+    login('username', 'password');
+  };
+
+  return (
+    <button onClick={handleLogin}>Login</button>
+  );
+}
+```
+</div>

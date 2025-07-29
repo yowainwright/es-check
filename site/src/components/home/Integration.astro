@@ -1,0 +1,89 @@
+---
+const frameworks = [
+  {
+    name: "javascript",
+    logo: "../../../logos/javascript.svg",
+  },
+  {
+    name: "typescript",
+    logo: "../../../logos/ts.svg",
+  },
+  {
+    name: "reactJs",
+    logo: "../../../logos/react.svg",
+  },
+  {
+    name: "nextJs",
+    logo: "../../../logos/nextjs.svg",
+  },
+  {
+    name: "nodeJs",
+    logo: "../../../logos/nodejs.svg",
+  },
+  {
+    name: "nuxt",
+    logo: "../../../logos/nuxt.svg",
+  },
+  {
+    name: "vue",
+    logo: "../../../logos/vue.svg",
+  },
+  {
+    name: "angularJs",
+    logo: "../../../logos/angularjs.svg",
+  },
+  {
+    name: "remix",
+    logo: "../../../logos/remix.svg",
+  },
+  {
+    name: "astro",
+    logo: "../../../logos/astro.svg",
+  },
+  {
+    name: "svelte",
+    logo: "../../../logos/svelte.svg",
+  },
+  {
+    name: "astro",
+    logo: "../../../logos/vite.svg",
+  },
+];
+---
+
+<div class="xl:flex xl:flex-row-reverse py-20 lg:py-28 gap-28">
+  <div class="xl:max-w-xl flex flex-col justify-center font-outfit">
+    <h1 class="text-4xl lg:text-5xl font-black">
+      Works Seamlessly With Your Favourite <span class="text-primary"
+        >Framework
+      </span>
+    </h1>
+
+    <p class="mt-8 text-lg">
+      Lorem ipsum dolor sit amet, consectetur adipisicing elit. Odio laboriosam
+      distinctio ipsam. Minus harum sint sit qui laboriosam praesentium minima
+      laborum, veniam, ea, autem assumenda repellat reprehenderit maxime quas
+      mollitia! utem assumenda repellat reprehenderit maxime quas mollitia
+    </p>
+
+    <div class="flex gap-4 mt-8">
+      <button class="btn"> Learn more </button>
+
+      <button class="btn btn-outline"> Live example </button>
+    </div>
+  </div>
+
+  <div class="grid md:grid-cols-4 grid-cols-3 gap-5 mt-10 xl:mt-0">
+    {
+      frameworks.map((farmework) => (
+        <div class="bg-neutral rounded-full flex justify-center items-center aspect-square">
+          <img
+            class="p-7 h-28 w-28"
+            src={farmework.logo}
+            alt={farmework.name}
+          />
+        </div>
+      ))
+    }
+  </div>
+</div>

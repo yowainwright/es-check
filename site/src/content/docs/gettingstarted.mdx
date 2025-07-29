@@ -1,0 +1,86 @@
+---
+title: Getting Started
+description: Get started with ES Check - Check JavaScript files ES version against a specified ES version
+---
+
+# Getting Started with ES Check
+
+**ES Check** checks JavaScript files against a specified version of ECMAScript (ES) with a shell command. If a specified file's ES version doesn't match the ES version argument passed in the ES Check command, ES Check will throw an error and log the files that didn't match the check.
+
+## Why ES Check?
+
+In modern JavaScript builds, files are bundled up so they can be served in an optimized manner in the browsers. It is assumed by developers that future JavaScript—like ES8 will be transpiled (changed from future JavaScript to current JavaScript) appropriately by a tool like Babel. Sometimes there is an issue where files are not transpiled. There was no efficient way to test for files that weren't transpiled—until now. That's what ES Check does.
+
+## Installation
+
+Install ES Check locally or globally:
+
+```bash
+npm i es-check --save-dev   # locally
+npm i es-check -g           # or globally
+```
+
+## Quick Start
+
+Check if an array or glob of files matches a specified ES version:
+
+```bash
+es-check es5 './vendor/js/*.js' './dist/**/*.js'
+```
+
+The ES Check script above checks `/dist/*.js` files to see if they're ES5. It throws an error and logs files that do not pass the check.
+
+## Basic Usage
+
+ES Check is a shell command CLI that takes in two arguments: an ECMAScript version and files in globs.
+
+```bash
+# Check single directory
+es-check es6 ./js/*.js
+
+# Check multiple directories
+es-check es6 ./js/*.js ./dist/*.js
+```
+
+## ES Versions Supported
+
+ES Check supports the following ECMAScript versions:
+- es3
+- es4
+- es5
+- es6/es2015
+- es7/es2016
+- es8/es2017
+- es9/es2018
+- es10/es2019
+- es11/es2020
+- es12/es2021
+- es13/es2022
+- es14/es2023
+
+## Configuration File
+
+For consistent configuration, create a `.escheckrc` file in JSON format:
+
+```json
+{
+  "ecmaVersion": "es6",
+  "module": false,
+  "files": "./dist/**/*.js",
+  "not": ["./dist/skip/*.js"],
+  "checkFeatures": true
+}
+```
+
+Then run ES Check without arguments:
+
+```bash
+es-check
+```
+
+## Next Steps
+
+- [Explore command options](/documentation/options)
+- [Check ES version specific features](/documentation/features)
+- [Set up browserslist integration](/documentation/browserslist)
+- [Debug errors effectively](/documentation/debugging)

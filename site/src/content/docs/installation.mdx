@@ -1,0 +1,75 @@
+---
+title: Installation
+description: How to install ES Check in your project
+---
+
+# Installation
+
+ES Check can be installed globally for system-wide usage or locally within your project.
+
+## Prerequisites
+
+- Node.js (version 14 or higher)
+- npm or yarn package manager
+
+## Installation Methods
+
+### Local Installation (Recommended)
+
+Installing ES Check locally ensures that everyone working on your project uses the same version:
+
+```bash
+npm install es-check --save-dev
+```
+
+Or with yarn:
+
+```bash
+yarn add es-check --dev
+```
+
+### Global Installation
+
+For system-wide availability:
+
+```bash
+npm install -g es-check
+```
+
+Or with yarn:
+
+```bash
+yarn global add es-check
+```
+
+## Verify Installation
+
+To verify ES Check is installed correctly:
+
+```bash
+# For local installation
+npx es-check --version
+
+# For global installation
+es-check --version
+```
+
+## Setting Up in package.json
+
+Add ES Check to your npm scripts for easy usage:
+
+```json
+{
+  "scripts": {
+    "check:es5": "es-check es5 './dist/**/*.js'",
+    "check:es6": "es-check es6 './dist/**/*.js'",
+    "check:es-modules": "es-check es6 './dist/**/*.js' --module"
+  }
+}
+```
+
+## Next Steps
+
+- [Quick Start Guide](/documentation/quickstart)
+- [Configuration Options](/documentation/options)
+- [Using with CI/CD](/documentation/ci-integration)

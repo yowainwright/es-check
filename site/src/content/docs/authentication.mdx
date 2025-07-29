@@ -1,0 +1,41 @@
+---
+title: Authentication
+description: "Quasi sapiente voluptates aut minima non doloribus similique quisquam. In quo expedita ipsum nostrum corrupti incidunt. Et aut eligendi ea perferendis."
+---
+
+## Overview
+
+The Access Shield offers robust authentication mechanisms to ensure secure user access to your application's resources. It includes features such as user registration, login, session management, OAuth integration, two-factor authentication (2FA), and role-based access control (RBAC).
+- **User Registration**: Allow users to create new accounts with a chosen username and password.
+- **Login**: Enable users to authenticate themselves with their credentials.
+- **Session Management**: Manage user sessions to maintain authentication state across requests.
+- **OAuth Integration**: Integrate with OAuth providers for seamless authentication via third-party services.
+- **Two-Factor Authentication (2FA)**: Strengthen account security with an additional layer of authentication.
+- **Role-Based Access Control (RBAC)**: Control user access to resources based on their roles and permissions.
+
+## Getting Started
+
+To begin using the authentication features of the Access Shield, you need to initialize the authentication module and configure it according to your application's requirements.
+
+<div class="max-w-sm md:max-w-2xl" >
+
+```jsx
+import { Auth } from 'access-shield';
+
+// Initialize the authentication instance
+const auth = new Auth();
+
+// Register a new user
+auth.register('username', 'password');
+
+// Log in an existing user
+auth.login('username', 'password');
+
+// Check if user is authenticated
+if (auth.isAuthenticated()) {
+  // User is authenticated, proceed with accessing secure resources
+} else {
+  // User is not authenticated, redirect to login page
+}
+```
+</div>

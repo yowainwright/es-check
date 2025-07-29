@@ -1,0 +1,96 @@
+---
+title: ES Features Detection
+description: How ES Check detects ECMAScript version-specific features
+---
+
+# ES Features Detection
+
+ES Check can detect specific ECMAScript features in your code using the `--checkFeatures` flag. This ensures your code only uses features available in your target ES version.
+
+## Enabling Feature Detection
+
+```bash
+es-check es5 './dist/**/*.js' --checkFeatures
+```
+
+## Detected Features by Version
+
+### ES6 (ES2015) Features
+- Arrow functions
+- Classes
+- Template literals
+- Destructuring
+- Default parameters
+- Rest/Spread operators
+- `let` and `const`
+- `for...of` loops
+- Generators
+- Promises
+- Symbols
+- Maps and Sets
+
+### ES7 (ES2016) Features
+- Exponentiation operator (`**`)
+- `Array.prototype.includes()`
+
+### ES8 (ES2017) Features
+- Async/await
+- `Object.values()` and `Object.entries()`
+- String padding methods
+- Trailing commas in function parameters
+
+### ES9 (ES2018) Features
+- Rest/Spread properties
+- Asynchronous iteration
+- `Promise.finally()`
+- RegExp improvements
+
+### ES10 (ES2019) Features
+- `Array.prototype.flat()` and `flatMap()`
+- `Object.fromEntries()`
+- Optional catch binding
+- `String.prototype.trimStart()` and `trimEnd()`
+
+### ES11 (ES2020) Features
+- Optional chaining (`?.`)
+- Nullish coalescing (`??`)
+- `BigInt`
+- `Promise.allSettled()`
+- Dynamic import
+
+### ES12 (ES2021) Features
+- Logical assignment operators (`&&=`, `||=`, `??=`)
+- Numeric separators
+- `String.prototype.replaceAll()`
+- `Promise.any()`
+
+### ES13 (ES2022) Features
+- Top-level await
+- Private class fields and methods
+- Static class fields
+- Error cause
+- `Array.prototype.at()`
+
+## Ignoring Specific Features
+
+If you need to temporarily ignore certain features:
+
+```bash
+es-check es6 './dist/**/*.js' --checkFeatures --ignore="ErrorCause,TopLevelAwait"
+```
+
+## Allowing Specific Features
+
+Allow certain modern features even in older ES versions:
+
+```bash
+es-check es5 './dist/**/*.js' --checkFeatures --allowList="const,let"
+```
+
+## Polyfill Detection
+
+ES Check can detect polyfilled features to avoid false positives:
+
+```bash
+es-check es2022 './dist/**/*.js' --checkFeatures --checkForPolyfills
+```

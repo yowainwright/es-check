@@ -1,0 +1,88 @@
+---
+import { CopyButton } from "../common/CopyButton";
+import TerminalDemo from "./TerminalDemo.astro";
+---
+
+<div class="hero">
+  <div
+    class="absolute inset-x-0 top-50 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80"
+    aria-hidden="true"
+  >
+    <div
+      class="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[40rem] -translate-x-1/2 rotate-[70deg] bg-gradient-to-tr from-primary to-primary/50 opacity-15 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]"
+      style={{
+        clipPath:
+          "polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 150%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)",
+      }}
+    >
+    </div>
+
+    <div
+      class="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[40rem] -translate-x-1/2 rotate-[70deg] bg-gradient-to-tr from-primary to-primary/50 opacity-15 sm:left-[calc(100%)] sm:w-[72.1875rem]"
+      style={{
+        clipPath:
+          "polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 150%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)",
+      }}
+    >
+    </div>
+  </div>
+  <div class="hero-content text-center min-h-[40rem] font-outfit">
+    <div class="max-w-2xl md:max-w-6xl">
+      <div class="flex justify-center mb-8">
+        <img src="/es-check-logo.svg" alt="ES Check" class="h-32 w-32 md:h-40 md:w-40" />
+      </div>
+      <a class="badge badge-outline badge-xs md:badge-lg mb-5 p-2 border-dashed border-base-content/40" href="https://github.com/yowainwright/es-check/releases">
+        🎉 ES Check version 9 is live now ➔
+      </a>
+      <h1 class="text-4xl md:text-5xl lg:text-7xl">
+        Check JavaScript files
+        <br/>
+        <span class="text-primary font-bold">ES version compatibility</span>
+        
+      </h1>
+      <div class="flex justify-center items-center">
+        <p class="py-7 max-w-4xl text-md md:text-xl lg:text-2xl">
+          Ensure your JavaScript files match the ECMAScript version you need. 
+          ES Check helps prevent incompatible code from breaking production.
+        </p>
+      </div>
+      
+      <TerminalDemo />
+      
+      <div class="flex sm:flex-row flex-col justify-center items-center gap-5 mt-8">
+        <a href="/documentation/gettingstarted">
+          <button
+            class="btn bg-base-content text-base-100 hover:bg-base-content/80"
+            >Get Started
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+            </svg>
+            
+            </button
+          >
+        </a>
+
+          <div
+            class="flex items-center bg-base-300 rounded-lg shadow-sm justify-between"
+          >
+              <svg
+                width="22"
+                height="13"
+                viewBox="0 0 22 13"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                class="relative ml-4 mr-2 block w-3 -rotate-90"
+              >
+                <path d="M1 1L11 11L21 1" stroke="currentColor" stroke-Width="2"
+                ></path>
+              </svg>
+              <code class="flex-1 text-left leading-none mr-4">
+                npm i es-check --save-dev
+              </code>
+              <CopyButton client:only="react" />
+          </div>
+
+      </div>
+    </div>
+  </div>
+</div>

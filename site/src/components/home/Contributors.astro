@@ -1,0 +1,58 @@
+---
+import contributors from "../../constants/contributors";
+---
+
+<div class="xl:flex py-20 lg:py-28 gap-28">
+  <div class="xl:max-w-xl flex flex-col justify-center font-outfit">
+    <h1 class="text-4xl lg:text-5xl font-black">
+      ES Check has been built and maintained by some <span class="text-primary">awesome people</span>
+    </h1>
+    <p class="mt-8 text-lg">
+      ES Check is maintained by a dedicated community of developers who care about 
+      JavaScript compatibility. Join us in making the web more accessible by ensuring 
+      code works across all target environments.
+    </p>
+    <div class="md:flex gap-4 mt-8 grid grid-cols-2">
+      <a class="btn" href="https://github.com/yowainwright/es-check/issues">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="16"
+          height="16"
+          fill="currentColor"
+          viewBox="0 0 16 16"
+        >
+          <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+          <path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286zm1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94z"/>
+        </svg>
+        Get Help
+      </a>
+
+      <a class="btn" href="https://github.com/yowainwright/es-check">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 16 16"
+          class="h-4 w-4"
+          ><path
+            d="M7.999 0C3.582 0 0 3.596 0 8.032a8.031 8.031 0 0 0 5.472 7.621c.4.074.546-.174.546-.387 0-.191-.007-.696-.011-1.366-2.225.485-2.695-1.077-2.695-1.077-.363-.928-.888-1.175-.888-1.175-.727-.498.054-.488.054-.488.803.057 1.225.828 1.225.828.714 1.227 1.873.873 2.329.667.072-.519.279-.873.508-1.074-1.776-.203-3.644-.892-3.644-3.969 0-.877.312-1.594.824-2.156-.083-.203-.357-1.02.078-2.125 0 0 .672-.216 2.2.823a7.633 7.633 0 0 1 2.003-.27 7.65 7.65 0 0 1 2.003.271c1.527-1.039 2.198-.823 2.198-.823.436 1.106.162 1.922.08 2.125.513.562.822 1.279.822 2.156 0 3.085-1.87 3.764-3.652 3.963.287.248.543.738.543 1.487 0 1.074-.01 1.94-.01 2.203 0 .215.144.465.55.386A8.032 8.032 0 0 0 16 8.032C16 3.596 12.418 0 7.999 0z"
+            fill="currentColor"></path>
+        </svg>
+        GitHub
+      </a>
+    </div>
+  </div>
+
+  <div
+    class="grid md:grid-cols-7 grid-cols-5 gap-3 mt-10 xl:mt-0 justify-items-center"
+  >
+    {
+      contributors.map((contributors) => (
+        <img
+          class="rounded-full w-16 h-16 md:w-20 md:h-20"
+          src={contributors.profile}
+          alt={contributors.name}
+          title={contributors.name}
+        />
+      ))
+    }
+  </div>
+</div>
