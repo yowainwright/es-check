@@ -11,7 +11,7 @@
     </div>
 
     <a href={import.meta.env.BASE_URL} class="hover:opacity-80 transition">
-      <img src={`${import.meta.env.BASE_URL}es-check-logo.svg`} alt="ES Check" class="h-8 w-8" />
+      <img src={new URL('es-check-logo.svg', import.meta.env.BASE_URL).href} alt="ES Check" class="h-8 w-8" />
     </a>
 
     <div class="lg:flex-1 flex justify-center lg:justify-end">
