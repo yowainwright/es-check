@@ -1,0 +1,58 @@
+---
+import SideBar from "../components/docs/SideBar.astro";
+import DocsHeader from "../components/docs/DocsHeader.astro";
+import Footer from "../components/common/Footer.astro";
+import "@fontsource-variable/outfit";
+import "../styles/global.css";
+
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="description" content="ES Check - Check JavaScript files ES version against a specified ES version" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/svg+xml" href={`${import.meta.env.BASE_URL}es-check-logo.svg`} />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title} - ES Check</title>
+  </head>
+  <body>
+    <div class="flex flex-col min-h-screen">
+      <div class="drawer lg:drawer-open flex-1">
+        <input id="my-drawer-2" type="checkbox" class="drawer-toggle" />
+        <div class="drawer-content flex flex-col">
+          <DocsHeader />
+          <slot />
+        </div>
+        <SideBar />
+      </div>
+      <Footer />
+    </div>
+    <script is:inline>
+      // Initialize theme
+      const theme = (() => {
+        if (typeof localStorage !== "undefined" && localStorage.getItem("theme")) {
+          return localStorage.getItem("theme");
+        }
+        if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+          return "dark";
+        }
+        return "light";
+      })();
+      
+      document.documentElement.setAttribute("data-theme", theme);
+    </script>
+  </body>
+</html>
+
+<style>
+  * {
+    scroll-behavior: smooth;
+  }
+</style>

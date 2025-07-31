@@ -1,0 +1,194 @@
+---
+title: Debugging
+description: Debug ES version issues and understand error messages from ES Check
+---
+
+# Debugging ES Check Errors
+
+When ES Check finds incompatible JavaScript features, it provides detailed error messages to help you debug and fix the issues.
+
+## Understanding Error Messages
+
+### Basic Error Format
+
+```bash
+✗ ES Check failed!
+./dist/app.js
+  - error: Arrow function is not supported in ES5
+  - line: 42:15
+  - code: const sum = (a, b) => a + b;
+```
+
+### Multiple Errors
+
+```bash
+✗ ES Check failed!
+./dist/bundle.js
+  - error: let declaration is not supported in ES5
+  - line: 10:2
+  - code: let userName = 'John';
+  
+  - error: Template literal is not supported in ES5
+  - line: 15:18
+  - code: console.log(`Hello ${userName}`);
+```
+
+## Common ES Version Issues
+
+### ES5 Incompatibilities
+
+| Feature | Error | Solution |
+|---------|-------|----------|
+| Arrow functions | `Arrow function is not supported` | Use regular `function` |
+| `let`/`const` | `let/const declaration is not supported` | Use `var` |
+| Template literals | `Template literal is not supported` | Use string concatenation |
+| Destructuring | `Destructuring is not supported` | Use explicit property access |
+| Classes | `Class declaration is not supported` | Use function constructors |
+
+### ES6 Incompatibilities
+
+| Feature | Error | Solution |
+|---------|-------|----------|
+| Async/await | `Async function is not supported` | Use Promises |
+| Object spread | `Object spread is not supported` | Use Object.assign |
+| Optional chaining | `Optional chaining is not supported` | Use explicit checks |
+
+## Debugging Strategies
+
+### 1. Use Verbose Mode
+
+Get more detailed output:
+
+```bash
+es-check es5 './dist/**/*.js' --verbose
+```
+
+### 2. Check Specific Files
+
+Narrow down the issue:
+
+```bash
+# Check individual file
+es-check es5 './dist/problematic-file.js'
+
+# Check specific module
+es-check es5 './dist/vendor/*.js'
+```
+
+### 3. Ignore Specific Files
+
+Exclude known incompatible files:
+
+```bash
+es-check es5 './dist/**/*.js' --not './dist/modern/**/*.js'
+```
+
+### 4. Check Source Maps
+
+If available, ES Check can point to original source:
+
+```bash
+es-check es5 './dist/**/*.js' --verbose
+# Shows: Original source: src/components/Button.js:10
+```
+
+## Build Tool Configuration
+
+### Webpack
+
+Ensure proper transpilation:
+
+```javascript
+module.exports = {
+  module: {
+    rules: [{
+      test: /\.js$/,
+      exclude: /node_modules/,
+      use: {
+        loader: 'babel-loader',
+        options: {
+          presets: [['@babel/preset-env', {
+            targets: { ie: 11 }
+          }]]
+        }
+      }
+    }]
+  }
+};
+```
+
+### Babel
+
+Check your `.babelrc`:
+
+```json
+{
+  "presets": [
+    ["@babel/preset-env", {
+      "targets": {
+        "browsers": ["last 2 versions", "ie >= 11"]
+      }
+    }]
+  ]
+}
+```
+
+### TypeScript
+
+Ensure correct target in `tsconfig.json`:
+
+```json
+{
+  "compilerOptions": {
+    "target": "ES5",
+    "lib": ["ES5", "DOM"]
+  }
+}
+```
+
+## Troubleshooting Tips
+
+### 1. Check Dependencies
+
+Some npm packages may not be transpiled:
+
+```bash
+# Check node_modules
+es-check es5 './node_modules/problematic-package/dist/*.js'
+```
+
+### 2. Verify Build Output
+
+```bash
+# Look at the actual generated code
+cat ./dist/app.js | grep "=>"  # Find arrow functions
+cat ./dist/app.js | grep "const\|let"  # Find ES6 declarations
+```
+
+### 3. Use AST Explorer
+
+Paste problematic code into [astexplorer.net](https://astexplorer.net) to understand the syntax tree.
+
+### 4. Progressive Enhancement
+
+```javascript
+// Instead of failing, provide fallbacks
+if (typeof Promise !== 'undefined') {
+  // Use Promise-based code
+} else {
+  // Use callback-based code
+}
+```
+
+## Getting Help
+
+If you're still stuck:
+
+1. Run with `--verbose` flag
+2. Check the [GitHub issues](https://github.com/yowainwright/es-check/issues)
+3. Include in your issue:
+   - ES Check version
+   - Node.js version
+   - Build tool configuration
+   - Error output
+   - Sample code causing the issue

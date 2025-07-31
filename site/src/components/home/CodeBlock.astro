@@ -1,0 +1,42 @@
+---
+import { Code } from "astro:components";
+---
+
+<div class="xl:flex py-20 lg:py-28 gap-28">
+  <div class="xl:max-w-xl flex flex-col justify-center font-outfit">
+    <h1 class="text-4xl lg:text-5xl font-black">
+      Simple <span class="text-primary">ES Version </span>Checking for
+      Production
+    </h1>
+
+    <p class="mt-8 text-lg">
+      ES Check ensures your JavaScript code is compatible with your target 
+      ECMAScript version so you can run your code where you want: catch 
+      compatibility issues before they reach production, integrate seamlessly 
+      with your CI/CD pipeline, and maintain confidence in your browser support!
+    </p>
+
+    <div class="flex gap-4 mt-8">
+      <a href="/documentation/gettingstarted" class="btn"> Get Started </a>
+
+      <a href="https://github.com/yowainwright/es-check" class="btn btn-outline"> View on GitHub </a>
+    </div>
+  </div>
+
+  <div class="max-w-2xl mt-7 xl:mt-0">
+    <div class="mockup-code">
+      <pre data-prefix="$"><code>npx es-check es5 './dist/**/*.js'</code></pre>
+      <pre data-prefix="" class="text-green-300"><code>✓ Checking 24 files...</code></pre>
+      <pre data-prefix="" class="text-green-300"><code>✓ ES Check passed! All files are ES5 compatible.</code></pre>
+      <pre data-prefix=""></code></pre>
+      <pre data-prefix="$"><code>npx es-check es6 './src/**/*.js' --module</code></pre>
+      <pre data-prefix="" class="text-green-300"><code>✓ Checking 18 files...</code></pre>
+      <pre data-prefix="" class="text-green-300"><code>✓ ES Check passed! All files are ES6 compatible.</code></pre>
+      <pre data-prefix=""></code></pre>
+      <pre data-prefix="$"><code>npx es-check es2017 './build/**/*.js'</code></pre>
+      <pre data-prefix="" class="text-red-400"><code>✗ ES Check failed!</code></pre>
+      <pre data-prefix="" class="text-red-400"><code>  ./build/legacy.js:12:4 - async/await is not supported in ES2017</code></pre>
+      <pre data-prefix="" class="text-red-400"><code>  ./build/utils.js:45:11 - Object spread is not supported in ES2017</code></pre>
+    </div>
+  </div>
+</div>

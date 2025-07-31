@@ -1,0 +1,148 @@
+---
+title: CI/CD Integration
+description: Integrate ES Check with your CI/CD pipeline for automated ES version checking
+---
+
+# CI/CD Integration
+
+Integrate ES Check into your continuous integration and deployment pipelines to catch ES version issues before they reach production.
+
+## GitHub Actions
+
+```yaml
+name: ES Version Check
+on: [push, pull_request]
+
+jobs:
+  es-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Build project
+        run: npm run build
+        
+      - name: Check ES5 compatibility
+        run: npx es-check es5 './dist/**/*.js'
+```
+
+## GitLab CI
+
+```yaml
+es-check:
+  stage: test
+  script:
+    - npm ci
+    - npm run build
+    - npx es-check es5 './dist/**/*.js'
+  only:
+    - merge_requests
+    - main
+```
+
+## Jenkins
+
+```groovy
+pipeline {
+    agent any
+    stages {
+        stage('Build') {
+            steps {
+                sh 'npm ci'
+                sh 'npm run build'
+            }
+        }
+        stage('ES Check') {
+            steps {
+                sh 'npx es-check es5 "./dist/**/*.js"'
+            }
+        }
+    }
+}
+```
+
+## CircleCI
+
+```yaml
+version: 2.1
+jobs:
+  es-check:
+    docker:
+      - image: cimg/node:20.0
+    steps:
+      - checkout
+      - run: npm ci
+      - run: npm run build
+      - run:
+          name: Check ES Version
+          command: npx es-check es5 './dist/**/*.js'
+```
+
+## Travis CI
+
+```yaml
+language: node_js
+node_js:
+  - "20"
+script:
+  - npm run build
+  - npx es-check es5 './dist/**/*.js'
+```
+
+## Error Handling in CI
+
+### Fail on ES Version Mismatch
+
+```json
+{
+  "scripts": {
+    "build": "webpack",
+    "test": "jest",
+    "check:es": "es-check es5 './dist/**/*.js'",
+    "ci": "npm run build && npm run test && npm run check:es"
+  }
+}
+```
+
+### Generate Reports
+
+```bash
+# Output to file for artifacts
+es-check es5 './dist/**/*.js' > es-check-report.txt 2>&1 || true
+
+# Check exit code
+if [ $? -ne 0 ]; then
+  echo "ES Check failed! See es-check-report.txt"
+  exit 1
+fi
+```
+
+## Best Practices
+
+1. **Run after build**: Always run ES Check after your build process
+2. **Check all bundles**: Include vendor bundles and code splits
+3. **Set appropriate ES version**: Match your browser support requirements
+4. **Cache dependencies**: Speed up CI runs by caching node_modules
+5. **Fail fast**: Make ES Check errors fail the build
+
+## Parallel Checks
+
+For large projects, run multiple ES checks in parallel:
+
+```yaml
+# GitHub Actions example
+strategy:
+  matrix:
+    bundle: [main, vendor, polyfills]
+steps:
+  - name: Check ${{ matrix.bundle }}
+    run: npx es-check es5 './dist/${{ matrix.bundle }}.*.js'
+```

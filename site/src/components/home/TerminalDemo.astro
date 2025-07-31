@@ -1,0 +1,28 @@
+---
+---
+
+<div class="mockup-code bg-base-300 text-base-content max-w-3xl mx-auto my-8">
+  <pre data-prefix="$"><code>npx es-check es5 './dist/**/*.js'</code></pre>
+  <pre data-prefix="" class="text-success"><code>✓ Checking 24 files...</code></pre>
+  <pre data-prefix="" class="text-success"><code>✓ ES Check passed! All files are ES5 compatible.</code></pre>
+</div>
+
+<style>
+  .mockup-code {
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  }
+  
+  .mockup-code pre {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+  
+  .mockup-code pre[data-prefix]::before {
+    content: attr(data-prefix);
+    display: inline-block;
+    text-align: right;
+    width: 1rem;
+    margin-right: 0.5rem;
+    opacity: 0.7;
+  }
+</style>

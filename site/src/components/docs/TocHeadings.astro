@@ -1,0 +1,9 @@
+---
+const { heading } = Astro.props;
+---
+
+<li class="mb-4" >
+  <a class="text-sm hover:text-primary transition font-outfit" href={"#" + heading.slug}>
+    {heading.text}
+  </a>
+</li>

@@ -1,0 +1,106 @@
+---
+title: Command Options
+description: All available ES Check command-line options and flags
+---
+
+# Command Options
+
+ES Check provides numerous command-line options to customize its behavior. Here's a comprehensive guide to all available options.
+
+## Basic Usage
+
+```bash
+es-check <ecmaVersion> [files...] [options]
+```
+
+## Options Reference
+
+### `--module`
+Use ES modules parsing mode (default: false)
+
+```bash
+es-check es6 './dist/**/*.js' --module
+```
+
+### `--allowHashBang`
+Allow files starting with `#!` (shebang) (default: false)
+
+```bash
+es-check es6 './bin/*.js' --allowHashBang
+```
+
+### `--files <files>`
+Specify files to check (alternative to positional arguments)
+
+```bash
+es-check es6 --files='./dist/**/*.js'
+```
+
+### `--not <files>`
+Exclude specific files or patterns
+
+```bash
+es-check es5 './dist/**/*.js' --not='./dist/vendor/**/*.js'
+```
+
+### `--checkFeatures`
+Check for ES version specific features (default: false)
+
+```bash
+es-check es6 './dist/**/*.js' --checkFeatures
+```
+
+### `--checkForPolyfills`
+Consider polyfills when checking features (requires --checkFeatures)
+
+```bash
+es-check es2022 './dist/**/*.js' --checkFeatures --checkForPolyfills
+```
+
+### `--ignore <features>`
+Comma-separated list of features to ignore
+
+```bash
+es-check es6 './dist/**/*.js' --checkFeatures --ignore="ErrorCause,TopLevelAwait"
+```
+
+### `--allowList <features>`
+Allow specific features even in lower ES versions
+
+```bash
+es-check es5 './dist/**/*.js' --checkFeatures --allowList="const,let"
+```
+
+### `--checkBrowser`
+Use browserslist configuration to determine ES version
+
+```bash
+es-check --checkBrowser --browserslistQuery="last 2 versions" ./dist/**/*.js
+```
+
+### `--browserslistQuery <query>`
+Custom browserslist query
+
+```bash
+es-check checkBrowser ./dist/**/*.js --browserslistQuery=">0.5%, not dead"
+```
+
+### `--config <path>`
+Path to custom .escheckrc config file
+
+```bash
+es-check --config=./configs/production.escheckrc.json
+```
+
+### Display Options
+
+- `--noColor` - Disable colored output
+- `--verbose` or `-v` - Show debug messages
+- `--quiet` - Only show warnings and errors
+- `--silent` - No output except exit code
+
+### Other Options
+
+- `--looseGlobMatching` - Don't fail if some globs match no files
+- `--version` or `-V` - Show version number
+- `--help` or `-h` - Show help message

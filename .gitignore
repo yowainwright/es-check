@@ -69,3 +69,6 @@ package-lock.json
 .specstory/.what-is-this.md
 .cursorignore
 .vscode
+site/dist/
+site/.astro/
+.astro

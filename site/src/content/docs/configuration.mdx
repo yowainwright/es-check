@@ -1,0 +1,76 @@
+---
+title: Configuration
+description: How to configure ES Check using .escheckrc files
+---
+
+# Configuration
+
+ES Check can be configured using a `.escheckrc` file in your project root. This allows you to define consistent settings that can be version controlled and shared across your team.
+
+## Configuration File
+
+Create a `.escheckrc` file in your project root:
+
+```json
+{
+  "ecmaVersion": "es6",
+  "module": false,
+  "files": "./dist/**/*.js",
+  "not": ["./dist/skip/*.js"],
+  "allowHashBang": false,
+  "checkFeatures": true
+}
+```
+
+## Configuration Options
+
+All command-line options can be specified in the configuration file:
+
+| Option | Type | Description |
+|--------|------|-------------|
+| `ecmaVersion` | String | ECMAScript version (e.g., "es5", "es6", "es2020") |
+| `files` | String/Array | Files or patterns to check |
+| `module` | Boolean | Parse files as ES modules |
+| `not` | Array | Files or patterns to exclude |
+| `allowHashBang` | Boolean | Allow hash bang in files |
+| `checkFeatures` | Boolean | Check for ES version specific features |
+| `checkForPolyfills` | Boolean | Consider polyfills when checking |
+| `ignore` | Array | Features to ignore |
+| `allowList` | Array | Features to allow |
+| `checkBrowser` | Boolean | Use browserslist configuration |
+| `browserslistQuery` | String | Custom browserslist query |
+
+## Multiple Configurations
+
+For projects with different build targets, use an array configuration:
+
+```json
+[
+  {
+    "ecmaVersion": "es5",
+    "files": "dist/legacy/**/*.js"
+  },
+  {
+    "ecmaVersion": "es2020",
+    "module": true,
+    "files": "dist/modern/**/*.js"
+  }
+]
+```
+
+## Custom Config Path
+
+Use a custom configuration file location:
+
+```bash
+es-check --config=./config/es-check-production.json
+```
+
+## Priority
+
+Command-line arguments override configuration file settings:
+
+```bash
+# Uses es6 instead of config file's ecmaVersion
+es-check es6 --config=.escheckrc
+```

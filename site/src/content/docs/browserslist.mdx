@@ -1,0 +1,110 @@
+---
+title: Browserslist Integration
+description: Use browserslist to automatically determine ES version requirements
+---
+
+# Browserslist Integration
+
+ES Check integrates with [Browserslist](https://github.com/browserslist/browserslist) to automatically determine the appropriate ECMAScript version based on your target browsers.
+
+## Basic Usage
+
+```bash
+es-check --checkBrowser --browserslistQuery="last 2 versions" ./dist/**/*.js
+```
+
+Or use `checkBrowser` as the ES version:
+
+```bash
+es-check checkBrowser ./dist/**/*.js --browserslistQuery=">0.5%, not dead"
+```
+
+## Using Project Browserslist
+
+If you have a `.browserslistrc` file or `browserslist` in `package.json`:
+
+```bash
+es-check checkBrowser ./dist/**/*.js
+```
+
+### .browserslistrc Example
+
+```
+# Browsers we support
+last 2 versions
+> 1%
+not dead
+```
+
+### package.json Example
+
+```json
+{
+  "browserslist": [
+    "last 2 versions",
+    "> 1%",
+    "not dead"
+  ]
+}
+```
+
+## Browserslist Environments
+
+Use different configurations for different environments:
+
+```bash
+es-check --checkBrowser --browserslistEnv="production" ./dist/**/*.js
+```
+
+With environment-specific config:
+
+```
+[production]
+> 0.5%
+last 2 versions
+Firefox ESR
+not dead
+
+[development]
+last 1 chrome version
+last 1 firefox version
+```
+
+## Common Queries
+
+### Modern Browsers
+```bash
+--browserslistQuery="last 2 chrome versions, last 2 firefox versions, last 2 safari versions"
+```
+
+### Legacy Support
+```bash
+--browserslistQuery="> 0.25%, not dead, IE 11"
+```
+
+### Mobile First
+```bash
+--browserslistQuery="last 2 iOS versions, last 2 Android versions"
+```
+
+## Configuration File
+
+In `.escheckrc`:
+
+```json
+{
+  "checkBrowser": true,
+  "browserslistQuery": "> 1%, last 2 versions",
+  "browserslistEnv": "production",
+  "files": "./dist/**/*.js"
+}
+```
+
+## How It Works
+
+1. ES Check reads your browserslist configuration
+2. Determines the minimum ES version needed for those browsers
+3. Checks your code against that ES version
+4. Reports any incompatibilities
+
+This ensures your code works in all your target browsers without manually tracking ES version support.

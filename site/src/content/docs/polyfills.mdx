@@ -1,0 +1,63 @@
+---
+title: Polyfill Detection
+description: How to detect and handle polyfills with ES Check
+---
+
+# Polyfill Detection
+
+ES Check can help identify when polyfills are needed and detect if they're already present in your code.
+
+## Using checkForPolyfills Option
+
+The `--checkForPolyfills` flag helps identify polyfilled features that might mask ES version incompatibilities:
+
+```bash
+es-check es5 './dist/**/*.js' --checkForPolyfills
+```
+
+## How It Works
+
+When enabled, ES Check will:
+1. Detect common polyfill patterns
+2. Warn about polyfilled features that exceed your target ES version
+3. Help ensure your code works without polyfills in target environments
+
+## Example
+
+```bash
+# Without polyfill detection
+es-check es5 './dist/app.js'
+# ✓ Passed (but might include polyfills)
+
+# With polyfill detection
+es-check es5 './dist/app.js' --checkForPolyfills
+# ⚠ Warning: Array.prototype.includes polyfilled (ES7 feature)
+```
+
+## Common Polyfills Detected
+
+- Array methods (includes, find, findIndex)
+- Object methods (assign, entries, values)
+- String methods (startsWith, endsWith, includes)
+- Promise
+- Symbol
+- Map/Set
+
+## Configuration
+
+In `.escheckrc`:
+
+```json
+{
+  "ecmaVersion": "es5",
+  "files": "./dist/**/*.js",
+  "checkForPolyfills": true
+}
+```
+
+## Best Practices
+
+1. **Test without polyfills**: Ensure your code works in target environments
+2. **Document polyfill requirements**: List required polyfills in your README
+3. **Use targeted polyfills**: Only include polyfills for features you actually use
+4. **Consider polyfill services**: Use services like polyfill.io for dynamic polyfilling

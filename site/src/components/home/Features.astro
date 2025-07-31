@@ -1,0 +1,43 @@
+---
+const features = [
+  {
+    title: "Fast",
+    description: "Quickly scan thousands of tokens to ensure ES compatibility without slowing down your build process.",
+  },
+  {
+    title: "Version Specific",
+    description: "Support for all ECMAScript versions from ES3 to ES14/ES2023, ensuring comprehensive coverage.",
+  },
+  {
+    title: "CI/CD Ready",
+    description: "Seamlessly integrate with your build pipeline to catch compatibility issues before production.",
+  },
+  {
+    title: "Flexible Configuration",
+    description: "Use CLI arguments or configuration files to customize ES Check for your specific needs.",
+  },
+  {
+    title: "Browserslist Support",
+    description: "Automatically determine ES version based on your target browsers using browserslist integration.",
+  },
+  {
+    title: "Detailed Error Reports",
+    description: "Get precise error locations and descriptions to quickly fix compatibility issues.",
+  },
+];
+---
+
+<div
+  class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-10 justify-items-center py-20 lg:py-28"
+>
+  {
+    features.map((features) => (
+      <div class="card max-w-2xl bg-gradient-to-t from-base-100 to-base-300/50 border border-base-content/20 hover:border-base-content/40 transition">
+        <div class="card-body font-outfit">
+          <h2 class="card-title">{features.title}</h2>
+          <p>{features.description}</p>
+        </div>
+      </div>
+    ))
+  }
+</div>

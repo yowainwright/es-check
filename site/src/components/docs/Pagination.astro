@@ -1,0 +1,75 @@
+---
+import SIDEBAR from "../../constants/sidebar";
+
+let currentPath = Astro.url.pathname;
+let prevItem, nextItem;
+let currentSectionIndex: number, currentItemIndex: number;
+
+SIDEBAR.forEach((item, index) => {
+  if (
+    item.items &&
+    item.items.some((subItem) => subItem.href === currentPath)
+  ) {
+    currentSectionIndex = index;
+    currentItemIndex = item.items.findIndex(
+      (subItem) => subItem.href === currentPath
+    );
+    return;
+  }
+});
+
+if (currentSectionIndex !== undefined) {
+  if (currentItemIndex > 0) {
+    prevItem = SIDEBAR[currentSectionIndex].items[currentItemIndex - 1];
+  } else if (currentSectionIndex > 0) {
+    prevItem = SIDEBAR[currentSectionIndex - 1].items.slice(-1)[0];
+  } else {
+    prevItem = undefined;
+  }
+
+  if (currentItemIndex < SIDEBAR[currentSectionIndex].items.length - 1) {
+    nextItem = SIDEBAR[currentSectionIndex].items[currentItemIndex + 1];
+  } else if (currentSectionIndex < SIDEBAR.length - 1) {
+    nextItem = SIDEBAR[currentSectionIndex + 1].items[0];
+  } else {
+    nextItem = undefined;
+  }
+} else {
+  prevItem = nextItem = undefined;
+}
+---
+
+<div class="flex gap-7">
+  {
+    prevItem?.href && (
+      <a class="mr-auto flex" href={prevItem?.href}>
+        <button class="btn rounded-full">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24">
+            <path
+              fill="currentColor"
+              d="M16.707 19.293 9.414 12l7.293-7.293-1.414-1.414L6.586 12l8.707 8.707 1.414-1.414z"
+            />
+          </svg>
+          <span class="text-xs md:text-sm font-medium">{prevItem?.title}</span>
+        </button>
+      </a>
+    )
+  }
+
+  {
+    nextItem?.href && (
+      <a class="ml-auto flex" href={nextItem?.href}>
+        <button class="btn rounded-full">
+          <span class="text-xs md:text-sm font-medium">{nextItem?.title}</span>
+
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24">
+            <path
+              fill="currentColor"
+              d="M7.293 4.707 14.586 12l-7.293 7.293 1.414 1.414L17.414 12 8.707 3.293 7.293 4.707z"
+            />
+          </svg>
+        </button>
+      </a>
+    )
+  }
+</div>

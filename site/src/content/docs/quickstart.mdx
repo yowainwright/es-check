@@ -1,0 +1,105 @@
+---
+title: Quick Start
+description: Get up and running with ES Check in minutes
+---
+
+# Quick Start
+
+This guide will help you get started with ES Check in just a few minutes.
+
+## Installation
+
+First, install ES Check in your project:
+
+```bash
+npm install es-check --save-dev
+```
+
+## Basic Usage
+
+### Example 1: Check ES5 Compatibility
+
+Check if your bundled JavaScript is ES5 compatible:
+
+```bash
+npx es-check es5 './dist/**/*.js'
+```
+
+### Example 2: Check Multiple Directories
+
+Check both vendor and distribution files:
+
+```bash
+npx es-check es5 './vendor/**/*.js' './dist/**/*.js'
+```
+
+### Example 3: Check ES6 Modules
+
+For ES6 modules, use the `--module` flag:
+
+```bash
+npx es-check es6 './src/**/*.mjs' --module
+```
+
+## Common Scenarios
+
+### Production Build Check
+
+Add to your build pipeline:
+
+```json
+{
+  "scripts": {
+    "build": "webpack && npm run check:es",
+    "check:es": "es-check es5 './dist/**/*.js'"
+  }
+}
+```
+
+### CI/CD Integration
+
+```yaml
+# Example GitHub Actions
+- name: Check ES Version
+  run: npx es-check es5 './dist/**/*.js'
+```
+
+### With Configuration File
+
+Create `.escheckrc`:
+
+```json
+{
+  "ecmaVersion": "es5",
+  "files": ["./dist/**/*.js"],
+  "not": ["./dist/modern/**/*.js"]
+}
+```
+
+Run with:
+
+```bash
+npx es-check
+```
+
+## Understanding Output
+
+### Success
+
+```bash
+✓ ES Check passed! All files are ES5 compatible.
+```
+
+### Failure
+
+```bash
+✗ ES Check failed!
+./dist/app.js - Uses ES6 feature: arrow function (line 10)
+./dist/utils.js - Uses ES6 feature: const declaration (line 5)
+```
+
+## What's Next?
+
+- [Explore all command options](/documentation/options)
+- [Configure ES Check for your project](/documentation/configuration)
+- [Debug ES version issues](/documentation/debugging)
