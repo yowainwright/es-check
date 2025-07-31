@@ -1,14 +1,15 @@
 ---
 import ThemeToggle from "../common/ThemeToggle.astro";
+import { getUrl } from "../../utils/url";
 
 const navigation = [
   {
     title: "Home",
-    href: import.meta.env.BASE_URL,
+    href: getUrl(''),
   },
   {
     title: "Docs",
-    href: `${import.meta.env.BASE_URL}${import.meta.env.BASE_URL.endsWith('/') ? '' : '/'}docs`,
+    href: getUrl('docs'),
   },
 ];
 
@@ -53,7 +54,7 @@ const pathname = new URL(Astro.request.url).pathname;
       </ul>
     </div>
     <div class="navbar-start">
-      <a href={import.meta.env.BASE_URL} class="btn btn-ghost px-2">
+      <a href={getUrl('')} class="btn btn-ghost px-2">
         <h1
           class="text-xl md:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/50"
         >
