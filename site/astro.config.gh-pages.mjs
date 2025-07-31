@@ -6,7 +6,7 @@ import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
   site: 'https://jeffry.in',
-  base: '/es-check',
+  base: '/es-check/',
   integrations: [mdx(), react()],
   trailingSlash: 'never',
   

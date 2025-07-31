@@ -29,7 +29,7 @@ import TerminalDemo from "./TerminalDemo.astro";
   <div class="hero-content text-center min-h-[40rem] font-outfit">
     <div class="max-w-2xl md:max-w-6xl">
       <div class="flex justify-center mb-8">
-        <img src={new URL('es-check-logo.svg', import.meta.env.BASE_URL).href} alt="ES Check" class="h-32 w-32 md:h-40 md:w-40" />
+        <img src={`${import.meta.env.BASE_URL}${import.meta.env.BASE_URL.endsWith('/') ? '' : '/'}es-check-logo.svg`} alt="ES Check" class="h-32 w-32 md:h-40 md:w-40" />
       </div>
       <a class="badge badge-outline badge-xs md:badge-lg mb-5 p-2 border-dashed border-base-content/40" href="https://github.com/yowainwright/es-check/releases">
         🎉 ES Check version 9 is live now ➔
