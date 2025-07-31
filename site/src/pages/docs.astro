@@ -1,3 +1,4 @@
 ---
-return Astro.redirect(`${import.meta.env.BASE_URL}${import.meta.env.BASE_URL.endsWith('/') ? '' : '/'}docs/gettingstarted`, 301);
+import { getUrl } from "../utils/url";
+return Astro.redirect(getUrl('docs/gettingstarted'), 301);
 ---

@@ -1,5 +1,6 @@
 ---
 import { CopyButton } from "../common/CopyButton";
+import { getUrl } from "../../utils/url";
 ---
 
 <div
@@ -21,7 +22,7 @@ import { CopyButton } from "../common/CopyButton";
         <CopyButton client:only="react" />
       </div>
 
-      <a href={`${import.meta.env.BASE_URL}${import.meta.env.BASE_URL.endsWith('/') ? '' : '/'}docs/installation`}>
+      <a href={getUrl('docs/installation')}>
         <button class="btn btn-primary mt-7">Installation Guide</button>
       </a>
     </div>

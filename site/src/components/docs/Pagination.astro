@@ -1,7 +1,8 @@
 ---
 import SIDEBAR from "../../constants/sidebar";
+import { getUrl, normalizePathname } from "../../utils/url";
 
-let currentPath = Astro.url.pathname;
+let currentPath = normalizePathname(Astro.url.pathname);
 let prevItem, nextItem;
 let currentSectionIndex: number, currentItemIndex: number;
 
@@ -42,7 +43,7 @@ if (currentSectionIndex !== undefined) {
 <div class="flex gap-7">
   {
     prevItem?.href && (
-      <a class="mr-auto flex" href={prevItem?.href}>
+      <a class="mr-auto flex" href={getUrl(prevItem.href)}>
         <button class="btn rounded-full">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24">
             <path
@@ -58,7 +59,7 @@ if (currentSectionIndex !== undefined) {
 
   {
     nextItem?.href && (
-      <a class="ml-auto flex" href={nextItem?.href}>
+      <a class="ml-auto flex" href={getUrl(nextItem.href)}>
         <button class="btn rounded-full">
           <span class="text-xs md:text-sm font-medium">{nextItem?.title}</span>
 

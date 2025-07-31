@@ -1,5 +1,5 @@
 ---
-
+import { getUrl } from "../../utils/url";
 ---
 
 <footer
@@ -10,8 +10,8 @@
       <p>© {new Date().getFullYear()} - MIT License</p>
     </div>
 
-    <a href={import.meta.env.BASE_URL} class="hover:opacity-80 transition">
-      <img src={`${import.meta.env.BASE_URL}${import.meta.env.BASE_URL.endsWith('/') ? '' : '/'}es-check-logo.svg`} alt="ES Check" class="h-8 w-8" />
+    <a href={getUrl('')} class="hover:opacity-80 transition">
+      <img src={getUrl('es-check-logo.svg')} alt="ES Check" class="h-8 w-8" />
     </a>
 
     <div class="lg:flex-1 flex justify-center lg:justify-end">

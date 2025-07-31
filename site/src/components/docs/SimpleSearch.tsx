@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import Fuse from 'fuse.js';
 import { searchData, type SearchItem } from './SearchData';
+import { getUrl } from '../../utils/url';
 
 export function SimpleSearch() {
   const [isOpen, setIsOpen] = useState(false);
@@ -116,7 +117,7 @@ export function SimpleSearch() {
                       {items.map((result, index) => (
                         <a
                           key={`${category}-${index}`}
-                          href={result.href}
+                          href={getUrl(result.href)}
                           className="block px-4 py-3 hover:bg-primary/10 focus:bg-primary/10 focus:outline-none transition-colors border-l-2 border-transparent hover:border-primary focus:border-primary"
                           onClick={() => {
                             setIsOpen(false);

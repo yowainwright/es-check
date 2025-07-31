@@ -1,0 +1,7 @@
+---
+export const prerender = false;
+
+const slug = Astro.params.slug || '';
+const newUrl = `/docs/${slug}`;
+return Astro.redirect(newUrl, 301);
+---

@@ -3,6 +3,7 @@ import { getCollection, type CollectionEntry } from "astro:content";
 import Layout from "../../layouts/Layout.astro";
 import Toc from "../../components/docs/Toc.astro";
 import Pagination from "../../components/docs/Pagination.astro";
+import { getUrl } from "../../utils/url";
 
 export const getStaticPaths = async () => {
   const docs = await getCollection("docs");
@@ -33,7 +34,7 @@ const { Content, headings } = await doc.render();
     <article class="flex flex-col max-w-3xl">
       <div class="text-sm breadcrumbs pt-0 pb-4">
         <ul>
-          <li><a href={import.meta.env.BASE_URL} class="hover:text-primary">Home</a></li>
+          <li><a href={getUrl('')} class="hover:text-primary">Home</a></li>
           <li class="text-primary">{doc.data.title}</li>
         </ul>
       </div>

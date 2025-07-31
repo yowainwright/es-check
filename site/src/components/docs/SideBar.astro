@@ -1,7 +1,8 @@
 ---
 import SIDEBAR from "../../constants/sidebar";
+import { getUrl, normalizePathname } from "../../utils/url";
 
-const pathname = new URL(Astro.request.url).pathname;
+const pathname = normalizePathname(new URL(Astro.request.url).pathname);
 ---
 
 <div class="drawer-side z-40 md:border-r md:border-base-content/10">
@@ -11,7 +12,7 @@ const pathname = new URL(Astro.request.url).pathname;
     <div
       class="bg-base-100 sticky top-0 z-20 items-center gap-2 bg-opacity-90 px-4 py-2 backdrop-blur lg:flex font-outfit"
     >
-      <a href={import.meta.env.BASE_URL} class="btn btn-ghost px-2">
+      <a href={getUrl('')} class="btn btn-ghost px-2">
         <h1
           class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/50"
         >
@@ -31,7 +32,7 @@ const pathname = new URL(Astro.request.url).pathname;
               {navItem.items.map((navItem) => (
                 <li class="flex flex-col">
                   <a
-                    href={navItem.href}
+                    href={getUrl(navItem.href)}
                     class={`hover:text-primary hover:bg-primary/5 transition flex ${pathname === navItem.href ? "text-primary bg-primary/5" : ""}`}
                   >
                     {navItem.title}
