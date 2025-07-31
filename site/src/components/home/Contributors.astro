@@ -43,13 +43,20 @@ import contributors from "../../constants/contributors";
     class="grid md:grid-cols-7 grid-cols-5 gap-3 mt-10 xl:mt-0 justify-items-center"
   >
     {
-      contributors.map((contributors) => (
-        <img
-          class="rounded-full w-16 h-16 md:w-20 md:h-20"
-          src={contributors.profile}
-          alt={contributors.name}
-          title={contributors.name}
-        />
+      contributors.map((contributor) => (
+        <a
+          href={contributor.githubUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="hover:opacity-80 transition-opacity"
+        >
+          <img
+            class="rounded-full w-16 h-16 md:w-20 md:h-20"
+            src={contributor.profile}
+            alt={contributor.name}
+            title={contributor.name}
+          />
+        </a>
       ))
     }
   </div>

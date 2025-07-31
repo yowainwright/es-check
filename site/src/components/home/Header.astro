@@ -4,11 +4,11 @@ import ThemeToggle from "../common/ThemeToggle.astro";
 const navigation = [
   {
     title: "Home",
-    href: "/",
+    href: import.meta.env.BASE_URL,
   },
   {
     title: "Docs",
-    href: "/documentation/gettingstarted",
+    href: `${import.meta.env.BASE_URL}docs`,
   },
 ];
 
