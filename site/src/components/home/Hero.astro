@@ -50,7 +50,7 @@ import TerminalDemo from "./TerminalDemo.astro";
       <TerminalDemo />
       
       <div class="flex sm:flex-row flex-col justify-center items-center gap-5 mt-8">
-        <a href={`${import.meta.env.BASE_URL}documentation/gettingstarted`}>
+        <a href={`${import.meta.env.BASE_URL}${import.meta.env.BASE_URL.endsWith('/') ? '' : '/'}docs/gettingstarted`}>
           <button
             class="btn bg-base-content text-base-100 hover:bg-base-content/80"
             >Get Started

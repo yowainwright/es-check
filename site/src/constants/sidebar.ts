@@ -4,15 +4,15 @@ const SIDEBAR = [
     items: [
       {
         title: "Getting Started",
-        href: "/documentation/gettingstarted",
+        href: "/docs/gettingstarted",
       },
       {
         title: "Installation",
-        href: "/documentation/installation",
+        href: "/docs/installation",
       },
       {
         title: "Quick Start",
-        href: "/documentation/quickstart",
+        href: "/docs/quickstart",
       },
     ],
   },
@@ -22,19 +22,19 @@ const SIDEBAR = [
     items: [
       {
         title: "Command Options",
-        href: "/documentation/options",
+        href: "/docs/options",
       },
       {
         title: "Configuration",
-        href: "/documentation/configuration",
+        href: "/docs/configuration",
       },
       {
         title: "ES Features",
-        href: "/documentation/features",
+        href: "/docs/features",
       },
       {
         title: "Browserslist",
-        href: "/documentation/browserslist",
+        href: "/docs/browserslist",
         label: true,
       },
     ],
@@ -45,15 +45,15 @@ const SIDEBAR = [
     items: [
       {
         title: "Polyfill Detection",
-        href: "/documentation/polyfills",
+        href: "/docs/polyfills",
       },
       {
         title: "CI/CD Integration",
-        href: "/documentation/ci-integration",
+        href: "/docs/ci-integration",
       },
       {
         title: "Debugging",
-        href: "/documentation/debugging",
+        href: "/docs/debugging",
       },
     ],
   },
@@ -63,15 +63,15 @@ const SIDEBAR = [
     items: [
       {
         title: "How to Contribute",
-        href: "/documentation/how-to-contribute",
+        href: "/docs/how-to-contribute",
       },
       {
         title: "Contributing Guidelines",
-        href: "/documentation/contributing-guideline",
+        href: "/docs/contributing-guideline",
       },
       {
         title: "Report Issues",
-        href: "/documentation/having-an-issue",
+        href: "/docs/having-an-issue",
       },
     ],
   },
