@@ -71,3 +71,4 @@ package-lock.json
 .vscode
 site/dist/
 site/.astro/
+.astro
