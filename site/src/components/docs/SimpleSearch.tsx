@@ -67,13 +67,13 @@ export function SimpleSearch() {
           setIsOpen(true);
           setTimeout(() => inputRef.current?.focus(), 100);
         }}
-        className="flex items-center gap-3 px-4 py-2 bg-base-200/50 hover:bg-base-200 rounded-lg transition-all duration-200 min-w-[200px] text-left"
+        className="flex items-center gap-2 md:gap-3 px-3 md:px-4 py-2 bg-base-200/50 hover:bg-base-200 rounded-lg transition-all duration-200 min-w-[140px] md:min-w-[200px] text-left"
       >
         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-base-content/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
         </svg>
-        <span className="text-sm text-base-content/50 flex-1">Search docs...</span>
-        <kbd className="px-1.5 py-0.5 text-xs rounded border border-base-300 bg-base-100 font-mono text-base-content/70"><span className="text-sm">⌘</span> K</kbd>
+        <span className="text-xs md:text-sm text-base-content/50 flex-1">Search...</span>
+        <kbd className="hidden md:flex px-1.5 py-0.5 text-xs rounded border border-base-300 bg-base-100 font-mono text-base-content/70"><span className="text-sm">⌘</span> K</kbd>
       </button>
 
       {isOpen && typeof document !== 'undefined' && createPortal(
@@ -82,10 +82,10 @@ export function SimpleSearch() {
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9998]" onClick={() => setIsOpen(false)} />
           
           {/* Centered modal */}
-          <div className="fixed inset-0 z-[9999] flex items-start justify-center pt-[10vh] pointer-events-none">
-            <div className="bg-base-100 rounded-2xl shadow-2xl border border-base-300 overflow-hidden w-full max-w-2xl mx-4 pointer-events-auto">
+          <div className="fixed inset-0 z-[9999] flex items-start justify-center pt-[5vh] md:pt-[10vh] pointer-events-none">
+            <div className="bg-base-100 rounded-lg md:rounded-2xl shadow-2xl border border-base-300 overflow-hidden w-full max-w-2xl mx-2 md:mx-4 pointer-events-auto">
               {/* Search header */}
-              <div className="p-6">
+              <div className="p-4 md:p-6">
                 <div className="relative">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 absolute left-5 top-1/2 -translate-y-1/2 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -94,7 +94,7 @@ export function SimpleSearch() {
                     ref={inputRef}
                     type="text"
                     placeholder="Search documentation..."
-                    className="w-full pl-14 pr-20 py-4 bg-transparent border-0 text-lg font-medium placeholder:text-base-content/40 focus:outline-none"
+                    className="w-full pl-12 md:pl-14 pr-16 md:pr-20 py-3 md:py-4 bg-transparent border-0 text-base md:text-lg font-medium placeholder:text-base-content/40 focus:outline-none"
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
                     autoFocus
@@ -103,12 +103,12 @@ export function SimpleSearch() {
                     <kbd className="px-2 py-1 text-sm rounded border border-base-300 bg-base-200 font-mono text-base-content/70">ESC</kbd>
                   </div>
                 </div>
-                <div className="h-px bg-gradient-to-r from-transparent via-base-300 to-transparent mt-6"></div>
+                <div className="h-px bg-gradient-to-r from-transparent via-base-300 to-transparent mt-4 md:mt-6"></div>
               </div>
             
               {/* Search results */}
               {Object.keys(groupedResults).length > 0 && (
-                <div className="max-h-[60vh] overflow-y-auto">
+                <div className="max-h-[50vh] md:max-h-[60vh] overflow-y-auto">
                   {Object.entries(groupedResults).map(([category, items]) => (
                     <div key={category}>
                       <div className="px-4 pt-3 pb-2">

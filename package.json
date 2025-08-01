@@ -18,6 +18,7 @@
   "scripts": {
     "commit": "git-cz",
     "commit-msg": "commitlint --edit $1",
+    "dev": "pnpm site:dev",
     "lint": "eslint index.js --fix",
     "lint:ci": "eslint index.js utils.js detectFeatures.js constants.js browserslist.js polyfillDetector.js",
     "pre-commit": "pnpm lint && pnpm test",

@@ -152,3 +152,46 @@
   border-color: #6aa3d4 !important;
   color: #1e293b !important;
 }
+
+/* Mobile-specific improvements */
+@media (max-width: 768px) {
+  /* Prevent horizontal scroll */
+  body {
+    overflow-x: hidden;
+  }
+  
+  /* Ensure containers respect viewport */
+  .hero, .navbar, .container {
+    max-width: 100vw;
+  }
+  
+  /* Fix padding on mobile */
+  .px-2 {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+  
+  /* Improve touch targets */
+  .btn, .menu li a {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Fix dropdown menu positioning */
+  .dropdown-content {
+    left: 0;
+    right: auto;
+  }
+  
+  /* Improve text readability on small screens */
+  .text-4xl {
+    font-size: 1.875rem;
+    line-height: 2.25rem;
+  }
+  
+  /* Fix code block overflow */
+  pre, code {
+    overflow-x: auto;
+    max-width: 100%;
+  }
+}
