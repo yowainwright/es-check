@@ -48,14 +48,17 @@ import contributors from "../../constants/contributors";
           href={contributor.githubUrl}
           target="_blank"
           rel="noopener noreferrer"
-          class="hover:opacity-80 transition-opacity"
+          class="hover:opacity-80 transition-opacity block"
         >
-          <img
-            class="rounded-full w-16 h-16 md:w-20 md:h-20"
-            src={contributor.profile}
-            alt={contributor.name}
-            title={contributor.name}
-          />
+          <div class="w-16 h-16 md:w-20 md:h-20 overflow-hidden rounded-full">
+            <img
+              class="w-full h-full object-cover"
+              src={contributor.profile}
+              alt={contributor.name}
+              title={contributor.name}
+              loading="lazy"
+            />
+          </div>
         </a>
       ))
     }

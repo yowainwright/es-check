@@ -35,13 +35,13 @@ export const CopyButton = () => {
 
   return (
     <button
-      className="btn btn-ghost btn-square rounded-s-none"
+      className="btn btn-ghost btn-square rounded-s-none min-w-[44px] min-h-[44px]"
       onClick={handleCopy}
       aria-label="Copy"
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        className="h-7 w-5 pointer-events-none"
+        className="h-5 w-5 md:h-6 md:w-6 pointer-events-none"
         fill="none"
         viewBox="0 0 24 24"
         stroke="currentColor"

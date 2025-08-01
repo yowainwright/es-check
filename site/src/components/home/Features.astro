@@ -28,14 +28,14 @@ const features = [
 ---
 
 <div
-  class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-10 justify-items-center py-20 lg:py-28"
+  class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-10 justify-items-center py-16 md:py-20 lg:py-28 px-4 md:px-8"
 >
   {
     features.map((features) => (
-      <div class="card max-w-2xl bg-gradient-to-t from-base-100 to-base-300/50 border border-base-content/20 hover:border-base-content/40 transition">
-        <div class="card-body font-outfit">
-          <h2 class="card-title">{features.title}</h2>
-          <p>{features.description}</p>
+      <div class="card w-full max-w-sm md:max-w-2xl bg-gradient-to-t from-base-100 to-base-300/50 border border-base-content/20 hover:border-base-content/40 transition">
+        <div class="card-body font-outfit p-6 md:p-8">
+          <h2 class="card-title text-lg md:text-xl">{features.title}</h2>
+          <p class="text-sm md:text-base">{features.description}</p>
         </div>
       </div>
     ))
