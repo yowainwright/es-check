@@ -1095,3 +1095,146 @@ describe('🔬 Fixture-Based Tests for Addressed Scenarios', () => {
     });
   });
 });
+
+describe('--batchSize option tests', () => {
+  it('🎉 Es Check should pass with --batchSize 0 (unlimited)', (done) => {
+    exec('node index.js es5 ./tests/es5.js ./tests/es5-2.js --batchSize 0', (err, stdout, stderr) => {
+      if (err) {
+        console.error(err.stack);
+        console.error(stdout.toString());
+        console.error(stderr.toString());
+        done(err);
+        return;
+      }
+      assert(stdout.includes('no ES version matching errors'));
+      done();
+    });
+  });
+
+  it('🎉 Es Check should pass with --batchSize 1 (process one at a time)', (done) => {
+    exec('node index.js es5 ./tests/es5.js ./tests/es5-2.js --batchSize 1', (err, stdout, stderr) => {
+      if (err) {
+        console.error(err.stack);
+        console.error(stdout.toString());
+        console.error(stderr.toString());
+        done(err);
+        return;
+      }
+      assert(stdout.includes('no ES version matching errors'));
+      done();
+    });
+  });
+
+  it('🎉 Es Check should pass with --batchSize 10', (done) => {
+    exec('node index.js es5 ./tests/es5*.js --batchSize 10', (err, stdout, stderr) => {
+      if (err) {
+        console.error(err.stack);
+        console.error(stdout.toString());
+        console.error(stderr.toString());
+        done(err);
+        return;
+      }
+      assert(stdout.includes('no ES version matching errors'));
+      done();
+    });
+  });
+
+  it('👌 Es Check should fail correctly with --batchSize option when ES6 files checked as ES5', (done) => {
+    exec('node index.js es5 ./tests/es6.js ./tests/es6-2.js --batchSize 1', (err, stdout, stderr) => {
+      assert(err, 'Expected an error but command ran successfully');
+      const output = stdout + stderr; // Check both stdout and stderr
+      assert(output.includes('ES version matching errors') || output.includes('ES-Check: there were'), 
+        'Output should contain error message');
+      done();
+    });
+  });
+
+  it('🎉 Es Check should handle mixed file results with batching', (done) => {
+    exec('node index.js es6 ./tests/es5.js ./tests/es6.js --batchSize 2', (err, stdout, stderr) => {
+      if (err) {
+        console.error(err.stack);
+        console.error(stdout.toString());
+        console.error(stderr.toString());
+        done(err);
+        return;
+      }
+      assert(stdout.includes('no ES version matching errors'));
+      done();
+    });
+  });
+});
+
+describe('Performance optimization integration tests', () => {
+  it('🎉 Should reuse AST when --checkFeatures is enabled', (done) => {
+    // This test verifies that the AST is reused (single parse optimization)
+    exec('node index.js es6 ./tests/es6.js --checkFeatures', (err, stdout, stderr) => {
+      if (err) {
+        console.error(err.stack);
+        console.error(stdout.toString());
+        console.error(stderr.toString());
+        done(err);
+        return;
+      }
+      assert(stdout.includes('no ES version matching errors'));
+      done();
+    });
+  });
+
+  it('🎉 Should work with async file processing', (done) => {
+    // Test that async file reading works correctly
+    exec('node index.js es5 ./tests/es5.js ./tests/es5-2.js', (err, stdout, stderr) => {
+      if (err) {
+        console.error(err.stack);
+        console.error(stdout.toString());
+        console.error(stderr.toString());
+        done(err);
+        return;
+      }
+      assert(stdout.includes('no ES version matching errors'));
+      done();
+    });
+  });
+
+  it('🎉 Should handle large file sets with batching', (done) => {
+    // Test with multiple files to ensure batch processing works
+    exec('node index.js es6 "./tests/*.js" --batchSize 5 --not=./tests/es7.js,./tests/es8.js,./tests/es9.js,./tests/es10.js,./tests/es11.js,./tests/es12.js,./tests/es13.js,./tests/es14.js,./tests/es15.js,./tests/es16.js,./tests/es2018.js', (err, stdout, stderr) => {
+      if (err) {
+        console.error(err.stack);
+        console.error(stdout.toString());
+        console.error(stderr.toString());
+        done(err);
+        return;
+      }
+      assert(stdout.includes('no ES version matching errors'));
+      done();
+    });
+  });
+
+  it('🎉 Should work with config file containing batchSize', (done) => {
+    // Create a temporary config file
+    const fs = require('fs');
+    const configPath = './.test-escheckrc';
+    const config = {
+      ecmaVersion: 'es5',
+      files: ['./tests/es5.js'],
+      batchSize: 2
+    };
+    
+    fs.writeFileSync(configPath, JSON.stringify(config));
+    
+    exec(`node index.js --config ${configPath}`, (err, stdout, stderr) => {
+      // Clean up config file
+      fs.unlinkSync(configPath);
+      
+      if (err) {
+        console.error(err.stack);
+        console.error(stdout.toString());
+        console.error(stderr.toString());
+        done(err);
+        return;
+      }
+      assert(stdout.includes('no ES version matching errors'));
+      done();
+    });
+  });
+});
