@@ -12,7 +12,10 @@ const {
   checkMap,
   createLogger,
   generateBashCompletion,
-  generateZshCompletion
+  generateZshCompletion,
+  readFileAsync,
+  parseCode,
+  processBatchedFiles
 } = require('./utils');
 
 describe('Utils Module Tests', () => {
@@ -283,6 +286,129 @@ describe('Utils Module Tests', () => {
       const script = generateZshCompletion(cmdName, commands, options);
       assert.ok(script.includes(`#compdef es-check`));
       assert.ok(script.includes(`_es_check()`));
+    });
+  });
+
+  describe('readFileAsync', () => {
+    const tempFile = './test-temp-file.js';
+    const tempContent = 'const test = "hello world";';
+
+    beforeEach(() => {
+      fs.writeFileSync(tempFile, tempContent);
+    });
+
+    afterEach(() => {
+      if (fs.existsSync(tempFile)) {
+        fs.unlinkSync(tempFile);
+      }
+    });
+
+    it('should read file content successfully', async () => {
+      const result = await readFileAsync(tempFile, fs);
+      assert.strictEqual(result.content, tempContent);
+      assert.strictEqual(result.error, null);
+    });
+
+    it('should return error for non-existent file', async () => {
+      const result = await readFileAsync('./non-existent-file.js', fs);
+      assert.strictEqual(result.content, null);
+      assert.ok(result.error);
+      assert.ok(result.error.err);
+      assert.strictEqual(result.error.file, './non-existent-file.js');
+      assert.ok(result.error.stack);
+    });
+  });
+
+  describe('parseCode', () => {
+    const acorn = require('acorn');
+
+    it('should parse valid ES5 code successfully', () => {
+      const code = 'var x = 5;';
+      const result = parseCode(code, { ecmaVersion: 5 }, acorn, 'test.js');
+      assert.ok(result.ast);
+      assert.strictEqual(result.error, null);
+      assert.strictEqual(result.ast.type, 'Program');
+    });
+
+    it('should return error for invalid syntax', () => {
+      const code = 'const x = 5;'; // ES6 syntax with ES5 parser
+      const result = parseCode(code, { ecmaVersion: 5 }, acorn, 'test.js');
+      assert.strictEqual(result.ast, null);
+      assert.ok(result.error);
+      assert.ok(result.error.err);
+      assert.strictEqual(result.error.file, 'test.js');
+      assert.ok(result.error.stack);
+    });
+
+    it('should parse ES6 code with ES6 settings', () => {
+      const code = 'const x = () => 5;';
+      const result = parseCode(code, { ecmaVersion: 6 }, acorn, 'test.js');
+      assert.ok(result.ast);
+      assert.strictEqual(result.error, null);
+    });
+  });
+
+  describe('processBatchedFiles', () => {
+    it('should process all files with unlimited batch size', async () => {
+      const files = ['file1.js', 'file2.js', 'file3.js'];
+      const results = [];
+      const processor = async (file) => {
+        results.push(file);
+        return `processed-${file}`;
+      };
+
+      const output = await processBatchedFiles(files, processor, 0);
+      assert.deepStrictEqual(output, ['processed-file1.js', 'processed-file2.js', 'processed-file3.js']);
+      assert.deepStrictEqual(results, files);
+    });
+
+    it('should process files in batches when batch size is specified', async () => {
+      const files = ['file1.js', 'file2.js', 'file3.js', 'file4.js', 'file5.js'];
+      const processingOrder = [];
+      const processor = async (file) => {
+        processingOrder.push(file);
+        // Simulate async processing
+        await new Promise(resolve => setTimeout(resolve, 10));
+        return `processed-${file}`;
+      };
+
+      const output = await processBatchedFiles(files, processor, 2);
+      assert.strictEqual(output.length, 5);
+      assert.deepStrictEqual(processingOrder, files);
+      // Check all files were processed
+      output.forEach((result, index) => {
+        assert.strictEqual(result, `processed-${files[index]}`);
+      });
+    });
+
+    it('should handle empty file list', async () => {
+      const processor = async (file) => `processed-${file}`;
+      const output = await processBatchedFiles([], processor, 10);
+      assert.deepStrictEqual(output, []);
+    });
+
+    it('should handle processor errors', async () => {
+      const files = ['file1.js', 'file2.js'];
+      const processor = async (file) => {
+        if (file === 'file2.js') {
+          throw new Error('Processing failed');
+        }
+        return `processed-${file}`;
+      };
+
+      try {
+        await processBatchedFiles(files, processor, 0);
+        assert.fail('Should have thrown an error');
+      } catch (error) {
+        assert.ok(error.message.includes('Processing failed'));
+      }
+    });
+
+    it('should process single file with batch size of 1', async () => {
+      const files = ['single.js'];
+      const processor = async (file) => `processed-${file}`;
+      const output = await processBatchedFiles(files, processor, 1);
+      assert.deepStrictEqual(output, ['processed-single.js']);
     });
   });
 });

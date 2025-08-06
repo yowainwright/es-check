@@ -11,7 +11,7 @@ let polyfillDetector = null;
 const pkg = require('./package.json')
 const { lilconfig } = require('lilconfig');
 const { JS_VERSIONS } = require('./constants');
-const { parseIgnoreList, createLogger, generateBashCompletion, generateZshCompletion } = require('./utils');
+const { parseIgnoreList, createLogger, generateBashCompletion, generateZshCompletion, processBatchedFiles, readFileAsync, parseCode } = require('./utils');
 
 program.configureOutput({
   writeOut: (str) => process.stdout.write(str),
@@ -98,6 +98,7 @@ program
   .option('--browserslistPath <path>', 'path to custom browserslist configuration')
   .option('--browserslistEnv <env>', 'browserslist environment to use')
   .option('--config <path>', 'path to custom .escheckrc config file')
+  .option('--batchSize <number>', 'number of files to process concurrently (0 for unlimited)', '0')
 
 async function loadConfig(customConfigPath) {
   const logger = createLogger();
@@ -178,6 +179,7 @@ program
         browserslistQuery: options.browserslistQuery !== undefined ? options.browserslistQuery : baseConfig.browserslistQuery,
         browserslistPath: options.browserslistPath !== undefined ? options.browserslistPath : baseConfig.browserslistPath,
         browserslistEnv: options.browserslistEnv !== undefined ? options.browserslistEnv : baseConfig.browserslistEnv,
+        batchSize: options.batchSize !== undefined ? options.batchSize : baseConfig.batchSize,
       };
 
       if (ecmaVersionArg !== undefined) {
@@ -367,20 +369,22 @@ async function runChecks(configs, logger) {
       }
     }
 
-    const expandedPathsToIgnore = pathsToIgnore.reduce((result, path) =>
-      path.includes('*') ? result.concat(glob.sync(path, globOpts)) : result.concat(path)
-    , [])
-
-    const filterForIgnore = (globbedFiles) => {
-      if (expandedPathsToIgnore && expandedPathsToIgnore.length > 0) {
-        return globbedFiles.filter(
-          (filePath) => !expandedPathsToIgnore.some((ignoreValue) => filePath.includes(ignoreValue))
-        );
-      }
-      return globbedFiles;
+    let expandedPathsToIgnore = [];
+    if (pathsToIgnore.length > 0) {
+      expandedPathsToIgnore = pathsToIgnore.reduce((result, path) => {
+        if (path.includes('*')) {
+          return result.concat(glob.sync(path, globOpts));
+        }
+        return result.concat(path);
+      }, []);
     }
 
-    const filteredFiles = filterForIgnore(allMatchedFiles)
+    let filteredFiles = allMatchedFiles;
+    if (expandedPathsToIgnore.length > 0) {
+      filteredFiles = allMatchedFiles.filter((filePath) => {
+        return !expandedPathsToIgnore.some((ignoreValue) => filePath.includes(ignoreValue));
+      });
+    }
 
     const ignoreList = parseIgnoreList(config);
 
@@ -388,27 +392,27 @@ async function runChecks(configs, logger) {
       logger.debug('ES-Check: ignoring features:', Array.from(ignoreList).join(', '));
     }
 
-    filteredFiles.forEach((file) => {
-      const code = fs.readFileSync(file, 'utf8')
+    const batchSize = parseInt(config.batchSize || '0', 10);
+    
+    const processFile = async (file) => {
+      const { content: code, error: readError } = await readFileAsync(file, fs);
+      if (readError) {
+        return readError;
+      }
+
       if (logger.isLevelEnabled('debug')) {
         logger.debug(`ES-Check: checking ${file}`)
       }
-      try {
-        acorn.parse(code, acornOpts)
-      } catch (err) {
+
+      const { ast, error: parseError } = parseCode(code, acornOpts, acorn, file);
+      if (parseError) {
         if (logger.isLevelEnabled('debug')) {
-          logger.debug(`ES-Check: failed to parse file: ${file} \n - error: ${err}`)
+          logger.debug(`ES-Check: failed to parse file: ${file} \n - error: ${parseError.err}`)
         }
-        const errorObj = {
-          err,
-          stack: err.stack,
-          file,
-        }
-        errArray.push(errorObj);
-        return;
+        return parseError;
       }
 
-      if (!checkFeatures) return;
+      if (!checkFeatures) return null;
       const parseSourceType = acornOpts.sourceType || 'script';
       const esVersion = parseInt(ecmaVersion, 10);
 
@@ -416,7 +420,8 @@ async function runChecks(configs, logger) {
         code,
         esVersion,
         parseSourceType,
-        ignoreList
+        ignoreList,
+        { ast, checkForPolyfills }
       );
 
       if (logger.isLevelEnabled('debug')) {
@@ -442,13 +447,18 @@ async function runChecks(configs, logger) {
       const isSupported = filteredUnsupportedFeatures.length === 0;
       if (!isSupported) {
         const error = new Error(`Unsupported features used: ${filteredUnsupportedFeatures.join(', ')} but your target is ES${ecmaVersion}.`);
-        errArray.push({
+        return {
           err: error,
           file,
           stack: error.stack
-        });
+        };
       }
-    })
+      return null;
+    };
+
+    const results = await processBatchedFiles(filteredFiles, processFile, batchSize);
+    const errors = results.filter(result => result !== null);
+    errArray.push(...errors);
 
     if (errArray.length > 0) {
       logger.error(`ES-Check: there were ${errArray.length} ES version matching errors.`)

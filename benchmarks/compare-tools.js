@@ -71,6 +71,42 @@ const tools = [
     }
   },
   {
+    name: 'es-check-batch-10',
+    run: async (testFiles) => {
+      const startTime = performance.now();
+      try {
+        await execFileAsync('node', [
+          './index.js',
+          esVersion,
+          ...testFiles,
+          '--batchSize', '10',
+          '--silent'
+        ]);
+      } catch (error) {
+        // Ignore errors - we're just measuring performance
+      }
+      return performance.now() - startTime;
+    }
+  },
+  {
+    name: 'es-check-batch-50',
+    run: async (testFiles) => {
+      const startTime = performance.now();
+      try {
+        await execFileAsync('node', [
+          './index.js',
+          esVersion,
+          ...testFiles,
+          '--batchSize', '50',
+          '--silent'
+        ]);
+      } catch (error) {
+        // Ignore errors - we're just measuring performance
+      }
+      return performance.now() - startTime;
+    }
+  },
+  {
     name: 'swc/core (rustpack)',
     run: async (testFiles) => {
 
@@ -324,7 +360,7 @@ async function runBenchmarks() {
   }
 
 
-  const maxFiles = 100;
+  const maxFiles = parseInt(process.env.MAX_FILES, 10) || 100;
   const filesToTest = testFiles.length > maxFiles
     ? testFiles.slice(0, maxFiles)
     : testFiles;

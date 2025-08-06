@@ -92,6 +92,20 @@ Path to custom .escheckrc config file
 es-check --config=./configs/production.escheckrc.json
 ```
 
+### `--batchSize <number>`
+Number of files to process concurrently (0 for unlimited, default: 0)
+
+```bash
+# Process all files in parallel (fastest, default)
+es-check es5 './dist/**/*.js' --batchSize 0
+
+# Process 10 files at a time (memory-constrained)  
+es-check es5 './dist/**/*.js' --batchSize 10
+
+# Process 50 files at a time (balanced)
+es-check es5 './dist/**/*.js' --batchSize 50
+```
+
 ### Display Options
 
 - `--noColor` - Disable colored output

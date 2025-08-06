@@ -44,6 +44,10 @@ const SIDEBAR = [
     title: "Advanced",
     items: [
       {
+        title: "Performance Optimization",
+        href: "/docs/performance",
+      },
+      {
         title: "Polyfill Detection",
         href: "/docs/polyfills",
       },
