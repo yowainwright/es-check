@@ -44,6 +44,10 @@ const SIDEBAR = [
     title: "Advanced",
     items: [
       {
+        title: "Programmatic API",
+        href: "/docs/programmatic-api",
+      },
+      {
         title: "Performance Optimization",
         href: "/docs/performance",
       },

@@ -910,6 +910,72 @@ describe('Shell Completion', () => {
   });
 });
 
+describe('🧪 Programmatic API Tests', () => {
+  const { runChecks, loadConfig } = require('./index.js');
+  const { createLogger } = require('./utils');
+
+  it('✅ Should expose runChecks function', () => {
+    assert(typeof runChecks === 'function', 'runChecks should be a function');
+  });
+
+  it('✅ Should expose loadConfig function', () => {
+    assert(typeof loadConfig === 'function', 'loadConfig should be a function');
+  });
+
+  it('✅ Should run checks programmatically with valid config', async () => {
+    const testConfig = {
+      ecmaVersion: 'es5',
+      files: ['./tests/es5.js'],
+      module: false,
+      allowHashBang: false,
+      checkFeatures: false
+    };
+
+    const logger = createLogger({ silent: true });
+
+    try {
+      await runChecks([testConfig], logger);
+      assert(true, 'runChecks should complete without errors for valid ES5 file');
+    } catch (error) {
+      throw new Error('runChecks failed unexpectedly: ' + error.message);
+    }
+  });
+
+  it('✅ Should fail programmatically when ES6 features found in ES5 check', async () => {
+    const testConfig = {
+      ecmaVersion: 'es5',
+      files: ['./tests/es6.js'],
+      module: false,
+      allowHashBang: false,
+      checkFeatures: false
+    };
+
+    const logger = createLogger({ silent: true });
+    let errorCaught = false;
+
+    const originalExit = process.exit;
+    process.exit = (code) => {
+      if (code === 1) {
+        errorCaught = true;
+      }
+    };
+
+    try {
+      await runChecks([testConfig], logger);
+    } catch (error) {
+      errorCaught = true;
+    }
+
+    process.exit = originalExit;
+    assert(errorCaught, 'runChecks should fail for ES6 file checked as ES5');
+  });
+
+  it('✅ Should load config from file system', async () => {
+    const configs = await loadConfig();
+    assert(Array.isArray(configs), 'loadConfig should return an array');
+  });
+});
+
 describe('🔬 Fixture-Based Tests for Addressed Scenarios', () => {
 
   before(() => {

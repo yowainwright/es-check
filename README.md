@@ -99,15 +99,11 @@ The images below demonstrate command line scripts and their corresponding logged
 
 ![fail](https://user-images.githubusercontent.com/1074042/31471486-d65c3a80-ae9d-11e7-94fd-68b7acdb2d89.jpg)
 
-**ES Check** is run above with node commands. It can also be run within npm scripts, ci tools, or testing suites.
+**ES Check** is run above with node commands. It can also be run within npm scripts, ci tools, or testing suites. It also provide minimal support for use in node apps. 
 
 ---
 
 ## API
-
-**ES Check** provides the necessities. It accepts its place as a JavaScript matcher/tester.
-
-### General Information
 
 ```sh
 
@@ -276,7 +272,7 @@ es-check checkBrowser ./dist/**/*.js
 
 ## Usage
 
-ES Check is a shell command CLI. It is run in [shell tool](http://linuxcommand.org/lc3_learning_the_shell.php) like Terminal, ITerm, or Hyper. It takes in two arguments: an [ECMAScript version](https://www.w3schools.com/js/js_versions.asp) (`<ECMAScript version>`) and files (`[files]`) in [globs](http://searchsecurity.techtarget.com/definition/globbing).
+ES Check is mainly a shell command CLI. It is run in [shell tool](http://linuxcommand.org/lc3_learning_the_shell.php) like Terminal, ITerm, or Hyper. It takes in two arguments: an [ECMAScript version](https://www.w3schools.com/js/js_versions.asp) (`<ECMAScript version>`) and files (`[files]`) in [globs](http://searchsecurity.techtarget.com/definition/globbing).
 
 Here are some example of **es check** scripts that could be run:
 
@@ -286,6 +282,36 @@ es-check es6 ./js/*.js
 
 # array of arguments
 es-check es6 ./js/*.js ./dist/*.js
+```
+
+### Using ES Check in Node
+
+In addition to its CLI utility, ES Check can be used programmatically in Node.js applications:
+
+```javascript
+const { runChecks, loadConfig } = require('es-check');
+
+async function checkMyFiles() {
+  const config = {
+    ecmaVersion: 'es5',
+    files: ['dist/**/*.js'],
+    module: false,
+    checkFeatures: true
+  };
+  
+  try {
+    await runChecks([config], logger);
+    console.log('All files passed ES5 check!');
+  } catch (error) {
+    console.error('Some files failed the ES check');
+    process.exit(1);
+  }
+}
+
+async function checkWithConfig() {
+  const configs = await loadConfig('./.escheckrc');
+  await runChecks(configs, logger);
+}
 ```
 
 ---
