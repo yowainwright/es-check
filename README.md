@@ -514,13 +514,13 @@ A simple example script is available in `examples/check-node-modules.js`.
 
 ## Acknowledgements
 
-ES Check is a small utility using powerful tools that [Isaac Z. Schlueter](https://github.com/isaacs), [Marijn Haverbeke](https://github.com/marijnh), and [Matthias Etienne](https://github.com/mattallty) built. [ES Checker](https://github.com/ruanyf/es-checker) by [Ruan YiFeng](https://github.com/ruanyf) checks the JavaScript version supported within a [browser](http://ruanyf.github.io/es-checker/) at run time. ES Check offers similar feedback to ES Checker but at build time and is specific to the product that is using it. ES Check was started after reading this [post](https://philipwalton.com/articles/deploying-es2015-code-in-production-today/) about [deploying es2015 code to production today] by [Philip Walton](https://github.com/philipwalton).
+ES Check is a small utility using powerful tools that [Isaac Z. Schlueter](https://github.com/isaacs), [Marijn Haverbeke](https://github.com/marijnh), and [Matthias Etienne](https://github.com/mattallty) built. [ES Checker](https://github.com/ruanyf/es-checker) by [Ruan YiFeng](https://github.com/ruanyf) checks the JavaScript version supported within a [browser](http://ruanyf.github.io/es-checker/) at run time. ES Check offers similar feedback to ES Checker but at build time and is specific to the product that is using it. ES Check was started after reading [Philip Walton](https://github.com/philipwalton)'s post about [deploying es2015 code to production today](https://philipwalton.com/articles/deploying-es2015-code-in-production-today/).
 
 ---
 
 ## Contributing
 
-ES Check has 7 dependencies: [acorn and acorn-walk](https://github.com/ternjs/acorn/), [fast-glob](https://github.com/mrmlnc/fast-glob), [supports-color](github.com/chalk/supports-color), [winston](https://github.com/winstonjs/winston), [browserslist](https://github.com/browserslist/browserslist), and [commander](https://github.com/tj/commander). To contribute, file an [issue](https://github.com/yowainwright/es-check/issues) or submit a pull request.
+ES Check has 7 dependencies: [acorn and acorn-walk](https://github.com/ternjs/acorn/), [fast-glob](https://github.com/mrmlnc/fast-glob), [supports-color](https://github.com/chalk/supports-color), [winston](https://github.com/winstonjs/winston), [browserslist](https://github.com/browserslist/browserslist), and [commander](https://github.com/tj/commander). To contribute, file an [issue](https://github.com/yowainwright/es-check/issues) or submit a pull request.
 
 To update es versions, check out these lines of code [here](https://github.com/yowainwright/es-check/blob/main/index.js#L92-L153) and [here (in acorn.js)](https://github.com/acornjs/acorn/blob/3221fa54f9dea30338228b97210c4f1fd332652d/acorn/src/acorn.d.ts#L586).
 
