@@ -156,6 +156,7 @@ Here's a comprehensive list of all available options:
 | `--browserslistPath <path>` | Path to custom browserslist configuration (default: uses standard browserslist config resolution) |
 | `--browserslistEnv <env>` | Browserslist environment to use (default: production) |
 | `--config <path>` | Path to custom .escheckrc config file |
+| `--batchSize <number>` | Number of files to process concurrently (0 for unlimited, default: 0) |
 | `-h, --help` | Display help for command |
 
 ### Shell Completion
@@ -493,6 +494,40 @@ es-check --checkBrowser --checkFeatures ./dist/**/*.js
 ```
 
 ⚠️ **NOTE:** When using `--checkBrowser`, you must also provide a `--browserslistQuery` or have a valid browserslist configuration in your project. You cannot have a files directly after your `--checkBrowser` option; it will read as 
+
+---
+
+## Performance Optimization
+
+ES Check provides the `--batchSize` option to optimize performance for different scenarios:
+
+```sh
+# Process all files in parallel (default)
+es-check es5 './dist/**/*.js' --batchSize 0
+
+# Process 10 files at a time (memory-constrained environments)
+es-check es5 './dist/**/*.js' --batchSize 10
+
+# Process 50 files at a time (balanced approach)
+es-check es5 './dist/**/*.js' --batchSize 50
+```
+
+### Performance Guidelines
+
+| Scenario | Recommended `--batchSize` | Reason |
+|----------|---------------------------|---------|
+| Small codebases (< 100 files) | `0` (unlimited) | Maximum parallelism for fastest results |
+| Medium codebases (100-500 files) | `0` or `50` | Balance between speed and memory |
+| Large codebases (> 500 files) | `50-100` | Prevent memory spikes |
+| CI/CD with limited memory | `10-20` | Conservative memory usage |
+| Local development | `0` (default) | Utilize available hardware |
+
+### Recent Performance Improvements
+
+As of August 2025, ES Check has been optimized with:
+- **Single-parse optimization**: Files are parsed once and the AST is reused
+- **Async file processing**: Non-blocking I/O for better performance
+- **Configurable batch processing**: Fine-tune based on your needs
 
 ---
 

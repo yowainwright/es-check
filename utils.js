@@ -338,6 +338,75 @@ _${cmdName.replace(/-/g, '_')}
 `;
 }
 
+/**
+ * Process files in batches for better performance
+ * @param {string[]} files - Array of file paths to process
+ * @param {Function} processor - Async function to process each file
+ * @param {number} batchSize - Number of files to process concurrently (0 for unlimited)
+ * @returns {Promise<Array>} Array of results from processing all files
+ */
+async function processBatchedFiles(files, processor, batchSize = 0) {
+  if (batchSize <= 0) {
+    return Promise.all(files.map(processor));
+  }
+  
+  const results = [];
+  
+  for (let i = 0; i < files.length; i += batchSize) {
+    const batch = files.slice(i, i + batchSize);
+    const batchResults = await Promise.all(batch.map(processor));
+    results.push(...batchResults);
+  }
+  
+  return results;
+}
+
+/**
+ * Read file asynchronously with error handling
+ * @param {string} file - File path to read
+ * @param {Object} fs - File system module
+ * @returns {Promise<{content: string, error: null} | {content: null, error: Object}>}
+ */
+async function readFileAsync(file, fs) {
+  try {
+    const content = await fs.promises.readFile(file, 'utf8');
+    return { content, error: null };
+  } catch (err) {
+    return { 
+      content: null, 
+      error: {
+        err,
+        file,
+        stack: err.stack
+      }
+    };
+  }
+}
+
+/**
+ * Parse code with acorn and handle errors
+ * @param {string} code - Code to parse
+ * @param {Object} acornOpts - Acorn parsing options
+ * @param {Object} acorn - Acorn module
+ * @param {string} file - File path for error reporting
+ * @returns {{ast: Object, error: null} | {ast: null, error: Object}}
+ */
+function parseCode(code, acornOpts, acorn, file) {
+  try {
+    const ast = acorn.parse(code, acornOpts);
+    return { ast, error: null };
+  } catch (err) {
+    return {
+      ast: null,
+      error: {
+        err,
+        stack: err.stack,
+        file
+      }
+    };
+  }
+}
+
 module.exports = {
   parseIgnoreList,
   checkVarKindMatch,
@@ -347,5 +416,8 @@ module.exports = {
   checkMap,
   createLogger,
   generateBashCompletion,
-  generateZshCompletion
+  generateZshCompletion,
+  processBatchedFiles,
+  readFileAsync,
+  parseCode
 };

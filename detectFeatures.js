@@ -29,12 +29,12 @@ const detectPolyfills = (
 }
 
 const detectFeatures = (code, ecmaVersion, sourceType, ignoreList = new Set(), options = {}) => {
-  const { checkForPolyfills } = options;
+  const { checkForPolyfills, ast: providedAst } = options;
 
   const polyfills = new Set();
   if (checkForPolyfills) detectPolyfills(code, polyfills);
 
-  const ast = acorn.parse(code, {
+  const ast = providedAst || acorn.parse(code, {
     ecmaVersion: 'latest',
     sourceType,
   });
