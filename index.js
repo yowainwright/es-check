@@ -485,4 +485,11 @@ async function runChecks(configs, logger) {
   }
 }
 
-program.parse()
+if (require.main === module) {
+  program.parse()
+}
+
+module.exports = {
+  runChecks,
+  loadConfig
+}
