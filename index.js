@@ -203,8 +203,27 @@ program
     return runChecks(configs, logger);
   })
 
-async function runChecks(configs, logger) {
+async function runChecks(configs, loggerOrOptions) {
+  let logger;
+  let isNodeAPI = false;
+  
+  if (!loggerOrOptions) {
+    isNodeAPI = true;
+    logger = null;
+  } else if (typeof loggerOrOptions === 'object' && !loggerOrOptions.info && !loggerOrOptions.error) {
+    isNodeAPI = true;
+    logger = loggerOrOptions.logger || null;
+  } else {
+    logger = loggerOrOptions;
+  }
+  
+  const isDebug = logger && logger.isLevelEnabled && logger.isLevelEnabled('debug');
+  const isWarn = logger && logger.isLevelEnabled && logger.isLevelEnabled('warn');
+  const isInfo = logger && logger.isLevelEnabled && logger.isLevelEnabled('info');
+  const isError = logger && logger.isLevelEnabled && logger.isLevelEnabled('error');
+  
   let hasErrors = false;
+  const allErrors = [];
 
   for (const config of configs) {
     const expectedEcmaVersion = config.ecmaVersion;
@@ -227,41 +246,64 @@ async function runChecks(configs, logger) {
     const checkBrowser = config.checkBrowser;
     const ignoreFilePath = config.ignoreFile || config['ignore-file'];
 
-    if (ignoreFilePath && !fs.existsSync(ignoreFilePath) && logger.isLevelEnabled('warn')) {
+    if (ignoreFilePath && !fs.existsSync(ignoreFilePath) && isWarn) {
       logger.warn(`Warning: Ignore file '${ignoreFilePath}' does not exist or is not accessible`);
     }
 
     if (!expectedEcmaVersion && !config.checkBrowser) {
-      logger.error('No ecmaScript version or checkBrowser option specified in configuration');
-      process.exit(1);
+      if (logger) logger.error('No ecmaScript version or checkBrowser option specified in configuration');
+      if (!isNodeAPI) {
+        process.exit(1);
+      } else {
+        allErrors.push({ err: new Error('No ecmaScript version or checkBrowser option specified in configuration'), file: 'config' });
+        hasErrors = true;
+        continue;
+      }
     }
 
-    if (looseGlobMatching && logger.isLevelEnabled('debug')) {
+    if (looseGlobMatching && isDebug) {
       logger.debug('ES-Check: loose-glob-matching is set');
     }
 
     const globOpts = { nodir: true }
     let allMatchedFiles = [];
     if (patternsToGlob.length === 0 && !looseGlobMatching) {
-        logger.error('ES-Check: No file patterns specified to check.');
-        process.exit(1);
+        if (logger) logger.error('ES-Check: No file patterns specified to check.');
+        if (!isNodeAPI) {
+          process.exit(1);
+        } else {
+          allErrors.push({ err: new Error('No file patterns specified to check'), file: 'config' });
+          hasErrors = true;
+          continue;
+        }
     }
 
     patternsToGlob.forEach((pattern) => {
       const globbedFiles = glob.sync(pattern, globOpts);
       if (globbedFiles.length === 0 && !looseGlobMatching) {
-        logger.error(`ES-Check: Did not find any files to check for pattern: ${pattern}.`);
-        process.exit(1);
+        if (logger) logger.error(`ES-Check: Did not find any files to check for pattern: ${pattern}.`);
+        if (!isNodeAPI) {
+          process.exit(1);
+        } else {
+          allErrors.push({ err: new Error(`Did not find any files to check for pattern: ${pattern}`), file: 'glob' });
+          hasErrors = true;
+        }
       }
       allMatchedFiles = allMatchedFiles.concat(globbedFiles);
     });
 
     if (allMatchedFiles.length === 0) {
-      if (patternsToGlob.length > 0) {
-        logger.error(`ES-Check: Did not find any files to check across all patterns: ${patternsToGlob.join(', ')}.`);
-        process.exit(1);
+      if (patternsToGlob.length > 0 && !looseGlobMatching) {
+        if (logger) logger.error(`ES-Check: Did not find any files to check across all patterns: ${patternsToGlob.join(', ')}.`);
+        if (!isNodeAPI) {
+          process.exit(1);
+        } else {
+          allErrors.push({ err: new Error(`Did not find any files to check across all patterns: ${patternsToGlob.join(', ')}`), file: 'glob' });
+          hasErrors = true;
+          continue;
+        }
       } else if (looseGlobMatching) {
-        logger.warn('ES-Check: No file patterns specified or no files found (running in loose mode).');
+        if (logger) logger.warn('ES-Check: No file patterns specified or no files found (running in loose mode).');
       }
     }
 
@@ -280,12 +322,18 @@ async function runChecks(configs, logger) {
 
         ecmaVersion = esVersionFromBrowserslist.toString();
 
-        if (logger.isLevelEnabled('debug')) {
+        if (isDebug) {
           logger.debug(`ES-Check: Using ES${ecmaVersion} based on browserslist configuration`);
         }
       } catch (err) {
-        logger.error(`Error determining ES version from browserslist: ${err.message}`);
-        process.exit(1);
+        if (logger) logger.error(`Error determining ES version from browserslist: ${err.message}`);
+        if (!isNodeAPI) {
+          process.exit(1);
+        } else {
+          allErrors.push({ err: new Error(`Error determining ES version from browserslist: ${err.message}`), file: 'browserslist' });
+          hasErrors = true;
+          continue;
+        }
       }
     } else {
       switch (expectedEcmaVersion) {
@@ -293,8 +341,14 @@ async function runChecks(configs, logger) {
         ecmaVersion = '3'
         break
       case 'es4':
-        logger.error('ES4 is not supported.')
-        process.exit(1)
+        if (logger) logger.error('ES4 is not supported.')
+        if (!isNodeAPI) {
+          process.exit(1)
+        } else {
+          allErrors.push({ err: new Error('ES4 is not supported'), file: 'config' });
+          hasErrors = true;
+          continue;
+        }
       case 'es5':
         ecmaVersion = '5'
         break
@@ -343,28 +397,34 @@ async function runChecks(configs, logger) {
         ecmaVersion = '16'
         break
       default:
-        logger.error('Invalid ecmaScript version, please pass a valid version, use --help for help')
-        process.exit(1)
+        if (logger) logger.error('Invalid ecmaScript version, please pass a valid version, use --help for help')
+        if (!isNodeAPI) {
+          process.exit(1)
+        } else {
+          allErrors.push({ err: new Error('Invalid ecmaScript version'), file: 'config' });
+          hasErrors = true;
+          continue;
+        }
       }
     }
 
     const errArray = []
     const acornOpts = { ecmaVersion: parseInt(ecmaVersion, 10), silent: true }
 
-    if (logger.isLevelEnabled('debug')) {
+    if (isDebug) {
       logger.debug(`ES-Check: Going to check files using version ${ecmaVersion}`)
     }
 
     if (esmodule) {
       acornOpts.sourceType = 'module'
-      if (logger.isLevelEnabled('debug')) {
+      if (isDebug) {
         logger.debug('ES-Check: esmodule is set')
       }
     }
 
     if (allowHashBang) {
       acornOpts.allowHashBang = true
-      if (logger.isLevelEnabled('debug')) {
+      if (isDebug) {
         logger.debug('ES-Check: allowHashBang is set')
       }
     }
@@ -388,7 +448,7 @@ async function runChecks(configs, logger) {
 
     const ignoreList = parseIgnoreList(config);
 
-    if (ignoreList.size > 0 && logger.isLevelEnabled('debug')) {
+    if (ignoreList.size > 0 && isDebug) {
       logger.debug('ES-Check: ignoring features:', Array.from(ignoreList).join(', '));
     }
 
@@ -400,13 +460,13 @@ async function runChecks(configs, logger) {
         return readError;
       }
 
-      if (logger.isLevelEnabled('debug')) {
+      if (isDebug) {
         logger.debug(`ES-Check: checking ${file}`)
       }
 
       const { ast, error: parseError } = parseCode(code, acornOpts, acorn, file);
       if (parseError) {
-        if (logger.isLevelEnabled('debug')) {
+        if (isDebug) {
           logger.debug(`ES-Check: failed to parse file: ${file} \n - error: ${parseError.err}`)
         }
         return parseError;
@@ -424,7 +484,7 @@ async function runChecks(configs, logger) {
         { ast, checkForPolyfills }
       );
 
-      if (logger.isLevelEnabled('debug')) {
+      if (isDebug) {
         const stringifiedFeatures = JSON.stringify(foundFeatures, null, 2);
         logger.debug(`Features found in ${file}: ${stringifiedFeatures}`);
       }
@@ -435,11 +495,11 @@ async function runChecks(configs, logger) {
           polyfillDetector = require('./polyfillDetector');
         }
 
-        const polyfills = polyfillDetector.detectPolyfills(code, logger);
+        const polyfills = polyfillDetector.detectPolyfills(code, logger || { debug: () => {}, isLevelEnabled: () => false });
 
         filteredUnsupportedFeatures = polyfillDetector.filterPolyfilled(unsupportedFeatures, polyfills);
 
-        if (logger.isLevelEnabled('debug') && filteredUnsupportedFeatures.length !== unsupportedFeatures.length) {
+        if (isDebug && filteredUnsupportedFeatures.length !== unsupportedFeatures.length) {
           logger.debug(`ES-Check: Polyfills reduced unsupported features from ${unsupportedFeatures.length} to ${filteredUnsupportedFeatures.length}`);
         }
       }
@@ -461,9 +521,11 @@ async function runChecks(configs, logger) {
     errArray.push(...errors);
 
     if (errArray.length > 0) {
-      logger.error(`ES-Check: there were ${errArray.length} ES version matching errors.`)
-      errArray.forEach((o) => {
-        logger.info(`
+      allErrors.push(...errArray);
+      if (logger) {
+        logger.error(`ES-Check: there were ${errArray.length} ES version matching errors.`)
+        errArray.forEach((o) => {
+          logger.info(`
           ES-Check Error:
           ----
           · erroring file: ${o.file}
@@ -472,16 +534,29 @@ async function runChecks(configs, logger) {
           ----\n
           ${o.stack}
         `)
-      })
+        })
+      }
       hasErrors = true;
-      process.exit(1)
-      return;
+      
+      if (!isNodeAPI) {
+        process.exit(1)
+        return;
+      }
+    } else {
+      if (logger) logger.info(`ES-Check: there were no ES version matching errors!  🎉`)
     }
-    logger.info(`ES-Check: there were no ES version matching errors!  🎉`)
   }
 
   if (hasErrors) {
-    process.exit(1);
+    if (!isNodeAPI) {
+      process.exit(1);
+    } else {
+      return { success: false, errors: allErrors };
+    }
+  }
+  
+  if (isNodeAPI) {
+    return { success: true, errors: [] };
   }
 }
 

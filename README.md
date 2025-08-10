@@ -284,7 +284,7 @@ es-check es6 ./js/*.js
 es-check es6 ./js/*.js ./dist/*.js
 ```
 
-### Using ES Check in Node
+### Using ES Check in Node (Programmatic API)
 
 In addition to its CLI utility, ES Check can be used programmatically in Node.js applications:
 
@@ -292,25 +292,57 @@ In addition to its CLI utility, ES Check can be used programmatically in Node.js
 const { runChecks, loadConfig } = require('es-check');
 
 async function checkMyFiles() {
-  const config = {
+  const configs = [{
     ecmaVersion: 'es5',
     files: ['dist/**/*.js'],
     module: false,
     checkFeatures: true
-  };
+  }];
   
-  try {
-    await runChecks([config], logger);
+  // Option 1: Run without a logger (silent mode)
+  const result = await runChecks(configs);
+  
+  if (result.success) {
     console.log('All files passed ES5 check!');
-  } catch (error) {
-    console.error('Some files failed the ES check');
+  } else {
+    console.error(`ES Check failed with ${result.errors.length} errors`);
+    result.errors.forEach(error => {
+      console.error(`- ${error.file}: ${error.err.message}`);
+    });
     process.exit(1);
   }
 }
 
-async function checkWithConfig() {
-  const configs = await loadConfig('./.escheckrc');
-  await runChecks(configs, logger);
+// Option 2: Run with a custom logger
+async function checkWithLogger() {
+  const configs = [{
+    ecmaVersion: 'es6',
+    files: ['src/**/*.js']
+  }];
+  
+  const customLogger = {
+    info: (msg) => console.log('[INFO]', msg),
+    error: (msg) => console.error('[ERROR]', msg),
+    warn: (msg) => console.warn('[WARN]', msg),
+    debug: (msg) => console.debug('[DEBUG]', msg),
+    isLevelEnabled: (level) => true
+  };
+  
+  const result = await runChecks(configs, { logger: customLogger });
+  
+  if (!result.success) {
+    process.exit(1);
+  }
+}
+
+// Option 3: Load config from file
+async function checkWithConfigFile() {
+  const configs = await loadConfig('.escheckrc');
+  const result = await runChecks(configs);
+  
+  if (!result.success) {
+    process.exit(1);
+  }
 }
 ```
 
