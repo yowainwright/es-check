@@ -11,7 +11,7 @@ let polyfillDetector = null;
 const pkg = require('./package.json')
 const { lilconfig } = require('lilconfig');
 const { JS_VERSIONS } = require('./constants');
-const { parseIgnoreList, createLogger, generateBashCompletion, generateZshCompletion, processBatchedFiles, readFileAsync, parseCode } = require('./utils');
+const { parseIgnoreList, createLogger, generateBashCompletion, generateZshCompletion, processBatchedFiles, readFileAsync, parseCode, determineInvocationType, determineLogLevel, handleESVersionError } = require('./utils');
 
 program.configureOutput({
   writeOut: (str) => process.stdout.write(str),
@@ -204,23 +204,15 @@ program
   })
 
 async function runChecks(configs, loggerOrOptions) {
-  let logger;
-  let isNodeAPI = false;
+  // Determine invocation type (CLI vs Node API)
+  const { isNodeAPI, logger } = determineInvocationType(loggerOrOptions);
   
-  if (!loggerOrOptions) {
-    isNodeAPI = true;
-    logger = null;
-  } else if (typeof loggerOrOptions === 'object' && !loggerOrOptions.info && !loggerOrOptions.error) {
-    isNodeAPI = true;
-    logger = loggerOrOptions.logger || null;
-  } else {
-    logger = loggerOrOptions;
-  }
-  
-  const isDebug = logger && logger.isLevelEnabled && logger.isLevelEnabled('debug');
-  const isWarn = logger && logger.isLevelEnabled && logger.isLevelEnabled('warn');
-  const isInfo = logger && logger.isLevelEnabled && logger.isLevelEnabled('info');
-  const isError = logger && logger.isLevelEnabled && logger.isLevelEnabled('error');
+  // Determine log levels
+  const logLevels = determineLogLevel(logger);
+  const isDebug = logLevels?.isDebug || false;
+  const isWarn = logLevels?.isWarn || false;
+  const isInfo = logLevels?.isInfo || false;
+  const isError = logLevels?.isError || false;
   
   let hasErrors = false;
   const allErrors = [];
@@ -246,11 +238,17 @@ async function runChecks(configs, loggerOrOptions) {
     const checkBrowser = config.checkBrowser;
     const ignoreFilePath = config.ignoreFile || config['ignore-file'];
 
-    if (ignoreFilePath && !fs.existsSync(ignoreFilePath) && isWarn) {
+    const ignoreFileExists = ignoreFilePath && fs.existsSync(ignoreFilePath);
+    const shouldWarnAboutIgnoreFile = ignoreFilePath && !ignoreFileExists && isWarn;
+    if (shouldWarnAboutIgnoreFile) {
       logger.warn(`Warning: Ignore file '${ignoreFilePath}' does not exist or is not accessible`);
     }
 
-    if (!expectedEcmaVersion && !config.checkBrowser) {
+    const hasEcmaVersion = Boolean(expectedEcmaVersion);
+    const hasBrowserCheck = Boolean(config.checkBrowser);
+    const missingVersionSpecification = !hasEcmaVersion && !hasBrowserCheck;
+    
+    if (missingVersionSpecification) {
       if (logger) logger.error('No ecmaScript version or checkBrowser option specified in configuration');
       if (!isNodeAPI) {
         process.exit(1);
@@ -267,7 +265,11 @@ async function runChecks(configs, loggerOrOptions) {
 
     const globOpts = { nodir: true }
     let allMatchedFiles = [];
-    if (patternsToGlob.length === 0 && !looseGlobMatching) {
+    
+    const hasFilePatterns = patternsToGlob.length > 0;
+    const shouldEnforceFilePatterns = !hasFilePatterns && !looseGlobMatching;
+    
+    if (shouldEnforceFilePatterns) {
         if (logger) logger.error('ES-Check: No file patterns specified to check.');
         if (!isNodeAPI) {
           process.exit(1);
@@ -280,7 +282,10 @@ async function runChecks(configs, loggerOrOptions) {
 
     patternsToGlob.forEach((pattern) => {
       const globbedFiles = glob.sync(pattern, globOpts);
-      if (globbedFiles.length === 0 && !looseGlobMatching) {
+      const noFilesFound = globbedFiles.length === 0;
+      const shouldErrorOnNoFiles = noFilesFound && !looseGlobMatching;
+      
+      if (shouldErrorOnNoFiles) {
         if (logger) logger.error(`ES-Check: Did not find any files to check for pattern: ${pattern}.`);
         if (!isNodeAPI) {
           process.exit(1);
@@ -292,8 +297,12 @@ async function runChecks(configs, loggerOrOptions) {
       allMatchedFiles = allMatchedFiles.concat(globbedFiles);
     });
 
-    if (allMatchedFiles.length === 0) {
-      if (patternsToGlob.length > 0 && !looseGlobMatching) {
+    const noMatchedFiles = allMatchedFiles.length === 0;
+    const shouldErrorOnNoMatchedFiles = noMatchedFiles && hasFilePatterns && !looseGlobMatching;
+    const shouldWarnOnNoMatchedFiles = noMatchedFiles && looseGlobMatching;
+    
+    if (noMatchedFiles) {
+      if (shouldErrorOnNoMatchedFiles) {
         if (logger) logger.error(`ES-Check: Did not find any files to check across all patterns: ${patternsToGlob.join(', ')}.`);
         if (!isNodeAPI) {
           process.exit(1);
@@ -302,7 +311,7 @@ async function runChecks(configs, loggerOrOptions) {
           hasErrors = true;
           continue;
         }
-      } else if (looseGlobMatching) {
+      } else if (shouldWarnOnNoMatchedFiles) {
         if (logger) logger.warn('ES-Check: No file patterns specified or no files found (running in loose mode).');
       }
     }
@@ -310,6 +319,7 @@ async function runChecks(configs, loggerOrOptions) {
     let ecmaVersion
 
     const isBrowserslistCheck = Boolean(expectedEcmaVersion === 'checkBrowser' || checkBrowser !== undefined);
+    
     if (isBrowserslistCheck) {
       const browserslistQuery = config.browserslistQuery;
       try {
@@ -566,5 +576,7 @@ if (require.main === module) {
 
 module.exports = {
   runChecks,
-  loadConfig
+  loadConfig,
+  // Export commonly used utilities
+  createLogger
 }

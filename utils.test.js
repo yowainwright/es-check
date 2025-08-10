@@ -15,7 +15,10 @@ const {
   generateZshCompletion,
   readFileAsync,
   parseCode,
-  processBatchedFiles
+  processBatchedFiles,
+  determineInvocationType,
+  determineLogLevel,
+  handleESVersionError
 } = require('./utils');
 
 describe('Utils Module Tests', () => {
@@ -409,6 +412,237 @@ describe('Utils Module Tests', () => {
       const processor = async (file) => `processed-${file}`;
       const output = await processBatchedFiles(files, processor, 1);
       assert.deepStrictEqual(output, ['processed-single.js']);
+    });
+  });
+
+  describe('determineInvocationType', () => {
+    it('should detect Node API usage when no argument is passed', () => {
+      const result = determineInvocationType(null);
+      assert.strictEqual(result.isNodeAPI, true);
+      assert.strictEqual(result.logger, null);
+    });
+
+    it('should detect Node API usage when undefined is passed', () => {
+      const result = determineInvocationType(undefined);
+      assert.strictEqual(result.isNodeAPI, true);
+      assert.strictEqual(result.logger, null);
+    });
+
+    it('should detect Node API usage when options object with logger is passed', () => {
+      const mockLogger = { info: () => {}, error: () => {} };
+      const result = determineInvocationType({ logger: mockLogger });
+      assert.strictEqual(result.isNodeAPI, true);
+      assert.strictEqual(result.logger, mockLogger);
+    });
+
+    it('should detect Node API usage when empty options object is passed', () => {
+      const result = determineInvocationType({});
+      assert.strictEqual(result.isNodeAPI, true);
+      assert.strictEqual(result.logger, null);
+    });
+
+    it('should detect CLI usage when logger object is passed directly', () => {
+      const mockLogger = { 
+        info: () => {}, 
+        error: () => {}, 
+        warn: () => {},
+        debug: () => {}
+      };
+      const result = determineInvocationType(mockLogger);
+      assert.strictEqual(result.isNodeAPI, false);
+      assert.strictEqual(result.logger, mockLogger);
+    });
+
+    it('should detect Node API usage when options object without logger methods is passed', () => {
+      const result = determineInvocationType({ someOption: true });
+      assert.strictEqual(result.isNodeAPI, true);
+      assert.strictEqual(result.logger, null);
+    });
+  });
+
+  describe('determineLogLevel', () => {
+    it('should return null when logger is null', () => {
+      const result = determineLogLevel(null);
+      assert.strictEqual(result, null);
+    });
+
+    it('should return null when logger is undefined', () => {
+      const result = determineLogLevel(undefined);
+      assert.strictEqual(result, null);
+    });
+
+    it('should return null when logger has no isLevelEnabled method', () => {
+      const mockLogger = { info: () => {}, error: () => {} };
+      const result = determineLogLevel(mockLogger);
+      assert.strictEqual(result, null);
+    });
+
+    it('should return log level flags when logger has isLevelEnabled', () => {
+      const mockLogger = {
+        isLevelEnabled: (level) => {
+          const enabledLevels = { debug: true, warn: false, info: true, error: true };
+          return enabledLevels[level];
+        }
+      };
+      const result = determineLogLevel(mockLogger);
+      assert.deepStrictEqual(result, {
+        isDebug: true,
+        isWarn: false,
+        isInfo: true,
+        isError: true
+      });
+    });
+
+    it('should handle all levels disabled', () => {
+      const mockLogger = {
+        isLevelEnabled: () => false
+      };
+      const result = determineLogLevel(mockLogger);
+      assert.deepStrictEqual(result, {
+        isDebug: false,
+        isWarn: false,
+        isInfo: false,
+        isError: false
+      });
+    });
+
+    it('should handle all levels enabled', () => {
+      const mockLogger = {
+        isLevelEnabled: () => true
+      };
+      const result = determineLogLevel(mockLogger);
+      assert.deepStrictEqual(result, {
+        isDebug: true,
+        isWarn: true,
+        isInfo: true,
+        isError: true
+      });
+    });
+  });
+
+  describe('handleESVersionError', () => {
+    let originalProcessExit;
+    let exitCalled;
+    let exitCode;
+
+    beforeEach(() => {
+      originalProcessExit = process.exit;
+      exitCalled = false;
+      exitCode = null;
+      process.exit = (code) => {
+        exitCalled = true;
+        exitCode = code;
+      };
+    });
+
+    afterEach(() => {
+      process.exit = originalProcessExit;
+    });
+
+    it('should log error when logger is provided', () => {
+      let loggedMessage = null;
+      const mockLogger = {
+        error: (msg) => { loggedMessage = msg; }
+      };
+      const allErrors = [];
+      
+      handleESVersionError({
+        errorType: 'browserslist',
+        errorMessage: 'Test error message',
+        logger: mockLogger,
+        isNodeAPI: true,
+        allErrors
+      });
+
+      assert.strictEqual(loggedMessage, 'Test error message');
+    });
+
+    it('should call process.exit when not in Node API mode', () => {
+      const allErrors = [];
+      
+      const result = handleESVersionError({
+        errorType: 'es3',
+        errorMessage: 'ES3 error',
+        logger: null,
+        isNodeAPI: false,
+        allErrors
+      });
+
+      assert.strictEqual(exitCalled, true);
+      assert.strictEqual(exitCode, 1);
+      assert.strictEqual(result.shouldContinue, false);
+      assert.strictEqual(result.hasErrors, true);
+      assert.strictEqual(allErrors.length, 0);
+    });
+
+    it('should add error to allErrors array in Node API mode', () => {
+      const allErrors = [];
+      
+      const result = handleESVersionError({
+        errorType: 'default',
+        errorMessage: 'Invalid ES version',
+        logger: null,
+        isNodeAPI: true,
+        allErrors
+      });
+
+      assert.strictEqual(exitCalled, false);
+      assert.strictEqual(result.shouldContinue, true);
+      assert.strictEqual(result.hasErrors, true);
+      assert.strictEqual(allErrors.length, 1);
+      assert.strictEqual(allErrors[0].err.message, 'Invalid ES version');
+      assert.strictEqual(allErrors[0].file, 'config');
+    });
+
+    it('should use custom file parameter', () => {
+      const allErrors = [];
+      
+      handleESVersionError({
+        errorType: 'browserslist',
+        errorMessage: 'Browserslist error',
+        logger: null,
+        isNodeAPI: true,
+        allErrors,
+        file: 'browserslist'
+      });
+
+      assert.strictEqual(allErrors[0].file, 'browserslist');
+    });
+
+    it('should handle all error types correctly', () => {
+      const allErrors = [];
+      
+      // Test browserslist error
+      handleESVersionError({
+        errorType: 'browserslist',
+        errorMessage: 'Browserslist config error',
+        logger: null,
+        isNodeAPI: true,
+        allErrors
+      });
+
+      // Test es3 error
+      handleESVersionError({
+        errorType: 'es3',
+        errorMessage: 'ES3 not supported',
+        logger: null,
+        isNodeAPI: true,
+        allErrors
+      });
+
+      // Test default error
+      handleESVersionError({
+        errorType: 'default',
+        errorMessage: 'Unknown ES version',
+        logger: null,
+        isNodeAPI: true,
+        allErrors
+      });
+
+      assert.strictEqual(allErrors.length, 3);
+      assert.strictEqual(allErrors[0].err.message, 'Browserslist config error');
+      assert.strictEqual(allErrors[1].err.message, 'ES3 not supported');
+      assert.strictEqual(allErrors[2].err.message, 'Unknown ES version');
     });
   });
 });

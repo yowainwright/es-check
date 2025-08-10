@@ -39,7 +39,11 @@ async function checkES5Compatibility() {
     result.errors.forEach(error => {
       console.error(`  - ${error.file}: ${error.err.message}`);
     });
-    process.exit(1);
+    // Example output:
+    // ES version mismatch detected
+    // dist/legacy/app.js: Unsupported features used: const, let but your target is ES5.
+    // dist/modern/polyfills.js: Unsupported features used: top-level-await but your target is ES2020.
+    return { success: false, errors: result.errors };
   }
 }
 ```
@@ -72,8 +76,10 @@ async function checkWithLogger() {
   
   if (!result.success) {
     console.error('Check failed!');
-    process.exit(1);
+    // Handle errors programmatically
+    return { success: false, errors: result.errors };
   }
+  return { success: true };
 }
 ```
 
@@ -103,8 +109,10 @@ async function checkWithBuiltInLogger() {
   const result = await runChecks(configs, { logger });
   
   if (!result.success) {
-    process.exit(1);
+    // Handle errors programmatically
+    return { success: false, errors: result.errors };
   }
+  return { success: true };
 }
 ```
 
@@ -144,8 +152,10 @@ async function checkWithConfigFile() {
   
   if (!result.success) {
     console.error('ES Check failed!');
-    process.exit(1);
+    // Handle errors programmatically
+    return { success: false, errors: result.errors };
   }
+  return { success: true };
 }
 ```
 
@@ -229,7 +239,11 @@ async function checkMultipleTargets() {
     result.errors.forEach(error => {
       console.error(`${error.file}: ${error.err.message}`);
     });
-    process.exit(1);
+    // Example output:
+    // ES version mismatch detected
+    // dist/legacy/app.js: Unsupported features used: const, let but your target is ES5.
+    // dist/modern/polyfills.js: Unsupported features used: top-level-await but your target is ES2020.
+    return { success: false, errors: result.errors };
   }
 }
 ```
@@ -251,8 +265,13 @@ async function checkBrowserCompatibility() {
   
   if (!result.success) {
     console.error('Browser compatibility check failed');
-    process.exit(1);
+    // Handle errors programmatically
+    return { success: false, errors: result.errors };
   }
+  // Output depends on logger configuration
+  // Silent mode: no output
+  // With logger: "ES-Check: Using ES11 based on browserslist configuration"
+  return { success: true };
 }
 ```
 

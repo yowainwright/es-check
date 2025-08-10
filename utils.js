@@ -407,6 +407,80 @@ function parseCode(code, acornOpts, acorn, file) {
   }
 }
 
+/**
+ * Determine how runChecks is being invoked (CLI vs Node API)
+ * @param {Object|null} loggerOrOptions - Logger or options object passed to runChecks
+ * @returns {{isNodeAPI: boolean, logger: Object|null}}
+ */
+function determineInvocationType(loggerOrOptions) {
+  let isNodeAPI = false;
+  let logger = null;
+  
+  if (!loggerOrOptions) {
+    // No second argument - this is Node API usage
+    isNodeAPI = true;
+    logger = null;
+  } else if (typeof loggerOrOptions === 'object' && !loggerOrOptions.info && !loggerOrOptions.error) {
+    // Options object passed (has logger property or is empty) - Node API usage
+    isNodeAPI = true;
+    logger = loggerOrOptions.logger || null;
+  } else {
+    // Logger object passed directly - CLI usage
+    isNodeAPI = false;
+    logger = loggerOrOptions;
+  }
+  
+  return { isNodeAPI, logger };
+}
+
+/**
+ * Determine log levels based on logger capabilities
+ * @param {Object|null} logger - Logger object
+ * @returns {Object|null} Object with log level flags or null if no logger
+ */
+function determineLogLevel(logger) {
+  if (!logger || !logger.isLevelEnabled) {
+    return null;
+  }
+  
+  return {
+    isDebug: logger.isLevelEnabled('debug'),
+    isWarn: logger.isLevelEnabled('warn'),
+    isInfo: logger.isLevelEnabled('info'),
+    isError: logger.isLevelEnabled('error')
+  };
+}
+
+/**
+ * Handle ES version errors uniformly for different error types
+ * @param {Object} options - Options object
+ * @param {string} options.errorType - Type of error ('browserslist', 'es3', 'default')
+ * @param {string} options.errorMessage - Error message to display
+ * @param {Object|null} options.logger - Logger object
+ * @param {boolean} options.isNodeAPI - Whether running as Node API
+ * @param {Array} options.allErrors - Array to collect errors
+ * @param {string} [options.file='config'] - File reference for error
+ * @returns {{shouldContinue: boolean, hasErrors: boolean}}
+ */
+function handleESVersionError(options) {
+  const { errorType, errorMessage, logger, isNodeAPI, allErrors, file = 'config' } = options;
+  
+  if (logger) {
+    logger.error(errorMessage);
+  }
+  
+  if (!isNodeAPI) {
+    process.exit(1);
+    return { shouldContinue: false, hasErrors: true };
+  } else {
+    allErrors.push({ 
+      err: new Error(errorMessage), 
+      file 
+    });
+    return { shouldContinue: true, hasErrors: true };
+  }
+}
+
 module.exports = {
   parseIgnoreList,
   checkVarKindMatch,
@@ -419,5 +493,8 @@ module.exports = {
   generateZshCompletion,
   processBatchedFiles,
   readFileAsync,
-  parseCode
+  parseCode,
+  determineInvocationType,
+  determineLogLevel,
+  handleESVersionError
 };

@@ -203,7 +203,7 @@ es-check es6 './dist/**/*.js' --module
 **Checking files with hash bang:**
 
 ```sh
-es-check es6 './bin/*.js' --allowHashBang
+es-check es6 './tests/*.js' --allowHashBang
 ```
 
 **Skipping specific files or directories:**
@@ -304,12 +304,17 @@ async function checkMyFiles() {
   
   if (result.success) {
     console.log('All files passed ES5 check!');
+    // Output: All files passed ES5 check!
   } else {
     console.error(`ES Check failed with ${result.errors.length} errors`);
     result.errors.forEach(error => {
       console.error(`- ${error.file}: ${error.err.message}`);
     });
-    process.exit(1);
+    // Example output:
+    // ES Check failed with 2 errors
+    // - dist/app.js: Unsupported features used: const, arrow-functions but your target is ES5.
+    // - dist/utils.js: Unsupported features used: template-literals but your target is ES5.
+    return { success: false, errors: result.errors };
   }
 }
 
@@ -329,10 +334,16 @@ async function checkWithLogger() {
   };
   
   const result = await runChecks(configs, { logger: customLogger });
+  // With logger, output appears in real-time:
+  // [INFO] ES-Check: checking src/app.js
+  // [INFO] ES-Check: checking src/utils.js
+  // [INFO] ES-Check: there were no ES version matching errors!  🎉
   
   if (!result.success) {
-    process.exit(1);
+    // Handle errors programmatically
+    return { success: false, errors: result.errors };
   }
+  return { success: true };
 }
 
 // Option 3: Load config from file
@@ -341,8 +352,14 @@ async function checkWithConfigFile() {
   const result = await runChecks(configs);
   
   if (!result.success) {
-    process.exit(1);
+    // Handle errors without terminating the process
+    console.error('ES Check validation failed');
+    return { success: false, errors: result.errors };
   }
+  
+  // Output when successful:
+  // (No output in silent mode, or with logger: "ES-Check: there were no ES version matching errors!  🎉")
+  return { success: true };
 }
 ```
 
