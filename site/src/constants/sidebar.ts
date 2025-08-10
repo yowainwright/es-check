@@ -35,7 +35,7 @@ const SIDEBAR = [
       {
         title: "Browserslist",
         href: "/docs/browserslist",
-        label: true,
+        label: "New",
       },
     ],
   },
@@ -46,10 +46,12 @@ const SIDEBAR = [
       {
         title: "Programmatic API",
         href: "/docs/programmatic-api",
+        label: "New",
       },
       {
-        title: "Performance Optimization",
+        title: "Performance",
         href: "/docs/performance",
+        label: "Improved",
       },
       {
         title: "Polyfill Detection",

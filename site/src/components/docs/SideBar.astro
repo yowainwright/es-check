@@ -37,7 +37,13 @@ const pathname = normalizePathname(new URL(Astro.request.url).pathname);
                   >
                     {navItem.title}
                     {navItem.label && (
-                      <div class="badge badge-primary badge-sm">New</div>
+                      <div class={`badge badge-sm ${
+                        navItem.label === 'Improved' 
+                          ? 'badge-success' 
+                          : 'badge-primary'
+                      }`}>
+                        {typeof navItem.label === 'string' ? navItem.label : 'New'}
+                      </div>
                     )}
                   </a>
                 </li>
