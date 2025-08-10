@@ -299,7 +299,6 @@ async function checkMyFiles() {
     checkFeatures: true
   }];
   
-  // Option 1: Run without a logger (silent mode)
   const result = await runChecks(configs);
   
   if (result.success) {
@@ -314,52 +313,9 @@ async function checkMyFiles() {
     // ES Check failed with 2 errors
     // - dist/app.js: Unsupported features used: const, arrow-functions but your target is ES5.
     // - dist/utils.js: Unsupported features used: template-literals but your target is ES5.
-    return { success: false, errors: result.errors };
-  }
-}
-
-// Option 2: Run with a custom logger
-async function checkWithLogger() {
-  const configs = [{
-    ecmaVersion: 'es6',
-    files: ['src/**/*.js']
-  }];
-  
-  const customLogger = {
-    info: (msg) => console.log('[INFO]', msg),
-    error: (msg) => console.error('[ERROR]', msg),
-    warn: (msg) => console.warn('[WARN]', msg),
-    debug: (msg) => console.debug('[DEBUG]', msg),
-    isLevelEnabled: (level) => true
-  };
-  
-  const result = await runChecks(configs, { logger: customLogger });
-  // With logger, output appears in real-time:
-  // [INFO] ES-Check: checking src/app.js
-  // [INFO] ES-Check: checking src/utils.js
-  // [INFO] ES-Check: there were no ES version matching errors!  🎉
-  
-  if (!result.success) {
-    // Handle errors programmatically
-    return { success: false, errors: result.errors };
-  }
-  return { success: true };
-}
-
-// Option 3: Load config from file
-async function checkWithConfigFile() {
-  const configs = await loadConfig('.escheckrc');
-  const result = await runChecks(configs);
-  
-  if (!result.success) {
-    // Handle errors without terminating the process
-    console.error('ES Check validation failed');
-    return { success: false, errors: result.errors };
   }
   
-  // Output when successful:
-  // (No output in silent mode, or with logger: "ES-Check: there were no ES version matching errors!  🎉")
-  return { success: true };
+  return result;
 }
 ```
 
