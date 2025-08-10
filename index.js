@@ -204,10 +204,8 @@ program
   })
 
 async function runChecks(configs, loggerOrOptions) {
-  // Determine invocation type (CLI vs Node API)
   const { isNodeAPI, logger } = determineInvocationType(loggerOrOptions);
   
-  // Determine log levels
   const logLevels = determineLogLevel(logger);
   const isDebug = logLevels?.isDebug || false;
   const isWarn = logLevels?.isWarn || false;

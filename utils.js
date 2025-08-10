@@ -417,15 +417,12 @@ function determineInvocationType(loggerOrOptions) {
   let logger = null;
   
   if (!loggerOrOptions) {
-    // No second argument - this is Node API usage
     isNodeAPI = true;
     logger = null;
   } else if (typeof loggerOrOptions === 'object' && !loggerOrOptions.info && !loggerOrOptions.error) {
-    // Options object passed (has logger property or is empty) - Node API usage
     isNodeAPI = true;
     logger = loggerOrOptions.logger || null;
   } else {
-    // Logger object passed directly - CLI usage
     isNodeAPI = false;
     logger = loggerOrOptions;
   }
