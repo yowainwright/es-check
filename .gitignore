@@ -76,3 +76,5 @@ site/.astro/
 # Benchmark test files (generated)
 benchmarks/test-files/
 benchmarks/test-files-*/
+
+dist/

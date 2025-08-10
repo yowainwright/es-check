@@ -203,7 +203,7 @@ es-check es6 './dist/**/*.js' --module
 **Checking files with hash bang:**
 
 ```sh
-es-check es6 './bin/*.js' --allowHashBang
+es-check es6 './tests/*.js' --allowHashBang
 ```
 
 **Skipping specific files or directories:**
@@ -284,7 +284,7 @@ es-check es6 ./js/*.js
 es-check es6 ./js/*.js ./dist/*.js
 ```
 
-### Using ES Check in Node
+### Using ES Check in Node (Programmatic API)
 
 In addition to its CLI utility, ES Check can be used programmatically in Node.js applications:
 
@@ -292,25 +292,30 @@ In addition to its CLI utility, ES Check can be used programmatically in Node.js
 const { runChecks, loadConfig } = require('es-check');
 
 async function checkMyFiles() {
-  const config = {
+  const configs = [{
     ecmaVersion: 'es5',
     files: ['dist/**/*.js'],
     module: false,
     checkFeatures: true
-  };
+  }];
   
-  try {
-    await runChecks([config], logger);
+  const result = await runChecks(configs);
+  
+  if (result.success) {
     console.log('All files passed ES5 check!');
-  } catch (error) {
-    console.error('Some files failed the ES check');
-    process.exit(1);
+    // Output: All files passed ES5 check!
+  } else {
+    console.error(`ES Check failed with ${result.errors.length} errors`);
+    result.errors.forEach(error => {
+      console.error(`- ${error.file}: ${error.err.message}`);
+    });
+    // Example output:
+    // ES Check failed with 2 errors
+    // - dist/app.js: Unsupported features used: const, arrow-functions but your target is ES5.
+    // - dist/utils.js: Unsupported features used: template-literals but your target is ES5.
   }
-}
-
-async function checkWithConfig() {
-  const configs = await loadConfig('./.escheckrc');
-  await runChecks(configs, logger);
+  
+  return result;
 }
 ```
 
