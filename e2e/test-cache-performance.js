@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const { exec } = require('child_process');
+const { execFile } = require('child_process');
 const { performance } = require('perf_hooks');
 const fs = require('fs');
 const path = require('path');
@@ -47,7 +47,10 @@ async function runEsCheck(useCache) {
     const cacheFlag = useCache ? '' : '--noCache';
     const startTime = performance.now();
     
-    exec(`node ${path.join(__dirname, '../index.js')} es5 "${TEST_DIR}/**/*.js" ${cacheFlag} --silent`, (err, stdout, stderr) => {
+    const args = [path.join(__dirname, '../index.js'), 'es5', `${TEST_DIR}/**/*.js`];
+    if (cacheFlag) args.push(cacheFlag);
+    args.push('--silent');
+    execFile('node', args, (err, stdout, stderr) => {
       const endTime = performance.now();
       const duration = endTime - startTime;
       
@@ -124,7 +127,8 @@ async function runDuplicateFilesTest() {
     console.log('\nWith cache enabled:');
     const startCache = performance.now();
     await new Promise((resolve, reject) => {
-      exec(`node ${path.join(__dirname, '../index.js')} es5 ${filesArg} --silent`, (err) => {
+      const args = [path.join(__dirname, '../index.js'), 'es5', ...filesArg.split(' '), '--silent'];
+      execFile('node', args, (err) => {
         if (err) reject(err);
         else resolve();
       });
@@ -135,7 +139,8 @@ async function runDuplicateFilesTest() {
     console.log('\nWithout cache:');
     const startNoCache = performance.now();
     await new Promise((resolve, reject) => {
-      exec(`node ${path.join(__dirname, '../index.js')} es5 ${filesArg} --noCache --silent`, (err) => {
+      const args = [path.join(__dirname, '../index.js'), 'es5', ...filesArg.split(' '), '--noCache', '--silent'];
+      execFile('node', args, (err) => {
         if (err) reject(err);
         else resolve();
       });
