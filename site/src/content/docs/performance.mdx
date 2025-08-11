@@ -9,11 +9,42 @@ ES Check has been optimized for performance while maintaining comprehensive feat
 
 ## Recent Performance Improvements
 
-As of August 2025, ES Check includes several major performance optimizations:
+As of v9.3.0, ES Check includes several major performance optimizations:
 
+- **File caching**: Enabled by default, we observed ~28% performance improvement in our benchmarks
 - **Single-parse optimization**: Files are parsed once and the AST is reused between syntax checking and feature detection
 - **Async file processing**: Non-blocking I/O operations for better parallelism
 - **Configurable batch processing**: Fine-tune concurrency based on your system
+
+*Note: Performance improvements vary based on your specific use case, file sizes, and system configuration.*
+
+## File Caching
+
+File caching is **enabled by default** to improve performance:
+
+```bash
+# Cache is enabled by default
+es-check es5 './dist/**/*.js'
+
+# Disable cache if needed
+es-check es5 './dist/**/*.js' --noCache
+```
+
+**Observed Benefits:**
+In our benchmark tests with 100 files, we saw:
+- ~28% performance improvement (79ms → 57ms)
+- Reduced file I/O operations
+- Minimal memory overhead (500 file limit, ~5MB max)
+
+**Run the benchmarks yourself:**
+```bash
+git clone https://github.com/yowainwright/es-check.git
+cd es-check
+node benchmarks/generate-test-files.js 100 ./benchmarks/test-files
+node benchmarks/compare-tools.js 3 ./benchmarks/test-files
+```
+
+Your results will vary based on file sizes, disk speed, and system configuration.
 
 ## Batch Processing with `--batchSize`
 

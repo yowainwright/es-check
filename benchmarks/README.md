@@ -136,8 +136,43 @@ On August 6, 2025, we implemented major performance optimizations based on the M
 | es-check-batch-50 | 117.03 | 97.40 | 136.65 | 2.84x slower |
 | es-check | 117.17 | 111.67 | 122.67 | 2.84x slower |
 
-#### Batch Processing and Optimization Guide
+#### Performance Optimizations
 
+##### File Caching (v9.3.0+)
+File caching is enabled by default and caches file contents in memory for faster re-checking:
+
+```bash
+# Cache is enabled by default
+es-check es5 './dist/**/*.js'
+
+# Disable cache if needed
+es-check es5 './dist/**/*.js' --noCache
+```
+
+**Cache Performance Impact:**
+We observed **~28% faster** execution with cache enabled in our benchmark tests. Your results may vary based on:
+- File sizes and complexity
+- System specifications (CPU, disk speed, memory)
+- Number of files being checked
+
+**Our benchmark results** (100 test files, 3 iterations):
+- Without cache: 79.67ms average
+- With cache: 57.63ms average  
+- Improvement: 28% reduction in execution time
+
+**Try it yourself:**
+```bash
+# Generate test files and run benchmarks
+node benchmarks/generate-test-files.js 100 ./benchmarks/test-files
+node benchmarks/compare-tools.js 3 ./benchmarks/test-files
+```
+
+The cache is most beneficial when:
+- Checking the same files multiple times
+- Running in watch mode
+- CI environments with file deduplication
+
+##### Batch Processing
 The `--batchSize` option allows fine-tuning performance based on your system and codebase:
 
 - **`--batchSize 0` (default)**: Process all files in parallel. Best for small to medium codebases with sufficient memory.

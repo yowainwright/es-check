@@ -153,6 +153,7 @@ Here's a comprehensive list of all available options:
 | `--browserslistEnv <env>` | Browserslist environment to use (default: production) |
 | `--config <path>` | Path to custom .escheckrc config file |
 | `--batchSize <number>` | Number of files to process concurrently (0 for unlimited, default: 0) |
+| `--noCache` | Disable file caching (cache is enabled by default) |
 | `-h, --help` | Display help for command |
 
 ### Shell Completion
@@ -530,7 +531,26 @@ es-check --checkBrowser --checkFeatures ./dist/**/*.js
 
 ## Performance Optimization
 
-ES Check provides the `--batchSize` option to optimize performance for different scenarios:
+ES Check includes several performance optimizations:
+
+### File Caching
+File caching is **enabled by default** for faster re-checking:
+
+```sh
+# Cache is enabled by default
+es-check es5 './dist/**/*.js'
+
+# Disable cache if needed
+es-check es5 './dist/**/*.js' --noCache
+```
+
+We observed ~28% performance improvement in our [benchmark tests](./benchmarks/README.md). Your results may vary based on file sizes and system configuration. Try the benchmarks yourself:
+```sh
+node benchmarks/compare-tools.js 3 ./benchmarks/test-files
+```
+
+### Batch Processing
+The `--batchSize` option optimizes memory usage:
 
 ```sh
 # Process all files in parallel (default)
