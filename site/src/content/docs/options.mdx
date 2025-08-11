@@ -106,6 +106,19 @@ es-check es5 './dist/**/*.js' --batchSize 10
 es-check es5 './dist/**/*.js' --batchSize 50
 ```
 
+### `--noCache`
+Disable file caching (cache is enabled by default)
+
+```bash
+# Cache is enabled by default
+es-check es5 './dist/**/*.js'
+
+# Disable cache if needed
+es-check es5 './dist/**/*.js' --noCache
+```
+
+In our benchmarks, caching provided ~28% performance improvement. See [performance guide](./performance) for details.
+
 ### Display Options
 
 - `--noColor` - Disable colored output
