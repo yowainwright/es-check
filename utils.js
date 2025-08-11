@@ -361,18 +361,35 @@ async function processBatchedFiles(files, processor, batchSize = 0) {
   return results;
 }
 
+const SimpleCache = require('./cache');
+const fileCache = new SimpleCache(500, 60000);
+
 /**
  * Read file asynchronously with error handling
  * @param {string} file - File path to read
  * @param {Object} fs - File system module
+ * @param {boolean} useCache - Whether to use file cache (default: false)
  * @returns {Promise<{content: string, error: null} | {content: null, error: Object}>}
  */
-async function readFileAsync(file, fs) {
+async function readFileAsync(file, fs, useCache = false) {
+  if (useCache) {
+    const cached = fileCache.get(file);
+    if (cached !== undefined) {
+      return cached;
+    }
+  }
+  
   try {
     const content = await fs.promises.readFile(file, 'utf8');
-    return { content, error: null };
+    const result = { content, error: null };
+    
+    if (useCache) {
+      fileCache.set(file, result);
+    }
+    
+    return result;
   } catch (err) {
-    return { 
+    const result = { 
       content: null, 
       error: {
         err,
@@ -380,7 +397,27 @@ async function readFileAsync(file, fs) {
         stack: err.stack
       }
     };
+    
+    if (useCache) {
+      fileCache.set(file, result);
+    }
+    
+    return result;
   }
+}
+
+/**
+ * Clear the file cache
+ */
+function clearFileCache() {
+  fileCache.clear();
+}
+
+/**
+ * Get file cache statistics
+ */
+function getFileCacheStats() {
+  return fileCache.getStats();
 }
 
 /**
@@ -490,6 +527,8 @@ module.exports = {
   generateZshCompletion,
   processBatchedFiles,
   readFileAsync,
+  clearFileCache,
+  getFileCacheStats,
   parseCode,
   determineInvocationType,
   determineLogLevel,

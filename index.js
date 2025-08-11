@@ -11,7 +11,7 @@ let polyfillDetector = null;
 const pkg = require('./package.json')
 const { lilconfig } = require('lilconfig');
 const { JS_VERSIONS } = require('./constants');
-const { parseIgnoreList, createLogger, generateBashCompletion, generateZshCompletion, processBatchedFiles, readFileAsync, parseCode, determineInvocationType, determineLogLevel, handleESVersionError } = require('./utils');
+const { parseIgnoreList, createLogger, generateBashCompletion, generateZshCompletion, processBatchedFiles, readFileAsync, clearFileCache, getFileCacheStats, parseCode, determineInvocationType, determineLogLevel, handleESVersionError } = require('./utils');
 
 program.configureOutput({
   writeOut: (str) => process.stdout.write(str),
@@ -99,6 +99,7 @@ program
   .option('--browserslistEnv <env>', 'browserslist environment to use')
   .option('--config <path>', 'path to custom .escheckrc config file')
   .option('--batchSize <number>', 'number of files to process concurrently (0 for unlimited)', '0')
+  .option('--noCache', 'disable file caching (caching is enabled by default)', false)
 
 async function loadConfig(customConfigPath) {
   const logger = createLogger();
@@ -180,6 +181,7 @@ program
         browserslistPath: options.browserslistPath !== undefined ? options.browserslistPath : baseConfig.browserslistPath,
         browserslistEnv: options.browserslistEnv !== undefined ? options.browserslistEnv : baseConfig.browserslistEnv,
         batchSize: options.batchSize !== undefined ? options.batchSize : baseConfig.batchSize,
+        cache: options.noCache ? false : (baseConfig.cache !== undefined ? baseConfig.cache : true),
       };
 
       if (ecmaVersionArg !== undefined) {
@@ -463,7 +465,8 @@ async function runChecks(configs, loggerOrOptions) {
     const batchSize = parseInt(config.batchSize || '0', 10);
     
     const processFile = async (file) => {
-      const { content: code, error: readError } = await readFileAsync(file, fs);
+      const useCache = config.cache !== false;
+      const { content: code, error: readError } = await readFileAsync(file, fs, useCache);
       if (readError) {
         return readError;
       }
@@ -472,7 +475,10 @@ async function runChecks(configs, loggerOrOptions) {
         logger.debug(`ES-Check: checking ${file}`)
       }
 
-      const { ast, error: parseError } = parseCode(code, acornOpts, acorn, file);
+      const needsFullAST = checkFeatures;
+      const parserOptions = needsFullAST ? acornOpts : { ...acornOpts, locations: false, ranges: false, onComment: null };
+      
+      const { ast, error: parseError } = parseCode(code, parserOptions, acorn, file);
       if (parseError) {
         if (isDebug) {
           logger.debug(`ES-Check: failed to parse file: ${file} \n - error: ${parseError.err}`)

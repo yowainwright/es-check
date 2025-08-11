@@ -1304,3 +1304,111 @@ describe('Performance optimization integration tests', () => {
     });
   });
 });
+
+describe('--cache option tests', () => {
+  it('🎉 Es Check should pass with cache enabled (default)', (done) => {
+    exec('node index.js es5 ./tests/es5.js', (err, stdout, stderr) => {
+      if (err) {
+        console.error(err.stack);
+        console.error(stdout.toString());
+        console.error(stderr.toString());
+        done(err);
+        return;
+      }
+      assert(stdout.includes('no ES version matching errors'));
+      done();
+    });
+  });
+
+  it('🎉 Es Check should pass with cache explicitly disabled', (done) => {
+    exec('node index.js es5 ./tests/es5.js --noCache', (err, stdout, stderr) => {
+      if (err) {
+        console.error(err.stack);
+        console.error(stdout.toString());
+        console.error(stderr.toString());
+        done(err);
+        return;
+      }
+      assert(stdout.includes('no ES version matching errors'));
+      done();
+    });
+  });
+
+  it('🎉 Es Check should handle duplicate files with cache', (done) => {
+    exec('node index.js es5 ./tests/es5.js ./tests/es5.js ./tests/es5-2.js', (err, stdout, stderr) => {
+      if (err) {
+        console.error(err.stack);
+        console.error(stdout.toString());
+        console.error(stderr.toString());
+        done(err);
+        return;
+      }
+      assert(stdout.includes('no ES version matching errors'));
+      done();
+    });
+  });
+
+  it('👌 Es Check should fail correctly with cache when checking ES6 as ES5', (done) => {
+    exec('node index.js es5 ./tests/es6.js ./tests/es6-2.js', (err, stdout, stderr) => {
+      assert(err, 'Expected an error but command ran successfully');
+      const output = stdout + stderr;
+      assert(output.includes('ES version matching errors') || output.includes('ES-Check: there were'), 
+        'Output should contain error message');
+      done();
+    });
+  });
+
+  it('🎉 Es Check should work with cache in config file', (done) => {
+    const fs = require('fs');
+    const path = require('path');
+    const configPath = path.join(__dirname, '.test-escheckrc');
+    const config = {
+      ecmaVersion: 'es5',
+      files: ['./tests/es5.js'],
+      cache: true
+    };
+    
+    fs.writeFileSync(configPath, JSON.stringify(config));
+    
+    exec(`node index.js --config ${configPath}`, (err, stdout, stderr) => {
+      fs.unlinkSync(configPath);
+      
+      if (err) {
+        console.error(err.stack);
+        console.error(stdout.toString());
+        console.error(stderr.toString());
+        done(err);
+        return;
+      }
+      assert(stdout.includes('no ES version matching errors'));
+      done();
+    });
+  });
+
+  it('🎉 Es Check should work with cache disabled in config file', (done) => {
+    const fs = require('fs');
+    const path = require('path');
+    const configPath = path.join(__dirname, '.test-escheckrc');
+    const config = {
+      ecmaVersion: 'es5',
+      files: ['./tests/es5.js'],
+      cache: false
+    };
+    
+    fs.writeFileSync(configPath, JSON.stringify(config));
+    
+    exec(`node index.js --config ${configPath}`, (err, stdout, stderr) => {
+      fs.unlinkSync(configPath);
+      
+      if (err) {
+        console.error(err.stack);
+        console.error(stdout.toString());
+        console.error(stderr.toString());
+        done(err);
+        return;
+      }
+      assert(stdout.includes('no ES version matching errors'));
+      done();
+    });
+  });
+});
