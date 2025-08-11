@@ -33,12 +33,14 @@
     "prepare": "husky",
     "prepublishOnly": "pnpm test",
     "release": "release-it --no-git.requireUpstream",
+    "changelog": "node scripts/update-changelog.mjs",
     "report:coverage": "nyc report --reporter=lcov > coverage.lcov && codecov",
     "setup": "pnpm install --reporter=silent",
     "test": "nyc mocha test.js utils.test.js browserslist.test.js polyfillDetector.test.js detectFeatures.test.js --timeout 10s && npm run test:e2e",
-    "test:e2e": "npm run test:e2e:cli && npm run test:e2e:esm",
+    "test:e2e": "npm run test:e2e:cli && npm run test:e2e:esm && npm run test:e2e:package-files",
     "test:e2e:cli": "node e2e/test-cli.js",
     "test:e2e:esm": "node e2e/test-esm-import.mjs",
+    "test:e2e:package-files": "node e2e/test-package-files.mjs",
     "update": "codependence --update",
     "benchmark": "./benchmarks/run-benchmarks.sh",
     "site:dev": "pnpm --filter es-check-docs run dev",
@@ -72,6 +74,7 @@
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-es5": "^1.5.0",
     "husky": "9.1.7",
+    "inquirer": "^12.9.1",
     "is-ci": "^3.0.1",
     "mocha": "11.7.1",
     "nyc": "^17.1.0",
@@ -144,7 +147,7 @@
         "pnpm run lint",
         "pnpm test"
       ],
-      "after:release": "echo Successfully released ${name} v${version} to ${repo.repository}."
+      "after:release": "echo Successfully released ${name} v${version} to ${repo.repository}. && pnpm run changelog"
     }
   },
   "packageManager": "pnpm@10.6.5+sha512.cdf928fca20832cd59ec53826492b7dc25dc524d4370b6b4adbf65803d32efaa6c1c88147c0ae4e8d579a6c9eec715757b50d4fa35eea179d868eada4ed043af"
