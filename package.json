@@ -17,7 +17,8 @@
     "constants.js",
     "browserslist.js",
     "polyfillDetector.js",
-    "esm-wrapper.mjs"
+    "esm-wrapper.mjs",
+    "cache.js"
   ],
   "bin": {
     "es-check": "index.js"
