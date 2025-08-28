@@ -133,7 +133,7 @@ importers:
         specifier: ^18.3.0
         version: 18.3.7(@types/react@18.3.23)
       astro:
-        specifier: ^5.12.8
+        specifier: ^5.13.1
         version: 5.13.1(@types/node@24.3.0)(jiti@2.4.2)(lightningcss@1.30.1)(rollup@4.46.3)(supports-color@8.1.1)(typescript@5.8.3)(yaml@2.8.0)
       fuse.js:
         specifier: ^7.1.0
