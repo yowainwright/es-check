@@ -419,7 +419,7 @@ async function runChecks(configs, loggerOrOptions) {
     }
 
     const errArray = []
-    const acornOpts = { ecmaVersion: parseInt(ecmaVersion, 10), silent: true }
+    const acornOpts = { ecmaVersion: 'latest', silent: true }
 
     if (isDebug) {
       logger.debug(`ES-Check: Going to check files using version ${ecmaVersion}`)
@@ -479,6 +479,7 @@ async function runChecks(configs, loggerOrOptions) {
       const parserOptions = needsFullAST ? acornOpts : { ...acornOpts, locations: false, ranges: false, onComment: null };
       
       const { ast, error: parseError } = parseCode(code, parserOptions, acorn, file);
+      console.log('local')
       if (parseError) {
         if (isDebug) {
           logger.debug(`ES-Check: failed to parse file: ${file} \n - error: ${parseError.err}`)
