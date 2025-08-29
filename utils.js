@@ -420,18 +420,80 @@ function getFileCacheStats() {
   return fileCache.getStats();
 }
 
+const ECMA_VERSION_MAP = {
+  5: 'es5',
+  6: 'es2015',
+  7: 'es2016',
+  8: 'es2017',
+  9: 'es2018',
+  10: 'es2019',
+  11: 'es2020',
+  12: 'es2021',
+  13: 'es2022',
+  14: 'es2023',
+  15: 'es2024',
+  16: 'es2025',
+  2015: 'es2015',
+  2016: 'es2016',
+  2017: 'es2017',
+  2018: 'es2018',
+  2019: 'es2019',
+  2020: 'es2020',
+  2021: 'es2021',
+  2022: 'es2022',
+  2023: 'es2023',
+  2024: 'es2024',
+  2025: 'es2025'
+};
+
 /**
- * Parse code with acorn and handle errors
+ * Convert ecmaVersion to fast-brake target format
+ * @param {number|string} ecmaVersion - Version from acorn options
+ * @returns {string} Target version for fast-brake
+ */
+function getTargetVersion(ecmaVersion) {
+  return ECMA_VERSION_MAP[ecmaVersion] || 'es5';
+}
+
+/**
+ * Parse code with fast-brake and handle errors
  * @param {string} code - Code to parse
- * @param {Object} acornOpts - Acorn parsing options
- * @param {Object} acorn - Acorn module
+ * @param {Object} acornOpts - Parsing options (for compatibility)
+ * @param {Object} acorn - Module (for compatibility, not used)
  * @param {string} file - File path for error reporting
  * @returns {{ast: Object, error: null} | {ast: null, error: Object}}
  */
 function parseCode(code, acornOpts, acorn, file) {
+  const fastBrake = require('fast-brake');
   try {
-    const ast = acorn.parse(code, acornOpts);
-    return { ast, error: null };
+    const ecmaVersion = acornOpts.ecmaVersion || 5;
+    const targetVersion = getTargetVersion(ecmaVersion);
+    
+    let codeToCheck = code;
+    if (acornOpts.allowHashBang && code.startsWith('#!')) {
+      const newlineIndex = code.indexOf('\n');
+      codeToCheck = newlineIndex > -1 ? code.slice(newlineIndex + 1) : '';
+    }
+    
+    const detectedFeatures = fastBrake.detect(codeToCheck);
+    
+    const isModule = acornOpts.sourceType === 'module';
+    if (!isModule) {
+      const moduleOnlyFeatures = detectedFeatures.filter(f => 
+        f.name === 'import' || f.name === 'export'
+      );
+      if (moduleOnlyFeatures.length > 0) {
+        const feature = moduleOnlyFeatures[0];
+        throw new Error(
+          `'${feature.name}' can only be used in ES modules. Use --module flag to enable module support` +
+          (feature.line ? ` at line ${feature.line}` : '')
+        );
+      }
+    }
+    
+    fastBrake.fastBrake(codeToCheck, { target: targetVersion });
+    
+    return { ast: { type: 'Program', features: detectedFeatures }, error: null };
   } catch (err) {
     return {
       ast: null,

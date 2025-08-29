@@ -1,7 +1,5 @@
-const acorn = require('acorn');
-const walk = require('acorn-walk');
+const fastBrake = require('fast-brake');
 const { ES_FEATURES, POLYFILL_PATTERNS, IMPORT_PATTERNS } = require('./constants');
-const { checkMap } = require('./utils');
 
 /**
  * Detects polyfills in the code and adds them to the polyfills Set
@@ -28,54 +26,102 @@ const detectPolyfills = (
   }
 }
 
+const featureNameMap = {
+  'let_const': ['let', 'const'],
+  'arrow_functions': 'ArrowFunctions',
+  'template_literals': 'TemplateLiterals',
+  'destructuring': 'Destructuring',
+  'classes': 'class',
+  'extends': 'extends',
+  'spread_rest': ['RestSpread', 'ArraySpread'],
+  'default_parameters': 'DefaultParams',
+  'default_params': 'DefaultParams',
+  'for_of': 'ForOf',
+  'import': 'import',
+  'export': 'export',
+  'import_export': ['import', 'export'],
+  'async_await': 'AsyncAwait',
+  'generators': 'Generators',
+  'promise': 'Promise',
+  'promise_resolve': 'PromiseResolve',
+  'promise_reject': 'PromiseReject',
+  'promise_any': 'PromiseAny',
+  'promise_allSettled': 'PromiseAllSettled',
+  'map': 'Map',
+  'set': 'Set',
+  'weakmap': 'WeakMap',
+  'weakset': 'WeakSet',
+  'symbol': 'Symbol',
+  'proxy': 'Proxy',
+  'reflect': 'Reflect',
+  'weakref': 'WeakRef',
+  'finalization_registry': 'FinalizationRegistry',
+  'exponentiation': 'ExponentOperator',
+  'object_spread': 'ObjectSpread',
+  'rest_spread_properties': 'ObjectSpread',
+  'optional_catch': 'OptionalCatchBinding',
+  'bigint': 'BigInt',
+  'nullish_coalescing': 'NullishCoalescing',
+  'optional_chaining': 'OptionalChaining',
+  'private_fields': 'PrivateClassFields',
+  'logical_assignment': 'LogicalAssignment',
+  'numeric_separators': 'NumericSeparators',
+  'class_fields': 'ClassFields',
+  'top_level_await': 'TopLevelAwait',
+  'globalThis': 'globalThis',
+  'array_at': 'ArrayPrototypeAt',
+  'object_hasOwn': 'ObjectHasOwn',
+  'string_replaceAll': 'StringReplaceAll'
+};
+
 const detectFeatures = (code, ecmaVersion, sourceType, ignoreList = new Set(), options = {}) => {
-  const { checkForPolyfills, ast: providedAst } = options;
+  const { checkForPolyfills, ast } = options;
 
   const polyfills = new Set();
   if (checkForPolyfills) detectPolyfills(code, polyfills);
 
-  const ast = providedAst || acorn.parse(code, {
-    ecmaVersion: 'latest',
-    sourceType,
-  });
-
-  const allChecks = Object.entries(ES_FEATURES).map(([featureName, { astInfo }]) => ({
-    featureName,
-    nodeType: astInfo.nodeType,
-    astInfo,
-  }));
+  let detectedFeatures = [];
+  
+  if (ast && ast.features) {
+    detectedFeatures = ast.features;
+  } else {
+    try {
+      detectedFeatures = fastBrake.detect(code);
+    } catch (err) {
+      const error = new Error(`Failed to parse code: ${err.message}`);
+      error.type = 'ES-Check';
+      throw error;
+    }
+  }
 
   const foundFeatures = Object.keys(ES_FEATURES).reduce((acc, f) => {
     acc[f] = false;
     return acc;
   }, {});
 
-  const universalVisitor = (node) => {
-    allChecks
-      .filter(({ nodeType }) => nodeType === node.type)
-      .forEach(({ featureName, astInfo }) => {
-        const checker = checkMap[node.type] || checkMap.default;
-        if (checker(node, astInfo)) {
-          foundFeatures[featureName] = true;
-        }
-      });
-  };
+  detectedFeatures.forEach(feature => {
+    const mapped = featureNameMap[feature.name];
+    
+    if (mapped) {
+      if (Array.isArray(mapped)) {
+        mapped.forEach(name => {
+          if (ES_FEATURES[name]) {
+            foundFeatures[name] = true;
+          }
+        });
+      } else if (ES_FEATURES[mapped]) {
+        foundFeatures[mapped] = true;
+      }
+    }
+  });
 
-  const nodeTypes = [...new Set(allChecks.map((c) => c.nodeType))];
-  const visitors = nodeTypes.reduce((acc, nt) => {
-    acc[nt] = universalVisitor;
-    return acc;
-  }, {});
-
-  walk.simple(ast, visitors);
-
-  const unsupportedFeatures = Object.entries(ES_FEATURES).reduce((acc = [], [featureName, { minVersion }]) => {
+  const unsupportedFeatures = [];
+  Object.entries(ES_FEATURES).forEach(([featureName, { minVersion }]) => {
     const isPolyfilled = checkForPolyfills && polyfills.has(featureName);
     if (foundFeatures[featureName] && minVersion > ecmaVersion && !ignoreList.has(featureName) && !isPolyfilled) {
-      acc.push(featureName);
+      unsupportedFeatures.push(featureName);
     }
-    return acc;
-  }, []);
+  });
 
   if (unsupportedFeatures.length > 0) {
     const error = new Error(
