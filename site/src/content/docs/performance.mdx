@@ -9,14 +9,41 @@ ES Check has been optimized for performance while maintaining comprehensive feat
 
 ## Recent Performance Improvements
 
-As of v9.3.0, ES Check includes several major performance optimizations:
+As of v9.4.0, ES Check includes several major performance optimizations:
 
+- **Lightweight mode (`--light`)**: NEW! Faster checking using pattern matching instead of full AST parsing
 - **File caching**: Enabled by default, we observed ~28% performance improvement in our benchmarks
 - **Single-parse optimization**: Files are parsed once and the AST is reused between syntax checking and feature detection
 - **Async file processing**: Non-blocking I/O operations for better parallelism
 - **Configurable batch processing**: Fine-tune concurrency based on your system
 
 *Note: Performance improvements vary based on your specific use case, file sizes, and system configuration.*
+
+## Lightweight Mode (`--light`)
+
+**New in v9.4.0!** The `--light` flag enables a fast pattern-matching mode for improved performance:
+
+```bash
+# Standard mode (full AST parsing)
+es-check es5 './dist/**/*.js'
+
+# Lightweight mode (faster)
+es-check es5 './dist/**/*.js' --light
+```
+
+**When to use `--light` mode:**
+- CI/CD pipelines where speed is critical
+- Large codebases with thousands of files
+- Quick validation during development
+- Pre-commit hooks that need to run fast
+
+**Trade-offs:**
+- Faster execution through pattern matching
+- Uses pattern matching instead of full AST parsing
+- May have slightly different error messages
+- Best for syntax validation rather than detailed feature detection
+
+**Note:** `--light` mode focuses on speed while still catching incompatible syntax. For comprehensive feature detection, use standard mode with `--checkFeatures`.
 
 ## File Caching
 
@@ -96,7 +123,8 @@ Different configurations have varying performance impacts:
 
 | Configuration | Relative Speed | Example Command | Use Case |
 |--------------|----------------|-----------------|----------|
-| Syntax only + silent + specific files | **1x** (fastest) | `es-check es5 './dist/bundle.js' --silent` | CI/CD quick validation |
+| **--light mode** | **Fastest** | `es-check es5 './dist/**/*.js' --light` | Fast CI/CD validation |
+| Syntax only + silent + specific files | **1x** (baseline) | `es-check es5 './dist/bundle.js' --silent` | CI/CD quick validation |
 | Syntax only + normal output | **~1.1x** | `es-check es5 './dist/**/*.js'` | Standard usage |
 | Syntax only + verbose | **~1.2x** | `es-check es5 './dist/**/*.js' --verbose` | Debugging |
 | With --checkFeatures | **~1.5-2x** | `es-check es5 './dist/**/*.js' --checkFeatures` | Comprehensive feature checks |
@@ -108,7 +136,10 @@ Different configurations have varying performance impacts:
 For maximum speed when performance is critical:
 
 ```bash
-# Syntax only, silent output, specific files, unlimited parallelism
+# NEW: Use --light mode for faster checking
+es-check es5 './dist/**/*.js' --light --silent --batchSize 0
+
+# Alternative: Syntax only, silent output, specific files
 es-check es5 './dist/bundle.min.js' --silent --batchSize 0
 ```
 

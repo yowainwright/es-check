@@ -41,6 +41,14 @@ For ES6 modules, use the `--module` flag:
 npx es-check es6 './src/**/*.mjs' --module
 ```
 
+### Example 4: Fast Mode for CI/CD
+
+Use `--light` mode for faster checking in CI pipelines:
+
+```bash
+npx es-check es5 './dist/**/*.js' --light
+```
+
 ## Common Scenarios
 
 ### Production Build Check

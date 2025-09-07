@@ -125,13 +125,32 @@ if [ $? -ne 0 ]; then
 fi
 ```
 
+## Performance Optimization for CI
+
+### Use `--light` Mode
+
+For faster CI runs, use the `--light` mode for improved performance:
+
+```yaml
+# GitHub Actions with --light mode
+- name: Fast ES5 compatibility check
+  run: npx es-check es5 './dist/**/*.js' --light
+```
+
+This is especially useful for:
+- Pull request checks
+- Pre-commit hooks
+- Large codebases
+- Frequent CI runs
+
 ## Best Practices
 
 1. **Run after build**: Always run ES Check after your build process
-2. **Check all bundles**: Include vendor bundles and code splits
-3. **Set appropriate ES version**: Match your browser support requirements
-4. **Cache dependencies**: Speed up CI runs by caching node_modules
-5. **Fail fast**: Make ES Check errors fail the build
+2. **Use `--light` for speed**: Enable `--light` mode in CI for faster feedback
+3. **Check all bundles**: Include vendor bundles and code splits
+4. **Set appropriate ES version**: Match your browser support requirements
+5. **Cache dependencies**: Speed up CI runs by caching node_modules
+6. **Fail fast**: Make ES Check errors fail the build
 
 ## Parallel Checks
 
