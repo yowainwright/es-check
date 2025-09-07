@@ -586,6 +586,8 @@ async function runChecks(configs, loggerOrOptions) {
   
   if (isNodeAPI) {
     return { success: true, errors: [] };
+  } else {
+    process.exit(0);
   }
 }
 

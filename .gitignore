@@ -78,3 +78,8 @@ benchmarks/test-files/
 benchmarks/test-files-*/
 
 dist/
+.browserslistrc-env
+.browserslistrc-legacy
+.browserslistrc-mixed
+.browserslistrc-modern
+.browserslistrc-old-edge
