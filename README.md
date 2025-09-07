@@ -31,7 +31,7 @@ Ensuring that JavaScript files can pass ES Check is important in a [modular and 
 es-check es6 './dist/**/*.js' --checkFeatures
 ```
 
-### `checkBrowser --browserslistQuery='<broswerslist query>'`
+### `checkBrowser --browserslistQuery='<browserslist query>'`
 
 ```sh
 es-check checkBrowser ./dist/**/*.js --browserslistQuery="last 2 versions"
