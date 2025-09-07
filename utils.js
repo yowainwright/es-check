@@ -463,70 +463,74 @@ function getTargetVersion(ecmaVersion) {
  * @param {string} file - File path for error reporting
  * @returns {{ast: Object, error: null} | {ast: null, error: Object}}
  */
-function parseCode(code, acornOpts, acorn, file) {
-  const fastBrake = require('fast-brake');
+const fastBrake = require('fast-brake');
+
+const parseCache = new Map();
+
+function parseCode(code, acornOpts, acorn, file, needsFeatures = false) {
+  const cacheKey = `${file}:${acornOpts.ecmaVersion}:${acornOpts.sourceType}:${needsFeatures}:${code.length}`;
+  
+  if (parseCache.has(cacheKey)) {
+    return parseCache.get(cacheKey);
+  }
+  
   try {
     const ecmaVersion = acornOpts.ecmaVersion || 5;
     const targetVersion = getTargetVersion(ecmaVersion);
+    const sourceType = acornOpts.sourceType || 'script';
     
-    let codeToCheck = code;
-    if (acornOpts.allowHashBang && code.startsWith('#!')) {
-      const newlineIndex = code.indexOf('\n');
-      codeToCheck = newlineIndex > -1 ? code.slice(newlineIndex + 1) : '';
-    }
+    const codeToCheck = acornOpts.allowHashBang && code.startsWith('#!')
+      ? code.slice(code.indexOf('\n') + 1)
+      : code;
     
-    const detectedFeatures = fastBrake.detect(codeToCheck);
+    const options = { target: targetVersion, sourceType };
     
-    const isModule = acornOpts.sourceType === 'module';
-    if (!isModule) {
-      const moduleOnlyFeatures = detectedFeatures.filter(f => 
-        f.name === 'import' || f.name === 'export'
-      );
-      if (moduleOnlyFeatures.length > 0) {
-        const feature = moduleOnlyFeatures[0];
+    if (sourceType !== 'module') {
+      const quickCheck = fastBrake.detect(codeToCheck, { sourceType: 'script' });
+      const moduleFeature = quickCheck.find(f => f.name === 'import' || f.name === 'export');
+      
+      if (moduleFeature) {
         throw new Error(
-          `'${feature.name}' can only be used in ES modules. Use --module flag to enable module support` +
-          (feature.line ? ` at line ${feature.line}` : '')
+          `'${moduleFeature.name}' can only be used in ES modules. Use --module flag to enable module support` +
+          (moduleFeature.line ? ` at line ${moduleFeature.line}` : '')
         );
       }
     }
     
-    fastBrake.fastBrake(codeToCheck, { target: targetVersion });
+    fastBrake.fastBrake(codeToCheck, options);
     
-    return { ast: { type: 'Program', features: detectedFeatures }, error: null };
-  } catch (err) {
-    return {
-      ast: null,
-      error: {
-        err,
-        stack: err.stack,
-        file
-      }
+    const detectedFeatures = needsFeatures 
+      ? fastBrake.detect(codeToCheck, { sourceType }) 
+      : [];
+    
+    const result = { 
+      ast: { type: 'Program', features: detectedFeatures }, 
+      error: null 
     };
+    parseCache.set(cacheKey, result);
+    return result;
+  } catch (err) {
+    const result = {
+      ast: null,
+      error: { err, stack: err.stack, file }
+    };
+    parseCache.set(cacheKey, result);
+    return result;
   }
 }
 
-/**
- * Determine how runChecks is being invoked (CLI vs Node API)
- * @param {Object|null} loggerOrOptions - Logger or options object passed to runChecks
- * @returns {{isNodeAPI: boolean, logger: Object|null}}
- */
 function determineInvocationType(loggerOrOptions) {
-  let isNodeAPI = false;
-  let logger = null;
-  
   if (!loggerOrOptions) {
-    isNodeAPI = true;
-    logger = null;
-  } else if (typeof loggerOrOptions === 'object' && !loggerOrOptions.info && !loggerOrOptions.error) {
-    isNodeAPI = true;
-    logger = loggerOrOptions.logger || null;
-  } else {
-    isNodeAPI = false;
-    logger = loggerOrOptions;
+    return { isNodeAPI: true, logger: null };
   }
   
-  return { isNodeAPI, logger };
+  const hasLoggerMethods = loggerOrOptions.info || loggerOrOptions.error;
+  
+  if (typeof loggerOrOptions === 'object' && !hasLoggerMethods) {
+    return { isNodeAPI: true, logger: loggerOrOptions.logger || null };
+  }
+  
+  return { isNodeAPI: false, logger: loggerOrOptions };
 }
 
 /**
@@ -577,6 +581,37 @@ function handleESVersionError(options) {
   }
 }
 
+(async () => {
+  try {
+    await fastBrake.check('', { target: 'es5' });
+  } catch (e) {}
+})();
+
+async function parseLightMode(code, ecmaVersion, isModule, allowHashBang, file) {
+  const targetVersion = getTargetVersion(ecmaVersion);
+  
+  const codeToCheck = allowHashBang && code.startsWith('#!')
+    ? code.slice(code.indexOf('\n') + 1)
+    : code;
+  
+  const isCompatible = await fastBrake.check(codeToCheck, {
+    target: targetVersion,
+    sourceType: isModule ? 'module' : 'script'
+  });
+  
+  if (!isCompatible) {
+    return {
+      error: {
+        err: new Error(`Code contains features incompatible with ${targetVersion}`),
+        stack: '',
+        file
+      }
+    };
+  }
+  
+  return { error: null };
+}
+
 module.exports = {
   parseIgnoreList,
   checkVarKindMatch,
@@ -592,6 +627,7 @@ module.exports = {
   clearFileCache,
   getFileCacheStats,
   parseCode,
+  parseLightMode,
   determineInvocationType,
   determineLogLevel,
   handleESVersionError

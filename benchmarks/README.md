@@ -106,6 +106,20 @@ In May 2025, we established initial benchmarks after adding extensive new featur
 
 On August 6, 2025, we implemented major performance optimizations based on the May benchmarks. The key improvements included eliminating double parsing by reusing the AST between syntax checking and feature detection, adding async file processing with configurable batch sizes, and optimizing glob operations. These changes resulted in es-check improving from 3.14x slower to 1.81x slower - a 42% performance gain while maintaining all features.
 
+#### January 2025 - Light Mode with fast-brake
+
+We integrated `fast-brake` for pattern-based checking and added a `--light` mode that provides 2-3x faster performance:
+
+| Tool | Average (ms) | Min (ms) | Max (ms) | Relative Performance |
+|------|-------------|----------|----------|----------------------|
+| are-you-es5 | 36.35 | 34.21 | 41.35 | 1x (fastest) |
+| acorn (direct) | 49.72 | 46.73 | 52.65 | 1.37x slower |
+| babel-parser | 76.18 | 59.52 | 120.70 | 2.10x slower |
+| **es-check-light** | **87.90** | **77.62** | **105.30** | **2.42x slower** |
+| es-check | 131.10 | 120.78 | 155.64 | 3.61x slower |
+
+The `--light` mode uses fast-brake's optimized pattern matching instead of full AST parsing, achieving near-parser speeds while still supporting ES3-ES2025, with more performance improvements to come.
+
 ##### Small Test Set (100 files) - August 2025
 | Tool | Average (ms) | Min (ms) | Max (ms) | Relative Performance |
 |------|-------------|----------|----------|----------------------|

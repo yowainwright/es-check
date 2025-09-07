@@ -86,7 +86,10 @@ const detectFeatures = (code, ecmaVersion, sourceType, ignoreList = new Set(), o
     detectedFeatures = ast.features;
   } else {
     try {
-      detectedFeatures = fastBrake.detect(code);
+      const detectOptions = {
+        sourceType: sourceType || 'script'
+      };
+      detectedFeatures = fastBrake.detect(code, detectOptions);
     } catch (err) {
       const error = new Error(`Failed to parse code: ${err.message}`);
       error.type = 'ES-Check';

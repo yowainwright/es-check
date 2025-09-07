@@ -134,6 +134,7 @@ Here's a comprehensive list of all available options:
 |--------|-------------|
 | `-V, --version` | Output the version number |
 | `--module` | Use ES modules (default: false) |
+| `--light` | Lightweight mode: 2-3x faster checking using pattern matching only (default: false) |
 | `--allowHashBang` | If the code starts with #! treat it as a comment (default: false) |
 | `--files <files>` | A glob of files to test the ECMAScript version against (alias for [files...]) |
 | `--not <files>` | Folder or file names to skip |
@@ -199,6 +200,12 @@ Once enabled, you can use tab completion for:
 
 ```sh
 es-check es6 './dist/**/*.js' --module
+```
+
+**Fast checking with light mode (2-3x faster):**
+
+```sh
+es-check es5 './dist/**/*.js' --light
 ```
 
 **Checking files with hash bang:**
