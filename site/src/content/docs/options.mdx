@@ -22,6 +22,15 @@ Use ES modules parsing mode (default: false)
 es-check es6 './dist/**/*.js' --module
 ```
 
+### `--light`
+Lightweight mode: faster checking using pattern matching only (default: false)
+
+```bash
+es-check es5 './dist/**/*.js' --light
+```
+
+This mode uses pattern matching instead of full AST parsing for improved performance. Ideal for CI/CD pipelines where speed is critical.
+
 ### `--allowHashBang`
 Allow files starting with `#!` (shebang) (default: false)
 
