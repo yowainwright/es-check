@@ -71,6 +71,24 @@ const tools = [
     }
   },
   {
+    name: 'es-check-light',
+    run: async (testFiles) => {
+      const startTime = performance.now();
+      try {
+        await execFileAsync('node', [
+          './index.js',
+          esVersion,
+          ...testFiles,
+          '--light',
+          '--silent'
+        ]);
+      } catch (error) {
+
+      }
+      return performance.now() - startTime;
+    }
+  },
+  {
     name: 'es-check-batch-10',
     run: async (testFiles) => {
       const startTime = performance.now();

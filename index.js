@@ -100,6 +100,7 @@ program
   .option('--config <path>', 'path to custom .escheckrc config file')
   .option('--batchSize <number>', 'number of files to process concurrently (0 for unlimited)', '0')
   .option('--noCache', 'disable file caching (caching is enabled by default)', false)
+  .option('--light', 'lightweight mode: faster checking with pattern matching only (skips full AST parsing)', false)
 
 async function loadConfig(customConfigPath) {
   const logger = createLogger();
@@ -182,6 +183,7 @@ program
         browserslistEnv: options.browserslistEnv !== undefined ? options.browserslistEnv : baseConfig.browserslistEnv,
         batchSize: options.batchSize !== undefined ? options.batchSize : baseConfig.batchSize,
         cache: options.noCache ? false : (baseConfig.cache !== undefined ? baseConfig.cache : true),
+        light: options.light !== undefined ? options.light : baseConfig.light,
       };
 
       if (ecmaVersionArg !== undefined) {
@@ -236,6 +238,7 @@ async function runChecks(configs, loggerOrOptions) {
     const checkFeatures = config.checkFeatures;
     const checkForPolyfills = config.checkForPolyfills;
     const checkBrowser = config.checkBrowser;
+    const lightMode = config.light;
     const ignoreFilePath = config.ignoreFile || config['ignore-file'];
 
     const ignoreFileExists = ignoreFilePath && fs.existsSync(ignoreFilePath);
@@ -475,10 +478,22 @@ async function runChecks(configs, loggerOrOptions) {
         logger.debug(`ES-Check: checking ${file}`)
       }
 
+      if (lightMode) {
+        const { parseLightMode } = require('./utils');
+        const { error: parseError } = await parseLightMode(code, ecmaVersion, esmodule, allowHashBang, file);
+        if (parseError) {
+          if (isDebug) {
+            logger.debug(`ES-Check: failed to parse file: ${file} \n - error: ${parseError.err}`)
+          }
+          return parseError;
+        }
+        return null;
+      }
+
       const needsFullAST = checkFeatures;
       const parserOptions = needsFullAST ? acornOpts : { ...acornOpts, locations: false, ranges: false, onComment: null };
       
-      const { ast, error: parseError } = parseCode(code, parserOptions, acorn, file);
+      const { ast, error: parseError } = parseCode(code, parserOptions, acorn, file, checkFeatures);
       if (parseError) {
         if (isDebug) {
           logger.debug(`ES-Check: failed to parse file: ${file} \n - error: ${parseError.err}`)
@@ -571,6 +586,8 @@ async function runChecks(configs, loggerOrOptions) {
   
   if (isNodeAPI) {
     return { success: true, errors: [] };
+  } else {
+    process.exit(0);
   }
 }
 

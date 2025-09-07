@@ -420,51 +420,117 @@ function getFileCacheStats() {
   return fileCache.getStats();
 }
 
+const ECMA_VERSION_MAP = {
+  5: 'es5',
+  6: 'es2015',
+  7: 'es2016',
+  8: 'es2017',
+  9: 'es2018',
+  10: 'es2019',
+  11: 'es2020',
+  12: 'es2021',
+  13: 'es2022',
+  14: 'es2023',
+  15: 'es2024',
+  16: 'es2025',
+  2015: 'es2015',
+  2016: 'es2016',
+  2017: 'es2017',
+  2018: 'es2018',
+  2019: 'es2019',
+  2020: 'es2020',
+  2021: 'es2021',
+  2022: 'es2022',
+  2023: 'es2023',
+  2024: 'es2024',
+  2025: 'es2025'
+};
+
 /**
- * Parse code with acorn and handle errors
- * @param {string} code - Code to parse
- * @param {Object} acornOpts - Acorn parsing options
- * @param {Object} acorn - Acorn module
- * @param {string} file - File path for error reporting
- * @returns {{ast: Object, error: null} | {ast: null, error: Object}}
+ * Convert ecmaVersion to fast-brake target format
+ * @param {number|string} ecmaVersion - Version from acorn options
+ * @returns {string} Target version for fast-brake
  */
-function parseCode(code, acornOpts, acorn, file) {
-  try {
-    const ast = acorn.parse(code, acornOpts);
-    return { ast, error: null };
-  } catch (err) {
-    return {
-      ast: null,
-      error: {
-        err,
-        stack: err.stack,
-        file
-      }
-    };
-  }
+function getTargetVersion(ecmaVersion) {
+  return ECMA_VERSION_MAP[ecmaVersion] || 'es5';
 }
 
 /**
- * Determine how runChecks is being invoked (CLI vs Node API)
- * @param {Object|null} loggerOrOptions - Logger or options object passed to runChecks
- * @returns {{isNodeAPI: boolean, logger: Object|null}}
+ * Parse code with fast-brake and handle errors
+ * @param {string} code - Code to parse
+ * @param {Object} acornOpts - Parsing options (for compatibility)
+ * @param {Object} acorn - Module (for compatibility, not used)
+ * @param {string} file - File path for error reporting
+ * @returns {{ast: Object, error: null} | {ast: null, error: Object}}
  */
-function determineInvocationType(loggerOrOptions) {
-  let isNodeAPI = false;
-  let logger = null;
+const fastBrake = require('fast-brake');
+
+const parseCache = new Map();
+
+function parseCode(code, acornOpts, acorn, file, needsFeatures = false) {
+  const cacheKey = `${file}:${acornOpts.ecmaVersion}:${acornOpts.sourceType}:${needsFeatures}:${code.length}`;
   
-  if (!loggerOrOptions) {
-    isNodeAPI = true;
-    logger = null;
-  } else if (typeof loggerOrOptions === 'object' && !loggerOrOptions.info && !loggerOrOptions.error) {
-    isNodeAPI = true;
-    logger = loggerOrOptions.logger || null;
-  } else {
-    isNodeAPI = false;
-    logger = loggerOrOptions;
+  if (parseCache.has(cacheKey)) {
+    return parseCache.get(cacheKey);
   }
   
-  return { isNodeAPI, logger };
+  try {
+    const ecmaVersion = acornOpts.ecmaVersion || 5;
+    const targetVersion = getTargetVersion(ecmaVersion);
+    const sourceType = acornOpts.sourceType || 'script';
+    
+    const codeToCheck = acornOpts.allowHashBang && code.startsWith('#!')
+      ? code.slice(code.indexOf('\n') + 1)
+      : code;
+    
+    const options = { target: targetVersion, sourceType };
+    
+    if (sourceType !== 'module') {
+      const quickCheck = fastBrake.detect(codeToCheck, { sourceType: 'script' });
+      const moduleFeature = quickCheck.find(f => f.name === 'import' || f.name === 'export');
+      
+      if (moduleFeature) {
+        throw new Error(
+          `'${moduleFeature.name}' can only be used in ES modules. Use --module flag to enable module support` +
+          (moduleFeature.line ? ` at line ${moduleFeature.line}` : '')
+        );
+      }
+    }
+    
+    fastBrake.fastBrake(codeToCheck, options);
+    
+    const detectedFeatures = needsFeatures 
+      ? fastBrake.detect(codeToCheck, { sourceType }) 
+      : [];
+    
+    const result = { 
+      ast: { type: 'Program', features: detectedFeatures }, 
+      error: null 
+    };
+    parseCache.set(cacheKey, result);
+    return result;
+  } catch (err) {
+    const result = {
+      ast: null,
+      error: { err, stack: err.stack, file }
+    };
+    parseCache.set(cacheKey, result);
+    return result;
+  }
+}
+
+function determineInvocationType(loggerOrOptions) {
+  if (!loggerOrOptions) {
+    return { isNodeAPI: true, logger: null };
+  }
+  
+  const hasLoggerMethods = loggerOrOptions.info || loggerOrOptions.error;
+  
+  if (typeof loggerOrOptions === 'object' && !hasLoggerMethods) {
+    return { isNodeAPI: true, logger: loggerOrOptions.logger || null };
+  }
+  
+  return { isNodeAPI: false, logger: loggerOrOptions };
 }
 
 /**
@@ -515,6 +581,37 @@ function handleESVersionError(options) {
   }
 }
 
+(async () => {
+  try {
+    await fastBrake.check('', { target: 'es5' });
+  } catch (e) {}
+})();
+
+async function parseLightMode(code, ecmaVersion, isModule, allowHashBang, file) {
+  const targetVersion = getTargetVersion(ecmaVersion);
+  
+  const codeToCheck = allowHashBang && code.startsWith('#!')
+    ? code.slice(code.indexOf('\n') + 1)
+    : code;
+  
+  const isCompatible = await fastBrake.check(codeToCheck, {
+    target: targetVersion,
+    sourceType: isModule ? 'module' : 'script'
+  });
+  
+  if (!isCompatible) {
+    return {
+      error: {
+        err: new Error(`Code contains features incompatible with ${targetVersion}`),
+        stack: '',
+        file
+      }
+    };
+  }
+  
+  return { error: null };
+}
+
 module.exports = {
   parseIgnoreList,
   checkVarKindMatch,
@@ -530,6 +627,7 @@ module.exports = {
   clearFileCache,
   getFileCacheStats,
   parseCode,
+  parseLightMode,
   determineInvocationType,
   determineLogLevel,
   handleESVersionError
