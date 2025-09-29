@@ -59,10 +59,10 @@
   "homepage": "https://github.com/yowainwright/es-check#readme",
   "devDependencies": {
     "@babel/parser": "^7.27.1",
-    "@commitlint/cli": "19.8.1",
-    "@commitlint/config-conventional": "19.8.1",
+    "@commitlint/cli": "20.0.0",
+    "@commitlint/config-conventional": "20.0.0",
     "@commitlint/format": "^19.3.0",
-    "@commitlint/prompt": "19.8.1",
+    "@commitlint/prompt": "20.0.0",
     "@swc/core": "^1.11.24",
     "are-you-es5": "^2.1.2",
     "assert": "^2.1.0",
