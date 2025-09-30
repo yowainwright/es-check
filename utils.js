@@ -451,7 +451,30 @@ const ECMA_VERSION_MAP = {
   2022: 'es2022',
   2023: 'es2023',
   2024: 'es2024',
-  2025: 'es2025'
+  2025: 'es2025',
+  es5: 'es5',
+  es6: 'es2015',
+  es7: 'es2016',
+  es8: 'es2017',
+  es9: 'es2018',
+  es10: 'es2019',
+  es11: 'es2020',
+  es12: 'es2021',
+  es13: 'es2022',
+  es14: 'es2023',
+  es15: 'es2024',
+  es16: 'es2025',
+  es2015: 'es2015',
+  es2016: 'es2016',
+  es2017: 'es2017',
+  es2018: 'es2018',
+  es2019: 'es2019',
+  es2020: 'es2020',
+  es2021: 'es2021',
+  es2022: 'es2022',
+  es2023: 'es2023',
+  es2024: 'es2024',
+  es2025: 'es2025'
 };
 
 /**
@@ -471,8 +494,10 @@ function getTargetVersion(ecmaVersion) {
  * @param {string} file - File path for error reporting
  * @returns {{ast: Object, error: null} | {ast: null, error: Object}}
  */
-const fastBrake = require('fast-brake');
+const { fastBrakeSync } = require('fast-brake/sync');
+const esversionPlugin = require('fast-brake/plugins/esversion');
 
+const fastbrake = fastBrakeSync({ plugins: [esversionPlugin.default] });
 const parseCache = new Map();
 
 function parseCode(code, acornOpts, acorn, file, needsFeatures = false) {
@@ -494,21 +519,27 @@ function parseCode(code, acornOpts, acorn, file, needsFeatures = false) {
     const options = { target: targetVersion, sourceType };
     
     if (sourceType !== 'module') {
-      const quickCheck = fastBrake.detect(codeToCheck, { sourceType: 'script' });
-      const moduleFeature = quickCheck.find(f => f.name === 'import' || f.name === 'export');
-      
+      let moduleFeature = null;
+      if (codeToCheck.indexOf('import ') !== -1) {
+        moduleFeature = { name: 'import' };
+      } else if (codeToCheck.indexOf('export ') !== -1) {
+        moduleFeature = { name: 'export' };
+      }
+
       if (moduleFeature) {
         throw new Error(
-          `'${moduleFeature.name}' can only be used in ES modules. Use --module flag to enable module support` +
-          (moduleFeature.line ? ` at line ${moduleFeature.line}` : '')
+          `'${moduleFeature.name}' can only be used in ES modules. Use --module flag to enable module support`
         );
       }
     }
-    
-    fastBrake.fastBrake(codeToCheck, options);
-    
-    const detectedFeatures = needsFeatures 
-      ? fastBrake.detect(codeToCheck, { sourceType }) 
+
+    const isCompatible = fastbrake.check(codeToCheck, options);
+    if (!isCompatible) {
+      throw new Error(`Code contains features incompatible with ${targetVersion}`);
+    }
+
+    const detectedFeatures = needsFeatures
+      ? fastbrake.detect(codeToCheck)
       : [];
     
     const result = { 
@@ -589,35 +620,39 @@ function handleESVersionError(options) {
   }
 }
 
-(async () => {
-  try {
-    await fastBrake.check('', { target: 'es5' });
-  } catch (e) {}
-})();
-
-async function parseLightMode(code, ecmaVersion, isModule, allowHashBang, file) {
+function parseLightMode(code, ecmaVersion, isModule, allowHashBang, file) {
   const targetVersion = getTargetVersion(ecmaVersion);
-  
+
   const codeToCheck = allowHashBang && code.startsWith('#!')
     ? code.slice(code.indexOf('\n') + 1)
     : code;
-  
-  const isCompatible = await fastBrake.check(codeToCheck, {
-    target: targetVersion,
-    sourceType: isModule ? 'module' : 'script'
-  });
-  
-  if (!isCompatible) {
+
+  try {
+    const isCompatible = fastbrake.check(codeToCheck, {
+      target: targetVersion,
+      sourceType: isModule ? 'module' : 'script'
+    });
+
+    if (!isCompatible) {
+      return {
+        error: {
+          err: new Error(`Code contains features incompatible with ${targetVersion}`),
+          stack: '',
+          file
+        }
+      };
+    }
+
+    return { error: null };
+  } catch (err) {
     return {
       error: {
-        err: new Error(`Code contains features incompatible with ${targetVersion}`),
-        stack: '',
+        err: new Error(`Failed to check code in light mode: ${err.message}`),
+        stack: err.stack || '',
         file
       }
     };
   }
-  
-  return { error: null };
 }
 
 module.exports = {

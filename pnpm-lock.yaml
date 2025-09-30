@@ -21,8 +21,8 @@ importers:
         specifier: 14.0.1
         version: 14.0.1
       fast-brake:
-        specifier: ^0.1.1
-        version: 0.1.1
+        specifier: ^0.1.4
+        version: 0.1.4
       fast-glob:
         specifier: ^3.3.3
         version: 3.3.3
@@ -2609,8 +2609,8 @@ packages:
     resolution: {integrity: sha512-hMQ4CX1p1izmuLYyZqLMO/qGNw10wSv9QDCPfzXfyFrOaCSSoRfqE1Kf1s5an66J5JZC62NewG+mK49jOCtQew==}
     engines: {node: '>=4'}
 
-  fast-brake@0.1.1:
-    resolution: {integrity: sha512-alUdFuQR7XlFq6NnV/6SXAspmFTuo+al12hrcivjPzomdck2MUFJ5bRc+F3BL4UHtVKEHKpp6LD0AD+e0v0QvA==}
+  fast-brake@0.1.4:
+    resolution: {integrity: sha512-zSYvVnZRCSPZ1QKDFmAqC8PkCQ55bmLkk4cI8bk7BJ4WkvclsvcS+etuVPuQpNX88yMR2L0cFWC4mlW//doO9Q==}
 
   fast-content-type-parse@3.0.0:
     resolution: {integrity: sha512-ZvLdcY8P+N8mGQJahJV5G4U88CSvT1rP8ApL6uETe88MBXrBHAkZlSEySdUlyztF7ccb+Znos3TFqaepHxdhBg==}
@@ -7998,7 +7998,7 @@ snapshots:
       iconv-lite: 0.4.24
       tmp: 0.0.33
 
-  fast-brake@0.1.1: {}
+  fast-brake@0.1.4: {}
 
   fast-content-type-parse@3.0.0: {}
 
