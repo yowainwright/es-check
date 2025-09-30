@@ -1,5 +1,8 @@
-const fastBrake = require('fast-brake');
+const { fastBrakeSync } = require('fast-brake/sync');
 const { ES_FEATURES, POLYFILL_PATTERNS, IMPORT_PATTERNS } = require('./constants');
+const esversionPlugin = require('fast-brake/plugins/esversion');
+
+const fastbrake = fastBrakeSync({ plugins: [esversionPlugin.default] });
 
 /**
  * Detects polyfills in the code and adds them to the polyfills Set
@@ -81,15 +84,12 @@ const detectFeatures = (code, ecmaVersion, sourceType, ignoreList = new Set(), o
   if (checkForPolyfills) detectPolyfills(code, polyfills);
 
   let detectedFeatures = [];
-  
+
   if (ast && ast.features) {
     detectedFeatures = ast.features;
   } else {
     try {
-      const detectOptions = {
-        sourceType: sourceType || 'script'
-      };
-      detectedFeatures = fastBrake.detect(code, detectOptions);
+      detectedFeatures = fastbrake.detect(code);
     } catch (err) {
       const error = new Error(`Failed to parse code: ${err.message}`);
       error.type = 'ES-Check';
