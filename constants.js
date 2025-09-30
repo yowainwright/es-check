@@ -716,6 +716,11 @@ const JS_VERSIONS = [
   'es13', 'es2022', 'es14', 'es2023', 'es15', 'es2024', 'es16', 'es2025', 'checkBrowser'
 ];
 
+const VERSION_ORDER = [
+  'es5', 'es2015', 'es2016', 'es2017', 'es2018', 'es2019',
+  'es2020', 'es2021', 'es2022', 'es2023', 'es2024', 'es2025'
+];
+
 /**
  * Maps feature names from ES_FEATURES to their polyfill patterns.
  * This version uses standardized keys and robust regex for both manual and module polyfills.
@@ -798,4 +803,5 @@ module.exports = {
   BROWSER_TO_ES_VERSION,
   FEATURE_TO_POLYFILL_MAP,
   JS_VERSIONS,
+  VERSION_ORDER,
 };
