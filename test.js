@@ -101,10 +101,23 @@ it('👌  Es Check should fail when given a glob that matches files and a glob t
   })
 })
 
-it('👌  Es Check should fail when checking a glob of es6 modules without --module flag', (done) => {
-  exec('node index.js es6 ./tests/modules/*.js', (err, stdout) => {
+it('👌  Es Check should fail when checking a glob of es6 modules as es5 without --module flag', (done) => {
+  exec('node index.js es5 ./tests/modules/*.js', (err, stdout) => {
     assert(err)
     console.log(stdout)
+    done()
+  })
+})
+
+it('🎉  Es Check should pass when checking a glob of es6 modules as es6 without --module flag', (done) => {
+  exec('node index.js es6 ./tests/modules/*.js', (err, stdout, stderr) => {
+    if (err) {
+      console.error(err.stack)
+      console.error(stdout.toString())
+      console.error(stderr.toString())
+      done(err)
+      return
+    }
     done()
   })
 })
