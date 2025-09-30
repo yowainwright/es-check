@@ -15,8 +15,5 @@ export default defineConfig({
     optimizeDeps: {
       include: ['react', 'react-dom', 'fuse.js'],
     },
-    ssr: {
-      noExternal: ['@fontsource-variable/*'],
-    },
   },
 });
