@@ -517,21 +517,6 @@ function parseCode(code, acornOpts, acorn, file, needsFeatures = false) {
       : code;
     
     const options = { target: targetVersion, sourceType };
-    
-    if (sourceType !== 'module') {
-      let moduleFeature = null;
-      if (codeToCheck.indexOf('import ') !== -1) {
-        moduleFeature = { name: 'import' };
-      } else if (codeToCheck.indexOf('export ') !== -1) {
-        moduleFeature = { name: 'export' };
-      }
-
-      if (moduleFeature) {
-        throw new Error(
-          `'${moduleFeature.name}' can only be used in ES modules. Use --module flag to enable module support`
-        );
-      }
-    }
 
     const isCompatible = fastbrake.check(codeToCheck, options);
     if (!isCompatible) {
