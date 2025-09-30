@@ -118,6 +118,22 @@ describe('detectFeatures', () => {
   });
 
   describe('Feature detection', () => {
+    it('should not confuse console.group with ArrayGroup', () => {
+      const code = `
+        console.group('Test Group');
+        console.log('Inside group');
+        console.groupEnd();
+      `;
+
+      try {
+        const { foundFeatures, unsupportedFeatures } = detectFeatures(code, 13, 'script', new Set());
+        assert.strictEqual(unsupportedFeatures.length, 0, 'console.group should not be detected as ArrayGroup');
+        assert.strictEqual(foundFeatures.ArrayGroup, false, 'ArrayGroup should not be detected for console.group');
+      } catch (error) {
+        assert.fail(`Should not throw for console.group in ES2022: ${error.message}`);
+      }
+    });
+
     it('should detect ES2020 features', () => {
       const code = `
         const obj = {

@@ -184,6 +184,64 @@ describe('Utils Module Tests', () => {
         property: 'getElementById'
       }), true);
     });
+
+    it('should exclude specific objects when excludeObjects is provided', () => {
+      const consoleGroupNode = {
+        type: 'CallExpression',
+        callee: {
+          type: 'MemberExpression',
+          object: { type: 'Identifier', name: 'console' },
+          property: { type: 'Identifier', name: 'group' }
+        }
+      };
+
+      const arrGroupNode = {
+        type: 'CallExpression',
+        callee: {
+          type: 'MemberExpression',
+          object: { type: 'Identifier', name: 'arr' },
+          property: { type: 'Identifier', name: 'group' }
+        }
+      };
+
+      const astInfoWithExclude = {
+        property: 'group',
+        excludeObjects: ['console']
+      };
+
+      assert.strictEqual(
+        checkMap.CallExpression(consoleGroupNode, astInfoWithExclude),
+        false,
+        'console.group should be excluded'
+      );
+
+      assert.strictEqual(
+        checkMap.CallExpression(arrGroupNode, astInfoWithExclude),
+        true,
+        'arr.group should not be excluded'
+      );
+    });
+
+    it('should match property without excludeObjects when not specified', () => {
+      const consoleGroupNode = {
+        type: 'CallExpression',
+        callee: {
+          type: 'MemberExpression',
+          object: { type: 'Identifier', name: 'console' },
+          property: { type: 'Identifier', name: 'group' }
+        }
+      };
+
+      const astInfoWithoutExclude = {
+        property: 'group'
+      };
+
+      assert.strictEqual(
+        checkMap.CallExpression(consoleGroupNode, astInfoWithoutExclude),
+        true,
+        'should match any .group() when no exclusions'
+      );
+    });
   });
 
   describe('checkMap.NewExpression', () => {

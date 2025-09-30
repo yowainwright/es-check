@@ -569,6 +569,7 @@ const ES_FEATURES = {
     astInfo: {
       nodeType: 'CallExpression',
       property: 'group',
+      excludeObjects: ['console'],
     },
   },
   ArrayGroupToMap: {
@@ -577,6 +578,7 @@ const ES_FEATURES = {
     astInfo: {
       nodeType: 'CallExpression',
       property: 'groupToMap',
+      excludeObjects: ['console'],
     },
   },
   PromiseTry: {
