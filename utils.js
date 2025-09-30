@@ -475,7 +475,7 @@ const fastBrake = require('fast-brake');
 
 const parseCache = new Map();
 
-function parseCode(code, acornOpts, acorn, file, needsFeatures = false) {
+async function parseCode(code, acornOpts, acorn, file, needsFeatures = false) {
   const cacheKey = `${file}:${acornOpts.ecmaVersion}:${acornOpts.sourceType}:${needsFeatures}:${code.length}`;
   
   if (parseCache.has(cacheKey)) {
@@ -494,7 +494,7 @@ function parseCode(code, acornOpts, acorn, file, needsFeatures = false) {
     const options = { target: targetVersion, sourceType };
     
     if (sourceType !== 'module') {
-      const quickCheck = fastBrake.detect(codeToCheck, { sourceType: 'script' });
+      const quickCheck = await fastBrake.detect(codeToCheck, { sourceType: 'script' });
       const moduleFeature = quickCheck.find(f => f.name === 'import' || f.name === 'export');
       
       if (moduleFeature) {
@@ -507,8 +507,8 @@ function parseCode(code, acornOpts, acorn, file, needsFeatures = false) {
     
     fastBrake.fastBrake(codeToCheck, options);
     
-    const detectedFeatures = needsFeatures 
-      ? fastBrake.detect(codeToCheck, { sourceType }) 
+    const detectedFeatures = needsFeatures
+      ? await fastBrake.detect(codeToCheck, { sourceType })
       : [];
     
     const result = { 

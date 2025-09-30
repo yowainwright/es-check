@@ -367,7 +367,7 @@ const code = `
   class MyClass {}
 `;
 
-const { foundFeatures, unsupportedFeatures } = detectFeatures(
+const { foundFeatures, unsupportedFeatures } = await detectFeatures(
   code,
   5,  // ES5
   'script',

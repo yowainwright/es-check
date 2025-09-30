@@ -383,17 +383,17 @@ describe('Utils Module Tests', () => {
   describe('parseCode', () => {
     const acorn = require('acorn');
 
-    it('should parse valid ES5 code successfully', () => {
+    it('should parse valid ES5 code successfully', async () => {
       const code = 'var x = 5;';
-      const result = parseCode(code, { ecmaVersion: 5 }, acorn, 'test.js');
+      const result = await parseCode(code, { ecmaVersion: 5 }, acorn, 'test.js');
       assert.ok(result.ast);
       assert.strictEqual(result.error, null);
       assert.strictEqual(result.ast.type, 'Program');
     });
 
-    it('should return error for invalid syntax', () => {
+    it('should return error for invalid syntax', async () => {
       const code = 'const x = 5;'; // ES6 syntax with ES5 parser
-      const result = parseCode(code, { ecmaVersion: 5 }, acorn, 'test.js');
+      const result = await parseCode(code, { ecmaVersion: 5 }, acorn, 'test.js');
       assert.strictEqual(result.ast, null);
       assert.ok(result.error);
       assert.ok(result.error.err);
@@ -401,9 +401,9 @@ describe('Utils Module Tests', () => {
       assert.ok(result.error.stack);
     });
 
-    it('should parse ES6 code with ES6 settings', () => {
+    it('should parse ES6 code with ES6 settings', async () => {
       const code = 'const x = () => 5;';
-      const result = parseCode(code, { ecmaVersion: 6 }, acorn, 'test.js');
+      const result = await parseCode(code, { ecmaVersion: 6 }, acorn, 'test.js');
       assert.ok(result.ast);
       assert.strictEqual(result.error, null);
     });

@@ -493,7 +493,7 @@ async function runChecks(configs, loggerOrOptions) {
       const needsFullAST = checkFeatures;
       const parserOptions = needsFullAST ? acornOpts : { ...acornOpts, locations: false, ranges: false, onComment: null };
       
-      const { ast, error: parseError } = parseCode(code, parserOptions, acorn, file, checkFeatures);
+      const { ast, error: parseError } = await parseCode(code, parserOptions, acorn, file, checkFeatures);
       if (parseError) {
         if (isDebug) {
           logger.debug(`ES-Check: failed to parse file: ${file} \n - error: ${parseError.err}`)
@@ -505,7 +505,7 @@ async function runChecks(configs, loggerOrOptions) {
       const parseSourceType = acornOpts.sourceType || 'script';
       const esVersion = parseInt(ecmaVersion, 10);
 
-      const { foundFeatures, unsupportedFeatures } = detectFeatures(
+      const { foundFeatures, unsupportedFeatures } = await detectFeatures(
         code,
         esVersion,
         parseSourceType,

@@ -74,7 +74,7 @@ const featureNameMap = {
   'string_replaceAll': 'StringReplaceAll'
 };
 
-const detectFeatures = (code, ecmaVersion, sourceType, ignoreList = new Set(), options = {}) => {
+const detectFeatures = async (code, ecmaVersion, sourceType, ignoreList = new Set(), options = {}) => {
   const { checkForPolyfills, ast } = options;
 
   const polyfills = new Set();
@@ -89,7 +89,7 @@ const detectFeatures = (code, ecmaVersion, sourceType, ignoreList = new Set(), o
       const detectOptions = {
         sourceType: sourceType || 'script'
       };
-      detectedFeatures = fastBrake.detect(code, detectOptions);
+      detectedFeatures = await fastBrake.detect(code, detectOptions);
     } catch (err) {
       const error = new Error(`Failed to parse code: ${err.message}`);
       error.type = 'ES-Check';
