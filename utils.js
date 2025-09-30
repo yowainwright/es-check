@@ -496,9 +496,25 @@ function getTargetVersion(ecmaVersion) {
  */
 const { fastBrakeSync } = require('fast-brake/sync');
 const esversionPlugin = require('fast-brake/plugins/esversion');
+const { VERSION_ORDER } = require('./constants');
 
 const fastbrake = fastBrakeSync({ plugins: [esversionPlugin.default] });
 const parseCache = new Map();
+
+function checkModuleCompatibility(code, targetVersion, versionOrder, needsFeatures) {
+  const allFeatures = fastbrake.detect(code);
+  const nonModuleFeatures = allFeatures.filter(f => f.name !== 'import' && f.name !== 'export');
+
+  const targetIdx = versionOrder.indexOf(targetVersion);
+  const hasIncompat = nonModuleFeatures.some(f => versionOrder.indexOf(f.version) > targetIdx);
+
+  if (hasIncompat) {
+    throw new Error(`Code contains features incompatible with ${targetVersion}`);
+  }
+
+  const detectedFeatures = needsFeatures ? allFeatures : [];
+  return { ast: { type: 'Program', features: detectedFeatures }, error: null };
+}
 
 function parseCode(code, acornOpts, acorn, file, needsFeatures = false) {
   const cacheKey = `${file}:${acornOpts.ecmaVersion}:${acornOpts.sourceType}:${needsFeatures}:${code.length}`;
@@ -515,9 +531,14 @@ function parseCode(code, acornOpts, acorn, file, needsFeatures = false) {
     const codeToCheck = acornOpts.allowHashBang && code.startsWith('#!')
       ? code.slice(code.indexOf('\n') + 1)
       : code;
-    
-    const options = { target: targetVersion, sourceType };
 
+    if (sourceType === 'module') {
+      const result = checkModuleCompatibility(codeToCheck, targetVersion, VERSION_ORDER, needsFeatures);
+      parseCache.set(cacheKey, result);
+      return result;
+    }
+
+    const options = { target: targetVersion, sourceType };
     const isCompatible = fastbrake.check(codeToCheck, options);
     if (!isCompatible) {
       throw new Error(`Code contains features incompatible with ${targetVersion}`);
@@ -654,6 +675,7 @@ module.exports = {
   readFileAsync,
   clearFileCache,
   getFileCacheStats,
+  checkModuleCompatibility,
   parseCode,
   parseLightMode,
   determineInvocationType,
