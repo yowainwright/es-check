@@ -109,6 +109,19 @@ it('👌  Es Check should fail when checking a glob of es6 modules as es5 withou
   })
 })
 
+it('🎉  Es Check should pass when checking es5 syntax module with es5 and --module flag', (done) => {
+  exec('node index.js es5 ./tests/modules/es5-syntax-module.js --module', (err, stdout, stderr) => {
+    if (err) {
+      console.error(err.stack)
+      console.error(stdout.toString())
+      console.error(stderr.toString())
+      done(err)
+      return
+    }
+    done()
+  })
+})
+
 it('🎉  Es Check should pass when checking a glob of es6 modules as es6 without --module flag', (done) => {
   exec('node index.js es6 ./tests/modules/*.js', (err, stdout, stderr) => {
     if (err) {
