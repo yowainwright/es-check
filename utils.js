@@ -451,7 +451,30 @@ const ECMA_VERSION_MAP = {
   2022: 'es2022',
   2023: 'es2023',
   2024: 'es2024',
-  2025: 'es2025'
+  2025: 'es2025',
+  es5: 'es5',
+  es6: 'es2015',
+  es7: 'es2016',
+  es8: 'es2017',
+  es9: 'es2018',
+  es10: 'es2019',
+  es11: 'es2020',
+  es12: 'es2021',
+  es13: 'es2022',
+  es14: 'es2023',
+  es15: 'es2024',
+  es16: 'es2025',
+  es2015: 'es2015',
+  es2016: 'es2016',
+  es2017: 'es2017',
+  es2018: 'es2018',
+  es2019: 'es2019',
+  es2020: 'es2020',
+  es2021: 'es2021',
+  es2022: 'es2022',
+  es2023: 'es2023',
+  es2024: 'es2024',
+  es2025: 'es2025'
 };
 
 /**
@@ -496,13 +519,16 @@ function parseCode(code, acornOpts, acorn, file, needsFeatures = false) {
     const options = { target: targetVersion, sourceType };
     
     if (sourceType !== 'module') {
-      const quickCheck = fastbrake.detect(codeToCheck);
-      const moduleFeature = quickCheck.find(f => f.name === 'import' || f.name === 'export');
+      let moduleFeature = null;
+      if (codeToCheck.indexOf('import ') !== -1) {
+        moduleFeature = { name: 'import' };
+      } else if (codeToCheck.indexOf('export ') !== -1) {
+        moduleFeature = { name: 'export' };
+      }
 
       if (moduleFeature) {
         throw new Error(
-          `'${moduleFeature.name}' can only be used in ES modules. Use --module flag to enable module support` +
-          (moduleFeature.line ? ` at line ${moduleFeature.line}` : '')
+          `'${moduleFeature.name}' can only be used in ES modules. Use --module flag to enable module support`
         );
       }
     }
