@@ -114,11 +114,19 @@ const checkMap = {
           node.callee.property.name === astInfo.property
         );
       } else if (astInfo.property) {
-        // Check for method calls with any object when only property is specified
-        return (
+        if (
           node.callee.property.type === 'Identifier' &&
           node.callee.property.name === astInfo.property
-        );
+        ) {
+          if (astInfo.excludeObjects && node.callee.object.type === 'Identifier') {
+            const objectName = node.callee.object.name;
+            if (astInfo.excludeObjects.includes(objectName)) {
+              return false;
+            }
+          }
+          return true;
+        }
+        return false;
       }
 
       return false;
