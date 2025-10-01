@@ -15,7 +15,6 @@ const {
   generateZshCompletion,
   readFileAsync,
   parseCode,
-  checkModuleCompatibility,
   processBatchedFiles,
   determineInvocationType,
   determineLogLevel,
@@ -409,140 +408,37 @@ describe('Utils Module Tests', () => {
       assert.strictEqual(result.error, null);
     });
 
-    it('should handle module with ES5 syntax using checkModuleCompatibility', () => {
+    it('should parse module syntax with ES6 sourceType module', () => {
       const code = 'export var foo = "bar";';
-      const result = parseCode(code, { ecmaVersion: 5, sourceType: 'module' }, acorn, 'test.js');
+      const result = parseCode(code, { ecmaVersion: 6, sourceType: 'module' }, acorn, 'test.js');
       assert.ok(result.ast);
       assert.strictEqual(result.error, null);
       assert.strictEqual(result.ast.type, 'Program');
     });
 
-    it('should fail when module contains ES6+ features with ES5 target', () => {
-      const code = 'export const foo = () => "bar";';
-      const result = parseCode(code, { ecmaVersion: 5, sourceType: 'module' }, acorn, 'test.js');
+    it('should fail when parsing ES6+ features with ES5 ecmaVersion', () => {
+      const code = 'const foo = () => "bar";';
+      const result = parseCode(code, { ecmaVersion: 5 }, acorn, 'test.js');
       assert.strictEqual(result.ast, null);
       assert.ok(result.error);
       assert.ok(result.error.err);
-      assert.ok(result.error.err.message.includes('incompatible with es5'));
     });
 
-    it('should allow import/export in ES6 modules without failing', () => {
+    it('should allow import/export in ES6 modules', () => {
       const code = 'import foo from "bar"; export default foo;';
       const result = parseCode(code, { ecmaVersion: 6, sourceType: 'module' }, acorn, 'test.js');
       assert.ok(result.ast);
       assert.strictEqual(result.error, null);
     });
 
-    it('should detect ES6 features in module even when import/export are filtered', () => {
-      const code = 'export const x = () => 5;';
+    it('should fail ES6 syntax with ES5 ecmaVersion even in module mode', () => {
+      const code = 'const x = () => 5;';
       const result = parseCode(code, { ecmaVersion: 5, sourceType: 'module' }, acorn, 'test.js');
       assert.strictEqual(result.ast, null);
       assert.ok(result.error);
-      assert.ok(result.error.err.message.includes('incompatible'));
     });
   });
 
-  describe('checkModuleCompatibility', () => {
-    const { VERSION_ORDER } = require('./constants');
-
-    it('should pass ES5 syntax with import/export for ES5 target', () => {
-      const code = 'export var foo = "bar";';
-      const result = checkModuleCompatibility(code, 'es5', VERSION_ORDER, false);
-      assert.ok(result.ast);
-      assert.strictEqual(result.error, null);
-      assert.strictEqual(result.ast.type, 'Program');
-    });
-
-    it('should fail when code contains ES6 features beyond import/export', () => {
-      const code = 'export const foo = () => "bar";';
-      assert.throws(
-        () => checkModuleCompatibility(code, 'es5', VERSION_ORDER, false),
-        /Code contains features incompatible with es5/
-      );
-    });
-
-    it('should pass ES6 features with ES2015 target', () => {
-      const code = 'export const foo = () => "bar";';
-      const result = checkModuleCompatibility(code, 'es2015', VERSION_ORDER, false);
-      assert.ok(result.ast);
-      assert.strictEqual(result.error, null);
-    });
-
-    it('should filter out import and export from feature detection', () => {
-      const code = 'import foo from "bar"; export default foo;';
-      const result = checkModuleCompatibility(code, 'es5', VERSION_ORDER, false);
-      assert.ok(result.ast);
-      assert.strictEqual(result.error, null);
-    });
-
-    it('should detect template literals as ES6 feature', () => {
-      const code = 'export var foo = `template ${bar}`;';
-      assert.throws(
-        () => checkModuleCompatibility(code, 'es5', VERSION_ORDER, false),
-        /Code contains features incompatible with es5/
-      );
-    });
-
-    it('should detect arrow functions as ES6 feature', () => {
-      const code = 'export var foo = () => {};';
-      assert.throws(
-        () => checkModuleCompatibility(code, 'es5', VERSION_ORDER, false),
-        /Code contains features incompatible with es5/
-      );
-    });
-
-    it('should return features when needsFeatures is true', () => {
-      const code = 'export var foo = "bar";';
-      const result = checkModuleCompatibility(code, 'es5', VERSION_ORDER, true);
-      assert.ok(result.ast);
-      assert.ok(result.ast.features);
-      assert.ok(Array.isArray(result.ast.features));
-    });
-
-    it('should not return features when needsFeatures is false', () => {
-      const code = 'export var foo = "bar";';
-      const result = checkModuleCompatibility(code, 'es5', VERSION_ORDER, false);
-      assert.ok(result.ast);
-      assert.deepStrictEqual(result.ast.features, []);
-    });
-
-    it('should allow ES2020 features with ES2020 target', () => {
-      const code = 'export const foo = bar?.baz ?? "default";';
-      const result = checkModuleCompatibility(code, 'es2020', VERSION_ORDER, false);
-      assert.ok(result.ast);
-      assert.strictEqual(result.error, null);
-    });
-
-    it('should fail ES2020 features with ES2015 target', () => {
-      const code = 'export var foo = bar?.baz;';
-      assert.throws(
-        () => checkModuleCompatibility(code, 'es2015', VERSION_ORDER, false),
-        /Code contains features incompatible with es2015/
-      );
-    });
-
-    it('should handle complex module with multiple imports and exports', () => {
-      const code = `
-        import { a, b } from 'module1';
-        import c from 'module2';
-        var x = 5;
-        var y = 10;
-        export { a, b, x };
-        export default c;
-      `;
-      const result = checkModuleCompatibility(code, 'es5', VERSION_ORDER, false);
-      assert.ok(result.ast);
-      assert.strictEqual(result.error, null);
-    });
-
-    it('should detect let/const as ES6 features', () => {
-      const code = 'export let foo = "bar";';
-      assert.throws(
-        () => checkModuleCompatibility(code, 'es5', VERSION_ORDER, false),
-        /Code contains features incompatible with es5/
-      );
-    });
-  });
 
   describe('processBatchedFiles', () => {
     it('should process all files with unlimited batch size', async () => {
