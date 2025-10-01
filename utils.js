@@ -487,80 +487,26 @@ function getTargetVersion(ecmaVersion) {
 }
 
 /**
- * Parse code with fast-brake and handle errors
+ * Parse code with Acorn and handle errors
  * @param {string} code - Code to parse
- * @param {Object} acornOpts - Parsing options (for compatibility)
- * @param {Object} acorn - Module (for compatibility, not used)
+ * @param {Object} acornOpts - Parsing options
+ * @param {Object} acorn - Acorn parser instance
  * @param {string} file - File path for error reporting
  * @returns {{ast: Object, error: null} | {ast: null, error: Object}}
  */
-const { fastBrakeSync } = require('fast-brake/sync');
-const esversionPlugin = require('fast-brake/plugins/esversion');
-const { VERSION_ORDER } = require('./constants');
-
-const fastbrake = fastBrakeSync({ plugins: [esversionPlugin.default] });
-const parseCache = new Map();
-
-function checkModuleCompatibility(code, targetVersion, versionOrder, needsFeatures) {
-  const allFeatures = fastbrake.detect(code);
-  const nonModuleFeatures = allFeatures.filter(f => f.name !== 'import' && f.name !== 'export');
-
-  const targetIdx = versionOrder.indexOf(targetVersion);
-  const hasIncompat = nonModuleFeatures.some(f => versionOrder.indexOf(f.version) > targetIdx);
-
-  if (hasIncompat) {
-    throw new Error(`Code contains features incompatible with ${targetVersion}`);
-  }
-
-  const detectedFeatures = needsFeatures ? allFeatures : [];
-  return { ast: { type: 'Program', features: detectedFeatures }, error: null };
-}
-
-function parseCode(code, acornOpts, acorn, file, needsFeatures = false) {
-  const cacheKey = `${file}:${acornOpts.ecmaVersion}:${acornOpts.sourceType}:${needsFeatures}:${code.length}`;
-  
-  if (parseCache.has(cacheKey)) {
-    return parseCache.get(cacheKey);
-  }
-  
+function parseCode(code, acornOpts, acorn, file) {
   try {
-    const ecmaVersion = acornOpts.ecmaVersion || 5;
-    const targetVersion = getTargetVersion(ecmaVersion);
-    const sourceType = acornOpts.sourceType || 'script';
-    
-    const codeToCheck = acornOpts.allowHashBang && code.startsWith('#!')
-      ? code.slice(code.indexOf('\n') + 1)
-      : code;
-
-    if (sourceType === 'module') {
-      const result = checkModuleCompatibility(codeToCheck, targetVersion, VERSION_ORDER, needsFeatures);
-      parseCache.set(cacheKey, result);
-      return result;
-    }
-
-    const options = { target: targetVersion, sourceType };
-    const isCompatible = fastbrake.check(codeToCheck, options);
-    if (!isCompatible) {
-      throw new Error(`Code contains features incompatible with ${targetVersion}`);
-    }
-
-    const detectedFeatures = needsFeatures
-      ? fastbrake.detect(codeToCheck)
-      : [];
-    
-    const result = { 
-      ast: { type: 'Program', features: detectedFeatures }, 
-      error: null 
-    };
-    parseCache.set(cacheKey, result);
-    return result;
+    const ast = acorn.parse(code, acornOpts);
+    return { ast, error: null };
   } catch (err) {
-    const result = {
+    return {
       ast: null,
-      error: { err, stack: err.stack, file }
+      error: {
+        err,
+        stack: err.stack,
+        file
+      }
     };
-    parseCache.set(cacheKey, result);
-    return result;
   }
 }
 
@@ -626,6 +572,10 @@ function handleESVersionError(options) {
   }
 }
 
+const { fastBrakeSync } = require('fast-brake/sync');
+const esversionPlugin = require('fast-brake/plugins/esversion');
+const fastbrake = fastBrakeSync({ plugins: [esversionPlugin.default] });
+
 function parseLightMode(code, ecmaVersion, isModule, allowHashBang, file) {
   const targetVersion = getTargetVersion(ecmaVersion);
 
@@ -675,7 +625,6 @@ module.exports = {
   readFileAsync,
   clearFileCache,
   getFileCacheStats,
-  checkModuleCompatibility,
   parseCode,
   parseLightMode,
   determineInvocationType,
