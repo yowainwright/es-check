@@ -492,8 +492,8 @@ async function runChecks(configs, loggerOrOptions) {
 
       const needsFullAST = checkFeatures;
       const parserOptions = needsFullAST ? acornOpts : { ...acornOpts, locations: false, ranges: false, onComment: null };
-      
-      const { ast, error: parseError } = parseCode(code, parserOptions, acorn, file, checkFeatures);
+
+      const { ast, error: parseError } = parseCode(code, parserOptions, acorn, file);
       if (parseError) {
         if (isDebug) {
           logger.debug(`ES-Check: failed to parse file: ${file} \n - error: ${parseError.err}`)
