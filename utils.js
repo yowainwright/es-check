@@ -486,14 +486,7 @@ function getTargetVersion(ecmaVersion) {
   return ECMA_VERSION_MAP[ecmaVersion] || 'es5';
 }
 
-/**
- * Parse code with fast-brake and handle errors
- * @param {string} code - Code to parse
- * @param {Object} acornOpts - Parsing options (for compatibility)
- * @param {Object} acorn - Module (for compatibility, not used)
- * @param {string} file - File path for error reporting
- * @returns {{ast: Object, error: null} | {ast: null, error: Object}}
- */
+
 const { fastBrakeSync } = require('fast-brake/sync');
 const esversionPlugin = require('fast-brake/plugins/esversion');
 const { VERSION_ORDER } = require('./constants');
@@ -501,6 +494,15 @@ const { VERSION_ORDER } = require('./constants');
 const fastbrake = fastBrakeSync({ plugins: [esversionPlugin.default] });
 const parseCache = new Map();
 
+/**
+ * Check module compatibility using fast-brake.
+ *
+ * @param {string} code - Code to check
+ * @param {string} targetVersion - Target ECMAScript version
+ * @param {string[]} versionOrder - Ordered list of ECMAScript versions
+ * @param {boolean} needsFeatures - Whether to detect features
+ * @returns {{ast: Object, error: null}}
+ */
 function checkModuleCompatibility(code, targetVersion, versionOrder, needsFeatures) {
   const allFeatures = fastbrake.detect(code);
   const nonModuleFeatures = allFeatures.filter(f => f.name !== 'import' && f.name !== 'export');
@@ -516,6 +518,14 @@ function checkModuleCompatibility(code, targetVersion, versionOrder, needsFeatur
   return { ast: { type: 'Program', features: detectedFeatures }, error: null };
 }
 
+/**
+ * Parse code with fast-brake and handle errors
+ * @param {string} code - Code to parse
+ * @param {Object} acornOpts - Parsing options (for compatibility)
+ * @param {Object} acorn - Module (for compatibility, not used)
+ * @param {string} file - File path for error reporting
+ * @returns {{ast: Object, error: null} | {ast: null, error: Object}}
+ */
 function parseCode(code, acornOpts, acorn, file, needsFeatures = false) {
   const cacheKey = `${file}:${acornOpts.ecmaVersion}:${acornOpts.sourceType}:${needsFeatures}:${code.length}`;
   
@@ -538,16 +548,15 @@ function parseCode(code, acornOpts, acorn, file, needsFeatures = false) {
       return result;
     }
 
-    const options = { target: targetVersion, sourceType };
-    const isCompatible = fastbrake.check(codeToCheck, options);
-    if (!isCompatible) {
-      throw new Error(`Code contains features incompatible with ${targetVersion}`);
+    let detectedFeatures = [];
+    if (needsFeatures) {
+      const options = { target: targetVersion, sourceType };
+      const isCompatible = fastbrake.check(codeToCheck, options);
+      if (!isCompatible) {
+          detectedFeatures = fastbrake.detect(codeToCheck);
+      }
     }
 
-    const detectedFeatures = needsFeatures
-      ? fastbrake.detect(codeToCheck)
-      : [];
-    
     const result = { 
       ast: { type: 'Program', features: detectedFeatures }, 
       error: null 
