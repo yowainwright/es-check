@@ -90,7 +90,6 @@ try {
   fs.unlinkSync(configPath);
 }
 
-// Test 8: Verify --light flag uses fast-brake (lightweight mode)
 console.log('Test 8: Lightweight mode with --light flag');
 try {
   execFileSync('node', [esCheckPath, 'es5', './tests/es5.js', '--light'], { encoding: 'utf8' });
@@ -100,7 +99,6 @@ try {
   process.exit(1);
 }
 
-// Test 9: Verify --light flag catches ES6 code
 console.log('Test 9: Lightweight mode should catch ES6 code');
 try {
   execFileSync('node', [esCheckPath, 'es5', './tests/es6.js', '--light'], { encoding: 'utf8' });
@@ -110,10 +108,8 @@ try {
   console.log('✅ Test 9 passed (expected failure)\n');
 }
 
-// Test 10: Verify default mode (without --light) uses Acorn
 console.log('Test 10: Default mode without --light flag uses Acorn parser');
 try {
-  // This should pass using Acorn
   execFileSync('node', [esCheckPath, 'es5', './tests/es5.js'], { encoding: 'utf8' });
   console.log('✅ Test 10 passed\n');
 } catch (error) {
