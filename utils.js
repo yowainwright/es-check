@@ -1,6 +1,9 @@
 const fs = require('fs');
 const winston = require('winston');
 const supportsColor = require('supports-color');
+const { fastBrakeSync } = require('fast-brake/sync');
+const esversionPlugin = require('fast-brake/plugins/esversion');
+const fastbrake = fastBrakeSync({ plugins: [esversionPlugin.default] });
 
 /**
  * Parse ignore list from options
@@ -572,9 +575,6 @@ function handleESVersionError(options) {
   }
 }
 
-const { fastBrakeSync } = require('fast-brake/sync');
-const esversionPlugin = require('fast-brake/plugins/esversion');
-const fastbrake = fastBrakeSync({ plugins: [esversionPlugin.default] });
 
 function parseLightMode(code, ecmaVersion, isModule, allowHashBang, file) {
   const targetVersion = getTargetVersion(ecmaVersion);
