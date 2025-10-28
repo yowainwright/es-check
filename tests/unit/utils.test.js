@@ -1,7 +1,7 @@
 const assert = require('assert');
 const fs = require('fs');
 const winston = require('winston');
-const supportsColor = require('supports-color');
+const path = require('path');
 
 const {
   parseIgnoreList,
@@ -18,29 +18,25 @@ const {
   processBatchedFiles,
   determineInvocationType,
   determineLogLevel,
-  handleESVersionError
+  handleESVersionError,
+  mapErrorPosition
 } = require('../../lib/utils');
 
 describe('Utils Module Tests', () => {
 
   let originalConsoleError;
   let originalWinstonFormatColorize;
-  let originalSupportsColorDescriptor;
 
   beforeEach(() => {
     originalConsoleError = console.error;
     console.error = () => {};
 
     originalWinstonFormatColorize = winston.format.colorize;
-    originalSupportsColorDescriptor = Object.getOwnPropertyDescriptor(supportsColor, 'stdout');
   });
 
   afterEach(() => {
     console.error = originalConsoleError;
     winston.format.colorize = originalWinstonFormatColorize;
-    if (originalSupportsColorDescriptor) {
-      Object.defineProperty(supportsColor, 'stdout', originalSupportsColorDescriptor);
-    }
   });
 
   describe('parseIgnoreList', () => {
@@ -308,20 +304,12 @@ describe('Utils Module Tests', () => {
       assert.strictEqual(logger.transports[0].silent, true);
     });
 
-    it('should disable colorize format when supportsColor.stdout is true but noColor is true', () => {
-      Object.defineProperty(supportsColor, 'stdout', { value: true, configurable: true });
+    it('should disable colorize format when noColor is true', () => {
       createLogger({ noColor: true });
       assert.ok(!combineArgs.includes(colorizeSentinel), 'colorizeSentinel should NOT be included when noColor is true');
     });
 
-    it('should disable colorize format when supportsColor.stdout is false', () => {
-      Object.defineProperty(supportsColor, 'stdout', { value: false, configurable: true });
-      createLogger();
-      assert.ok(!combineArgs.includes(colorizeSentinel), 'colorizeSentinel should NOT be included when supportsColor.stdout is false');
-    });
-
     it('should respect kebab-case no-color option', () => {
-      Object.defineProperty(supportsColor, 'stdout', { value: true, configurable: true });
       createLogger({ 'no-color': true });
       assert.ok(!combineArgs.includes(colorizeSentinel), 'colorizeSentinel should NOT be included when no-color is true');
     });
@@ -732,6 +720,68 @@ describe('Utils Module Tests', () => {
       assert.strictEqual(allErrors[0].err.message, 'Browserslist config error');
       assert.strictEqual(allErrors[1].err.message, 'ES3 not supported');
       assert.strictEqual(allErrors[2].err.message, 'Unknown ES version');
+    });
+  });
+
+  describe('mapErrorPosition', () => {
+    const testDir = path.join(__dirname, '../fixtures/sourcemap-test');
+    const testFile = path.join(testDir, 'bundle.js');
+    const testMapFile = path.join(testDir, 'bundle.js.map');
+
+    function cleanupSourceMapTest() {
+      if (fs.existsSync(testDir)) {
+        fs.rmSync(testDir, { recursive: true, force: true });
+      }
+    }
+
+    beforeEach(() => {
+      if (!fs.existsSync(testDir)) {
+        fs.mkdirSync(testDir, { recursive: true });
+      }
+
+      fs.writeFileSync(testFile, 'var test = "bundled";');
+
+      const sourceMap = {
+        version: 3,
+        sources: ['original.js'],
+        names: [],
+        mappings: 'AAAA',
+        file: 'bundle.js',
+        sourcesContent: ['const test = "original";']
+      };
+      fs.writeFileSync(testMapFile, JSON.stringify(sourceMap));
+    });
+
+    afterEach(cleanupSourceMapTest);
+    after(cleanupSourceMapTest);
+
+    it('should return original position when no source map exists', async () => {
+      const result = await mapErrorPosition('nonexistent.js', 5, 10);
+      assert.strictEqual(result.file, 'nonexistent.js');
+      assert.strictEqual(result.line, 5);
+      assert.strictEqual(result.column, 10);
+    });
+
+    it('should map position when source map exists', async () => {
+      const result = await mapErrorPosition(testFile, 1, 0);
+      assert.ok(result.file);
+      assert.ok(result.line !== undefined);
+      assert.ok(result.column !== undefined);
+    });
+
+    it('should handle invalid source map gracefully', async () => {
+      const invalidMapFile = path.join(testDir, 'invalid.js');
+      const invalidMap = path.join(testDir, 'invalid.js.map');
+      fs.writeFileSync(invalidMapFile, 'code');
+      fs.writeFileSync(invalidMap, 'invalid json');
+
+      const result = await mapErrorPosition(invalidMapFile, 1, 0);
+      assert.strictEqual(result.file, invalidMapFile);
+      assert.strictEqual(result.line, 1);
+      assert.strictEqual(result.column, 0);
+
+      fs.unlinkSync(invalidMapFile);
+      fs.unlinkSync(invalidMap);
     });
   });
 });

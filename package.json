@@ -82,8 +82,7 @@
     "fast-brake": "^0.1.4",
     "fast-glob": "^3.3.3",
     "lilconfig": "^3.1.3",
-    "source-map": "^0.7.4",
-    "supports-color": "8.1.1",
+    "source-map": "^0.7.6",
     "winston": "3.18.3"
   },
   "engines": {

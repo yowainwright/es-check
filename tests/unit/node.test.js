@@ -1,4 +1,4 @@
-const { describe, it, beforeEach, afterEach } = require('node:test');
+const { describe, it, beforeEach, afterEach, after } = require('node:test');
 const assert = require('node:assert');
 const fs = require('fs');
 const path = require('path');
@@ -7,6 +7,12 @@ const { createLogger } = require('../../lib/utils.js');
 
 const testDir = path.join(__dirname, 'test-files-node-api');
 
+function cleanupTestDir() {
+  if (fs.existsSync(testDir)) {
+    fs.rmSync(testDir, { recursive: true, force: true });
+  }
+}
+
 describe('Node API Tests', () => {
   beforeEach(() => {
     if (!fs.existsSync(testDir)) {
@@ -14,11 +20,8 @@ describe('Node API Tests', () => {
     }
   });
 
-  afterEach(() => {
-    if (fs.existsSync(testDir)) {
-      fs.rmSync(testDir, { recursive: true, force: true });
-    }
-  });
+  afterEach(cleanupTestDir);
+  after(cleanupTestDir);
 
   describe('runChecks with no logger', () => {
     it('should work without a logger', async () => {
