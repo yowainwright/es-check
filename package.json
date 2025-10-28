@@ -25,7 +25,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "pastoralist": "pastoralist",
-    "pre-commit": "pnpm lint && pnpm test",
+    "pre-commit": "pnpm lint && pnpm format && pnpm test",
     "prepare": "husky",
     "prepublishOnly": "pnpm test",
     "release": "release-it --no-git.requireUpstream",
