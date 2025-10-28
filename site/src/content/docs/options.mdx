@@ -16,6 +16,7 @@ es-check <ecmaVersion> [files...] [options]
 ## Options Reference
 
 ### `--module`
+
 Use ES modules parsing mode (default: false)
 
 ```bash
@@ -23,6 +24,7 @@ es-check es6 './dist/**/*.js' --module
 ```
 
 ### `--light`
+
 Lightweight mode: faster checking using pattern matching only (default: false)
 
 ```bash
@@ -32,6 +34,7 @@ es-check es5 './dist/**/*.js' --light
 This mode uses pattern matching instead of full AST parsing for improved performance. Ideal for CI/CD pipelines where speed is critical.
 
 ### `--allowHashBang`
+
 Allow files starting with `#!` (shebang) (default: false)
 
 ```bash
@@ -39,6 +42,7 @@ es-check es6 './tests/*.js' --allowHashBang
 ```
 
 ### `--files <files>`
+
 Specify files to check (alternative to positional arguments)
 
 ```bash
@@ -46,6 +50,7 @@ es-check es6 --files='./dist/**/*.js'
 ```
 
 ### `--not <files>`
+
 Exclude specific files or patterns
 
 ```bash
@@ -53,6 +58,7 @@ es-check es5 './dist/**/*.js' --not='./dist/vendor/**/*.js'
 ```
 
 ### `--checkFeatures`
+
 Check for ES version specific features (default: false)
 
 ```bash
@@ -60,6 +66,7 @@ es-check es6 './dist/**/*.js' --checkFeatures
 ```
 
 ### `--checkForPolyfills`
+
 Consider polyfills when checking features (requires --checkFeatures)
 
 ```bash
@@ -67,6 +74,7 @@ es-check es2022 './dist/**/*.js' --checkFeatures --checkForPolyfills
 ```
 
 ### `--ignore <features>`
+
 Comma-separated list of features to ignore
 
 ```bash
@@ -74,6 +82,7 @@ es-check es6 './dist/**/*.js' --checkFeatures --ignore="ErrorCause,TopLevelAwait
 ```
 
 ### `--allowList <features>`
+
 Allow specific features even in lower ES versions
 
 ```bash
@@ -81,6 +90,7 @@ es-check es5 './dist/**/*.js' --checkFeatures --allowList="const,let"
 ```
 
 ### `--checkBrowser`
+
 Use browserslist configuration to determine ES version
 
 ```bash
@@ -88,6 +98,7 @@ es-check --checkBrowser --browserslistQuery="last 2 versions" ./dist/**/*.js
 ```
 
 ### `--browserslistQuery <query>`
+
 Custom browserslist query
 
 ```bash
@@ -95,6 +106,7 @@ es-check checkBrowser ./dist/**/*.js --browserslistQuery=">0.5%, not dead"
 ```
 
 ### `--config <path>`
+
 Path to custom .escheckrc config file
 
 ```bash
@@ -102,13 +114,14 @@ es-check --config=./configs/production.escheckrc.json
 ```
 
 ### `--batchSize <number>`
+
 Number of files to process concurrently (0 for unlimited, default: 0)
 
 ```bash
 # Process all files in parallel (fastest, default)
 es-check es5 './dist/**/*.js' --batchSize 0
 
-# Process 10 files at a time (memory-constrained)  
+# Process 10 files at a time (memory-constrained)
 es-check es5 './dist/**/*.js' --batchSize 10
 
 # Process 50 files at a time (balanced)
@@ -116,6 +129,7 @@ es-check es5 './dist/**/*.js' --batchSize 50
 ```
 
 ### `--noCache`
+
 Disable file caching (cache is enabled by default)
 
 ```bash

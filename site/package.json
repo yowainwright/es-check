@@ -7,7 +7,11 @@
     "start": "pnpm dlx astro dev",
     "build": "pnpm dlx astro build",
     "preview": "pnpm dlx astro preview",
-    "astro": "pnpm dlx astro"
+    "astro": "pnpm dlx astro",
+    "lint": "oxlint src",
+    "lint:ci": "oxlint src && pnpm format:check",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "dependencies": {
     "@fontsource-variable/outfit": "^5.0.13",
@@ -25,6 +29,8 @@
     "@types/react-dom": "^19.2.2",
     "astro": "^5.15.1",
     "daisyui": "^5.3.10",
+    "oxlint": "^1.24.0",
+    "prettier": "3.6.2",
     "tailwindcss": "^4.1.16",
     "typescript": "^5.9.3"
   }

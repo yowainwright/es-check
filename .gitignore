@@ -83,8 +83,13 @@ tests/benchmarks/results/
 # Test temp directories and files (created by tests)
 tests/unit/test-files-node-api/
 tests/unit/test-cache-file.js
+tests/unit/test-cache-file-2.js
+tests/fixtures/sourcemap-test/
+tests/fixtures/sourcemap-e2e/no-map.js
 test-temp-file.js
 .escheckrc.*
+!tests/**/.escheckrc
+!tests/**/.escheckrc.json
 
 dist/
 .browserslistrc-env

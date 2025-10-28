@@ -1,1 +1,2 @@
-const y = 10; class Z {}
+const y = 10;
+class Z {}

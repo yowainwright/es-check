@@ -1,13 +1,17 @@
-'use strict';
+"use strict";
 
-const { execFile } = require('child_process');
-const fs = require('fs');
-const path = require('path');
-const crypto = require('crypto');
-const fg = require('fast-glob');
+const { execFile } = require("child_process");
+const fs = require("fs");
+const path = require("path");
+const crypto = require("crypto");
+const fg = require("fast-glob");
 
 function createUniqueConfigFile(config, testName) {
-  const hash = crypto.createHash('md5').update(testName).digest('hex').substring(0, 8);
+  const hash = crypto
+    .createHash("md5")
+    .update(testName)
+    .digest("hex")
+    .substring(0, 8);
   const configFileName = `.escheckrc.${hash}`;
   fs.writeFileSync(configFileName, JSON.stringify(config));
   return configFileName;
@@ -22,27 +26,29 @@ function removeConfigFile(configFileName) {
 async function expandGlobs(args) {
   const expanded = await Promise.all(
     args.map(async (arg) => {
-      if (typeof arg === 'string' && (arg.includes('*') || arg.includes('?'))) {
+      if (typeof arg === "string" && (arg.includes("*") || arg.includes("?"))) {
         const matches = await fg(arg, { onlyFiles: true });
         return matches.length > 0 ? matches : [arg];
       }
       return arg;
-    })
+    }),
   );
   return expanded.flat();
 }
 
 function execFileWithGlob(file, args, options, callback) {
-  if (typeof options === 'function') {
+  if (typeof options === "function") {
     callback = options;
     options = {};
   }
 
-  expandGlobs(args).then(expandedArgs => {
-    execFile(file, expandedArgs, options, callback);
-  }).catch(err => {
-    callback(err, '', '');
-  });
+  expandGlobs(args)
+    .then((expandedArgs) => {
+      execFile(file, expandedArgs, options, callback);
+    })
+    .catch((err) => {
+      callback(err, "", "");
+    });
 }
 
 function execFilePromise(file, args, options = {}) {
@@ -66,8 +72,8 @@ function assertSuccess(err, stdout, stderr, done) {
 
 function assertFailure(err, stdout, done) {
   if (!err) {
-    console.error('Expected command to fail but it succeeded');
-    done(new Error('Expected command to fail but it succeeded'));
+    console.error("Expected command to fail but it succeeded");
+    done(new Error("Expected command to fail but it succeeded"));
     return false;
   }
   console.log(stdout);
@@ -98,13 +104,14 @@ function createTempFile(filePath, content) {
 function createMockLogger(options = {}) {
   const logs = [];
   return {
-    info: (msg) => logs.push({ level: 'info', msg }),
-    error: (msg) => logs.push({ level: 'error', msg }),
-    warn: (msg) => logs.push({ level: 'warn', msg }),
-    debug: (msg) => logs.push({ level: 'debug', msg }),
-    isLevelEnabled: (level) => options.enabledLevels ? options.enabledLevels[level] : true,
+    info: (msg) => logs.push({ level: "info", msg }),
+    error: (msg) => logs.push({ level: "error", msg }),
+    warn: (msg) => logs.push({ level: "warn", msg }),
+    debug: (msg) => logs.push({ level: "debug", msg }),
+    isLevelEnabled: (level) =>
+      options.enabledLevels ? options.enabledLevels[level] : true,
     getLogs: () => logs,
-    clear: () => logs.length = 0
+    clear: () => (logs.length = 0),
   };
 }
 
@@ -114,7 +121,7 @@ function createSilentLogger() {
     error: () => {},
     warn: () => {},
     debug: () => {},
-    isLevelEnabled: () => false
+    isLevelEnabled: () => false,
   };
 }
 
@@ -142,14 +149,14 @@ function mockFs(mockFsState) {
     restore: () => {
       fs.existsSync = originalExistsSync;
       fs.readFileSync = originalReadFileSync;
-    }
+    },
   };
 }
 
 function createMockFsState() {
   return {
     existsSyncMocks: {},
-    readFileSyncMocks: {}
+    readFileSyncMocks: {},
   };
 }
 
@@ -167,5 +174,5 @@ module.exports = {
   createMockLogger,
   createSilentLogger,
   mockFs,
-  createMockFsState
+  createMockFsState,
 };

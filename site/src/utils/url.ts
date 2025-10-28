@@ -5,10 +5,10 @@
  */
 export function getUrl(path: string): string {
   const baseUrl = import.meta.env.BASE_URL;
-  const hasTrailingSlash = baseUrl.endsWith('/');
-  const pathWithoutLeadingSlash = path.startsWith('/') ? path.slice(1) : path;
-  
-  return `${baseUrl}${hasTrailingSlash ? '' : '/'}${pathWithoutLeadingSlash}`;
+  const hasTrailingSlash = baseUrl.endsWith("/");
+  const pathWithoutLeadingSlash = path.startsWith("/") ? path.slice(1) : path;
+
+  return `${baseUrl}${hasTrailingSlash ? "" : "/"}${pathWithoutLeadingSlash}`;
 }
 
 /**
@@ -18,9 +18,11 @@ export function getUrl(path: string): string {
  * @returns The pathname without the base URL
  */
 export function normalizePathname(pathname: string): string {
-  const baseUrl = import.meta.env.BASE_URL.endsWith('/') 
-    ? import.meta.env.BASE_URL.slice(0, -1) 
+  const baseUrl = import.meta.env.BASE_URL.endsWith("/")
+    ? import.meta.env.BASE_URL.slice(0, -1)
     : import.meta.env.BASE_URL;
-    
-  return pathname.startsWith(baseUrl) ? pathname.slice(baseUrl.length) : pathname;
+
+  return pathname.startsWith(baseUrl)
+    ? pathname.slice(baseUrl.length)
+    : pathname;
 }

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-'use strict'
+"use strict";
 
-const exec = require('child_process').exec
+const exec = require("child_process").exec;
 
-exec('This should pass')
+exec("This should pass");

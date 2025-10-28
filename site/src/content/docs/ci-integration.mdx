@@ -18,18 +18,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          
+          node-version: "20"
+
       - name: Install dependencies
         run: npm ci
-        
+
       - name: Build project
         run: npm run build
-        
+
       - name: Check ES5 compatibility
         run: npx es-check es5 './dist/**/*.js'
 ```
@@ -138,6 +138,7 @@ For faster CI runs, use the `--light` mode for improved performance:
 ```
 
 This is especially useful for:
+
 - Pull request checks
 - Pre-commit hooks
 - Large codebases

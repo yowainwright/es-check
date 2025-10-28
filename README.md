@@ -14,16 +14,13 @@
 
 ---
 
-**ES Check** checks JavaScript files against a specified version of ECMAScript (ES) with a shell command. If a specified file's ES version doesn't match the ES version argument passed in the ES Check command, ES Check will throw an error and log the files that didn't match the check.
-
-Ensuring that JavaScript files can pass ES Check is important in a [modular and bundled](https://www.sitepoint.com/javascript-modules-bundling-transpiling/) world. Read more about [why](#why).
+**ES Check** validates JavaScript files against specified ECMAScript versions. Files failing version checks throw errors with detailed logging.
 
 ---
 
 ## Version 9 🎉
 
-**ES Check** version 9 is a major release update that can enforce more ES version specific features checks, implements initial browserslist integration, basic (naive) polyfill detection, and supports an allowlist. To enable ecmaVersion specific checks, pass the `--checkFeatures` flag. To enable browserslist integration, pass the `--checkBrowser` flag. To enable polyfill detection, pass the `--checkForPolyfills` flag. There is also more config file support. Besides this, there are other feature updates based on user feedback. This version should not break any existing scripts but, as significant changes/features have been added and it's know that es-check supports protecting against breaking errors going to production, a major version bump feels appropriate. Please report any issues!
-
+Version 9 adds ES version feature checks (`--checkFeatures`), browserslist integration (`--checkBrowser`), polyfill detection (`--checkForPolyfills`), and enhanced config support. Backward compatible.
 
 ### `--checkFeatures`
 
@@ -79,11 +76,11 @@ es-check es5 './vendor/js/*.js' './dist/**/*.js'
 
 ## Why ES Check?
 
-In modern JavaScript builds, files are bundled up so they can be served in an optimized manner in the browsers. It is assumed by developers that future JavaScript—like ES8 will be transpiled (changed from future JavaScript to current JavaScript) appropriately by a tool like Babel. Sometimes there is an issue where files are not transpiled. There was no efficient way to test for files that weren't transpiled—until now. That's what ES Check does.
+Modern JavaScript builds assume proper transpilation via tools like Babel. ES Check verifies transpilation succeeded, catching untranspiled files before production.
 
 ## What features does ES Check check for?
 
-ES Check checks syntax out of the box—to protect against breaking errors going to production. Additionally, by adding the `--checkFeatures` flag, ES Check will check for actual ES version specific features. This ensures that your code is syntactically correct and only using features that are available in the specified ES version. Look here to view/add [features](./constants.js) that ES Check checks for with the `--checkFeatures` flag!
+ES Check validates syntax by default. Add `--checkFeatures` for ES version-specific feature checking. View supported [features](./constants.js).
 
 ---
 
@@ -99,7 +96,7 @@ The images below demonstrate command line scripts and their corresponding logged
 
 ![fail](https://user-images.githubusercontent.com/1074042/31471486-d65c3a80-ae9d-11e7-94fd-68b7acdb2d89.jpg)
 
-**ES Check** is run above with node commands. It can also be run within npm scripts, ci tools, or testing suites. It also provide minimal support for use in node apps. 
+Run ES Check via CLI, npm scripts, CI tools, or programmatically in Node apps.
 
 ---
 
@@ -130,32 +127,32 @@ Arguments:
 
 Here's a comprehensive list of all available options:
 
-| Option | Description |
-|--------|-------------|
-| `-V, --version` | Output the version number |
-| `--module` | Use ES modules (default: false) |
-| `--light` | Lightweight mode: 2-3x faster checking using pattern matching only (default: false) |
-| `--allowHashBang` | If the code starts with #! treat it as a comment (default: false) |
-| `--files <files>` | A glob of files to test the ECMAScript version against (alias for [files...]) |
-| `--not <files>` | Folder or file names to skip |
-| `--noColor` | Disable use of colors in output (default: false) |
-| `-v, --verbose` | Verbose mode: will also output debug messages (default: false) |
-| `--quiet` | Quiet mode: only displays warn and error messages (default: false) |
-| `--looseGlobMatching` | Doesn't fail if no files are found in some globs/files (default: false) |
-| `--silent` | Silent mode: does not output anything, giving no indication of success or failure other than the exit code (default: false) |
-| `--checkFeatures` | Check for actual ES version specific features (default: false) |
-| `--checkForPolyfills` | Consider polyfills when checking features (only works with --checkFeatures) (default: false) |
-| `--ignore <features>` | Comma-separated list of features to ignore, e.g., "ErrorCause,TopLevelAwait" |
-| `--ignoreFile <path>` | Path to JSON file containing features to ignore |
-| `--allowList <features>` | Comma-separated list of features to allow even in lower ES versions, e.g., "const,let" |
-| `--checkBrowser` | Use browserslist configuration to determine ES version (default: false) |
-| `--browserslistQuery <query>` | Custom browserslist query (e.g., "last 2 versions") |
-| `--browserslistPath <path>` | Path to custom browserslist configuration (default: uses standard browserslist config resolution) |
-| `--browserslistEnv <env>` | Browserslist environment to use (default: production) |
-| `--config <path>` | Path to custom .escheckrc config file |
-| `--batchSize <number>` | Number of files to process concurrently (0 for unlimited, default: 0) |
-| `--noCache` | Disable file caching (cache is enabled by default) |
-| `-h, --help` | Display help for command |
+| Option                        | Description                                                                                                                 |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `-V, --version`               | Output the version number                                                                                                   |
+| `--module`                    | Use ES modules (default: false)                                                                                             |
+| `--light`                     | Lightweight mode: 2-3x faster checking using pattern matching only (default: false)                                         |
+| `--allowHashBang`             | If the code starts with #! treat it as a comment (default: false)                                                           |
+| `--files <files>`             | A glob of files to test the ECMAScript version against (alias for [files...])                                               |
+| `--not <files>`               | Folder or file names to skip                                                                                                |
+| `--noColor`                   | Disable use of colors in output (default: false)                                                                            |
+| `-v, --verbose`               | Verbose mode: will also output debug messages (default: false)                                                              |
+| `--quiet`                     | Quiet mode: only displays warn and error messages (default: false)                                                          |
+| `--looseGlobMatching`         | Doesn't fail if no files are found in some globs/files (default: false)                                                     |
+| `--silent`                    | Silent mode: does not output anything, giving no indication of success or failure other than the exit code (default: false) |
+| `--checkFeatures`             | Check for actual ES version specific features (default: false)                                                              |
+| `--checkForPolyfills`         | Consider polyfills when checking features (only works with --checkFeatures) (default: false)                                |
+| `--ignore <features>`         | Comma-separated list of features to ignore, e.g., "ErrorCause,TopLevelAwait"                                                |
+| `--ignoreFile <path>`         | Path to JSON file containing features to ignore                                                                             |
+| `--allowList <features>`      | Comma-separated list of features to allow even in lower ES versions, e.g., "const,let"                                      |
+| `--checkBrowser`              | Use browserslist configuration to determine ES version (default: false)                                                     |
+| `--browserslistQuery <query>` | Custom browserslist query (e.g., "last 2 versions")                                                                         |
+| `--browserslistPath <path>`   | Path to custom browserslist configuration (default: uses standard browserslist config resolution)                           |
+| `--browserslistEnv <env>`     | Browserslist environment to use (default: production)                                                                       |
+| `--config <path>`             | Path to custom .escheckrc config file                                                                                       |
+| `--batchSize <number>`        | Number of files to process concurrently (0 for unlimited, default: 0)                                                       |
+| `--noCache`                   | Disable file caching (cache is enabled by default)                                                                          |
+| `-h, --help`                  | Display help for command                                                                                                    |
 
 ### Shell Completion
 
@@ -297,24 +294,26 @@ es-check es6 ./js/*.js ./dist/*.js
 In addition to its CLI utility, ES Check can be used programmatically in Node.js applications:
 
 ```javascript
-const { runChecks, loadConfig } = require('es-check');
+const { runChecks, loadConfig } = require("es-check");
 
 async function checkMyFiles() {
-  const configs = [{
-    ecmaVersion: 'es5',
-    files: ['dist/**/*.js'],
-    module: false,
-    checkFeatures: true
-  }];
-  
+  const configs = [
+    {
+      ecmaVersion: "es5",
+      files: ["dist/**/*.js"],
+      module: false,
+      checkFeatures: true,
+    },
+  ];
+
   const result = await runChecks(configs);
-  
+
   if (result.success) {
-    console.log('All files passed ES5 check!');
+    console.log("All files passed ES5 check!");
     // Output: All files passed ES5 check!
   } else {
     console.error(`ES Check failed with ${result.errors.length} errors`);
-    result.errors.forEach(error => {
+    result.errors.forEach((error) => {
       console.error(`- ${error.file}: ${error.err.message}`);
     });
     // Example output:
@@ -322,7 +321,7 @@ async function checkMyFiles() {
     // - dist/app.js: Unsupported features used: const, arrow-functions but your target is ES5.
     // - dist/utils.js: Unsupported features used: template-literals but your target is ES5.
   }
-  
+
   return result;
 }
 ```
@@ -356,22 +355,22 @@ Here's an example of what an `.escheckrc` file will look like:
 
 ### Configuration Options
 
-| Option | Type | Description |
-|--------|------|-------------|
-| `ecmaVersion` | String | ECMAScript version to check against (e.g., "es5", "es6", "es2020") |
-| `files` | String or Array | Files or glob patterns to check |
-| `module` | Boolean | Whether to parse files as ES modules |
-| `not` | Array | Files or glob patterns to exclude |
-| `allowHashBang` | Boolean | Whether to allow hash bang in files |
-| `looseGlobMatching` | Boolean | Whether to ignore missing files in globs |
-| `checkFeatures` | Boolean | Whether to check for ES version specific features |
-| `checkForPolyfills` | Boolean | Whether to consider polyfills when checking features |
-| `ignore` | Array | Features to ignore when checking |
-| `allowList` | Array | Features to allow even in lower ES versions |
-| `checkBrowser` | Boolean | Whether to use browserslist configuration to determine ES version |
-| `browserslistQuery` | String | Custom browserslist query to use |
-| `browserslistPath` | String | Path to custom browserslist configuration |
-| `browserslistEnv` | String | Browserslist environment to use |
+| Option              | Type            | Description                                                        |
+| ------------------- | --------------- | ------------------------------------------------------------------ |
+| `ecmaVersion`       | String          | ECMAScript version to check against (e.g., "es5", "es6", "es2020") |
+| `files`             | String or Array | Files or glob patterns to check                                    |
+| `module`            | Boolean         | Whether to parse files as ES modules                               |
+| `not`               | Array           | Files or glob patterns to exclude                                  |
+| `allowHashBang`     | Boolean         | Whether to allow hash bang in files                                |
+| `looseGlobMatching` | Boolean         | Whether to ignore missing files in globs                           |
+| `checkFeatures`     | Boolean         | Whether to check for ES version specific features                  |
+| `checkForPolyfills` | Boolean         | Whether to consider polyfills when checking features               |
+| `ignore`            | Array           | Features to ignore when checking                                   |
+| `allowList`         | Array           | Features to allow even in lower ES versions                        |
+| `checkBrowser`      | Boolean         | Whether to use browserslist configuration to determine ES version  |
+| `browserslistQuery` | String          | Custom browserslist query to use                                   |
+| `browserslistPath`  | String          | Path to custom browserslist configuration                          |
+| `browserslistEnv`   | String          | Browserslist environment to use                                    |
 
 ### Multiple Configurations
 
@@ -442,10 +441,7 @@ Example `.escheckignore` file:
 
 ```json
 {
-  "features": [
-    "ErrorCause",
-    "TopLevelAwait"
-  ]
+  "features": ["ErrorCause", "TopLevelAwait"]
 }
 ```
 
@@ -471,11 +467,13 @@ This option tells ES Check to look for common polyfill patterns in your code and
 ES Check provides three ways to handle polyfilled features:
 
 1. **--checkForPolyfills**: Automatically detects polyfills in your code
+
    ```sh
    es-check es2022 './dist/**/*.js' --checkFeatures --checkForPolyfills
    ```
 
 2. **--allowList**: Explicitly specify features to allow regardless of ES version
+
    ```sh
    es-check es2022 './dist/**/*.js' --checkFeatures --allowList="ArrayToSorted,ObjectHasOwn"
    ```
@@ -532,7 +530,7 @@ es-check --checkBrowser --browserslistEnv="production" ./dist/**/*.js
 es-check --checkBrowser --checkFeatures ./dist/**/*.js
 ```
 
-⚠️ **NOTE:** When using `--checkBrowser`, you must also provide a `--browserslistQuery` or have a valid browserslist configuration in your project. You cannot have a files directly after your `--checkBrowser` option; it will read as 
+⚠️ **NOTE:** When using `--checkBrowser`, you must also provide a `--browserslistQuery` or have a valid browserslist configuration in your project. You cannot have a files directly after your `--checkBrowser` option; it will read as
 
 ---
 
@@ -541,6 +539,7 @@ es-check --checkBrowser --checkFeatures ./dist/**/*.js
 ES Check includes several performance optimizations:
 
 ### File Caching
+
 File caching is **enabled by default** for faster re-checking:
 
 ```sh
@@ -552,11 +551,13 @@ es-check es5 './dist/**/*.js' --noCache
 ```
 
 We observed ~28% performance improvement in our [benchmark tests](./benchmarks/README.md). Your results may vary based on file sizes and system configuration. Try the benchmarks yourself:
+
 ```sh
 node benchmarks/compare-tools.js 3 ./benchmarks/test-files
 ```
 
 ### Batch Processing
+
 The `--batchSize` option optimizes memory usage:
 
 ```sh
@@ -572,17 +573,18 @@ es-check es5 './dist/**/*.js' --batchSize 50
 
 ### Performance Guidelines
 
-| Scenario | Recommended `--batchSize` | Reason |
-|----------|---------------------------|---------|
-| Small codebases (< 100 files) | `0` (unlimited) | Maximum parallelism for fastest results |
-| Medium codebases (100-500 files) | `0` or `50` | Balance between speed and memory |
-| Large codebases (> 500 files) | `50-100` | Prevent memory spikes |
-| CI/CD with limited memory | `10-20` | Conservative memory usage |
-| Local development | `0` (default) | Utilize available hardware |
+| Scenario                         | Recommended `--batchSize` | Reason                                  |
+| -------------------------------- | ------------------------- | --------------------------------------- |
+| Small codebases (< 100 files)    | `0` (unlimited)           | Maximum parallelism for fastest results |
+| Medium codebases (100-500 files) | `0` or `50`               | Balance between speed and memory        |
+| Large codebases (> 500 files)    | `50-100`                  | Prevent memory spikes                   |
+| CI/CD with limited memory        | `10-20`                   | Conservative memory usage               |
+| Local development                | `0` (default)             | Utilize available hardware              |
 
 ### Recent Performance Improvements
 
 As of August 2025, ES Check has been optimized with:
+
 - **Single-parse optimization**: Files are parsed once and the AST is reused
 - **Async file processing**: Non-blocking I/O for better performance
 - **Configurable batch processing**: Fine-tune based on your needs
@@ -602,6 +604,31 @@ npx es-check es5 './node_modules/**/*.js'
 ```
 
 A simple example script is available in `examples/check-node-modules.js`.
+
+---
+
+## How ES Check Works
+
+```mermaid
+flowchart TD
+    A[Input: ES Version + File Globs] --> B{--light mode?}
+    B -->|Yes| C[Fast Pattern Matching<br/>fast-brake]
+    B -->|No| D[Full AST Parsing<br/>Acorn]
+    C --> E{Syntax Valid?}
+    D --> E
+    E -->|Fail| F[Report Error]
+    E -->|Pass| G{--checkFeatures?}
+    G -->|No| H[Success]
+    G -->|Yes| I{Check ES Features<br/>AST Walk}
+    I -->|Fail| F
+    I -->|Pass| J{--checkForPolyfills?}
+    J -->|No| H
+    J -->|Yes| K{Polyfills Detected?}
+    K -->|Yes| H
+    K -->|No| F
+    F --> L[Exit 1]
+    H --> M[Exit 0]
+```
 
 ---
 

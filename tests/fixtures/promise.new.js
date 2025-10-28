@@ -1,1 +1,1 @@
-new Promise(function() {});
+new Promise(function () {});
