@@ -14,15 +14,13 @@
 
 ---
 
-**ES Check** checks JavaScript files against a specified version of ECMAScript (ES) with a shell command. If a specified file's ES version doesn't match the ES version argument passed in the ES Check command, ES Check will throw an error and log the files that didn't match the check.
-
-Ensuring that JavaScript files can pass ES Check is important in a [modular and bundled](https://www.sitepoint.com/javascript-modules-bundling-transpiling/) world. Read more about [why](#why).
+**ES Check** validates JavaScript files against specified ECMAScript versions. Files failing version checks throw errors with detailed logging.
 
 ---
 
 ## Version 9 🎉
 
-**ES Check** version 9 is a major release update that can enforce more ES version specific features checks, implements initial browserslist integration, basic (naive) polyfill detection, and supports an allowlist. To enable ecmaVersion specific checks, pass the `--checkFeatures` flag. To enable browserslist integration, pass the `--checkBrowser` flag. To enable polyfill detection, pass the `--checkForPolyfills` flag. There is also more config file support. Besides this, there are other feature updates based on user feedback. This version should not break any existing scripts but, as significant changes/features have been added and it's know that es-check supports protecting against breaking errors going to production, a major version bump feels appropriate. Please report any issues!
+Version 9 adds ES version feature checks (`--checkFeatures`), browserslist integration (`--checkBrowser`), polyfill detection (`--checkForPolyfills`), and enhanced config support. Backward compatible.
 
 
 ### `--checkFeatures`
@@ -79,11 +77,11 @@ es-check es5 './vendor/js/*.js' './dist/**/*.js'
 
 ## Why ES Check?
 
-In modern JavaScript builds, files are bundled up so they can be served in an optimized manner in the browsers. It is assumed by developers that future JavaScript—like ES8 will be transpiled (changed from future JavaScript to current JavaScript) appropriately by a tool like Babel. Sometimes there is an issue where files are not transpiled. There was no efficient way to test for files that weren't transpiled—until now. That's what ES Check does.
+Modern JavaScript builds assume proper transpilation via tools like Babel. ES Check verifies transpilation succeeded, catching untranspiled files before production.
 
 ## What features does ES Check check for?
 
-ES Check checks syntax out of the box—to protect against breaking errors going to production. Additionally, by adding the `--checkFeatures` flag, ES Check will check for actual ES version specific features. This ensures that your code is syntactically correct and only using features that are available in the specified ES version. Look here to view/add [features](./constants.js) that ES Check checks for with the `--checkFeatures` flag!
+ES Check validates syntax by default. Add `--checkFeatures` for ES version-specific feature checking. View supported [features](./constants.js).
 
 ---
 
@@ -99,7 +97,7 @@ The images below demonstrate command line scripts and their corresponding logged
 
 ![fail](https://user-images.githubusercontent.com/1074042/31471486-d65c3a80-ae9d-11e7-94fd-68b7acdb2d89.jpg)
 
-**ES Check** is run above with node commands. It can also be run within npm scripts, ci tools, or testing suites. It also provide minimal support for use in node apps. 
+Run ES Check via CLI, npm scripts, CI tools, or programmatically in Node apps. 
 
 ---
 
@@ -602,6 +600,31 @@ npx es-check es5 './node_modules/**/*.js'
 ```
 
 A simple example script is available in `examples/check-node-modules.js`.
+
+---
+
+## How ES Check Works
+
+```mermaid
+flowchart TD
+    A[Input: ES Version + File Globs] --> B{--light mode?}
+    B -->|Yes| C[Fast Pattern Matching<br/>fast-brake]
+    B -->|No| D[Full AST Parsing<br/>Acorn]
+    C --> E{Syntax Valid?}
+    D --> E
+    E -->|Fail| F[Report Error]
+    E -->|Pass| G{--checkFeatures?}
+    G -->|No| H[Success]
+    G -->|Yes| I{Check ES Features<br/>AST Walk}
+    I -->|Fail| F
+    I -->|Pass| J{--checkForPolyfills?}
+    J -->|No| H
+    J -->|Yes| K{Polyfills Detected?}
+    K -->|Yes| H
+    K -->|No| F
+    F --> L[Exit 1]
+    H --> M[Exit 0]
+```
 
 ---
 

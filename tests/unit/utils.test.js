@@ -4,6 +4,7 @@ const winston = require('winston');
 const path = require('path');
 
 const {
+  supportsColor,
   parseIgnoreList,
   checkVarKindMatch,
   checkCalleeMatch,
@@ -20,7 +21,7 @@ const {
   determineLogLevel,
   handleESVersionError,
   mapErrorPosition
-} = require('../../lib/utils');
+} = require('../../lib/helpers');
 
 describe('Utils Module Tests', () => {
 
@@ -37,6 +38,115 @@ describe('Utils Module Tests', () => {
   afterEach(() => {
     console.error = originalConsoleError;
     winston.format.colorize = originalWinstonFormatColorize;
+  });
+
+  describe('supportsColor', () => {
+    let originalProcessStdout;
+    let originalEnv;
+
+    beforeEach(() => {
+      originalProcessStdout = process.stdout;
+      originalEnv = { ...process.env };
+    });
+
+    afterEach(() => {
+      process.stdout = originalProcessStdout;
+      process.env = originalEnv;
+    });
+
+    it('should return true when process.stdout has colors and noColor is not set', () => {
+      const mockStream = {
+        isTTY: true,
+        hasColors: () => true
+      };
+      delete process.env.NO_COLOR;
+      delete process.env.NODE_DISABLE_COLORS;
+      delete process.env.FORCE_COLOR;
+      
+      const result = supportsColor(mockStream);
+      assert.strictEqual(result, true);
+    });
+
+    it('should return false when NO_COLOR environment variable is set', () => {
+      const mockStream = {
+        isTTY: true,
+        hasColors: () => true
+      };
+      process.env.NO_COLOR = '1';
+      delete process.env.NODE_DISABLE_COLORS;
+      delete process.env.FORCE_COLOR;
+      
+      const result = supportsColor(mockStream);
+      assert.strictEqual(result, false);
+    });
+
+    it('should return true when FORCE_COLOR environment variable is set', () => {
+      const mockStream = {
+        isTTY: false
+      };
+      delete process.env.NO_COLOR;
+      delete process.env.NODE_DISABLE_COLORS;
+      process.env.FORCE_COLOR = '1';
+      
+      const result = supportsColor(mockStream);
+      assert.strictEqual(result, true);
+    });
+
+    it('should return false when stream.isTTY is false', () => {
+      const mockStream = {
+        isTTY: false
+      };
+      delete process.env.NO_COLOR;
+      delete process.env.NODE_DISABLE_COLORS;
+      delete process.env.FORCE_COLOR;
+      
+      const result = supportsColor(mockStream);
+      assert.strictEqual(result, false);
+    });
+
+    it('should return true when stream.hasColors is true', () => {
+      const mockStream = {
+        hasColors: () => true
+      };
+      
+      const result = supportsColor(mockStream);
+      assert.strictEqual(result, true);
+    });
+
+    it('should use process.stdout as default stream', () => {
+      process.stdout.isTTY = true;
+      delete process.env.NO_COLOR;
+      delete process.env.NODE_DISABLE_COLORS;
+      delete process.env.FORCE_COLOR;
+      
+      const result = supportsColor();
+      assert.strictEqual(typeof result, 'boolean');
+    });
+
+    it('should prioritize hasColors method when available', () => {
+      const mockStream = {
+        isTTY: false,
+        hasColors: () => false
+      };
+      delete process.env.NO_COLOR;
+      delete process.env.NODE_DISABLE_COLORS;
+      delete process.env.FORCE_COLOR;
+      
+      const result = supportsColor(mockStream);
+      assert.strictEqual(result, false);
+    });
+
+    it('should return false when NODE_DISABLE_COLORS is set', () => {
+      const mockStream = {
+        isTTY: true
+      };
+      delete process.env.NO_COLOR;
+      process.env.NODE_DISABLE_COLORS = '1';
+      delete process.env.FORCE_COLOR;
+      
+      const result = supportsColor(mockStream);
+      assert.strictEqual(result, false);
+    });
   });
 
   describe('parseIgnoreList', () => {

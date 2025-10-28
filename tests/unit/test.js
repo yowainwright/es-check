@@ -5,7 +5,7 @@ const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
-const { generateBashCompletion, generateZshCompletion } = require('../../lib/utils');
+const { generateBashCompletion, generateZshCompletion } = require('../../lib/helpers');
 
 const generatedFixturesRoot = path.join(process.cwd(), 'fixtures');
 
@@ -938,7 +938,7 @@ describe('Shell Completion', () => {
 
 describe('🧪 Programmatic API Tests', () => {
   const { runChecks, loadConfig } = require('../../lib/index.js');
-  const { createLogger } = require('../../lib/utils');
+  const { createLogger } = require('../../lib/helpers');
 
   it('✅ Should expose runChecks function', () => {
     assert(typeof runChecks === 'function', 'runChecks should be a function');

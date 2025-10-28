@@ -1,0 +1,8 @@
+{
+  "version": 3,
+  "sources": ["original.js"],
+  "names": ["greet", "name", "concat", "Person", "this", "_proto", "prototype"],
+  "mappings": "mGAAA,IAAMA,EAAQ,SAARA,EAASC,GACZ,MAAA,UAAAC,OAAAD,EAAA,KAGF,IAAME,EAAA,WACJ,SAAAA,EAAYF,GACVG,KAAKH,KAAOA,EAEd,IAAAI,EAAAF,EAAAG,UACAD,EAAAL,MAAA,SAAAA,IACM,OAAAA,EAAMI,KAAKH,MAEf,OAAAE,EAAA,EAAA,gBAGe,IAAAA",
+  "file": "transpiled.js",
+  "sourcesContent": ["const greet = (name) => {\n  return `Hello, ${name}!`;\n};\n\nclass Person {\n  constructor(name) {\n    this.name = name;\n  }\n\n  greet() {\n    return greet(this.name);\n  }\n}\n\nexport default Person;\n"]
+}

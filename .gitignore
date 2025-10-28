@@ -83,6 +83,7 @@ tests/benchmarks/results/
 # Test artifacts and temporary files
 tests/unit/test-files-node-api/
 tests/fixtures/sourcemap-test/
+tests/fixtures/sourcemap-e2e/no-map.js
 .escheckrc*
 !tests/**/.escheckrc
 !tests/**/.escheckrc.json
