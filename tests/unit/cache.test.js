@@ -1,4 +1,5 @@
-const assert = require('assert');
+const { describe, it } = require('node:test');
+const assert = require('node:assert');
 const SimpleCache = require('../../lib/cache');
 
 describe('SimpleCache', () => {
@@ -74,38 +75,32 @@ describe('SimpleCache', () => {
   });
 
   describe('TTL functionality', () => {
-    it('should expire entries after TTL', (done) => {
+    it('should expire entries after TTL', async () => {
       const cache = new SimpleCache(10, 50);
       cache.set('key1', 'value1');
-      
+
       assert.strictEqual(cache.get('key1'), 'value1');
-      
-      setTimeout(() => {
-        assert.strictEqual(cache.get('key1'), undefined);
-        done();
-      }, 60);
+
+      await new Promise(resolve => setTimeout(resolve, 60));
+      assert.strictEqual(cache.get('key1'), undefined);
     });
 
-    it('should not expire entries before TTL', (done) => {
+    it('should not expire entries before TTL', async () => {
       const cache = new SimpleCache(10, 100);
       cache.set('key1', 'value1');
-      
-      setTimeout(() => {
-        assert.strictEqual(cache.get('key1'), 'value1');
-        done();
-      }, 50);
+
+      await new Promise(resolve => setTimeout(resolve, 50));
+      assert.strictEqual(cache.get('key1'), 'value1');
     });
 
-    it('should handle has() with expired entries', (done) => {
+    it('should handle has() with expired entries', async () => {
       const cache = new SimpleCache(10, 50);
       cache.set('key1', 'value1');
-      
+
       assert.strictEqual(cache.has('key1'), true);
-      
-      setTimeout(() => {
-        assert.strictEqual(cache.has('key1'), false);
-        done();
-      }, 60);
+
+      await new Promise(resolve => setTimeout(resolve, 60));
+      assert.strictEqual(cache.has('key1'), false);
     });
   });
 

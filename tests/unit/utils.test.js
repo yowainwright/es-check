@@ -1,8 +1,8 @@
-const assert = require('assert');
+const { describe, it, beforeEach, afterEach, before } = require('node:test');
+const assert = require('node:assert');
 const fs = require('fs');
 const winston = require('winston');
 const supportsColor = require('supports-color');
-
 const {
   parseIgnoreList,
   checkVarKindMatch,
@@ -20,6 +20,8 @@ const {
   determineLogLevel,
   handleESVersionError
 } = require('../../lib/utils');
+const { createMockFsState, mockFs, createMockLogger, createSilentLogger } = require('../helpers');
+const { CODE_SAMPLES } = require('../constants');
 
 describe('Utils Module Tests', () => {
 
@@ -44,39 +46,16 @@ describe('Utils Module Tests', () => {
   });
 
   describe('parseIgnoreList', () => {
-    let originalFsExistsSync;
-    let originalFsReadFileSync;
     let mockFsState;
-
-    const manualMockFsExistsSync = (path) => {
-      return mockFsState.existsSyncMocks[path] !== undefined
-        ? mockFsState.existsSyncMocks[path]
-        : false;
-    };
-
-    const manualMockFsReadFileSync = (path, encoding) => {
-      if (mockFsState.readFileSyncMocks[path] !== undefined) {
-        return mockFsState.readFileSyncMocks[path];
-      }
-      throw new Error(`Manual mock for readFileSync: No content defined for path: ${path}`);
-    };
+    let fsMock;
 
     beforeEach(() => {
-      originalFsExistsSync = fs.existsSync;
-      originalFsReadFileSync = fs.readFileSync;
-
-      mockFsState = {
-        existsSyncMocks: {},
-        readFileSyncMocks: {},
-      };
-
-      fs.existsSync = manualMockFsExistsSync;
-      fs.readFileSync = manualMockFsReadFileSync;
+      mockFsState = createMockFsState();
+      fsMock = mockFs(mockFsState);
     });
 
     afterEach(() => {
-      fs.existsSync = originalFsExistsSync;
-      fs.readFileSync = originalFsReadFileSync;
+      fsMock.restore();
     });
 
     it('should return an empty Set if no options are provided', () => {

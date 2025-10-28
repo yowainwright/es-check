@@ -4,29 +4,27 @@ const fs = require('fs');
 const path = require('path');
 const { runChecks, loadConfig } = require('../../lib/index.js');
 const { createLogger } = require('../../lib/utils.js');
+const { createTempDir, cleanupTempDir, createTempFile, createMockLogger } = require('../helpers');
+const { CODE_SAMPLES, ES_VERSIONS } = require('../constants');
 
 const testDir = path.join(__dirname, 'test-files-node-api');
 
 describe('Node API Tests', () => {
   beforeEach(() => {
-    if (!fs.existsSync(testDir)) {
-      fs.mkdirSync(testDir, { recursive: true });
-    }
+    createTempDir(testDir);
   });
 
   afterEach(() => {
-    if (fs.existsSync(testDir)) {
-      fs.rmSync(testDir, { recursive: true, force: true });
-    }
+    cleanupTempDir(testDir);
   });
 
   describe('runChecks with no logger', () => {
     it('should work without a logger', async () => {
       const es5File = path.join(testDir, 'es5.js');
-      fs.writeFileSync(es5File, 'var x = 5;');
+      createTempFile(es5File, CODE_SAMPLES.ES5);
 
       const config = [{
-        ecmaVersion: 'es5',
+        ecmaVersion: ES_VERSIONS.ES5,
         files: [es5File]
       }];
 
@@ -37,10 +35,10 @@ describe('Node API Tests', () => {
 
     it('should return errors without throwing', async () => {
       const es6File = path.join(testDir, 'es6.js');
-      fs.writeFileSync(es6File, 'const x = 5; let y = 10;');
+      createTempFile(es6File, `${CODE_SAMPLES.ES6_CONST} ${CODE_SAMPLES.ES6_LET}`);
 
       const config = [{
-        ecmaVersion: 'es5',
+        ecmaVersion: ES_VERSIONS.ES5,
         files: [es6File]
       }];
 
@@ -65,33 +63,26 @@ describe('Node API Tests', () => {
   describe('runChecks with options object', () => {
     it('should accept an options object with a logger', async () => {
       const es5File = path.join(testDir, 'es5.js');
-      fs.writeFileSync(es5File, 'var x = 5;');
+      createTempFile(es5File, CODE_SAMPLES.ES5);
 
-      const logs = [];
-      const customLogger = {
-        info: (msg) => logs.push({ level: 'info', msg }),
-        error: (msg) => logs.push({ level: 'error', msg }),
-        warn: (msg) => logs.push({ level: 'warn', msg }),
-        debug: (msg) => logs.push({ level: 'debug', msg }),
-        isLevelEnabled: () => true
-      };
+      const customLogger = createMockLogger();
 
       const config = [{
-        ecmaVersion: 'es5',
+        ecmaVersion: ES_VERSIONS.ES5,
         files: [es5File]
       }];
 
       const result = await runChecks(config, { logger: customLogger });
       assert.strictEqual(result.success, true);
-      assert(logs.some(log => log.level === 'info'));
+      assert(customLogger.getLogs().some(log => log.level === 'info'));
     });
 
     it('should work with options object but no logger', async () => {
       const es5File = path.join(testDir, 'es5.js');
-      fs.writeFileSync(es5File, 'var x = 5;');
+      createTempFile(es5File, CODE_SAMPLES.ES5);
 
       const config = [{
-        ecmaVersion: 'es5',
+        ecmaVersion: ES_VERSIONS.ES5,
         files: [es5File]
       }];
 
