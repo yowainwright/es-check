@@ -22,13 +22,14 @@
     "dev": "pnpm site:dev",
     "lint": "eslint lib/index.js --fix",
     "lint:ci": "eslint lib/index.js lib/utils.js lib/detectFeatures.js lib/constants.js lib/browserslist.js lib/polyfillDetector.js",
+    "pastoralist": "pastoralist",
     "pre-commit": "pnpm lint && pnpm test",
     "prepare": "husky",
     "prepublishOnly": "pnpm test",
     "release": "release-it --no-git.requireUpstream",
     "changelog": "node scripts/update-changelog.mjs",
-    "report:coverage": "nyc report --reporter=lcov > coverage.lcov && codecov",
-    "test": "nyc mocha tests/unit/test.js tests/unit/utils.test.js tests/unit/browserslist.test.js tests/unit/polyfillDetector.test.js tests/unit/detectFeatures.test.js --timeout 10s && npm run test:e2e",
+    "report:coverage": "node --test --experimental-test-coverage tests/unit/*.test.js tests/unit/test.js --test-timeout=10000",
+    "test": "node --test tests/unit/*.test.js tests/unit/test.js --test-timeout=10000 && npm run test:e2e",
     "test:e2e": "npm run test:e2e:cli && npm run test:e2e:esm && npm run test:e2e:package-files",
     "test:e2e:cli": "node tests/e2e/test-cli.js",
     "test:e2e:esm": "node tests/e2e/test-esm-import.mjs",
@@ -50,15 +51,10 @@
   },
   "homepage": "https://github.com/yowainwright/es-check#readme",
   "devDependencies": {
-    "@babel/parser": "^7.27.1",
     "@commitlint/cli": "20.1.0",
     "@commitlint/config-conventional": "20.0.0",
     "@commitlint/format": "^19.3.0",
     "@commitlint/prompt": "20.1.0",
-    "@swc/core": "^1.11.24",
-    "are-you-es5": "^2.1.2",
-    "assert": "^2.1.0",
-    "codecov": "^3.8.3",
     "codependence": "^0.3.1",
     "commitizen": "4.3.1",
     "conventional-changelog-cli": "^5.0.0",
@@ -68,9 +64,7 @@
     "husky": "9.1.7",
     "inquirer": "^12.9.1",
     "is-ci": "^3.0.1",
-    "mocha": "11.7.4",
-    "nyc": "^17.1.0",
-    "path-exists-cli": "^2.0.0",
+    "pastoralist": "^1.7.5",
     "prettier": "3.6.2",
     "release-it": "19.0.5"
   },
@@ -143,5 +137,19 @@
       "after:release": "echo Successfully released ${name} v${version} to ${repo.repository}. && pnpm run changelog"
     }
   },
-  "packageManager": "pnpm@10.6.5+sha512.cdf928fca20832cd59ec53826492b7dc25dc524d4370b6b4adbf65803d32efaa6c1c88147c0ae4e8d579a6c9eec715757b50d4fa35eea179d868eada4ed043af"
+  "packageManager": "pnpm@10.6.5+sha512.cdf928fca20832cd59ec53826492b7dc25dc524d4370b6b4adbf65803d32efaa6c1c88147c0ae4e8d579a6c9eec715757b50d4fa35eea179d868eada4ed043af",
+  "pastoralist": {
+    "depPaths": [
+      "package.json",
+      "site/package.json"
+    ],
+    "security": {
+      "enabled": true,
+      "provider": "osv",
+      "autoFix": false,
+      "interactive": true,
+      "severityThreshold": "medium",
+      "hasWorkspaceSecurityChecks": true
+    }
+  }
 }

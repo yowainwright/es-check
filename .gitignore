@@ -80,6 +80,12 @@ tests/benchmarks/test-files/
 tests/benchmarks/test-files-*/
 tests/benchmarks/results/
 
+# Test temp directories and files (created by tests)
+tests/unit/test-files-node-api/
+tests/unit/test-cache-file.js
+test-temp-file.js
+.escheckrc.*
+
 dist/
 .browserslistrc-env
 .browserslistrc-legacy
