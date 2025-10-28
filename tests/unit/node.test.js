@@ -4,16 +4,6 @@ const fs = require('fs');
 const path = require('path');
 const { runChecks, loadConfig } = require('../../lib/index.js');
 
-function createLogger(options = {}) {
-  return {
-    info: () => {},
-    error: () => {},
-    warn: () => {},
-    debug: () => {},
-    isLevelEnabled: () => options.verbose || false
-  };
-}
-
 const testDir = path.join(__dirname, 'test-files-node-api');
 
 if (!fs.existsSync(testDir)) {

@@ -1,17 +1,22 @@
-const assert = require('assert');
+const { describe, it } = require('node:test');
+const assert = require('node:assert');
 const { detectPolyfills, filterPolyfilled } = require('../../lib/helpers/polyfillDetector');
 
-// A simple mock logger to be used in tests where we don't care about the log output.
-const mockLogger = {
-  isLevelEnabled: () => false,
-  debug: () => {},
-};
+function createSilentLogger() {
+  return {
+    info: () => {},
+    error: () => {},
+    warn: () => {},
+    debug: () => {},
+    isLevelEnabled: () => false
+  };
+}
 
-// A small, controlled map for tests that need to override the default featureMap.
+const mockLogger = createSilentLogger();
+
 const testFeatureMap = {
     'Array.prototype.toSorted': [/\bArray\.prototype\.toSorted\s*=/, /['"]core-js\/modules\/es\.array\.to-sorted['"]/],
     'Object.hasOwn': [/\bObject\.hasOwn\s*=/, /['"]core-js\/modules\/es\.object\.has-own['"]/],
-    // Corrected the regex for es6-promise below
     'Promise': [/\bPromise\s*=/, /['"]core-js\/modules\/es\.promise['"]/, /['"]es6-promise(\/.*)?['"]/],
     'Object.assign': [/\bObject\.assign\s*=/, /['"]core-js\/modules\/es\.object\.assign['"]/, /['"]object-assign['"]/],
 };

@@ -1,4 +1,5 @@
-const assert = require('assert');
+const { describe, test, after } = require('node:test');
+const assert = require('node:assert');
 const path = require('path');
 const fs = require('fs');
 const { execSync } = require('child_process');
@@ -17,7 +18,7 @@ describe('Source Map E2E Tests', () => {
     });
   });
 
-  it('should report errors with source map references when .map file exists', () => {
+  test('should report errors with source map references when .map file exists', () => {
     let output;
     let exitCode;
 
@@ -37,7 +38,7 @@ describe('Source Map E2E Tests', () => {
     assert.ok(output.includes('ES-Check Error'), 'Should show ES-Check error message');
   });
 
-  it('should check transpiled file passes when checking for correct version', () => {
+  test('should check transpiled file passes when checking for correct version', () => {
     let output;
     let exitCode;
 
@@ -56,7 +57,7 @@ describe('Source Map E2E Tests', () => {
     assert.ok(!output.includes('ES-Check Error'), 'Should not show errors');
   });
 
-  it('should handle missing source map gracefully', () => {
+  test('should handle missing source map gracefully', () => {
     const tempFile = path.join(fixtureDir, 'no-map.js');
     tempFiles.push(tempFile);
     fs.writeFileSync(tempFile, 'const x = 5;');
@@ -80,7 +81,7 @@ describe('Source Map E2E Tests', () => {
     assert.ok(output.includes('ES-Check Error'), 'Should show ES-Check error message');
   });
 
-  it('should verify original source is ES6+', () => {
+  test('should verify original source is ES6+', () => {
     let output;
     let exitCode;
 

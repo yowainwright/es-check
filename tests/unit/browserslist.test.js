@@ -1,8 +1,8 @@
+const { describe, it, before, after } = require('node:test');
+const assert = require('node:assert');
 const { getESVersionFromBrowserslist, getESVersionForBrowser } = require('../../lib/browserslist');
-const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
-const { describe, it, before, after } = require('mocha');
 
 before(() => {
   fs.writeFileSync(
@@ -82,11 +82,11 @@ describe('getESVersionFromBrowserslist', () => {
     assert.strictEqual(esVersion, 5, 'ES version should default to 5 if no config is found');
   });
 
-  it('should determine ES5 for browsers not explicitly defined as modern', () => {
+  it('should determine correct ES version for Safari', () => {
     const esVersion = getESVersionFromBrowserslist({
       browserslistQuery: 'Safari >= 14'
     });
-    assert.strictEqual(esVersion, 5, 'ES version should be 5 for browsers like Safari');
+    assert.strictEqual(esVersion, 11, 'ES version should be 11 for Safari 14+');
   });
 
   it('should determine correct ES version for modern Chrome versions', () => {
