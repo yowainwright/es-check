@@ -80,21 +80,16 @@ tests/benchmarks/test-files/
 tests/benchmarks/test-files-*/
 tests/benchmarks/results/
 
-<<<<<<< HEAD
-# Test artifacts and temporary files
-tests/unit/test-files-node-api/
-tests/fixtures/sourcemap-test/
-tests/fixtures/sourcemap-e2e/no-map.js
-.escheckrc*
-!tests/**/.escheckrc
-!tests/**/.escheckrc.json
-=======
 # Test temp directories and files (created by tests)
 tests/unit/test-files-node-api/
 tests/unit/test-cache-file.js
+tests/unit/test-cache-file-2.js
+tests/fixtures/sourcemap-test/
+tests/fixtures/sourcemap-e2e/no-map.js
 test-temp-file.js
 .escheckrc.*
->>>>>>> origin
+!tests/**/.escheckrc
+!tests/**/.escheckrc.json
 
 dist/
 .browserslistrc-env
