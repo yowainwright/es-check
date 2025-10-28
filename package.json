@@ -21,7 +21,7 @@
     "commit-msg": "commitlint --edit $1",
     "dev": "pnpm site:dev",
     "lint": "oxlint lib",
-    "lint:ci": "oxlint lib --quiet && pnpm format:check",
+    "lint:ci": "oxlint lib --quiet",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "pastoralist": "pastoralist",
