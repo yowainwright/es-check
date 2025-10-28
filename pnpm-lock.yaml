@@ -58,8 +58,8 @@ importers:
         specifier: ^1.24.0
         version: 1.24.0
       pastoralist:
-        specifier: ^1.7.5
-        version: 1.7.5(@types/node@24.6.0)
+        specifier: 1.8.0-1
+        version: 1.8.0-1(@types/node@24.6.0)
       prettier:
         specifier: 3.6.2
         version: 3.6.2
@@ -3172,8 +3172,8 @@ packages:
   parse5@7.3.0:
     resolution: {integrity: sha512-IInvU7fabl34qmi9gY8XOVxhYyMyuH2xUNpb2q8/Y+7552KlejkRvqvD19nMoUW/uQGGbqNpA6Tufu5FL5BZgw==}
 
-  pastoralist@1.7.5:
-    resolution: {integrity: sha512-83nTFtYsV8zsApDcS2w1hUKqoKQPIICvp3nwJZM6EfJL5W5h3Wwxardn4/KivZ4nJ/VOTMP5o0Xme1deHS4AnA==}
+  pastoralist@1.8.0-1:
+    resolution: {integrity: sha512-/Sp4lYczAb24I19uxuDZ1uTxGUJdK+UF3NCuANrYjFSbouUK6G88r8Ia9YcrtrXcNUs31H11siyZCDsWywNVVQ==}
     hasBin: true
 
   path-browserify@1.0.1:
@@ -7671,7 +7671,7 @@ snapshots:
     dependencies:
       entities: 6.0.1
 
-  pastoralist@1.7.5(@types/node@24.6.0):
+  pastoralist@1.8.0-1(@types/node@24.6.0):
     dependencies:
       commander: 14.0.1
       compare-versions: 6.1.1
