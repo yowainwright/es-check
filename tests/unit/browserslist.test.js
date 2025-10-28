@@ -89,11 +89,18 @@ describe('getESVersionFromBrowserslist', () => {
     assert.strictEqual(esVersion, 5, 'ES version should be 5 for browsers like Safari');
   });
 
-  it('should determine ES6 for a modern browser query', () => {
+  it('should determine correct ES version for modern Chrome versions', () => {
     const esVersion = getESVersionFromBrowserslist({
       browserslistQuery: 'Chrome >= 100'
     });
-    assert.strictEqual(esVersion, 6, 'ES version should be 6 for `Chrome >= 100` browserslist query');
+    assert(esVersion >= 11, 'ES version should be 11 or higher for Chrome >= 100');
+  });
+
+  it('should determine correct ES version for specific Chrome version (issue #324)', () => {
+    const esVersion = getESVersionFromBrowserslist({
+      browserslistQuery: 'chrome 111'
+    });
+    assert.strictEqual(esVersion, 11, 'ES version should be 11 for Chrome 111');
   });
 
   it('should return ES5 if browserslist throws an error', () => {
@@ -126,5 +133,14 @@ describe('getESVersionForBrowser', () => {
 
   it('should return ES6 for Firefox with a version lower than any defined', () => {
     assert.strictEqual(getESVersionForBrowser('firefox', '40'), 6);
+  });
+
+  it('should return ES11 for Chrome 111', () => {
+    assert.strictEqual(getESVersionForBrowser('chrome', '111'), 11);
+  });
+
+  it('should return higher ES version for Chrome versions beyond defined mappings', () => {
+    const esVersion = getESVersionForBrowser('chrome', '120');
+    assert.strictEqual(esVersion, 11, 'Chrome 120 should map to ES11 (highest defined)');
   });
 });
