@@ -1,5 +1,5 @@
 const assert = require('assert');
-const detectFeatures = require('./detectFeatures');
+const detectFeatures = require('../../lib/detectFeatures');
 
 describe('detectFeatures', () => {
   describe('Basic functionality', () => {

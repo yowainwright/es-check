@@ -2,8 +2,8 @@ const { describe, it, beforeEach, afterEach } = require('node:test');
 const assert = require('node:assert');
 const fs = require('fs');
 const path = require('path');
-const { runChecks, loadConfig } = require('./index.js');
-const { createLogger } = require('./utils.js');
+const { runChecks, loadConfig } = require('../../lib/index.js');
+const { createLogger } = require('../../lib/utils.js');
 
 const testDir = path.join(__dirname, 'test-files-node-api');
 

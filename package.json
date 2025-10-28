@@ -2,47 +2,39 @@
   "name": "es-check",
   "version": "9.4.4",
   "description": "Checks the ECMAScript version of .js glob against a specified version of ECMAScript with a shell command",
-  "main": "index.js",
+  "main": "lib/index.js",
   "license": "MIT",
   "exports": {
     ".": {
-      "import": "./esm-wrapper.mjs",
-      "require": "./index.js"
+      "import": "./lib/esm-wrapper.mjs",
+      "require": "./lib/index.js"
     }
   },
   "files": [
-    "index.js",
-    "utils.js",
-    "detectFeatures.js",
-    "constants.js",
-    "browserslist.js",
-    "polyfillDetector.js",
-    "esm-wrapper.mjs",
-    "cache.js"
+    "lib"
   ],
   "bin": {
-    "es-check": "index.js"
+    "es-check": "lib/index.js"
   },
   "scripts": {
     "commit": "git-cz",
     "commit-msg": "commitlint --edit $1",
     "dev": "pnpm site:dev",
-    "lint": "eslint index.js --fix",
-    "lint:ci": "eslint index.js utils.js detectFeatures.js constants.js browserslist.js polyfillDetector.js",
+    "lint": "eslint lib/index.js --fix",
+    "lint:ci": "eslint lib/index.js lib/utils.js lib/detectFeatures.js lib/constants.js lib/browserslist.js lib/polyfillDetector.js",
     "pre-commit": "pnpm lint && pnpm test",
     "prepare": "husky",
     "prepublishOnly": "pnpm test",
     "release": "release-it --no-git.requireUpstream",
     "changelog": "node scripts/update-changelog.mjs",
     "report:coverage": "nyc report --reporter=lcov > coverage.lcov && codecov",
-    "setup": "pnpm install --reporter=silent",
-    "test": "nyc mocha test.js utils.test.js browserslist.test.js polyfillDetector.test.js detectFeatures.test.js --timeout 10s && npm run test:e2e",
+    "test": "nyc mocha tests/unit/test.js tests/unit/utils.test.js tests/unit/browserslist.test.js tests/unit/polyfillDetector.test.js tests/unit/detectFeatures.test.js --timeout 10s && npm run test:e2e",
     "test:e2e": "npm run test:e2e:cli && npm run test:e2e:esm && npm run test:e2e:package-files",
-    "test:e2e:cli": "node e2e/test-cli.js",
-    "test:e2e:esm": "node e2e/test-esm-import.mjs",
-    "test:e2e:package-files": "node e2e/test-package-files.mjs",
+    "test:e2e:cli": "node tests/e2e/test-cli.js",
+    "test:e2e:esm": "node tests/e2e/test-esm-import.mjs",
+    "test:e2e:package-files": "node tests/e2e/test-package-files.mjs",
     "update": "codependence --update",
-    "benchmark": "./benchmarks/run-benchmarks.sh",
+    "benchmark": "./tests/benchmarks/run-benchmarks.sh",
     "site:dev": "pnpm --filter es-check-docs run dev",
     "site:build": "pnpm --filter es-check-docs run build",
     "site:preview": "pnpm --filter es-check-docs run preview",
