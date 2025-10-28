@@ -1,5 +1,5 @@
 const assert = require('assert');
-const SimpleCache = require('./cache');
+const SimpleCache = require('../../lib/cache');
 
 describe('SimpleCache', () => {
   describe('Basic operations', () => {

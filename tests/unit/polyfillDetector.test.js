@@ -1,5 +1,5 @@
 const assert = require('assert');
-const { detectPolyfills, filterPolyfilled } = require('./polyfillDetector');
+const { detectPolyfills, filterPolyfilled } = require('../../lib/polyfillDetector');
 
 // A simple mock logger to be used in tests where we don't care about the log output.
 const mockLogger = {

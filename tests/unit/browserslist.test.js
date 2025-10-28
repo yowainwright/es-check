@@ -1,4 +1,4 @@
-const { getESVersionFromBrowserslist, getESVersionForBrowser } = require('./browserslist');
+const { getESVersionFromBrowserslist, getESVersionForBrowser } = require('../../lib/browserslist');
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');

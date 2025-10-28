@@ -19,7 +19,7 @@ const {
   determineInvocationType,
   determineLogLevel,
   handleESVersionError
-} = require('./utils');
+} = require('../../lib/utils');
 
 describe('Utils Module Tests', () => {
 

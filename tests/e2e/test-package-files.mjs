@@ -7,7 +7,7 @@ import { execSync } from 'child_process';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const rootDir = path.join(__dirname, '..');
+const rootDir = path.join(__dirname, '..', '..');
 
 const packageJson = JSON.parse(fs.readFileSync(path.join(rootDir, 'package.json'), 'utf8'));
 const filesInPackage = packageJson.files || [];
@@ -106,7 +106,13 @@ function verifyPackageFiles() {
   console.log('📦 Entry points and their dependencies:\n');
   
   for (const file of requiredFiles.sort()) {
-    if (!filesInPackage.includes(file)) {
+    const isCovered = filesInPackage.some(pkgFile => {
+      if (pkgFile === file) return true;
+      if (file.startsWith(pkgFile + '/')) return true;
+      return false;
+    });
+
+    if (!isCovered) {
       errors.push(`❌ Required file "${file}" is missing from package.json files array`);
       console.log(`❌ ${file}`);
     } else {

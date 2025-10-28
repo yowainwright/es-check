@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { runChecks, loadConfig } from '../esm-wrapper.mjs';
+import { runChecks, loadConfig } from '../../lib/esm-wrapper.mjs';
 import assert from 'assert';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
@@ -20,7 +20,7 @@ console.log('✅ Test 1 passed\n');
 console.log('Test 2: runChecks with ES5 file');
 const es5Config = [{
   ecmaVersion: 'es5',
-  files: ['./tests/es5.js'],
+  files: ['./tests/fixtures/es5.js'],
   checkFeatures: true
 }];
 
@@ -33,7 +33,7 @@ console.log('✅ Test 2 passed\n');
 console.log('Test 3: runChecks with ES6 file against ES5 (should fail)');
 const es6Config = [{
   ecmaVersion: 'es5',
-  files: ['./tests/es6.js'],
+  files: ['./tests/fixtures/es6.js'],
   checkFeatures: true
 }];
 
@@ -46,7 +46,7 @@ console.log('✅ Test 3 passed (expected failure)\n');
 console.log('Test 4: runChecks with multiple files');
 const multiConfig = [{
   ecmaVersion: 'es5',
-  files: ['./tests/es5.js', './tests/es5-2.js'],
+  files: ['./tests/fixtures/es5.js', './tests/fixtures/es5-2.js'],
   checkFeatures: true
 }];
 
@@ -61,7 +61,7 @@ import { writeFileSync, unlinkSync } from 'fs';
 const configPath = join(__dirname, 'test.escheckrc');
 const testConfig = {
   ecmaVersion: 'es6',
-  files: './tests/es6.js',
+  files: './tests/fixtures/es6.js',
   module: true
 };
 
@@ -89,7 +89,7 @@ const customLogger = {
 
 const loggerConfig = [{
   ecmaVersion: 'es5',
-  files: ['./tests/es5.js']
+  files: ['./tests/fixtures/es5.js']
 }];
 
 await runChecks(loggerConfig, { logger: customLogger });

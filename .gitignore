@@ -61,7 +61,7 @@ typings/
 
 package-lock.json
 .dccache
-.husky
+.husky/_
 .pnpm-store
 
 .specstory/.project.json
@@ -76,6 +76,9 @@ site/.astro/
 # Benchmark test files (generated)
 benchmarks/test-files/
 benchmarks/test-files-*/
+tests/benchmarks/test-files/
+tests/benchmarks/test-files-*/
+tests/benchmarks/results/
 
 dist/
 .browserslistrc-env
@@ -83,3 +86,5 @@ dist/
 .browserslistrc-mixed
 .browserslistrc-modern
 .browserslistrc-old-edge
+
+/benchmarks
