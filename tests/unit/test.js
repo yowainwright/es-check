@@ -1,6 +1,6 @@
 'use strict';
 
-const exec = require('child_process').exec;
+const { exec, execFile } = require('child_process');
 const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
@@ -1314,10 +1314,10 @@ describe('Performance optimization integration tests', () => {
     
     fs.writeFileSync(configPath, JSON.stringify(config));
     
-    exec(`node lib/index.js --config ${configPath}`, (err, stdout, stderr) => {
+    execFile('node', ['lib/index.js', '--config', configPath], (err, stdout, stderr) => {
       // Clean up config file
       fs.unlinkSync(configPath);
-      
+
       if (err) {
         console.error(err.stack);
         console.error(stdout.toString());
@@ -1396,9 +1396,9 @@ describe('--cache option tests', () => {
     
     fs.writeFileSync(configPath, JSON.stringify(config));
     
-    exec(`node lib/index.js --config ${configPath}`, (err, stdout, stderr) => {
+    execFile('node', ['lib/index.js', '--config', configPath], (err, stdout, stderr) => {
       fs.unlinkSync(configPath);
-      
+
       if (err) {
         console.error(err.stack);
         console.error(stdout.toString());
@@ -1423,9 +1423,9 @@ describe('--cache option tests', () => {
     
     fs.writeFileSync(configPath, JSON.stringify(config));
     
-    exec(`node lib/index.js --config ${configPath}`, (err, stdout, stderr) => {
+    execFile('node', ['lib/index.js', '--config', configPath], (err, stdout, stderr) => {
       fs.unlinkSync(configPath);
-      
+
       if (err) {
         console.error(err.stack);
         console.error(stdout.toString());
