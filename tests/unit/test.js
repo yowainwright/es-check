@@ -4,14 +4,9 @@ const { describe, it, before, after, beforeEach, afterEach } = require('node:tes
 const assert = require('node:assert');
 const fs = require('fs');
 const path = require('path');
-<<<<<<< HEAD
-const crypto = require('crypto');
 const { generateBashCompletion, generateZshCompletion } = require('../../lib/helpers');
-=======
-const { generateBashCompletion, generateZshCompletion } = require('../../lib/utils');
 const { FIXTURE_FILES, CLI_COMMANDS, FLAGS, MESSAGES, ES_VERSIONS, BROWSER_QUERIES } = require('../constants');
 const { createUniqueConfigFile, removeConfigFile, assertSuccess, assertFailure, execFileWithGlob } = require('../helpers');
->>>>>>> origin
 
 const generatedFixturesRoot = path.join(process.cwd(), 'fixtures');
 

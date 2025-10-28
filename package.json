@@ -20,8 +20,10 @@
     "commit": "git-cz",
     "commit-msg": "commitlint --edit $1",
     "dev": "pnpm site:dev",
-    "lint": "eslint lib/index.js --fix",
-    "lint:ci": "eslint lib/index.js lib/utils.js lib/detectFeatures.js lib/constants.js lib/browserslist.js lib/polyfillDetector.js",
+    "lint": "oxlint lib",
+    "lint:ci": "oxlint lib && pnpm format:check",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "pastoralist": "pastoralist",
     "pre-commit": "pnpm lint && pnpm test",
     "prepare": "husky",
@@ -54,17 +56,11 @@
   "devDependencies": {
     "@commitlint/cli": "20.1.0",
     "@commitlint/config-conventional": "20.0.0",
-    "@commitlint/format": "^19.3.0",
-    "@commitlint/prompt": "20.1.0",
     "codependence": "^0.3.1",
     "commitizen": "4.3.1",
     "conventional-changelog-cli": "^5.0.0",
-    "eslint": "9.38.0",
-    "eslint-config-prettier": "10.1.8",
-    "eslint-plugin-es5": "^1.5.0",
     "husky": "9.1.7",
-    "inquirer": "^12.9.1",
-    "is-ci": "^3.0.1",
+    "oxlint": "^1.24.0",
     "pastoralist": "^1.7.5",
     "prettier": "3.6.2",
     "release-it": "19.0.5"
@@ -81,7 +77,8 @@
     "winston": "3.18.3"
   },
   "engines": {
-    "node": ">= 4"
+    "node": ">=18.0.0",
+    "pnpm": ">=9.0.0"
   },
   "keywords": [
     "check for es6",
@@ -137,7 +134,7 @@
       "after:release": "echo Successfully released ${name} v${version} to ${repo.repository}. && pnpm run changelog"
     }
   },
-  "packageManager": "pnpm@10.6.5+sha512.cdf928fca20832cd59ec53826492b7dc25dc524d4370b6b4adbf65803d32efaa6c1c88147c0ae4e8d579a6c9eec715757b50d4fa35eea179d868eada4ed043af",
+  "packageManager": "pnpm@10.12.1",
   "pastoralist": {
     "depPaths": [
       "package.json",

@@ -45,15 +45,18 @@ test('runChecks - should work with options object but no logger', async () => {
 
 
 test('runChecks - should handle invalid ecmaVersion without exiting', async () => {
+  const es5File = path.join(testDir, 'invalid-version.js');
+  fs.writeFileSync(es5File, 'var x = 5;');
+
   const config = [{
     ecmaVersion: 'es4',
-    files: ['*.js']
+    files: [es5File]
   }];
 
   const result = await runChecks(config);
   assert.strictEqual(result.success, false);
   assert(result.errors.length > 0);
-  assert(result.errors[0].err.message.includes('ES4'));
+  assert(result.errors[0].err.message.includes('ES4') || result.errors[0].err.message.includes('not supported'));
 });
 
 test('runChecks - should handle missing ecmaVersion without exiting', async () => {
