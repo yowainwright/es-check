@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 const { mkdirSync, writeFileSync } = fs;
 
 const numFiles = parseInt(process.argv[2], 10) || 100;
-const outputDir = process.argv[3] || path.join(__dirname, 'test-files');
+const outputDir = process.argv[3] || path.join(__dirname, "test-files");
 const es5Template = `
 // ES5 compatible file
 function createObject() {
@@ -35,7 +35,6 @@ function processData(data) {
   return output;
 }
 `;
-
 
 const es6Template = `
 // ES6+ features
@@ -73,7 +72,6 @@ class Example {
   }
 }
 `;
-
 
 const es2020Template = `
 // ES2020+ features
@@ -156,13 +154,11 @@ const result1 = Promise.try(() => maybeAsyncFunction(false));
 const result2 = Promise.try(() => maybeAsyncFunction(true));
 `;
 
-
 function ensureDirectoryExists(dir) {
   if (!fs.existsSync(dir)) {
     mkdirSync(dir, { recursive: true });
   }
 }
-
 
 function generateTestFiles() {
   console.log(`Generating ${numFiles} test files in ${outputDir}...`);
@@ -173,7 +169,8 @@ function generateTestFiles() {
   const es6Count = Math.floor(numFiles * 0.3); // 30% ES6
   const es2020Count = Math.floor(numFiles * 0.2); // 20% ES2020
   const es2024Count = Math.floor(numFiles * 0.1); // 10% ES2024
-  const es2025Count = numFiles - es5Count - es6Count - es2020Count - es2024Count; // Remaining as ES2025
+  const es2025Count =
+    numFiles - es5Count - es6Count - es2020Count - es2024Count; // Remaining as ES2025
 
   for (let i = 0; i < es5Count; i++) {
     const filePath = path.join(outputDir, `es5-file-${i + 1}.js`);
@@ -196,8 +193,9 @@ function generateTestFiles() {
     writeFileSync(filePath, es2025Template);
   }
 
-  console.log(`Generated ${es5Count} ES5, ${es6Count} ES6, ${es2020Count} ES2020, ${es2024Count} ES2024, and ${es2025Count} ES2025 files.`);
+  console.log(
+    `Generated ${es5Count} ES5, ${es6Count} ES6, ${es2020Count} ES2020, ${es2024Count} ES2024, and ${es2025Count} ES2025 files.`,
+  );
 }
-
 
 generateTestFiles();

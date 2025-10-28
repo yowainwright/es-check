@@ -12,18 +12,17 @@ const sortedArray = originalArray.toSorted();
 const sortedWithComparator = originalArray.toSorted((a, b) => a - b);
 
 // Array.prototype.toSpliced()
-const splicedArray = originalArray.toSpliced(1, 2, 'new', 'items');
+const splicedArray = originalArray.toSpliced(1, 2, "new", "items");
 
 // Array.prototype.with()
-const withReplacedElement = originalArray.with(0, 'first');
+const withReplacedElement = originalArray.with(0, "first");
 
 // Array.prototype.findLast()
 const numbers = [1, 2, 3, 4, 5, 4, 3, 2, 1];
-const lastEven = numbers.findLast(x => x % 2 === 0);
+const lastEven = numbers.findLast((x) => x % 2 === 0);
 
 // Array.prototype.findLastIndex()
-const lastEvenIndex = numbers.findLastIndex(x => x % 2 === 0);
-
+const lastEvenIndex = numbers.findLastIndex((x) => x % 2 === 0);
 
 console.log({
   originalArray,
@@ -33,5 +32,5 @@ console.log({
   splicedArray,
   withReplacedElement,
   lastEven,
-  lastEvenIndex
+  lastEvenIndex,
 });

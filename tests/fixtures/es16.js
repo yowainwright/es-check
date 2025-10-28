@@ -2,25 +2,25 @@
 
 // Array.prototype.group()
 const items = [
-  { category: 'fruit', name: 'apple' },
-  { category: 'fruit', name: 'banana' },
-  { category: 'vegetable', name: 'carrot' },
-  { category: 'vegetable', name: 'broccoli' },
-  { category: 'fruit', name: 'orange' }
+  { category: "fruit", name: "apple" },
+  { category: "fruit", name: "banana" },
+  { category: "vegetable", name: "carrot" },
+  { category: "vegetable", name: "broccoli" },
+  { category: "fruit", name: "orange" },
 ];
 
 // Group items by category
-const groupedByCategory = items.group(item => item.category);
+const groupedByCategory = items.group((item) => item.category);
 
 // Array.prototype.groupToMap()
-const groupedMap = items.groupToMap(item => item.category);
+const groupedMap = items.groupToMap((item) => item.category);
 
 // Promise.try()
 function maybeAsyncFunction(shouldBeAsync) {
   if (shouldBeAsync) {
-    return Promise.resolve('async result');
+    return Promise.resolve("async result");
   } else {
-    return 'sync result';
+    return "sync result";
   }
 }
 
@@ -28,10 +28,9 @@ function maybeAsyncFunction(shouldBeAsync) {
 const result1 = Promise.try(() => maybeAsyncFunction(false));
 const result2 = Promise.try(() => maybeAsyncFunction(true));
 
-
 console.log({
   groupedByCategory,
   groupedMap,
   result1,
-  result2
+  result2,
 });

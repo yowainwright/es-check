@@ -2,19 +2,19 @@
 
 // Private class fields
 class ExampleClass {
-  #privateField = 'private value';
-  
-  static staticField = 'static value';
-  
+  #privateField = "private value";
+
+  static staticField = "static value";
+
   // Static block
   static {
-    this.staticField = 'initialized';
+    this.staticField = "initialized";
   }
-  
+
   getPrivate() {
     return this.#privateField;
   }
-  
+
   // Ergonomic brand checks
   hasPrivateField(obj) {
     return #privateField in obj;
@@ -28,17 +28,16 @@ const lastElement = arr.at(-1);
 // Error cause
 function throwErrorWithCause() {
   try {
-    throw new Error('Original error');
+    throw new Error("Original error");
   } catch (e) {
-    throw new Error('Wrapped error', { cause: e });
+    throw new Error("Wrapped error", { cause: e });
   }
 }
 
 // Object.hasOwn()
-const obj = { prop: 'value' };
-const hasProperty = Object.hasOwn(obj, 'prop');
-
+const obj = { prop: "value" };
+const hasProperty = Object.hasOwn(obj, "prop");
 
 // RegExp match indices
 const regex = /a+(?<Z>z)?/d;
-const match = regex.exec('xaaaz');
+const match = regex.exec("xaaaz");

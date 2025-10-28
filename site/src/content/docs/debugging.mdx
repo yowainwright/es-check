@@ -27,7 +27,7 @@ When ES Check finds incompatible JavaScript features, it provides detailed error
   - error: let declaration is not supported in ES5
   - line: 10:2
   - code: let userName = 'John';
-  
+
   - error: Template literal is not supported in ES5
   - line: 15:18
   - code: console.log(`Hello ${userName}`);
@@ -37,20 +37,20 @@ When ES Check finds incompatible JavaScript features, it provides detailed error
 
 ### ES5 Incompatibilities
 
-| Feature | Error | Solution |
-|---------|-------|----------|
-| Arrow functions | `Arrow function is not supported` | Use regular `function` |
-| `let`/`const` | `let/const declaration is not supported` | Use `var` |
-| Template literals | `Template literal is not supported` | Use string concatenation |
-| Destructuring | `Destructuring is not supported` | Use explicit property access |
-| Classes | `Class declaration is not supported` | Use function constructors |
+| Feature           | Error                                    | Solution                     |
+| ----------------- | ---------------------------------------- | ---------------------------- |
+| Arrow functions   | `Arrow function is not supported`        | Use regular `function`       |
+| `let`/`const`     | `let/const declaration is not supported` | Use `var`                    |
+| Template literals | `Template literal is not supported`      | Use string concatenation     |
+| Destructuring     | `Destructuring is not supported`         | Use explicit property access |
+| Classes           | `Class declaration is not supported`     | Use function constructors    |
 
 ### ES6 Incompatibilities
 
-| Feature | Error | Solution |
-|---------|-------|----------|
-| Async/await | `Async function is not supported` | Use Promises |
-| Object spread | `Object spread is not supported` | Use Object.assign |
+| Feature           | Error                                | Solution            |
+| ----------------- | ------------------------------------ | ------------------- |
+| Async/await       | `Async function is not supported`    | Use Promises        |
+| Object spread     | `Object spread is not supported`     | Use Object.assign   |
 | Optional chaining | `Optional chaining is not supported` | Use explicit checks |
 
 ## Debugging Strategies
@@ -101,19 +101,26 @@ Ensure proper transpilation:
 ```javascript
 module.exports = {
   module: {
-    rules: [{
-      test: /\.js$/,
-      exclude: /node_modules/,
-      use: {
-        loader: 'babel-loader',
-        options: {
-          presets: [['@babel/preset-env', {
-            targets: { ie: 11 }
-          }]]
-        }
-      }
-    }]
-  }
+    rules: [
+      {
+        test: /\.js$/,
+        exclude: /node_modules/,
+        use: {
+          loader: "babel-loader",
+          options: {
+            presets: [
+              [
+                "@babel/preset-env",
+                {
+                  targets: { ie: 11 },
+                },
+              ],
+            ],
+          },
+        },
+      },
+    ],
+  },
 };
 ```
 
@@ -124,11 +131,14 @@ Check your `.babelrc`:
 ```json
 {
   "presets": [
-    ["@babel/preset-env", {
-      "targets": {
-        "browsers": ["last 2 versions", "ie >= 11"]
+    [
+      "@babel/preset-env",
+      {
+        "targets": {
+          "browsers": ["last 2 versions", "ie >= 11"]
+        }
       }
-    }]
+    ]
   ]
 }
 ```
@@ -173,7 +183,7 @@ Paste problematic code into [astexplorer.net](https://astexplorer.net) to unders
 
 ```javascript
 // Instead of failing, provide fallbacks
-if (typeof Promise !== 'undefined') {
+if (typeof Promise !== "undefined") {
   // Use Promise-based code
 } else {
   // Use callback-based code

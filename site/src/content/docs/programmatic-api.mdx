@@ -19,24 +19,28 @@ ES Check exports two main functions for programmatic use:
 The Node API now returns a result object instead of throwing errors, making it easier to handle programmatically:
 
 ```javascript
-const { runChecks, loadConfig } = require('es-check');
+const { runChecks, loadConfig } = require("es-check");
 
 async function checkES5Compatibility() {
-  const configs = [{
-    ecmaVersion: 'es5',
-    files: ['dist/**/*.js'],
-    module: false,
-    checkFeatures: true
-  }];
+  const configs = [
+    {
+      ecmaVersion: "es5",
+      files: ["dist/**/*.js"],
+      module: false,
+      checkFeatures: true,
+    },
+  ];
 
   // Run without a logger (silent mode)
   const result = await runChecks(configs);
-  
+
   if (result.success) {
-    console.log('✅ All files are ES5 compatible!');
+    console.log("✅ All files are ES5 compatible!");
   } else {
-    console.error(`❌ ES5 compatibility check failed with ${result.errors.length} errors`);
-    result.errors.forEach(error => {
+    console.error(
+      `❌ ES5 compatibility check failed with ${result.errors.length} errors`,
+    );
+    result.errors.forEach((error) => {
       console.error(`  - ${error.file}: ${error.err.message}`);
     });
     // Example output:
@@ -53,29 +57,31 @@ async function checkES5Compatibility() {
 You can provide a custom logger for detailed output:
 
 ```javascript
-const { runChecks } = require('es-check');
+const { runChecks } = require("es-check");
 
 async function checkWithLogger() {
-  const configs = [{
-    ecmaVersion: 'es6',
-    files: ['src/**/*.js'],
-    checkFeatures: true
-  }];
-  
+  const configs = [
+    {
+      ecmaVersion: "es6",
+      files: ["src/**/*.js"],
+      checkFeatures: true,
+    },
+  ];
+
   // Custom logger implementation
   const customLogger = {
-    info: (msg) => console.log('[INFO]', msg),
-    error: (msg) => console.error('[ERROR]', msg),
-    warn: (msg) => console.warn('[WARN]', msg),
-    debug: (msg) => console.debug('[DEBUG]', msg),
-    isLevelEnabled: (level) => true
+    info: (msg) => console.log("[INFO]", msg),
+    error: (msg) => console.error("[ERROR]", msg),
+    warn: (msg) => console.warn("[WARN]", msg),
+    debug: (msg) => console.debug("[DEBUG]", msg),
+    isLevelEnabled: (level) => true,
   };
-  
+
   // Pass logger in an options object
   const result = await runChecks(configs, { logger: customLogger });
-  
+
   if (!result.success) {
-    console.error('Check failed!');
+    console.error("Check failed!");
     // Handle errors programmatically
     return { success: false, errors: result.errors };
   }
@@ -88,26 +94,28 @@ async function checkWithLogger() {
 You can also use ES Check's built-in logger utility:
 
 ```javascript
-const { runChecks } = require('es-check');
-const { createLogger } = require('es-check/utils');
+const { runChecks } = require("es-check");
+const { createLogger } = require("es-check/utils");
 
 async function checkWithBuiltInLogger() {
-  const configs = [{
-    ecmaVersion: 'es5',
-    files: ['dist/**/*.js']
-  }];
-  
+  const configs = [
+    {
+      ecmaVersion: "es5",
+      files: ["dist/**/*.js"],
+    },
+  ];
+
   // Create a logger with specific settings
   const logger = createLogger({
-    verbose: true,  // Show debug messages
-    quiet: false,   // Show all messages
-    silent: false,  // Output to console
-    noColor: false  // Use colors in output
+    verbose: true, // Show debug messages
+    quiet: false, // Show all messages
+    silent: false, // Output to console
+    noColor: false, // Use colors in output
   });
-  
+
   // Pass the logger in an options object
   const result = await runChecks(configs, { logger });
-  
+
   if (!result.success) {
     // Handle errors programmatically
     return { success: false, errors: result.errors };
@@ -122,17 +130,17 @@ The configuration object accepts the same options as the CLI:
 
 ```javascript
 const config = {
-  ecmaVersion: 'es5',              // ES version to check against
-  files: ['dist/**/*.js'],         // Files to check (array or string)
-  module: false,                   // Use ES modules
-  allowHashBang: false,            // Allow hashbang comments
-  checkFeatures: true,             // Check for ES version specific features
-  checkForPolyfills: false,        // Consider polyfills when checking
-  not: ['**/vendor/*.js'],         // Files/folders to exclude
-  looseGlobMatching: false,        // Don't fail if no files found
-  ignore: 'ErrorCause,TopLevelAwait', // Features to ignore
-  allowList: 'const,let',          // Features to allow in lower ES versions
-  batchSize: 0                     // Files to process concurrently (0 = unlimited)
+  ecmaVersion: "es5", // ES version to check against
+  files: ["dist/**/*.js"], // Files to check (array or string)
+  module: false, // Use ES modules
+  allowHashBang: false, // Allow hashbang comments
+  checkFeatures: true, // Check for ES version specific features
+  checkForPolyfills: false, // Consider polyfills when checking
+  not: ["**/vendor/*.js"], // Files/folders to exclude
+  looseGlobMatching: false, // Don't fail if no files found
+  ignore: "ErrorCause,TopLevelAwait", // Features to ignore
+  allowList: "const,let", // Features to allow in lower ES versions
+  batchSize: 0, // Files to process concurrently (0 = unlimited)
 };
 ```
 
@@ -141,17 +149,17 @@ const config = {
 You can load configuration from `.escheckrc` or other config files:
 
 ```javascript
-const { runChecks, loadConfig } = require('es-check');
+const { runChecks, loadConfig } = require("es-check");
 
 async function checkWithConfigFile() {
   // Load config from .escheckrc or custom path
-  const configs = await loadConfig('./.escheckrc');
-  
+  const configs = await loadConfig("./.escheckrc");
+
   // Run checks without a logger (silent mode)
   const result = await runChecks(configs);
-  
+
   if (!result.success) {
-    console.error('ES Check failed!');
+    console.error("ES Check failed!");
     // Handle errors programmatically
     return { success: false, errors: result.errors };
   }
@@ -164,27 +172,29 @@ async function checkWithConfigFile() {
 ### Build Script Integration
 
 ```javascript
-const { runChecks } = require('es-check');
+const { runChecks } = require("es-check");
 
 async function buildWithESCheck() {
   // Your build process
   await buildProject();
 
   // Check ES compatibility
-  const configs = [{
-    ecmaVersion: 'es5',
-    files: ['dist/**/*.js'],
-    checkFeatures: true
-  }];
+  const configs = [
+    {
+      ecmaVersion: "es5",
+      files: ["dist/**/*.js"],
+      checkFeatures: true,
+    },
+  ];
 
   const result = await runChecks(configs);
-  
+
   if (result.success) {
-    console.log('Build successful - ES5 compatible');
+    console.log("Build successful - ES5 compatible");
   } else {
-    console.error('Build failed - ES5 compatibility issues');
+    console.error("Build failed - ES5 compatibility issues");
     console.error(`Found ${result.errors.length} incompatible files`);
-    throw new Error('ES compatibility check failed');
+    throw new Error("ES compatibility check failed");
   }
 }
 ```
@@ -192,18 +202,20 @@ async function buildWithESCheck() {
 ### Custom Testing
 
 ```javascript
-const { runChecks } = require('es-check');
+const { runChecks } = require("es-check");
 
-describe('ES Compatibility', () => {
-  it('should be ES5 compatible', async () => {
-    const configs = [{
-      ecmaVersion: 'es5',
-      files: ['dist/**/*.js'],
-      checkFeatures: true
-    }];
+describe("ES Compatibility", () => {
+  it("should be ES5 compatible", async () => {
+    const configs = [
+      {
+        ecmaVersion: "es5",
+        files: ["dist/**/*.js"],
+        checkFeatures: true,
+      },
+    ];
 
     const result = await runChecks(configs);
-    
+
     expect(result.success).toBe(true);
     expect(result.errors).toHaveLength(0);
   });
@@ -213,30 +225,30 @@ describe('ES Compatibility', () => {
 ### Multiple ES Version Checks
 
 ```javascript
-const { runChecks } = require('es-check');
+const { runChecks } = require("es-check");
 
 async function checkMultipleTargets() {
   // Check different builds for different ES versions
   const configs = [
     {
-      ecmaVersion: 'es5',
-      files: ['dist/legacy/**/*.js'],
-      checkFeatures: true
+      ecmaVersion: "es5",
+      files: ["dist/legacy/**/*.js"],
+      checkFeatures: true,
     },
     {
-      ecmaVersion: 'es2020',
-      files: ['dist/modern/**/*.js'],
-      checkFeatures: true
-    }
+      ecmaVersion: "es2020",
+      files: ["dist/modern/**/*.js"],
+      checkFeatures: true,
+    },
   ];
 
   const result = await runChecks(configs);
-  
+
   if (result.success) {
-    console.log('All builds match their target ES versions');
+    console.log("All builds match their target ES versions");
   } else {
-    console.error('ES version mismatch detected');
-    result.errors.forEach(error => {
+    console.error("ES version mismatch detected");
+    result.errors.forEach((error) => {
       console.error(`${error.file}: ${error.err.message}`);
     });
     // Example output:
@@ -251,20 +263,22 @@ async function checkMultipleTargets() {
 ### With Browserslist
 
 ```javascript
-const { runChecks } = require('es-check');
+const { runChecks } = require("es-check");
 
 async function checkBrowserCompatibility() {
-  const configs = [{
-    ecmaVersion: 'checkBrowser',
-    files: ['dist/**/*.js'],
-    browserslistQuery: 'last 2 versions, > 1%',
-    checkFeatures: true
-  }];
+  const configs = [
+    {
+      ecmaVersion: "checkBrowser",
+      files: ["dist/**/*.js"],
+      browserslistQuery: "last 2 versions, > 1%",
+      checkFeatures: true,
+    },
+  ];
 
   const result = await runChecks(configs);
-  
+
   if (!result.success) {
-    console.error('Browser compatibility check failed');
+    console.error("Browser compatibility check failed");
     // Handle errors programmatically
     return { success: false, errors: result.errors };
   }
@@ -295,32 +309,36 @@ The new Node API returns a result object with the following structure:
 Example error handling:
 
 ```javascript
-const { runChecks } = require('es-check');
+const { runChecks } = require("es-check");
 
 async function detailedErrorHandling() {
-  const configs = [{
-    ecmaVersion: 'es5',
-    files: ['dist/**/*.js']
-  }];
+  const configs = [
+    {
+      ecmaVersion: "es5",
+      files: ["dist/**/*.js"],
+    },
+  ];
 
   const result = await runChecks(configs);
-  
+
   if (!result.success) {
-    console.error(`ES Check found ${result.errors.length} incompatible files:\n`);
-    
+    console.error(
+      `ES Check found ${result.errors.length} incompatible files:\n`,
+    );
+
     result.errors.forEach((error, index) => {
       console.error(`${index + 1}. File: ${error.file}`);
       console.error(`   Error: ${error.err.message}`);
-      
+
       if (process.env.DEBUG) {
         console.error(`   Stack: ${error.stack}`);
       }
     });
-    
+
     process.exit(1);
   }
-  
-  console.log('All files passed ES5 compatibility check!');
+
+  console.log("All files passed ES5 compatibility check!");
 }
 ```
 
@@ -328,27 +346,29 @@ async function detailedErrorHandling() {
 
 The Node API behaves differently from the CLI to be more suitable for programmatic use:
 
-| Aspect | CLI Behavior | Node API Behavior |
-|--------|-------------|-------------------|
-| On Error | Calls `process.exit(1)` | Returns `{ success: false, errors: [...] }` |
-| On Success | Calls `process.exit(0)` or returns | Returns `{ success: true, errors: [] }` |
-| Logger | Required (creates default) | Optional |
-| Output | Always logs to console | Only logs if logger provided |
+| Aspect     | CLI Behavior                       | Node API Behavior                           |
+| ---------- | ---------------------------------- | ------------------------------------------- |
+| On Error   | Calls `process.exit(1)`            | Returns `{ success: false, errors: [...] }` |
+| On Success | Calls `process.exit(0)` or returns | Returns `{ success: true, errors: [] }`     |
+| Logger     | Required (creates default)         | Optional                                    |
+| Output     | Always logs to console             | Only logs if logger provided                |
 
 ## Backward Compatibility
 
 For backward compatibility, if you pass a logger object directly (with `info`, `error`, etc. methods) as the second argument, it will behave like the CLI and call `process.exit()` on errors:
 
 ```javascript
-const { runChecks } = require('es-check');
-const { createLogger } = require('es-check/utils');
+const { runChecks } = require("es-check");
+const { createLogger } = require("es-check/utils");
 
 async function backwardCompatibleUsage() {
-  const configs = [{
-    ecmaVersion: 'es5',
-    files: ['dist/**/*.js']
-  }];
-  
+  const configs = [
+    {
+      ecmaVersion: "es5",
+      files: ["dist/**/*.js"],
+    },
+  ];
+
   // Old style: passing logger directly (CLI behavior)
   const logger = createLogger();
   await runChecks(configs, logger); // Will call process.exit(1) on error
@@ -360,7 +380,7 @@ async function backwardCompatibleUsage() {
 You can also use the `detectFeatures` function directly for more granular control:
 
 ```javascript
-const detectFeatures = require('es-check/detectFeatures');
+const detectFeatures = require("es-check/detectFeatures");
 
 const code = `
   const arrow = () => console.log('arrow function');
@@ -369,14 +389,14 @@ const code = `
 
 const { foundFeatures, unsupportedFeatures } = detectFeatures(
   code,
-  5,  // ES5
-  'script',
-  new Set(),  // ignored features
-  { checkForPolyfills: false }
+  5, // ES5
+  "script",
+  new Set(), // ignored features
+  { checkForPolyfills: false },
 );
 
-console.log('Found features:', foundFeatures);
-console.log('Unsupported in ES5:', unsupportedFeatures);
+console.log("Found features:", foundFeatures);
+console.log("Unsupported in ES5:", unsupportedFeatures);
 ```
 
 ## Notes

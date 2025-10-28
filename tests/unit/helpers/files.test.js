@@ -1,10 +1,15 @@
-const { describe, it, beforeEach, afterEach } = require('node:test');
-const assert = require('node:assert');
-const fs = require('fs');
-const path = require('path');
-const { processBatchedFiles, readFileAsync, clearFileCache, getFileCacheStats } = require('../../../lib/helpers/files.js');
+const { describe, it, beforeEach, afterEach } = require("node:test");
+const assert = require("node:assert");
+const fs = require("fs");
+const path = require("path");
+const {
+  processBatchedFiles,
+  readFileAsync,
+  clearFileCache,
+  getFileCacheStats,
+} = require("../../../lib/helpers/files.js");
 
-const testDir = path.join(__dirname, '../test-files-helpers');
+const testDir = path.join(__dirname, "../test-files-helpers");
 
 function cleanupTestDir() {
   if (fs.existsSync(testDir)) {
@@ -12,7 +17,7 @@ function cleanupTestDir() {
   }
 }
 
-describe('helpers/files.js', () => {
+describe("helpers/files.js", () => {
   beforeEach(() => {
     if (!fs.existsSync(testDir)) {
       fs.mkdirSync(testDir, { recursive: true });
@@ -25,19 +30,19 @@ describe('helpers/files.js', () => {
     cleanupTestDir();
   });
 
-  describe('readFileAsync()', () => {
-    it('should read file successfully', async () => {
-      const testFile = path.join(testDir, 'test.js');
-      fs.writeFileSync(testFile, 'var x = 5;');
+  describe("readFileAsync()", () => {
+    it("should read file successfully", async () => {
+      const testFile = path.join(testDir, "test.js");
+      fs.writeFileSync(testFile, "var x = 5;");
 
       const result = await readFileAsync(testFile, fs, false);
 
       assert.strictEqual(result.error, null);
-      assert.strictEqual(result.content, 'var x = 5;');
+      assert.strictEqual(result.content, "var x = 5;");
     });
 
-    it('should return error for non-existent file', async () => {
-      const testFile = path.join(testDir, 'nonexistent.js');
+    it("should return error for non-existent file", async () => {
+      const testFile = path.join(testDir, "nonexistent.js");
 
       const result = await readFileAsync(testFile, fs, false);
 
@@ -48,35 +53,35 @@ describe('helpers/files.js', () => {
       assert(result.error.stack);
     });
 
-    it('should use cache when useCache is true', async () => {
-      const testFile = path.join(testDir, 'cached.js');
-      fs.writeFileSync(testFile, 'var cached = true;');
+    it("should use cache when useCache is true", async () => {
+      const testFile = path.join(testDir, "cached.js");
+      fs.writeFileSync(testFile, "var cached = true;");
 
       const result1 = await readFileAsync(testFile, fs, true);
-      assert.strictEqual(result1.content, 'var cached = true;');
+      assert.strictEqual(result1.content, "var cached = true;");
 
-      fs.writeFileSync(testFile, 'var cached = false;');
+      fs.writeFileSync(testFile, "var cached = false;");
 
       const result2 = await readFileAsync(testFile, fs, true);
-      assert.strictEqual(result2.content, 'var cached = true;');
+      assert.strictEqual(result2.content, "var cached = true;");
     });
 
-    it('should not use cache when useCache is false', async () => {
-      const testFile = path.join(testDir, 'not-cached.js');
-      fs.writeFileSync(testFile, 'var cached = true;');
+    it("should not use cache when useCache is false", async () => {
+      const testFile = path.join(testDir, "not-cached.js");
+      fs.writeFileSync(testFile, "var cached = true;");
 
       const result1 = await readFileAsync(testFile, fs, false);
-      assert.strictEqual(result1.content, 'var cached = true;');
+      assert.strictEqual(result1.content, "var cached = true;");
 
-      fs.writeFileSync(testFile, 'var cached = false;');
+      fs.writeFileSync(testFile, "var cached = false;");
 
       const result2 = await readFileAsync(testFile, fs, false);
-      assert.strictEqual(result2.content, 'var cached = false;');
+      assert.strictEqual(result2.content, "var cached = false;");
     });
 
-    it('should update cache when reading with useCache true', async () => {
-      const testFile = path.join(testDir, 'update-cache.js');
-      fs.writeFileSync(testFile, 'var x = 1;');
+    it("should update cache when reading with useCache true", async () => {
+      const testFile = path.join(testDir, "update-cache.js");
+      fs.writeFileSync(testFile, "var x = 1;");
 
       await readFileAsync(testFile, fs, true);
 
@@ -86,9 +91,9 @@ describe('helpers/files.js', () => {
     });
   });
 
-  describe('processBatchedFiles()', () => {
-    it('should process all files in parallel when batchSize is 0', async () => {
-      const files = ['file1.js', 'file2.js', 'file3.js'];
+  describe("processBatchedFiles()", () => {
+    it("should process all files in parallel when batchSize is 0", async () => {
+      const files = ["file1.js", "file2.js", "file3.js"];
       const processedFiles = [];
 
       const processor = async (file) => {
@@ -103,18 +108,24 @@ describe('helpers/files.js', () => {
       assert.deepStrictEqual(processedFiles.sort(), files.sort());
     });
 
-    it('should process all files in parallel when batchSize is negative', async () => {
-      const files = ['file1.js', 'file2.js'];
+    it("should process all files in parallel when batchSize is negative", async () => {
+      const files = ["file1.js", "file2.js"];
       const processor = async (file) => file.toUpperCase();
 
       const results = await processBatchedFiles(files, processor, -1);
 
       assert.strictEqual(results.length, 2);
-      assert.deepStrictEqual(results, ['FILE1.JS', 'FILE2.JS']);
+      assert.deepStrictEqual(results, ["FILE1.JS", "FILE2.JS"]);
     });
 
-    it('should process files in batches when batchSize is specified', async () => {
-      const files = ['file1.js', 'file2.js', 'file3.js', 'file4.js', 'file5.js'];
+    it("should process files in batches when batchSize is specified", async () => {
+      const files = [
+        "file1.js",
+        "file2.js",
+        "file3.js",
+        "file4.js",
+        "file5.js",
+      ];
       const batchSizes = [];
 
       const processor = async (file) => {
@@ -127,7 +138,7 @@ describe('helpers/files.js', () => {
       assert.deepStrictEqual(results, files);
     });
 
-    it('should handle empty file array', async () => {
+    it("should handle empty file array", async () => {
       const files = [];
       const processor = async (file) => file;
 
@@ -137,8 +148,8 @@ describe('helpers/files.js', () => {
       assert.deepStrictEqual(results, []);
     });
 
-    it('should handle batchSize larger than file count', async () => {
-      const files = ['file1.js', 'file2.js'];
+    it("should handle batchSize larger than file count", async () => {
+      const files = ["file1.js", "file2.js"];
       const processor = async (file) => file;
 
       const results = await processBatchedFiles(files, processor, 10);
@@ -147,12 +158,12 @@ describe('helpers/files.js', () => {
       assert.deepStrictEqual(results, files);
     });
 
-    it('should process with actual file reading', async () => {
-      const file1 = path.join(testDir, 'batch1.js');
-      const file2 = path.join(testDir, 'batch2.js');
+    it("should process with actual file reading", async () => {
+      const file1 = path.join(testDir, "batch1.js");
+      const file2 = path.join(testDir, "batch2.js");
 
-      fs.writeFileSync(file1, 'var a = 1;');
-      fs.writeFileSync(file2, 'var b = 2;');
+      fs.writeFileSync(file1, "var a = 1;");
+      fs.writeFileSync(file2, "var b = 2;");
 
       const processor = async (file) => {
         const result = await readFileAsync(file, fs, false);
@@ -162,15 +173,15 @@ describe('helpers/files.js', () => {
       const results = await processBatchedFiles([file1, file2], processor, 1);
 
       assert.strictEqual(results.length, 2);
-      assert.strictEqual(results[0], 'var a = 1;');
-      assert.strictEqual(results[1], 'var b = 2;');
+      assert.strictEqual(results[0], "var a = 1;");
+      assert.strictEqual(results[1], "var b = 2;");
     });
   });
 
-  describe('clearFileCache()', () => {
-    it('should clear the cache', async () => {
-      const testFile = path.join(testDir, 'to-clear.js');
-      fs.writeFileSync(testFile, 'var x = 1;');
+  describe("clearFileCache()", () => {
+    it("should clear the cache", async () => {
+      const testFile = path.join(testDir, "to-clear.js");
+      fs.writeFileSync(testFile, "var x = 1;");
 
       await readFileAsync(testFile, fs, true);
 
@@ -185,20 +196,20 @@ describe('helpers/files.js', () => {
     });
   });
 
-  describe('getFileCacheStats()', () => {
-    it('should return empty stats when cache is empty', () => {
+  describe("getFileCacheStats()", () => {
+    it("should return empty stats when cache is empty", () => {
       const stats = getFileCacheStats();
 
       assert.strictEqual(stats.size, 0);
       assert.deepStrictEqual(stats.keys, []);
     });
 
-    it('should return correct stats after caching files', async () => {
-      const file1 = path.join(testDir, 'stats1.js');
-      const file2 = path.join(testDir, 'stats2.js');
+    it("should return correct stats after caching files", async () => {
+      const file1 = path.join(testDir, "stats1.js");
+      const file2 = path.join(testDir, "stats2.js");
 
-      fs.writeFileSync(file1, 'var x = 1;');
-      fs.writeFileSync(file2, 'var y = 2;');
+      fs.writeFileSync(file1, "var x = 1;");
+      fs.writeFileSync(file2, "var y = 2;");
 
       await readFileAsync(file1, fs, true);
       await readFileAsync(file2, fs, true);
@@ -211,9 +222,9 @@ describe('helpers/files.js', () => {
       assert(stats.keys.includes(file2));
     });
 
-    it('should not count files read without cache', async () => {
-      const file1 = path.join(testDir, 'no-cache.js');
-      fs.writeFileSync(file1, 'var x = 1;');
+    it("should not count files read without cache", async () => {
+      const file1 = path.join(testDir, "no-cache.js");
+      fs.writeFileSync(file1, "var x = 1;");
 
       await readFileAsync(file1, fs, false);
 

@@ -17,7 +17,7 @@ As of v9.4.0, ES Check includes several major performance optimizations:
 - **Async file processing**: Non-blocking I/O operations for better parallelism
 - **Configurable batch processing**: Fine-tune concurrency based on your system
 
-*Note: Performance improvements vary based on your specific use case, file sizes, and system configuration.*
+_Note: Performance improvements vary based on your specific use case, file sizes, and system configuration._
 
 ## Lightweight Mode (`--light`)
 
@@ -32,12 +32,14 @@ es-check es5 './dist/**/*.js' --light
 ```
 
 **When to use `--light` mode:**
+
 - CI/CD pipelines where speed is critical
 - Large codebases with thousands of files
 - Quick validation during development
 - Pre-commit hooks that need to run fast
 
 **Trade-offs:**
+
 - Faster execution through pattern matching
 - Uses pattern matching instead of full AST parsing
 - May have slightly different error messages
@@ -59,11 +61,13 @@ es-check es5 './dist/**/*.js' --noCache
 
 **Observed Benefits:**
 In our benchmark tests with 100 files, we saw:
+
 - ~28% performance improvement (79ms → 57ms)
 - Reduced file I/O operations
 - Minimal memory overhead (500 file limit, ~5MB max)
 
 **Run the benchmarks yourself:**
+
 ```bash
 git clone https://github.com/yowainwright/es-check.git
 cd es-check
@@ -92,27 +96,30 @@ es-check es5 './dist/**/*.js' --batchSize 50
 
 Choose the right batch size for your scenario:
 
-| Scenario | Recommended `--batchSize` | Reason |
-|----------|---------------------------|---------|
-| Small codebases (< 100 files) | `0` (unlimited) | Maximum parallelism for fastest results |
-| Medium codebases (100-500 files) | `0` or `50` | Balance between speed and memory |
-| Large codebases (> 500 files) | `50-100` | Prevent memory spikes |
-| CI/CD with limited memory | `10-20` | Conservative memory usage |
-| Local development | `0` (default) | Utilize available hardware |
+| Scenario                         | Recommended `--batchSize` | Reason                                  |
+| -------------------------------- | ------------------------- | --------------------------------------- |
+| Small codebases (< 100 files)    | `0` (unlimited)           | Maximum parallelism for fastest results |
+| Medium codebases (100-500 files) | `0` or `50`               | Balance between speed and memory        |
+| Large codebases (> 500 files)    | `50-100`                  | Prevent memory spikes                   |
+| CI/CD with limited memory        | `10-20`                   | Conservative memory usage               |
+| Local development                | `0` (default)             | Utilize available hardware              |
 
 ## Memory vs Speed Trade-offs
 
 ### Unlimited Parallelism (`--batchSize 0`)
+
 - **Pros**: Fastest execution time
 - **Cons**: Higher memory usage
 - **Best for**: Modern hardware with ample memory
 
 ### Conservative Batching (`--batchSize 10-20`)
+
 - **Pros**: Low memory footprint
 - **Cons**: Slower execution
 - **Best for**: CI/CD environments, memory-constrained systems
 
 ### Balanced Approach (`--batchSize 50`)
+
 - **Pros**: Good balance of speed and memory
 - **Cons**: Not optimal for either extreme
 - **Best for**: Large codebases, general use
@@ -121,15 +128,15 @@ Choose the right batch size for your scenario:
 
 Different configurations have varying performance impacts:
 
-| Configuration | Relative Speed | Example Command | Use Case |
-|--------------|----------------|-----------------|----------|
-| **--light mode** | **Fastest** | `es-check es5 './dist/**/*.js' --light` | Fast CI/CD validation |
-| Syntax only + silent + specific files | **1x** (baseline) | `es-check es5 './dist/bundle.js' --silent` | CI/CD quick validation |
-| Syntax only + normal output | **~1.1x** | `es-check es5 './dist/**/*.js'` | Standard usage |
-| Syntax only + verbose | **~1.2x** | `es-check es5 './dist/**/*.js' --verbose` | Debugging |
-| With --checkFeatures | **~1.5-2x** | `es-check es5 './dist/**/*.js' --checkFeatures` | Comprehensive feature checks |
-| With --checkForPolyfills | **~2-2.5x** | `es-check es5 './dist/**/*.js' --checkFeatures --checkForPolyfills` | Full compatibility analysis |
-| With --checkBrowser | **~1.3-1.5x** | `es-check --checkBrowser './dist/**/*.js'` | Browserslist-based checking |
+| Configuration                         | Relative Speed    | Example Command                                                     | Use Case                     |
+| ------------------------------------- | ----------------- | ------------------------------------------------------------------- | ---------------------------- |
+| **--light mode**                      | **Fastest**       | `es-check es5 './dist/**/*.js' --light`                             | Fast CI/CD validation        |
+| Syntax only + silent + specific files | **1x** (baseline) | `es-check es5 './dist/bundle.js' --silent`                          | CI/CD quick validation       |
+| Syntax only + normal output           | **~1.1x**         | `es-check es5 './dist/**/*.js'`                                     | Standard usage               |
+| Syntax only + verbose                 | **~1.2x**         | `es-check es5 './dist/**/*.js' --verbose`                           | Debugging                    |
+| With --checkFeatures                  | **~1.5-2x**       | `es-check es5 './dist/**/*.js' --checkFeatures`                     | Comprehensive feature checks |
+| With --checkForPolyfills              | **~2-2.5x**       | `es-check es5 './dist/**/*.js' --checkFeatures --checkForPolyfills` | Full compatibility analysis  |
+| With --checkBrowser                   | **~1.3-1.5x**     | `es-check --checkBrowser './dist/**/*.js'`                          | Browserslist-based checking  |
 
 ## Fastest Possible Configuration
 
@@ -147,19 +154,20 @@ es-check es5 './dist/bundle.min.js' --silent --batchSize 0
 
 Understanding what impacts performance helps you optimize:
 
-| Factor | Performance Impact | Solution |
-|--------|-------------------|----------|
-| `--checkFeatures` | High - Full AST traversal | Only use when feature detection is needed |
-| `--checkForPolyfills` | High - Regex pattern matching | Use only when polyfills are present |
-| Broad glob patterns | Medium - File system scanning | Use specific paths when possible |
-| `--verbose` logging | Low - Console output | Use `--silent` in CI/CD |
-| Small batch sizes | Medium - Reduced parallelism | Use `--batchSize 0` for small codebases |
-| `--not` exclusions | Low - Filtering overhead | Pre-filter files when possible |
-| `--checkBrowser` | Medium - Browserslist resolution | Cache browserslist config |
+| Factor                | Performance Impact               | Solution                                  |
+| --------------------- | -------------------------------- | ----------------------------------------- |
+| `--checkFeatures`     | High - Full AST traversal        | Only use when feature detection is needed |
+| `--checkForPolyfills` | High - Regex pattern matching    | Use only when polyfills are present       |
+| Broad glob patterns   | Medium - File system scanning    | Use specific paths when possible          |
+| `--verbose` logging   | Low - Console output             | Use `--silent` in CI/CD                   |
+| Small batch sizes     | Medium - Reduced parallelism     | Use `--batchSize 0` for small codebases   |
+| `--not` exclusions    | Low - Filtering overhead         | Pre-filter files when possible            |
+| `--checkBrowser`      | Medium - Browserslist resolution | Cache browserslist config                 |
 
 ## Performance Tips
 
 ### 1. Use Glob Patterns Efficiently
+
 ```bash
 # Good - specific patterns
 es-check es5 './dist/**/*.js' './lib/**/*.js'
@@ -169,6 +177,7 @@ es-check es5 './**/*.js' --not='node_modules'
 ```
 
 ### 2. Check Bundled Files
+
 ```bash
 # Faster - one large file
 es-check es5 './dist/bundle.min.js'
@@ -178,6 +187,7 @@ es-check es5 './src/**/*.js'
 ```
 
 ### 3. Use Config Files for Complex Setups
+
 ```json
 // .escheckrc
 {
@@ -189,12 +199,14 @@ es-check es5 './src/**/*.js'
 ```
 
 ### 4. Pre-filter Files
+
 ```bash
 # Use shell commands to filter first
 find ./dist -name "*.js" -not -path "*/vendor/*" | xargs es-check es5
 ```
 
 ### 5. Monitor Performance
+
 Use the `--verbose` flag to see timing information:
 
 ```bash
@@ -210,16 +222,19 @@ For detailed benchmark results and comparisons, see the [benchmarks folder](http
 ## Troubleshooting Performance Issues
 
 ### High Memory Usage
+
 - Reduce `--batchSize` to process fewer files concurrently
 - Check for extremely large JavaScript files
 - Consider splitting the check into multiple runs
 
 ### Slow Execution
+
 - Increase `--batchSize` or use `0` for unlimited parallelism
 - Ensure you're not checking unnecessary files (use `--not`)
 - Use specific glob patterns instead of broad wildcards
 
 ### CI/CD Timeouts
+
 - Use a conservative `--batchSize` (10-20)
 - Split checks across multiple jobs
 - Cache results if possible

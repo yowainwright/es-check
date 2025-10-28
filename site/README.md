@@ -25,6 +25,7 @@ The site is automatically deployed to GitHub Pages when changes are pushed to th
 ### Manual Deployment
 
 To manually trigger a deployment:
+
 1. Go to the Actions tab in the GitHub repository
 2. Select "Deploy ES Check Documentation Site" workflow
 3. Click "Run workflow"
@@ -34,6 +35,7 @@ To manually trigger a deployment:
 The site is configured to be deployed at: https://yowainwright.github.io/es-check/
 
 Make sure GitHub Pages is enabled in the repository settings:
+
 1. Go to Settings > Pages
 2. Source: Deploy from a branch
 3. Branch: gh-pages / (root)
@@ -49,6 +51,7 @@ Make sure GitHub Pages is enabled in the repository settings:
 ## Adding Documentation
 
 To add new documentation pages:
+
 1. Create a new `.mdx` file in `/src/content/docs/`
 2. Add frontmatter with `title` and `description`
 3. Update the sidebar configuration in `/src/constants/sidebar.ts`
@@ -56,5 +59,6 @@ To add new documentation pages:
 ## Themes
 
 The site supports light and dark themes with custom blue colors:
+
 - Light mode: White background with #4486c6 blue accents
 - Dark mode: Dark blue background with lighter blue accents
