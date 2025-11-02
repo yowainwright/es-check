@@ -52,7 +52,7 @@ describe("Node API Tests", () => {
 
     const config = [
       {
-        ecmaVersion: "es4",
+        ecmaVersion: "es99",
         files: [es5File],
       },
     ];
@@ -61,8 +61,7 @@ describe("Node API Tests", () => {
     assert.strictEqual(result.success, false);
     assert(result.errors.length > 0);
     assert(
-      result.errors[0].err.message.includes("ES4") ||
-        result.errors[0].err.message.includes("not supported"),
+      result.errors[0].err.message.includes("Invalid ecmaScript version"),
     );
   });
 

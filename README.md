@@ -80,7 +80,7 @@ Modern JavaScript builds assume proper transpilation via tools like Babel. ES Ch
 
 ## What features does ES Check check for?
 
-ES Check validates syntax by default. Add `--checkFeatures` for ES version-specific feature checking. View supported [features](./constants.js).
+ES Check validates syntax by default. Add `--checkFeatures` for ES version-specific feature checking. View supported [features](./lib/helpers/detectFeatures/constants/es-features/).
 
 ---
 
@@ -638,15 +638,69 @@ ES Check is a small utility using powerful tools that [Isaac Z. Schlueter](https
 
 ---
 
+## Source Maps
+
+ES Check supports source maps for better error reporting. When a `.map` file exists alongside your JavaScript file, ES Check will automatically map error positions from transpiled code back to the original source:
+
+```sh
+es-check es5 './dist/bundle.js'
+```
+
+If `bundle.js.map` exists, errors will reference the original source file and line numbers instead of the minified positions. This helps quickly identify issues in your source code.
+
 ## Contributing
 
-ES Check has 7 dependencies: [acorn and acorn-walk](https://github.com/ternjs/acorn/), [fast-glob](https://github.com/mrmlnc/fast-glob), [supports-color](https://github.com/chalk/supports-color), [winston](https://github.com/winstonjs/winston), [browserslist](https://github.com/browserslist/browserslist), and [commander](https://github.com/tj/commander). To contribute, file an [issue](https://github.com/yowainwright/es-check/issues) or submit a pull request.
+ES Check has only 4 core dependencies: [acorn](https://github.com/ternjs/acorn/) for JavaScript parsing, [fast-brake](https://github.com/stackblitz/fast-brake) for lightweight feature detection, [fast-glob](https://github.com/mrmlnc/fast-glob) for file globbing, and [browserslist](https://github.com/browserslist/browserslist) for browser targeting.
 
-To update es versions, check out these lines of code [here](https://github.com/yowainwright/es-check/blob/main/index.js#L92-L153) and [here (in acorn.js)](https://github.com/acornjs/acorn/blob/3221fa54f9dea30338228b97210c4f1fd332652d/acorn/src/acorn.d.ts#L586).
+The CLI, logging, and source map support are implemented with custom lightweight solutions using Node.js built-ins to minimize dependencies. To contribute, file an [issue](https://github.com/yowainwright/es-check/issues) or submit a pull request.
 
-To update es feature detection, update these files [here](./utils.js) and [here](./constants.js) as enabled feature testing using [acorn walk](https://github.com/acornjs/acorn/blob/master/acorn-walk/README.md).
+### Codebase Architecture
 
-[tests](./test.js) to go with new version and/or feature detection updates are great to have!
+ES Check follows a modular architecture with clear separation of concerns:
+
+```
+lib/
+├── cli/
+│   ├── index.js
+│   ├── handler.js
+│   ├── utils.js
+│   └── constants.js
+├── check-runner/
+│   ├── index.js
+│   └── utils.js
+├── constants/
+│   ├── versions.js
+│   └── index.js
+├── helpers/
+│   ├── detectFeatures/
+│   │   ├── index.js
+│   │   └── constants/
+│   │       ├── es-features/
+│   │       ├── polyfills.js
+│   │       └── index.js
+│   ├── ast.js
+│   ├── files.js
+│   ├── logger.js
+│   ├── parsers.js
+│   └── sourcemap.js
+├── browserslist.js
+├── cache.js
+├── config.js
+└── index.js
+```
+
+### Contributing to ES Features
+
+To update ES version support:
+- Update [ES version mappings](./lib/constants/versions.js)
+- Reference [Acorn ES version support](https://github.com/acornjs/acorn/blob/3221fa54f9dea30338228b97210c4f1fd332652d/acorn/src/acorn.d.ts#L586)
+
+To update ES feature detection:
+- Add features to [version-specific files](./lib/helpers/detectFeatures/constants/es-features/) (e.g., `6.js` for ES6 features)
+- Update [polyfill patterns](./lib/helpers/detectFeatures/constants/polyfills.js) if needed
+- Feature detection uses [acorn walk](https://github.com/acornjs/acorn/blob/master/acorn-walk/README.md)
+
+Tests are located in `tests/unit/` and mirror the `lib/` structure. Please add tests for new features!
 
 ### Contributors
 

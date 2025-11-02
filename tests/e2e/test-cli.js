@@ -7,7 +7,7 @@ const fs = require("fs");
 
 console.log("Testing CLI functionality...\n");
 
-const esCheckPath = path.join(__dirname, "..", "..", "lib", "index.js");
+const esCheckPath = path.join(__dirname, "..", "..", "lib", "cli", "index.js");
 
 // Test 1: Check ES5 file passes
 console.log("Test 1: ES5 file should pass ES5 check");

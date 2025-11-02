@@ -1,0 +1,131 @@
+---
+title: Source Map Support
+description: Using source maps with ES Check for better error reporting
+---
+
+ES Check automatically supports source maps to help you identify errors in your original source code rather than transpiled/minified code.
+
+## How It Works
+
+When ES Check encounters a parse error or ES version mismatch, it automatically looks for a corresponding `.map` file. If found, ES Check maps the error position from the transpiled code back to the original source file and line number.
+
+## Example
+
+Given this project structure:
+
+```
+dist/
+  bundle.js
+  bundle.js.map
+src/
+  index.js
+```
+
+If `bundle.js` contains ES6 code that was supposed to be transpiled to ES5:
+
+```sh
+es-check es5 './dist/bundle.js'
+```
+
+**Without source map:**
+```
+ES-Check Error:
+----
+· erroring file: dist/bundle.js
+· error: Unexpected token at line 42
+```
+
+**With source map:**
+```
+ES-Check Error:
+----
+· erroring file: src/index.js at src/index.js:15:8
+· error: Unexpected token
+```
+
+The error now points to `src/index.js:15:8` instead of the transpiled position, making it much easier to fix the issue.
+
+## Requirements
+
+Source maps must:
+
+1. Be in Source Map v3 format
+2. Be located next to the JavaScript file with a `.map` extension
+3. Contain valid JSON with proper `mappings`, `sources`, and `version` fields
+
+## Transpiler Configuration
+
+Most build tools generate source maps automatically. Here are common configurations:
+
+### Babel
+
+```json
+{
+  "sourceMaps": true
+}
+```
+
+### TypeScript
+
+```json
+{
+  "compilerOptions": {
+    "sourceMap": true
+  }
+}
+```
+
+### Webpack
+
+```js
+module.exports = {
+  devtool: 'source-map'
+}
+```
+
+### esbuild
+
+```sh
+esbuild src/index.js --bundle --sourcemap --outfile=dist/bundle.js
+```
+
+## Implementation Details
+
+ES Check includes a custom lightweight source map consumer that:
+
+- Decodes VLQ (Variable Length Quantity) encoded mappings
+- Maps generated positions to original positions
+- Handles multiple source files
+- Gracefully degrades when source maps are unavailable
+
+This is implemented without external dependencies using only Node.js built-ins.
+
+## Troubleshooting
+
+### Source maps not working?
+
+1. **Check the .map file exists:**
+   ```sh
+   ls dist/*.map
+   ```
+
+2. **Verify the source map is valid JSON:**
+   ```sh
+   cat dist/bundle.js.map | jq .
+   ```
+
+3. **Ensure the source map has the correct version:**
+   ```json
+   {
+     "version": 3,
+     "sources": [...],
+     "mappings": "..."
+   }
+   ```
+
+4. **Check file permissions:**
+   ES Check needs read access to both the `.js` and `.map` files.
+
+## Performance
+
+Source map lookup is only performed when errors occur, so there's no performance impact on successful checks. The custom implementation is lightweight and adds minimal overhead to error reporting.
