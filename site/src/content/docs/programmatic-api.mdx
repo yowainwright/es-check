@@ -94,8 +94,7 @@ async function checkWithLogger() {
 You can also use ES Check's built-in logger utility:
 
 ```javascript
-const { runChecks } = require("es-check");
-const { createLogger } = require("es-check/utils");
+const { runChecks, createLogger } = require("es-check");
 
 async function checkWithBuiltInLogger() {
   const configs = [
@@ -358,8 +357,7 @@ The Node API behaves differently from the CLI to be more suitable for programmat
 For backward compatibility, if you pass a logger object directly (with `info`, `error`, etc. methods) as the second argument, it will behave like the CLI and call `process.exit()` on errors:
 
 ```javascript
-const { runChecks } = require("es-check");
-const { createLogger } = require("es-check/utils");
+const { runChecks, createLogger } = require("es-check");
 
 async function backwardCompatibleUsage() {
   const configs = [
@@ -380,24 +378,32 @@ async function backwardCompatibleUsage() {
 You can also use the `detectFeatures` function directly for more granular control:
 
 ```javascript
-const detectFeatures = require("es-check/detectFeatures");
+const detectFeatures = require("es-check/lib/helpers/detectFeatures");
 
 const code = `
   const arrow = () => console.log('arrow function');
   class MyClass {}
 `;
 
-const { foundFeatures, unsupportedFeatures } = detectFeatures(
-  code,
-  5, // ES5
-  "script",
-  new Set(), // ignored features
-  { checkForPolyfills: false },
-);
+try {
+  const { foundFeatures, unsupportedFeatures } = detectFeatures(
+    code,
+    5, // ES5
+    "script",
+    new Set(), // ignored features
+    { checkForPolyfills: false },
+  );
 
-console.log("Found features:", foundFeatures);
-console.log("Unsupported in ES5:", unsupportedFeatures);
+  console.log("Found features:", foundFeatures);
+  console.log("Unsupported in ES5:", unsupportedFeatures);
+} catch (error) {
+  // detectFeatures throws on unsupported features
+  console.error("Feature detection error:", error.message);
+  console.error("Unsupported features:", error.features);
+}
 ```
+
+**Note:** The `detectFeatures` function throws an error when unsupported features are detected, unlike the main `runChecks` API which returns a result object.
 
 ## Notes
 

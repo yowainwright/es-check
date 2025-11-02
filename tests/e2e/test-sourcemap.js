@@ -23,7 +23,7 @@ describe("Source Map E2E Tests", () => {
     let exitCode;
 
     try {
-      output = execSync(`node lib/index.js es5 "${transpiledFile}"`, {
+      output = execSync(`node lib/cli/index.js es5 "${transpiledFile}"`, {
         encoding: "utf8",
         cwd: path.join(__dirname, "../.."),
       });
@@ -49,7 +49,7 @@ describe("Source Map E2E Tests", () => {
     let exitCode;
 
     try {
-      output = execSync(`node lib/index.js es6 "${transpiledFile}"`, {
+      output = execSync(`node lib/cli/index.js es6 "${transpiledFile}"`, {
         encoding: "utf8",
         cwd: path.join(__dirname, "../.."),
       });
@@ -72,7 +72,7 @@ describe("Source Map E2E Tests", () => {
     let exitCode;
 
     try {
-      output = execSync(`node lib/index.js es5 "${tempFile}"`, {
+      output = execSync(`node lib/cli/index.js es5 "${tempFile}"`, {
         encoding: "utf8",
         cwd: path.join(__dirname, "../.."),
       });
@@ -98,7 +98,7 @@ describe("Source Map E2E Tests", () => {
     let exitCode;
 
     try {
-      output = execSync(`node lib/index.js es5 "${originalFile}"`, {
+      output = execSync(`node lib/cli/index.js es5 "${originalFile}"`, {
         encoding: "utf8",
         cwd: path.join(__dirname, "../.."),
       });

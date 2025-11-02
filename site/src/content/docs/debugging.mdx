@@ -83,14 +83,24 @@ Exclude known incompatible files:
 es-check es5 './dist/**/*.js' --not './dist/modern/**/*.js'
 ```
 
-### 4. Check Source Maps
+### 4. Use Source Maps
 
-If available, ES Check can point to original source:
+ES Check automatically uses source maps when available to show errors in your original source code:
 
 ```bash
-es-check es5 './dist/**/*.js' --verbose
-# Shows: Original source: src/components/Button.js:10
+es-check es5 './dist/**/*.js'
 ```
+
+If `bundle.js.map` exists, errors will reference the original source file:
+
+```
+ES-Check Error:
+----
+· erroring file: src/components/Button.js at src/components/Button.js:10:5
+· error: Unexpected token
+```
+
+Instead of showing minified positions, you'll see the exact location in your source code. See the [Source Maps](/source-maps) guide for more details.
 
 ## Build Tool Configuration
 

@@ -2,9 +2,6 @@ const { describe, it } = require("node:test");
 const assert = require("node:assert");
 const constants = require("../../../lib/constants");
 const versions = require("../../../lib/constants/versions.js");
-const esFeatures = require("../../../lib/constants/es-features.js");
-const polyfills = require("../../../lib/constants/polyfills.js");
-const astTypes = require("../../../lib/constants/ast-types.js");
 
 describe("constants/", () => {
   describe("index.js aggregator", () => {
@@ -13,20 +10,6 @@ describe("constants/", () => {
       assert(constants.BROWSER_TO_ES_VERSION);
       assert(constants.JS_VERSIONS);
       assert(constants.VERSION_ORDER);
-    });
-
-    it("should export all ES feature constants", () => {
-      assert(constants.ES_FEATURES);
-    });
-
-    it("should export all polyfill constants", () => {
-      assert(constants.POLYFILL_PATTERNS);
-      assert(constants.IMPORT_PATTERNS);
-      assert(constants.FEATURE_TO_POLYFILL_MAP);
-    });
-
-    it("should export all AST type constants", () => {
-      assert(constants.NODE_TYPES);
     });
   });
 
@@ -78,53 +61,6 @@ describe("constants/", () => {
       assert(es5Index < es2015Index);
       assert(es2015Index < es2016Index);
       assert(es2024Index < es2025Index);
-    });
-  });
-
-  describe("es-features.js", () => {
-    it("should have ES_FEATURES object", () => {
-      assert(esFeatures.ES_FEATURES);
-      assert(typeof esFeatures.ES_FEATURES === "object");
-    });
-
-    it("should have ES6 features defined", () => {
-      const features = esFeatures.ES_FEATURES;
-      assert(Object.keys(features).length > 0);
-    });
-  });
-
-  describe("polyfills.js", () => {
-    it("should have POLYFILL_PATTERNS object", () => {
-      assert(polyfills.POLYFILL_PATTERNS);
-      assert(typeof polyfills.POLYFILL_PATTERNS === "object");
-    });
-
-    it("should have IMPORT_PATTERNS object", () => {
-      assert(polyfills.IMPORT_PATTERNS);
-      assert(typeof polyfills.IMPORT_PATTERNS === "object");
-    });
-
-    it("should have FEATURE_TO_POLYFILL_MAP object", () => {
-      assert(polyfills.FEATURE_TO_POLYFILL_MAP);
-      assert(typeof polyfills.FEATURE_TO_POLYFILL_MAP === "object");
-    });
-  });
-
-  describe("ast-types.js", () => {
-    it("should have NODE_TYPES object", () => {
-      assert(astTypes.NODE_TYPES);
-      assert(typeof astTypes.NODE_TYPES === "object");
-      assert(Object.keys(astTypes.NODE_TYPES).length > 0);
-    });
-  });
-
-  describe("Integration between constants", () => {
-    it("should export all constants through main index", () => {
-      assert(constants.ECMA_VERSION_MAP);
-      assert(constants.JS_VERSIONS);
-      assert(constants.ES_FEATURES);
-      assert(constants.POLYFILL_PATTERNS);
-      assert(constants.NODE_TYPES);
     });
   });
 });

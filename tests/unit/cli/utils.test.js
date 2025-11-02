@@ -8,7 +8,7 @@ const {
   generateZshCompletion,
   determineInvocationType,
   handleESVersionError,
-} = require("../../../lib/helpers/cli.js");
+} = require("../../../lib/cli/utils.js");
 
 const testDir = path.join(__dirname, "../test-files-cli");
 

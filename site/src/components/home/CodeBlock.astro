@@ -5,10 +5,10 @@ import { getUrl } from "../../utils/url";
 
 <div class="xl:flex py-20 lg:py-28 gap-28">
   <div class="xl:max-w-xl flex flex-col justify-center font-outfit">
-    <h1 class="text-4xl lg:text-5xl font-black">
+    <h2 class="text-4xl lg:text-5xl font-black">
       Simple <span class="text-primary">ES Version </span>Checking for
       Production
-    </h1>
+    </h2>
 
     <p class="mt-8 text-lg">
       ES Check ensures your JavaScript code is compatible with your target 
@@ -26,18 +26,19 @@ import { getUrl } from "../../utils/url";
 
   <div class="max-w-2xl mt-7 xl:mt-0">
     <div class="mockup-code">
-      <pre data-prefix="$"><code>npx es-check es5 './dist/**/*.js'</code></pre>
-      <pre data-prefix="" class="text-green-300"><code>✓ Checking 24 files...</code></pre>
-      <pre data-prefix="" class="text-green-300"><code>✓ ES Check passed! All files are ES5 compatible.</code></pre>
+      <pre data-prefix="$"><code>es-check es5 './dist/**/*.js'</code></pre>
+      <pre data-prefix="" class="text-cyan-300"><code>info: ES-Check: checking 24 files...</code></pre>
+      <pre data-prefix="" class="text-cyan-300"><code>info: ✓ ES-Check passed! All files are ES5 compatible.</code></pre>
       <pre data-prefix=""></code></pre>
-      <pre data-prefix="$"><code>npx es-check es6 './src/**/*.js' --module</code></pre>
-      <pre data-prefix="" class="text-green-300"><code>✓ Checking 18 files...</code></pre>
-      <pre data-prefix="" class="text-green-300"><code>✓ ES Check passed! All files are ES6 compatible.</code></pre>
+      <pre data-prefix="$"><code>es-check es6 './src/**/*.js' --module</code></pre>
+      <pre data-prefix="" class="text-cyan-300"><code>info: ES-Check: checking 18 files...</code></pre>
+      <pre data-prefix="" class="text-cyan-300"><code>info: ✓ ES-Check passed! All files are ES6 compatible.</code></pre>
       <pre data-prefix=""></code></pre>
-      <pre data-prefix="$"><code>npx es-check es2017 './build/**/*.js'</code></pre>
-      <pre data-prefix="" class="text-red-400"><code>✗ ES Check failed!</code></pre>
-      <pre data-prefix="" class="text-red-400"><code>  ./build/legacy.js:12:4 - async/await is not supported in ES2017</code></pre>
-      <pre data-prefix="" class="text-red-400"><code>  ./build/utils.js:45:11 - Object spread is not supported in ES2017</code></pre>
+      <pre data-prefix="$"><code>es-check es5 './build/**/*.js'</code></pre>
+      <pre data-prefix="" class="text-cyan-300"><code>info: ES-Check: checking 3 files...</code></pre>
+      <pre data-prefix="" class="text-red-400"><code>error: ES-Check: there were 2 ES version matching errors.</code></pre>
+      <pre data-prefix="" class="text-red-400"><code>  ./build/legacy.js - Unexpected token</code></pre>
+      <pre data-prefix="" class="text-red-400"><code>  ./build/utils.js - Unexpected token</code></pre>
     </div>
   </div>
 </div>
