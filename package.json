@@ -29,7 +29,7 @@
     "prepare": "node scripts/install-hooks.mjs",
     "prepublishOnly": "pnpm test",
     "release": "release-it --no-git.requireUpstream",
-    "report:coverage": "node --test --experimental-test-coverage tests/unit/*.test.js tests/unit/helpers/*.test.js tests/unit/helpers/**/*.test.js tests/unit/constants/*.test.js tests/unit/cli/*.test.js --test-timeout=10000",
+    "report:coverage": "node --test --experimental-test-coverage --test-reporter=lcov --test-reporter-destination=coverage/lcov.info tests/unit/*.test.js tests/unit/helpers/*.test.js tests/unit/helpers/**/*.test.js tests/unit/constants/*.test.js tests/unit/cli/*.test.js --test-timeout=10000",
     "test": "node --test tests/unit/*.test.js tests/unit/helpers/*.test.js tests/unit/helpers/**/*.test.js tests/unit/constants/*.test.js tests/unit/cli/*.test.js --test-timeout=10000 && npm run test:e2e",
     "test:e2e": "npm run test:e2e:cli && npm run test:e2e:esm && npm run test:e2e:package-files && npm run test:e2e:sourcemap",
     "test:e2e:cli": "node tests/e2e/test-cli.js",

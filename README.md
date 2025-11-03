@@ -10,7 +10,7 @@
 
 # ES Check ✔️
 
-[![npm version](https://badge.fury.io/js/es-check.svg)](https://www.npmjs.com/package/es-check)
+[![npm version](https://badge.fury.io/js/es-check.svg)](https://www.npmjs.com/package/es-check) [![codecov](https://codecov.io/gh/yowainwright/es-check/branch/main/graph/badge.svg)](https://codecov.io/gh/yowainwright/es-check)
 
 ---
 
