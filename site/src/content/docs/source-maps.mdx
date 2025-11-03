@@ -28,6 +28,7 @@ es-check es5 './dist/bundle.js'
 ```
 
 **Without source map:**
+
 ```
 ES-Check Error:
 ----
@@ -36,6 +37,7 @@ ES-Check Error:
 ```
 
 **With source map:**
+
 ```
 ES-Check Error:
 ----
@@ -79,8 +81,8 @@ Most build tools generate source maps automatically. Here are common configurati
 
 ```js
 module.exports = {
-  devtool: 'source-map'
-}
+  devtool: "source-map",
+};
 ```
 
 ### esbuild
@@ -105,16 +107,19 @@ This is implemented without external dependencies using only Node.js built-ins.
 ### Source maps not working?
 
 1. **Check the .map file exists:**
+
    ```sh
    ls dist/*.map
    ```
 
 2. **Verify the source map is valid JSON:**
+
    ```sh
    cat dist/bundle.js.map | jq .
    ```
 
 3. **Ensure the source map has the correct version:**
+
    ```json
    {
      "version": 3,

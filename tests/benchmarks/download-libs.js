@@ -28,9 +28,7 @@ function handleResponse(response, file, destPath, url, resolve, reject) {
 
   if (!isSuccess) {
     reject(
-      new Error(
-        `Failed to download ${url}: Status ${response.statusCode}`,
-      ),
+      new Error(`Failed to download ${url}: Status ${response.statusCode}`),
     );
     return;
   }
@@ -48,7 +46,9 @@ function downloadFile(url, destPath) {
     const file = fs.createWriteStream(destPath);
 
     https
-      .get(url, (response) => handleResponse(response, file, destPath, url, resolve, reject))
+      .get(url, (response) =>
+        handleResponse(response, file, destPath, url, resolve, reject),
+      )
       .on("error", (err) => {
         fs.unlinkSync(destPath);
         reject(err);

@@ -642,17 +642,17 @@ If `bundle.js.map` exists, errors will reference the original source file and li
 
 ES Check is benchmarked against similar tools using real-world production libraries. Results from 11/02/2025:
 
-| Tool | Average (ms) | Relative Performance |
-|------|-------------|----------------------|
-| **es-check-batch-50** | **7.20** | **1x (fastest)** |
-| es-check-batch-10 | 7.67 | 1.06x slower |
-| es-check-bundled | 8.04 | 1.12x slower |
-| es-check | 9.17 | 1.27x slower |
-| are-you-es5 | 15.05 | 2.09x slower |
-| acorn (direct) | 47.11 | 6.54x slower |
-| eslint | 55.21 | 7.67x slower |
-| swc/core | 55.69 | 7.73x slower |
-| babel-parser | 65.00 | 9.03x slower |
+| Tool                  | Average (ms) | Relative Performance |
+| --------------------- | ------------ | -------------------- |
+| **es-check-batch-50** | **7.20**     | **1x (fastest)**     |
+| es-check-batch-10     | 7.67         | 1.06x slower         |
+| es-check-bundled      | 8.04         | 1.12x slower         |
+| es-check              | 9.17         | 1.27x slower         |
+| are-you-es5           | 15.05        | 2.09x slower         |
+| acorn (direct)        | 47.11        | 6.54x slower         |
+| eslint                | 55.21        | 7.67x slower         |
+| swc/core              | 55.69        | 7.73x slower         |
+| babel-parser          | 65.00        | 9.03x slower         |
 
 Tested on lodash, axios, react, moment, express, and chalk. See [benchmarks](./tests/benchmarks/README.md) for details.
 
@@ -702,10 +702,12 @@ lib/
 ### Contributing to ES Features
 
 To update ES version support:
+
 - Update [ES version mappings](./lib/constants/versions.js)
 - Reference [Acorn ES version support](https://github.com/acornjs/acorn/blob/3221fa54f9dea30338228b97210c4f1fd332652d/acorn/src/acorn.d.ts#L586)
 
 To update ES feature detection:
+
 - Add features to [version-specific files](./lib/helpers/detectFeatures/constants/es-features/) (e.g., `6.js` for ES6 features)
 - Update [polyfill patterns](./lib/helpers/detectFeatures/constants/polyfills.js) if needed
 - Feature detection uses [acorn walk](https://github.com/acornjs/acorn/blob/master/acorn-walk/README.md)

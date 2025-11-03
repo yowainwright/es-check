@@ -348,7 +348,9 @@ async function findJsFiles(dir) {
 
   try {
     const { default: glob } = await import("fast-glob");
-    const ignorePatterns = IGNORE_PATTERNS.filter(p => p !== "**/test/**" && p !== "**/tests/**");
+    const ignorePatterns = IGNORE_PATTERNS.filter(
+      (p) => p !== "**/test/**" && p !== "**/tests/**",
+    );
     return await glob(`${dir}/**/*.js`, {
       ignore: ignorePatterns,
       absolute: true,
@@ -361,9 +363,7 @@ async function findJsFiles(dir) {
 
 async function getLibraryFiles(libraries) {
   const files = [];
-  console.log(
-    `\nScanning real-world libraries: ${libraries.join(", ")}...`,
-  );
+  console.log(`\nScanning real-world libraries: ${libraries.join(", ")}...`);
 
   for (const lib of libraries) {
     const libPath = path.join("./node_modules", lib);

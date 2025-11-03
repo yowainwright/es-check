@@ -1,6 +1,10 @@
 const { describe, it } = require("node:test");
 const assert = require("node:assert");
-const { parseArgs, showHelp, showVersion } = require("../../../lib/cli/parser.js");
+const {
+  parseArgs,
+  showHelp,
+  showVersion,
+} = require("../../../lib/cli/parser.js");
 
 describe("cli/parser.js", () => {
   describe("parseArgs()", () => {
@@ -8,7 +12,11 @@ describe("cli/parser.js", () => {
       const argv = ["node", "script.js", "es5", "file1.js", "file2.js"];
       const result = parseArgs(argv);
 
-      assert.deepStrictEqual(result.positional, ["es5", "file1.js", "file2.js"]);
+      assert.deepStrictEqual(result.positional, [
+        "es5",
+        "file1.js",
+        "file2.js",
+      ]);
       assert.deepStrictEqual(result.options, {});
     });
 
@@ -62,7 +70,15 @@ describe("cli/parser.js", () => {
     });
 
     it("should handle mixed positional and options", () => {
-      const argv = ["node", "script.js", "es5", "file.js", "--module", "--not", "vendor"];
+      const argv = [
+        "node",
+        "script.js",
+        "es5",
+        "file.js",
+        "--module",
+        "--not",
+        "vendor",
+      ];
       const result = parseArgs(argv);
 
       assert.deepStrictEqual(result.positional, ["es5", "file.js"]);
@@ -73,7 +89,11 @@ describe("cli/parser.js", () => {
     });
 
     it("should handle options with equals containing equals", () => {
-      const argv = ["node", "script.js", "--browserslistQuery=last 2 versions, > 1%"];
+      const argv = [
+        "node",
+        "script.js",
+        "--browserslistQuery=last 2 versions, > 1%",
+      ];
       const result = parseArgs(argv);
 
       assert.deepStrictEqual(result.options, {
