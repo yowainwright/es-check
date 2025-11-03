@@ -5,12 +5,21 @@ const { promisify } = require("util");
 const fs = require("fs");
 const path = require("path");
 const { performance } = require("perf_hooks");
+const {
+  POPULAR_LIBRARIES,
+  IGNORE_PATTERNS,
+  DEFAULT_ITERATIONS,
+  DEFAULT_TEST_DIR,
+  DEFAULT_ES_VERSION,
+  DEFAULT_MAX_FILES,
+} = require("./constants");
 
 const execFileAsync = promisify(execFile);
 
-const iterations = parseInt(process.argv[2], 10) || 5;
-const testDir = process.argv[3] || "./node_modules";
-const esVersion = "es5";
+const iterations = parseInt(process.argv[2], 10) || DEFAULT_ITERATIONS;
+const testDir = process.argv[3] || DEFAULT_TEST_DIR;
+const useRealLibraries = process.argv.includes("--real-libs");
+const esVersion = DEFAULT_ES_VERSION;
 const tools = [
   {
     name: "es-check",
@@ -339,8 +348,9 @@ async function findJsFiles(dir) {
 
   try {
     const { default: glob } = await import("fast-glob");
+    const ignorePatterns = IGNORE_PATTERNS.filter(p => p !== "**/test/**" && p !== "**/tests/**");
     return await glob(`${dir}/**/*.js`, {
-      ignore: ["**/node_modules/**", "**/dist/**"],
+      ignore: ignorePatterns,
       absolute: true,
     });
   } catch (error) {
@@ -349,11 +359,49 @@ async function findJsFiles(dir) {
   }
 }
 
+async function getLibraryFiles(libraries) {
+  const files = [];
+  console.log(
+    `\nScanning real-world libraries: ${libraries.join(", ")}...`,
+  );
+
+  for (const lib of libraries) {
+    const libPath = path.join("./node_modules", lib);
+
+    if (!fs.existsSync(libPath)) {
+      console.warn(`  ${lib}: not installed, skipping`);
+      continue;
+    }
+
+    try {
+      const { default: glob } = await import("fast-glob");
+      const libFiles = await glob(`${libPath}/**/*.js`, {
+        ignore: IGNORE_PATTERNS,
+        absolute: true,
+      });
+      console.log(`  ${lib}: found ${libFiles.length} files`);
+      files.push(...libFiles);
+    } catch (error) {
+      console.warn(`  ${lib}: could not scan - ${error.message}`);
+    }
+  }
+
+  return files;
+}
+
 async function runBenchmarks() {
   console.log(`Running benchmarks (${iterations} iterations each)...`);
 
-  console.log(`Finding JavaScript files in ${testDir}...`);
-  const testFiles = await findJsFiles(testDir);
+  let testFiles;
+
+  if (useRealLibraries) {
+    console.log("Using real-world libraries for benchmarking...");
+    testFiles = await getLibraryFiles(POPULAR_LIBRARIES);
+  } else {
+    console.log(`Finding JavaScript files in ${testDir}...`);
+    testFiles = await findJsFiles(testDir);
+  }
+
   console.log(`Found ${testFiles.length} JavaScript files to test`);
 
   if (testFiles.length === 0) {
@@ -363,7 +411,7 @@ async function runBenchmarks() {
     process.exit(1);
   }
 
-  const maxFiles = parseInt(process.env.MAX_FILES, 10) || 100;
+  const maxFiles = parseInt(process.env.MAX_FILES, 10) || DEFAULT_MAX_FILES;
   const filesToTest =
     testFiles.length > maxFiles ? testFiles.slice(0, maxFiles) : testFiles;
 
