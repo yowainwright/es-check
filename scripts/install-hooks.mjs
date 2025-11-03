@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 
-import { writeFileSync, chmodSync, mkdirSync, existsSync } from 'fs';
-import { join } from 'path';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
+import { writeFileSync, chmodSync, mkdirSync, existsSync } from "fs";
+import { join } from "path";
+import { fileURLToPath } from "url";
+import { dirname } from "path";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const hooksDir = join(__dirname, '..', '.git', 'hooks');
+const hooksDir = join(__dirname, "..", ".git", "hooks");
 
 // Ensure hooks directory exists
 if (!existsSync(hooksDir)) {
@@ -16,7 +16,7 @@ if (!existsSync(hooksDir)) {
 }
 
 const hooks = {
-  'pre-commit': `#!/usr/bin/env node
+  "pre-commit": `#!/usr/bin/env node
 
 const { execSync } = require('child_process');
 
@@ -32,7 +32,7 @@ try {
   process.exit(1);
 }
 `,
-  'commit-msg': `#!/usr/bin/env node
+  "commit-msg": `#!/usr/bin/env node
 
 const { execSync } = require('child_process');
 
@@ -44,7 +44,7 @@ try {
   process.exit(1);
 }
 `,
-  'post-merge': `#!/usr/bin/env node
+  "post-merge": `#!/usr/bin/env node
 
 const { execSync } = require('child_process');
 
@@ -57,16 +57,16 @@ try {
   console.error('✗ Failed to update dependencies');
   process.exit(1);
 }
-`
+`,
 };
 
-console.log('Installing git hooks...');
+console.log("Installing git hooks...");
 
 for (const [name, content] of Object.entries(hooks)) {
   const hookPath = join(hooksDir, name);
-  writeFileSync(hookPath, content, 'utf8');
+  writeFileSync(hookPath, content, "utf8");
   chmodSync(hookPath, 0o755);
   console.log(`✓ Installed ${name} hook`);
 }
 
-console.log('✓ All git hooks installed successfully');
+console.log("✓ All git hooks installed successfully");

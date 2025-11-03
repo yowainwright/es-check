@@ -10,7 +10,7 @@
 
 # ES Check ✔️
 
-[![npm version](https://badge.fury.io/js/es-check.svg)](https://www.npmjs.com/package/es-check)
+[![npm version](https://badge.fury.io/js/es-check.svg)](https://www.npmjs.com/package/es-check) [![codecov](https://codecov.io/gh/yowainwright/es-check/branch/main/graph/badge.svg)](https://codecov.io/gh/yowainwright/es-check)
 
 ---
 
@@ -131,7 +131,6 @@ Here's a comprehensive list of all available options:
 | ----------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
 | `-V, --version`               | Output the version number                                                                                                   |
 | `--module`                    | Use ES modules (default: false)                                                                                             |
-| `--light`                     | Lightweight mode: 2-3x faster checking using pattern matching only (default: false)                                         |
 | `--allowHashBang`             | If the code starts with #! treat it as a comment (default: false)                                                           |
 | `--files <files>`             | A glob of files to test the ECMAScript version against (alias for [files...])                                               |
 | `--not <files>`               | Folder or file names to skip                                                                                                |
@@ -197,12 +196,6 @@ Once enabled, you can use tab completion for:
 
 ```sh
 es-check es6 './dist/**/*.js' --module
-```
-
-**Fast checking with light mode (2-3x faster):**
-
-```sh
-es-check es5 './dist/**/*.js' --light
 ```
 
 **Checking files with hash bang:**
@@ -611,23 +604,20 @@ A simple example script is available in `examples/check-node-modules.js`.
 
 ```mermaid
 flowchart TD
-    A[Input: ES Version + File Globs] --> B{--light mode?}
-    B -->|Yes| C[Fast Pattern Matching<br/>fast-brake]
-    B -->|No| D[Full AST Parsing<br/>Acorn]
-    C --> E{Syntax Valid?}
-    D --> E
-    E -->|Fail| F[Report Error]
-    E -->|Pass| G{--checkFeatures?}
-    G -->|No| H[Success]
-    G -->|Yes| I{Check ES Features<br/>AST Walk}
-    I -->|Fail| F
-    I -->|Pass| J{--checkForPolyfills?}
-    J -->|No| H
-    J -->|Yes| K{Polyfills Detected?}
-    K -->|Yes| H
-    K -->|No| F
-    F --> L[Exit 1]
-    H --> M[Exit 0]
+    A[Input: ES Version + File Globs] --> B[Full AST Parsing<br/>Acorn]
+    B --> C{Syntax Valid?}
+    C -->|Fail| D[Report Error]
+    C -->|Pass| E{--checkFeatures?}
+    E -->|No| F[Success]
+    E -->|Yes| G{Check ES Features<br/>AST Walk}
+    G -->|Fail| D
+    G -->|Pass| H{--checkForPolyfills?}
+    H -->|No| F
+    H -->|Yes| I{Polyfills Detected?}
+    I -->|Yes| F
+    I -->|No| D
+    D --> J[Exit 1]
+    F --> K[Exit 0]
 ```
 
 ---
@@ -647,6 +637,26 @@ es-check es5 './dist/bundle.js'
 ```
 
 If `bundle.js.map` exists, errors will reference the original source file and line numbers instead of the minified positions. This helps quickly identify issues in your source code.
+
+## Performance
+
+ES Check is benchmarked against similar tools using real-world production libraries. Results from 11/02/2025:
+
+| Tool                  | Average (ms) | Relative Performance |
+| --------------------- | ------------ | -------------------- |
+| **es-check-batch-50** | **7.20**     | **1x (fastest)**     |
+| es-check-batch-10     | 7.67         | 1.06x slower         |
+| es-check-bundled      | 8.04         | 1.12x slower         |
+| es-check              | 9.17         | 1.27x slower         |
+| are-you-es5           | 15.05        | 2.09x slower         |
+| acorn (direct)        | 47.11        | 6.54x slower         |
+| eslint                | 55.21        | 7.67x slower         |
+| swc/core              | 55.69        | 7.73x slower         |
+| babel-parser          | 65.00        | 9.03x slower         |
+
+Tested on lodash, axios, react, moment, express, and chalk. See [benchmarks](./tests/benchmarks/README.md) for details.
+
+---
 
 ## Contributing
 
@@ -692,10 +702,12 @@ lib/
 ### Contributing to ES Features
 
 To update ES version support:
+
 - Update [ES version mappings](./lib/constants/versions.js)
 - Reference [Acorn ES version support](https://github.com/acornjs/acorn/blob/3221fa54f9dea30338228b97210c4f1fd332652d/acorn/src/acorn.d.ts#L586)
 
 To update ES feature detection:
+
 - Add features to [version-specific files](./lib/helpers/detectFeatures/constants/es-features/) (e.g., `6.js` for ES6 features)
 - Update [polyfill patterns](./lib/helpers/detectFeatures/constants/polyfills.js) if needed
 - Feature detection uses [acorn walk](https://github.com/acornjs/acorn/blob/master/acorn-walk/README.md)

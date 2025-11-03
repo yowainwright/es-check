@@ -60,9 +60,7 @@ describe("Node API Tests", () => {
     const result = await runChecks(config);
     assert.strictEqual(result.success, false);
     assert(result.errors.length > 0);
-    assert(
-      result.errors[0].err.message.includes("Invalid ecmaScript version"),
-    );
+    assert(result.errors[0].err.message.includes("Invalid ecmaScript version"));
   });
 
   test("runChecks - should handle missing ecmaVersion without exiting", async () => {

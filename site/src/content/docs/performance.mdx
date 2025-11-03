@@ -3,49 +3,18 @@ title: Performance Optimization
 description: Guide to optimizing ES Check performance for different scenarios
 ---
 
-# Performance Optimization
-
 ES Check has been optimized for performance while maintaining comprehensive feature detection. This guide helps you get the best performance for your specific use case.
 
 ## Recent Performance Improvements
 
 As of v9.4.0, ES Check includes several major performance optimizations:
 
-- **Lightweight mode (`--light`)**: NEW! Faster checking using pattern matching instead of full AST parsing
 - **File caching**: Enabled by default, we observed ~28% performance improvement in our benchmarks
 - **Single-parse optimization**: Files are parsed once and the AST is reused between syntax checking and feature detection
 - **Async file processing**: Non-blocking I/O operations for better parallelism
 - **Configurable batch processing**: Fine-tune concurrency based on your system
 
 _Note: Performance improvements vary based on your specific use case, file sizes, and system configuration._
-
-## Lightweight Mode (`--light`)
-
-**New in v9.4.0!** The `--light` flag enables a fast pattern-matching mode for improved performance:
-
-```bash
-# Standard mode (full AST parsing)
-es-check es5 './dist/**/*.js'
-
-# Lightweight mode (faster)
-es-check es5 './dist/**/*.js' --light
-```
-
-**When to use `--light` mode:**
-
-- CI/CD pipelines where speed is critical
-- Large codebases with thousands of files
-- Quick validation during development
-- Pre-commit hooks that need to run fast
-
-**Trade-offs:**
-
-- Faster execution through pattern matching
-- Uses pattern matching instead of full AST parsing
-- May have slightly different error messages
-- Best for syntax validation rather than detailed feature detection
-
-**Note:** `--light` mode focuses on speed while still catching incompatible syntax. For comprehensive feature detection, use standard mode with `--checkFeatures`.
 
 ## File Caching
 
@@ -130,7 +99,6 @@ Different configurations have varying performance impacts:
 
 | Configuration                         | Relative Speed    | Example Command                                                     | Use Case                     |
 | ------------------------------------- | ----------------- | ------------------------------------------------------------------- | ---------------------------- |
-| **--light mode**                      | **Fastest**       | `es-check es5 './dist/**/*.js' --light`                             | Fast CI/CD validation        |
 | Syntax only + silent + specific files | **1x** (baseline) | `es-check es5 './dist/bundle.js' --silent`                          | CI/CD quick validation       |
 | Syntax only + normal output           | **~1.1x**         | `es-check es5 './dist/**/*.js'`                                     | Standard usage               |
 | Syntax only + verbose                 | **~1.2x**         | `es-check es5 './dist/**/*.js' --verbose`                           | Debugging                    |
@@ -143,10 +111,7 @@ Different configurations have varying performance impacts:
 For maximum speed when performance is critical:
 
 ```bash
-# NEW: Use --light mode for faster checking
-es-check es5 './dist/**/*.js' --light --silent --batchSize 0
-
-# Alternative: Syntax only, silent output, specific files
+# Syntax only, silent output, specific files
 es-check es5 './dist/bundle.min.js' --silent --batchSize 0
 ```
 
@@ -215,9 +180,21 @@ es-check es5 './dist/**/*.js' --verbose
 
 ## Benchmarks
 
-ES Check is regularly benchmarked against other JavaScript syntax checking tools. While it may not be the fastest pure parser, it provides comprehensive feature detection that justifies the performance trade-off.
+ES Check is benchmarked against similar tools using real-world production libraries. Results from 11/02/2025:
 
-For detailed benchmark results and comparisons, see the [benchmarks folder](https://github.com/yowainwright/es-check/tree/main/benchmarks) in the repository.
+| Tool                  | Average (ms) | Relative Performance |
+| --------------------- | ------------ | -------------------- |
+| **es-check-batch-50** | **7.20**     | **1x (fastest)**     |
+| es-check-batch-10     | 7.67         | 1.06x slower         |
+| es-check-bundled      | 8.04         | 1.12x slower         |
+| es-check              | 9.17         | 1.27x slower         |
+| are-you-es5           | 15.05        | 2.09x slower         |
+| acorn (direct)        | 47.11        | 6.54x slower         |
+| eslint                | 55.21        | 7.67x slower         |
+| swc/core              | 55.69        | 7.73x slower         |
+| babel-parser          | 65.00        | 9.03x slower         |
+
+Tested on lodash, axios, react, moment, express, and chalk. See [benchmarks](https://github.com/yowainwright/es-check/tree/main/tests/benchmarks) for details.
 
 ## Troubleshooting Performance Issues
 

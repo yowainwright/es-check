@@ -4,6 +4,8 @@
 name: Node.js CI
 
 on:
+  push:
+    branches: [main]
   pull_request:
     branches: [main]
 
@@ -24,4 +26,10 @@ jobs:
       - run: npm install -g pnpm
       - run: pnpm install --no-frozen-lockfile
       - run: pnpm run lint:ci
-      - run: pnpm run test
+      - run: pnpm run report:coverage
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: false
