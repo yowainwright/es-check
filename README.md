@@ -39,12 +39,12 @@ es-check checkBrowser ./dist/**/*.js --browserslistQuery="last 2 versions"
 <p align="center">
   <a href="#get-started">Get Started</a>&nbsp;&nbsp;
   <a href="#why-es-check">Why ES Check?</a>&nbsp;&nbsp;
-  <a href="#usage">Usage</a>&nbsp;&nbsp;
-  <a href="#walk-through">Walk Through</a>&nbsp;&nbsp;
   <a href="#api">API</a>&nbsp;&nbsp;
-  <a href="#debugging">Debugging</a>&nbsp;&nbsp;
+  <a href="#usage">Usage</a>&nbsp;&nbsp;
+  <a href="#configuration">Configuration</a>&nbsp;&nbsp;
+  <a href="#how-es-check-works">How ES Check Works</a>&nbsp;&nbsp;
   <a href="#contributing">Contributing</a>&nbsp;&nbsp;
-  <a href="/issues">Issues</a>
+  <a href="https://github.com/yowainwright/es-check/issues">Issues</a>
 </p>
 
 ---
@@ -153,44 +153,7 @@ Here's a comprehensive list of all available options:
 | `--noCache`                   | Disable file caching (cache is enabled by default)                                                                          |
 | `-h, --help`                  | Display help for command                                                                                                    |
 
-### Shell Completion
-
-ES Check supports shell tab completion for commands and options. You can generate completion scripts for bash and zsh shells:
-
-```sh
-# Generate completion script for bash (default)
-es-check completion
-
-# Generate completion script for zsh
-es-check completion zsh
-```
-
-To enable completions in your shell:
-
-**Bash:**
-
-```sh
-# Add to ~/.bashrc or ~/.bash_profile
-es-check completion > ~/.es-check-completion.bash
-echo 'source ~/.es-check-completion.bash' >> ~/.bashrc
-```
-
-**Zsh:**
-
-```sh
-# Add to ~/.zshrc
-es-check completion zsh > ~/.es-check-completion.zsh
-echo 'source ~/.es-check-completion.zsh' >> ~/.zshrc
-```
-
-Once enabled, you can use tab completion for:
-
-- ES versions (es5, es6, etc.)
-- Commands (completion)
-- Options (--module, --checkFeatures, etc.)
-- File paths
-
-#### Examples
+### Examples
 
 **Using ES modules:**
 
@@ -603,28 +566,35 @@ A simple example script is available in `examples/check-node-modules.js`.
 ## How ES Check Works
 
 ```mermaid
-flowchart TD
-    A[Input: ES Version + File Globs] --> B[Full AST Parsing<br/>Acorn]
-    B --> C{Syntax Valid?}
-    C -->|Fail| D[Report Error]
+flowchart LR
+    A[Input: ES Version<br/>+ File Globs] --> B[Full AST Parsing<br/>Acorn]
+    B --> C{Syntax<br/>Valid?}
     C -->|Pass| E{--checkFeatures?}
+    C -->|Fail| D[Report Error]
+    E -->|Yes| G[Check ES Features<br/>AST Walk]
     E -->|No| F[Success]
-    E -->|Yes| G{Check ES Features<br/>AST Walk}
-    G -->|Fail| D
-    G -->|Pass| H{--checkForPolyfills?}
+    G --> G1{Features<br/>Valid?}
+    G1 -->|Pass| H{--checkForPolyfills?}
+    G1 -->|Fail| D
+    H -->|Yes| I{Polyfills<br/>Detected?}
     H -->|No| F
-    H -->|Yes| I{Polyfills Detected?}
     I -->|Yes| F
     I -->|No| D
     D --> J[Exit 1]
     F --> K[Exit 0]
+
+    classDef inputStyle fill:#e1f5ff,stroke:#0288d1,stroke-width:2px
+    classDef processStyle fill:#fff3e0,stroke:#f57c00,stroke-width:2px
+    classDef decisionStyle fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+    classDef successStyle fill:#e8f5e9,stroke:#388e3c,stroke-width:2px
+    classDef errorStyle fill:#ffebee,stroke:#d32f2f,stroke-width:2px
+
+    class A inputStyle
+    class B,G processStyle
+    class C,E,G1,H,I decisionStyle
+    class F,K successStyle
+    class D,J errorStyle
 ```
-
----
-
-## Acknowledgements
-
-ES Check is a small utility using powerful tools that [Isaac Z. Schlueter](https://github.com/isaacs), [Marijn Haverbeke](https://github.com/marijnh), and [Matthias Etienne](https://github.com/mattallty) built. [ES Checker](https://github.com/ruanyf/es-checker) by [Ruan YiFeng](https://github.com/ruanyf) checks the JavaScript version supported within a [browser](http://ruanyf.github.io/es-checker/) at run time. ES Check offers similar feedback to ES Checker but at build time and is specific to the product that is using it. ES Check was started after reading [Philip Walton](https://github.com/philipwalton)'s post about [deploying es2015 code to production today](https://philipwalton.com/articles/deploying-es2015-code-in-production-today/).
 
 ---
 
@@ -637,6 +607,47 @@ es-check es5 './dist/bundle.js'
 ```
 
 If `bundle.js.map` exists, errors will reference the original source file and line numbers instead of the minified positions. This helps quickly identify issues in your source code.
+
+---
+
+## Shell Completion
+
+ES Check supports shell tab completion for commands and options. You can generate completion scripts for bash and zsh shells:
+
+```sh
+# Generate completion script for bash (default)
+es-check completion
+
+# Generate completion script for zsh
+es-check completion zsh
+```
+
+To enable completions in your shell:
+
+**Bash:**
+
+```sh
+# Add to ~/.bashrc or ~/.bash_profile
+es-check completion > ~/.es-check-completion.bash
+echo 'source ~/.es-check-completion.bash' >> ~/.bashrc
+```
+
+**Zsh:**
+
+```sh
+# Add to ~/.zshrc
+es-check completion zsh > ~/.es-check-completion.zsh
+echo 'source ~/.es-check-completion.zsh' >> ~/.zshrc
+```
+
+Once enabled, you can use tab completion for:
+
+- ES versions (es5, es6, etc.)
+- Commands (completion)
+- Options (--module, --checkFeatures, etc.)
+- File paths
+
+---
 
 ## Performance
 
@@ -664,41 +675,6 @@ ES Check has only 4 core dependencies: [acorn](https://github.com/ternjs/acorn/)
 
 The CLI, logging, and source map support are implemented with custom lightweight solutions using Node.js built-ins to minimize dependencies. To contribute, file an [issue](https://github.com/yowainwright/es-check/issues) or submit a pull request.
 
-### Codebase Architecture
-
-ES Check follows a modular architecture with clear separation of concerns:
-
-```
-lib/
-├── cli/
-│   ├── index.js
-│   ├── handler.js
-│   ├── utils.js
-│   └── constants.js
-├── check-runner/
-│   ├── index.js
-│   └── utils.js
-├── constants/
-│   ├── versions.js
-│   └── index.js
-├── helpers/
-│   ├── detectFeatures/
-│   │   ├── index.js
-│   │   └── constants/
-│   │       ├── es-features/
-│   │       ├── polyfills.js
-│   │       └── index.js
-│   ├── ast.js
-│   ├── files.js
-│   ├── logger.js
-│   ├── parsers.js
-│   └── sourcemap.js
-├── browserslist.js
-├── cache.js
-├── config.js
-└── index.js
-```
-
 ### Contributing to ES Features
 
 To update ES version support:
@@ -723,3 +699,9 @@ Tests are located in `tests/unit/` and mirror the `lib/` structure. Please add t
 - [Ben Junya](https://github.com/MrBenJ)
 - [Jeff Barczewski](https://github.com/jeffbski)
 - [Brandon Casey](https://github.com/BrandonOCasey)
+
+---
+
+## License
+
+[MIT](./LICENSE) © [Jeff Wainwright](https://github.com/yowainwright)
