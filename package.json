@@ -58,9 +58,9 @@
     "codependence": "^0.3.1",
     "commitizen": "4.3.1",
     "oxlint": "^1.24.0",
-    "pastoralist": "1.8.0-1",
+    "pastoralist": "1.8.2-5",
     "prettier": "3.6.2",
-    "release-it": "19.0.5"
+    "release-it": "19.0.6"
   },
   "dependencies": {
     "acorn": "8.15.0",
@@ -128,17 +128,55 @@
   },
   "packageManager": "pnpm@10.12.1",
   "pastoralist": {
+    "appendix": {
+      "vite@6.3.6": {
+        "dependents": {
+          "es-check": "vite (transitive dependency)"
+        },
+        "ledger": {
+          "addedDate": "2025-11-11T09:03:17.559Z",
+          "reason": "Security fix: vite allows server.fs.deny bypass via backslash on Windows (medium)",
+          "securityChecked": true,
+          "securityCheckDate": "2025-11-11T09:03:17.559Z",
+          "securityProvider": "github",
+          "cve": "CVE-2025-62522",
+          "severity": "medium",
+          "url": "https://github.com/yowainwright/es-check/security/dependabot/39"
+        }
+      },
+      "tmp@0.2.4": {
+        "dependents": {
+          "es-check": "tmp (transitive dependency)"
+        },
+        "ledger": {
+          "addedDate": "2025-11-11T09:03:17.559Z",
+          "reason": "Security fix: tmp allows arbitrary temporary file / directory write via symbolic link `dir` parameter (low)",
+          "securityChecked": true,
+          "securityCheckDate": "2025-11-11T09:03:17.559Z",
+          "securityProvider": "github",
+          "cve": "CVE-2025-54798",
+          "severity": "low",
+          "url": "https://github.com/yowainwright/es-check/security/dependabot/24"
+        }
+      }
+    },
     "depPaths": [
       "package.json",
       "site/package.json"
     ],
     "security": {
       "enabled": true,
-      "provider": "osv",
-      "autoFix": false,
-      "interactive": true,
-      "severityThreshold": "medium",
+      "provider": "github",
+      "autoFix": true,
+      "interactive": false,
+      "severityThreshold": "low",
       "hasWorkspaceSecurityChecks": true
+    }
+  },
+  "pnpm": {
+    "overrides": {
+      "vite": "6.3.6",
+      "tmp": "0.2.4"
     }
   }
 }
