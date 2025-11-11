@@ -7,6 +7,10 @@ on:
 jobs:
   udpate-deps:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      security-events: read
 
     strategy:
       matrix:
@@ -22,7 +26,10 @@ jobs:
           cache: "pnpm"
       - run: pnpm install --no-frozen-lockfile
       - run: pnpm test
-      - run: pnpm run update
+      - name: Update dependencies and check security
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: pnpm run update
       - run: pnpm install --no-frozen-lockfile
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v6

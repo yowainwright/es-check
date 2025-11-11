@@ -134,8 +134,8 @@
     ],
     "security": {
       "enabled": true,
-      "provider": "osv",
-      "autoFix": false,
+      "provider": "github",
+      "autoFix": true,
       "interactive": true,
       "severityThreshold": "medium",
       "hasWorkspaceSecurityChecks": true

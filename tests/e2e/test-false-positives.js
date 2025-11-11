@@ -8,7 +8,6 @@ console.log("Testing false positive detection...\n");
 
 const esCheckPath = path.join(__dirname, "..", "..", "lib", "cli", "index.js");
 
-// Test 1: Numeric separator false positive
 console.log(
   "Test 1: String with underscore should NOT be flagged as numeric separator",
 );
@@ -29,7 +28,6 @@ try {
   process.exit(1);
 }
 
-// Test 2: Exponent operator false positive
 console.log(
   "Test 2: String with ** should NOT be flagged as exponent operator",
 );
@@ -46,7 +44,6 @@ try {
   process.exit(1);
 }
 
-// Test 3: Decimal in ternary false positive
 console.log(
   "Test 3: Ternary with decimal should NOT be flagged as optional chaining",
 );
