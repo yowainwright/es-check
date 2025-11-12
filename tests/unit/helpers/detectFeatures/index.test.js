@@ -501,3 +501,105 @@ describe("Polyfill Detection", () => {
     });
   });
 });
+
+describe("False Positive Prevention (Issue #338)", () => {
+  const acorn = require("acorn");
+
+  it("should not detect ExponentOperator in strings containing **", () => {
+    const code = 'var str = "This is a **bold** text";';
+    const ast = acorn.parse(code, { ecmaVersion: 5 });
+
+    const { foundFeatures, unsupportedFeatures } = detectFeatures(
+      code,
+      5,
+      "script",
+      new Set(),
+      { ast },
+    );
+
+    assert.strictEqual(
+      foundFeatures.ExponentOperator,
+      false,
+      "Should not detect ** in strings as ExponentOperator",
+    );
+    assert.strictEqual(
+      unsupportedFeatures.length,
+      0,
+      "Should have no unsupported features",
+    );
+  });
+
+  it("should not detect NumericSeparators in strings with underscores", () => {
+    const code = 'var str = "image-froth_1426534_7KYhd4UUl";';
+    const ast = acorn.parse(code, { ecmaVersion: 5 });
+
+    const { foundFeatures, unsupportedFeatures } = detectFeatures(
+      code,
+      5,
+      "script",
+      new Set(),
+      { ast },
+    );
+
+    assert.strictEqual(
+      foundFeatures.NumericSeparators,
+      false,
+      "Should not detect underscores in strings as NumericSeparators",
+    );
+    assert.strictEqual(
+      unsupportedFeatures.length,
+      0,
+      "Should have no unsupported features",
+    );
+  });
+
+  it("should not detect OptionalChaining in ternary with decimal", () => {
+    const code = "var value = e.isRemovedItem ? 0.35 : 1;";
+    const ast = acorn.parse(code, { ecmaVersion: 5 });
+
+    const { foundFeatures, unsupportedFeatures } = detectFeatures(
+      code,
+      5,
+      "script",
+      new Set(),
+      { ast },
+    );
+
+    assert.strictEqual(
+      foundFeatures.OptionalChaining,
+      false,
+      "Should not detect ?. in ternary as OptionalChaining",
+    );
+    assert.strictEqual(
+      unsupportedFeatures.length,
+      0,
+      "Should have no unsupported features",
+    );
+  });
+
+  it("should handle multiple false positive patterns in one file", () => {
+    const code = `
+      var a = "image_123_456";
+      var b = "**markdown**";
+      var c = obj.prop ? 0.5 : 1;
+    `;
+    const ast = acorn.parse(code, { ecmaVersion: 5 });
+
+    const { foundFeatures, unsupportedFeatures } = detectFeatures(
+      code,
+      5,
+      "script",
+      new Set(),
+      { ast },
+    );
+
+    assert.strictEqual(foundFeatures.ExponentOperator, false);
+    assert.strictEqual(foundFeatures.NumericSeparators, false);
+    assert.strictEqual(foundFeatures.OptionalChaining, false);
+    assert.strictEqual(
+      unsupportedFeatures.length,
+      0,
+      "Should have no unsupported features",
+    );
+  });
+});
