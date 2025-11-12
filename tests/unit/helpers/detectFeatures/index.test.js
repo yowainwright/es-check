@@ -502,10 +502,10 @@ describe("Polyfill Detection", () => {
   });
 });
 
-describe("False Positive Prevention (Issue #338)", () => {
+describe("AST-based feature detection", () => {
   const acorn = require("acorn");
 
-  it("should not detect ExponentOperator in strings containing **", () => {
+  it("should not detect ExponentOperator for ** inside string literals", () => {
     const code = 'var str = "This is a **bold** text";';
     const ast = acorn.parse(code, { ecmaVersion: 5 });
 
@@ -529,7 +529,7 @@ describe("False Positive Prevention (Issue #338)", () => {
     );
   });
 
-  it("should not detect NumericSeparators in strings with underscores", () => {
+  it("should not detect NumericSeparators for underscores inside string literals", () => {
     const code = 'var str = "image-froth_1426534_7KYhd4UUl";';
     const ast = acorn.parse(code, { ecmaVersion: 5 });
 
@@ -553,7 +553,7 @@ describe("False Positive Prevention (Issue #338)", () => {
     );
   });
 
-  it("should not detect OptionalChaining in ternary with decimal", () => {
+  it("should not detect OptionalChaining for ternary operators with decimal values", () => {
     const code = "var value = e.isRemovedItem ? 0.35 : 1;";
     const ast = acorn.parse(code, { ecmaVersion: 5 });
 
@@ -577,7 +577,7 @@ describe("False Positive Prevention (Issue #338)", () => {
     );
   });
 
-  it("should handle multiple false positive patterns in one file", () => {
+  it("should correctly ignore feature-like patterns in strings and literals", () => {
     const code = `
       var a = "image_123_456";
       var b = "**markdown**";
