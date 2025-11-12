@@ -27,6 +27,7 @@ jobs:
       - run: pnpm install --no-frozen-lockfile
       - run: pnpm run lint:ci
       - run: pnpm run report:coverage
+      - run: pnpm run test:e2e
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
