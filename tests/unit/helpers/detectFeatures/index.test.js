@@ -1,6 +1,6 @@
 const { describe, it } = require("node:test");
 const assert = require("node:assert");
-const detectFeatures = require("../../../../lib/helpers/detectFeatures/index");
+const detectFeatures = require("../../../../lib/detectFeatures");
 const detectPolyfills = detectFeatures.detectPolyfills;
 const filterPolyfilled = detectFeatures.filterPolyfilled;
 
