@@ -4,7 +4,6 @@ const { checkMap } = require("../../../lib/helpers/ast.js");
 
 describe("helpers/ast.js", () => {
   describe("checkMap()", () => {
-
     it("should check kind constraint", () => {
       const node = { kind: "const" };
       const astInfo = { kind: "const" };

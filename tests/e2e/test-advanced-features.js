@@ -51,7 +51,9 @@ try {
   );
   console.log("[PASS] Test 2 passed (ignored features work)\n");
 } catch (error) {
-  console.log("[WARN] Test 2 partial - ignore flag tested but may have other features\n");
+  console.log(
+    "[WARN] Test 2 partial - ignore flag tested but may have other features\n",
+  );
 }
 
 // Test 3: --checkForPolyfills detecting polyfill usage
@@ -74,15 +76,19 @@ try {
       encoding: "utf8",
     },
   );
-  const hasPolyfillWarning = output.includes("polyfill") || output.includes("includes");
+  const hasPolyfillWarning =
+    output.includes("polyfill") || output.includes("includes");
   if (hasPolyfillWarning) {
     console.log("[PASS] Test 3 passed (polyfill detected)\n");
   } else {
-    console.log("[WARN] Test 3 partial - polyfill check ran but may not detect all patterns\n");
+    console.log(
+      "[WARN] Test 3 partial - polyfill check ran but may not detect all patterns\n",
+    );
   }
 } catch (error) {
   const output = error.stderr || error.stdout || "";
-  const hasPolyfillWarning = output.includes("polyfill") || output.includes("includes");
+  const hasPolyfillWarning =
+    output.includes("polyfill") || output.includes("includes");
   if (hasPolyfillWarning) {
     console.log("[PASS] Test 3 passed (polyfill detected in error)\n");
   } else {
@@ -188,7 +194,12 @@ console.log("Test 8: Using --files option");
 try {
   execFileSync(
     "node",
-    [esCheckPath, "es5", "--files", "./tests/fixtures/es5.js,./tests/fixtures/es5-2.js"],
+    [
+      esCheckPath,
+      "es5",
+      "--files",
+      "./tests/fixtures/es5.js,./tests/fixtures/es5-2.js",
+    ],
     {
       encoding: "utf8",
     },

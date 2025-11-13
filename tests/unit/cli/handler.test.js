@@ -174,10 +174,7 @@ describe("cli/handler.js", () => {
       warnAboutIgnoreFile("/nonexistent/path/to/file.json", logger);
 
       assert.strictEqual(warnings.length, 1);
-      assert.match(
-        warnings[0],
-        /does not exist or is not accessible/,
-      );
+      assert.match(warnings[0], /does not exist or is not accessible/);
     });
 
     it("should not warn when logger level is not enabled", () => {

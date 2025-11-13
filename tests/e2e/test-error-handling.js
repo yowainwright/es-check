@@ -50,7 +50,9 @@ try {
   );
   console.log("[PASS] Test 3 passed\n");
 } catch (error) {
-  console.error("[FAIL] Test 3 failed - should not have thrown with loose matching");
+  console.error(
+    "[FAIL] Test 3 failed - should not have thrown with loose matching",
+  );
   console.error(error.stderr || error.stdout || error.message);
   process.exit(1);
 }

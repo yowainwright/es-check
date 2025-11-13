@@ -79,7 +79,6 @@ describe("helpers/logger.js", () => {
       const result = supportsColor(mockStream);
       assert.strictEqual(result, true);
     });
-
   });
 
   describe("createLogger()", () => {
@@ -117,6 +116,5 @@ describe("helpers/logger.js", () => {
         isError: true,
       });
     });
-
   });
 });
