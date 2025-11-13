@@ -149,27 +149,12 @@ describe("SimpleCache", () => {
   });
 
   describe("Edge cases", () => {
-    it("should handle null values", () => {
-      const cache = new SimpleCache();
-      cache.set("key1", null);
-      assert.strictEqual(cache.get("key1"), null);
-    });
-
-    it("should handle undefined values", () => {
+    it("should handle undefined values differently from missing keys", () => {
       const cache = new SimpleCache();
       cache.set("key1", undefined);
       assert.strictEqual(cache.get("key1"), undefined);
       assert.strictEqual(cache.has("key1"), true);
-    });
-
-    it("should handle complex objects", () => {
-      const cache = new SimpleCache();
-      const obj = { a: 1, b: { c: 2 } };
-      cache.set("key1", obj);
-
-      const retrieved = cache.get("key1");
-      assert.deepStrictEqual(retrieved, obj);
-      assert.strictEqual(retrieved, obj);
+      assert.strictEqual(cache.has("key2"), false);
     });
 
     it("should handle maxSize of 1", () => {

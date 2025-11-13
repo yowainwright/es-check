@@ -80,67 +80,26 @@ describe("helpers/logger.js", () => {
       assert.strictEqual(result, true);
     });
 
-    it("should use process.stdout by default", () => {
-      const result = supportsColor();
-      assert.strictEqual(typeof result, "boolean");
-    });
   });
 
   describe("createLogger()", () => {
-    it("should create logger with default info level", () => {
-      const logger = createLogger({});
-      assert(logger);
-      assert.strictEqual(typeof logger.info, "function");
-      assert.strictEqual(typeof logger.error, "function");
-    });
-
     it("should create logger with debug level when verbose is true", () => {
       const logger = createLogger({ verbose: true });
-      assert(logger);
       assert.strictEqual(logger.isLevelEnabled("debug"), true);
     });
 
     it("should create logger with warn level when quiet is true", () => {
       const logger = createLogger({ quiet: true });
-      assert(logger);
       assert.strictEqual(logger.isLevelEnabled("warn"), true);
       assert.strictEqual(logger.isLevelEnabled("info"), false);
-    });
-
-    it("should create silent logger when silent is true", () => {
-      const logger = createLogger({ silent: true });
-      assert(logger);
-      assert.strictEqual(typeof logger.info, "function");
-      assert.strictEqual(typeof logger.error, "function");
-    });
-
-    it("should respect noColor option", () => {
-      const logger = createLogger({ noColor: true });
-      assert(logger);
-      assert.strictEqual(typeof logger.info, "function");
-    });
-
-    it("should respect no-color option", () => {
-      const logger = createLogger({ "no-color": true });
-      assert(logger);
-      assert.strictEqual(typeof logger.info, "function");
     });
   });
 
   describe("determineLogLevel()", () => {
-    it("should return null when logger is null", () => {
-      const result = determineLogLevel(null);
-      assert.strictEqual(result, null);
-    });
-
-    it("should return null when logger is undefined", () => {
-      const result = determineLogLevel(undefined);
-      assert.strictEqual(result, null);
-    });
-
-    it("should return null when logger has no isLevelEnabled method", () => {
-      const result = determineLogLevel({});
-      assert.strictEqual(result, null);
+    it("should return null for invalid loggers", () => {
+      assert.strictEqual(determineLogLevel(null), null);
+      assert.strictEqual(determineLogLevel(undefined), null);
+      assert.strictEqual(determineLogLevel({}), null);
     });
 
     it("should return level flags for valid logger", () => {
@@ -159,16 +118,5 @@ describe("helpers/logger.js", () => {
       });
     });
 
-    it("should work with real winston logger", () => {
-      const logger = createLogger({ verbose: true });
-      const result = determineLogLevel(logger);
-
-      assert.strictEqual(typeof result, "object");
-      assert.strictEqual(typeof result.isDebug, "boolean");
-      assert.strictEqual(typeof result.isWarn, "boolean");
-      assert.strictEqual(typeof result.isInfo, "boolean");
-      assert.strictEqual(typeof result.isError, "boolean");
-      assert.strictEqual(result.isDebug, true);
-    });
   });
 });

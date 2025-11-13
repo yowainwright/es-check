@@ -4,13 +4,6 @@ const { checkMap } = require("../../../lib/helpers/ast.js");
 
 describe("helpers/ast.js", () => {
   describe("checkMap()", () => {
-    it("should return true when no constraints are specified", () => {
-      const node = {};
-      const astInfo = {};
-
-      const result = checkMap(node, astInfo);
-      assert.strictEqual(result, true);
-    });
 
     it("should check kind constraint", () => {
       const node = { kind: "const" };

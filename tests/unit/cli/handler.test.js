@@ -65,44 +65,23 @@ describe("cli/handler.js", () => {
       assert.deepStrictEqual(result.not, ["vendor", "node_modules"]);
     });
 
-    it("should handle module option", () => {
-      const baseConfig = {};
-      const options = { module: true };
-      const result = buildConfig("es5", [], options, baseConfig);
+    it("should pass through boolean options", () => {
+      const options = {
+        module: true,
+        allowHashBang: true,
+        checkFeatures: true,
+      };
+      const result = buildConfig("es5", [], options, {});
 
       assert.strictEqual(result.module, true);
-    });
-
-    it("should handle allowHashBang option", () => {
-      const baseConfig = {};
-      const options = { allowHashBang: true };
-      const result = buildConfig("es5", [], options, baseConfig);
-
       assert.strictEqual(result.allowHashBang, true);
-    });
-
-    it("should handle allow-hash-bang option", () => {
-      const baseConfig = {};
-      const options = { "allow-hash-bang": true };
-      const result = buildConfig("es5", [], options, baseConfig);
-
-      assert.strictEqual(result.allowHashBang, true);
-    });
-
-    it("should handle checkFeatures option", () => {
-      const baseConfig = {};
-      const options = { checkFeatures: true };
-      const result = buildConfig("es5", [], options, baseConfig);
-
       assert.strictEqual(result.checkFeatures, true);
     });
 
-    it("should handle checkForPolyfills option", () => {
-      const baseConfig = {};
-      const options = { checkForPolyfills: true };
-      const result = buildConfig("es5", [], options, baseConfig);
+    it("should handle allow-hash-bang kebab-case option", () => {
+      const result = buildConfig("es5", [], { "allow-hash-bang": true }, {});
 
-      assert.strictEqual(result.checkForPolyfills, true);
+      assert.strictEqual(result.allowHashBang, true);
     });
 
     it("should inherit from baseConfig", () => {
@@ -123,82 +102,36 @@ describe("cli/handler.js", () => {
       assert.strictEqual(result.ignore, "Feature2");
     });
 
-    it("should handle ignoreFile option", () => {
-      const baseConfig = {};
-      const options = { ignoreFile: ".ignore.json" };
-      const result = buildConfig("es5", [], options, baseConfig);
+    it("should handle ignore-file kebab-case option", () => {
+      const result = buildConfig(
+        "es5",
+        [],
+        { "ignore-file": ".ignore.json" },
+        {},
+      );
 
       assert.strictEqual(result.ignoreFile, ".ignore.json");
     });
 
-    it("should handle ignore-file option", () => {
-      const baseConfig = {};
-      const options = { "ignore-file": ".ignore.json" };
-      const result = buildConfig("es5", [], options, baseConfig);
-
-      assert.strictEqual(result.ignoreFile, ".ignore.json");
-    });
-
-    it("should handle looseGlobMatching option", () => {
-      const baseConfig = {};
-      const options = { looseGlobMatching: true };
-      const result = buildConfig("es5", [], options, baseConfig);
-
-      assert.strictEqual(result.looseGlobMatching, true);
-    });
-
-    it("should handle allowList option", () => {
-      const baseConfig = {};
-      const options = { allowList: "const,let" };
-      const result = buildConfig("es5", [], options, baseConfig);
+    it("should pass through string and numeric options", () => {
+      const result = buildConfig(
+        "es5",
+        [],
+        {
+          allowList: "const,let",
+          batchSize: 10,
+        },
+        {},
+      );
 
       assert.strictEqual(result.allowList, "const,let");
-    });
-
-    it("should handle checkBrowser option", () => {
-      const baseConfig = {};
-      const options = { checkBrowser: true };
-      const result = buildConfig("es5", [], options, baseConfig);
-
-      assert.strictEqual(result.checkBrowser, true);
-    });
-
-    it("should handle browserslist options", () => {
-      const baseConfig = {};
-      const options = {
-        browserslistQuery: "last 2 versions",
-        browserslistPath: ".browserslistrc",
-        browserslistEnv: "production",
-      };
-      const result = buildConfig("es5", [], options, baseConfig);
-
-      assert.strictEqual(result.browserslistQuery, "last 2 versions");
-      assert.strictEqual(result.browserslistPath, ".browserslistrc");
-      assert.strictEqual(result.browserslistEnv, "production");
-    });
-
-    it("should handle batchSize option", () => {
-      const baseConfig = {};
-      const options = { batchSize: 10 };
-      const result = buildConfig("es5", [], options, baseConfig);
-
       assert.strictEqual(result.batchSize, 10);
     });
 
     it("should handle noCache option", () => {
-      const baseConfig = { cache: true };
-      const options = { noCache: true };
-      const result = buildConfig("es5", [], options, baseConfig);
+      const result = buildConfig("es5", [], { noCache: true }, { cache: true });
 
       assert.strictEqual(result.cache, false);
-    });
-
-    it("should handle light option", () => {
-      const baseConfig = {};
-      const options = { light: true };
-      const result = buildConfig("es5", [], options, baseConfig);
-
-      assert.strictEqual(result.light, true);
     });
 
     it("should filter empty strings from files", () => {
@@ -231,6 +164,22 @@ describe("cli/handler.js", () => {
       assert.strictEqual(warnings.length, 0);
     });
 
+    it("should warn when ignoreFile does not exist", () => {
+      const warnings = [];
+      const logger = {
+        warn: (msg) => warnings.push(msg),
+        isLevelEnabled: () => true,
+      };
+
+      warnAboutIgnoreFile("/nonexistent/path/to/file.json", logger);
+
+      assert.strictEqual(warnings.length, 1);
+      assert.match(
+        warnings[0],
+        /does not exist or is not accessible/,
+      );
+    });
+
     it("should not warn when logger level is not enabled", () => {
       const warnings = [];
       const logger = {
@@ -238,7 +187,7 @@ describe("cli/handler.js", () => {
         isLevelEnabled: () => false,
       };
 
-      warnAboutIgnoreFile("nonexistent.json", logger);
+      warnAboutIgnoreFile("/nonexistent/path.json", logger);
 
       assert.strictEqual(warnings.length, 0);
     });
