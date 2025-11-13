@@ -8,7 +8,6 @@ console.log("Testing advanced features...\n");
 
 const esCheckPath = path.join(__dirname, "..", "..", "lib", "cli", "index.js");
 
-// Test 1: --not flag to exclude glob patterns
 console.log("Test 1: Using --not flag to exclude patterns");
 try {
   execFileSync(
@@ -32,7 +31,6 @@ try {
   process.exit(1);
 }
 
-// Test 2: --ignore and --allowList flags
 console.log("Test 2: Using --ignore with --checkFeatures");
 try {
   execFileSync(
@@ -56,7 +54,6 @@ try {
   );
 }
 
-// Test 3: --checkForPolyfills detecting polyfill usage
 console.log("Test 3: Detecting polyfills with --checkForPolyfills");
 const polyfillFile = path.join(__dirname, "temp-polyfill.js");
 fs.writeFileSync(
@@ -98,7 +95,6 @@ try {
   fs.unlinkSync(polyfillFile);
 }
 
-// Test 4: Multiple config entries in config file
 console.log("Test 4: Using config file with multiple entries");
 const multiConfigPath = path.join(__dirname, "multi-config.json");
 const multiConfig = [
@@ -126,7 +122,6 @@ try {
   fs.unlinkSync(multiConfigPath);
 }
 
-// Test 5: --allowList option
 console.log("Test 5: Using --allowList flag");
 try {
   execFileSync(
@@ -148,7 +143,6 @@ try {
   console.log("[WARN] Test 5 partial - allowList flag tested\n");
 }
 
-// Test 6: --batchSize option
 console.log("Test 6: Using --batchSize option");
 try {
   execFileSync(
@@ -172,7 +166,6 @@ try {
   process.exit(1);
 }
 
-// Test 7: --noCache option
 console.log("Test 7: Using --noCache option");
 try {
   execFileSync(
@@ -189,7 +182,6 @@ try {
   process.exit(1);
 }
 
-// Test 8: --files option
 console.log("Test 8: Using --files option");
 try {
   execFileSync(

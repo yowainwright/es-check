@@ -8,7 +8,6 @@ console.log("Testing error handling scenarios...\n");
 
 const esCheckPath = path.join(__dirname, "..", "..", "lib", "cli", "index.js");
 
-// Test 1: Invalid ES version
 console.log("Test 1: Invalid ES version should fail");
 try {
   execFileSync("node", [esCheckPath, "es99", "./tests/fixtures/es5.js"], {
@@ -20,7 +19,6 @@ try {
   console.log("[PASS] Test 1 passed (expected failure)\n");
 }
 
-// Test 2: No files found for glob pattern
 console.log("Test 2: No files found should fail");
 try {
   execFileSync("node", [esCheckPath, "es5", "./nonexistent/**/*.js"], {
@@ -32,7 +30,6 @@ try {
   console.log("[PASS] Test 2 passed (expected failure)\n");
 }
 
-// Test 3: No files with looseGlobMatching should warn but not fail
 console.log("Test 3: No files with --looseGlobMatching should warn");
 try {
   execFileSync(
@@ -57,7 +54,6 @@ try {
   process.exit(1);
 }
 
-// Test 4: Config file with invalid JSON
 console.log("Test 4: Invalid JSON in config file");
 const invalidConfigPath = path.join(__dirname, "invalid-config.json");
 fs.writeFileSync(invalidConfigPath, "{ invalid json }");
@@ -74,7 +70,6 @@ try {
   fs.unlinkSync(invalidConfigPath);
 }
 
-// Test 5: No ecmaVersion and no files specified
 console.log("Test 5: No ecmaVersion or files should fail");
 const emptyConfigPath = path.join(__dirname, "empty-config.json");
 fs.writeFileSync(emptyConfigPath, "{}");
@@ -91,7 +86,6 @@ try {
   fs.unlinkSync(emptyConfigPath);
 }
 
-// Test 6: Conflicting files inputs
 console.log("Test 6: Conflicting --files flag and files argument");
 try {
   execFileSync(
@@ -113,7 +107,6 @@ try {
   console.log("[PASS] Test 6 passed (expected failure)\n");
 }
 
-// Test 7: File with syntax error
 console.log("Test 7: File with syntax error should fail");
 const syntaxErrorFile = path.join(__dirname, "syntax-error.js");
 fs.writeFileSync(syntaxErrorFile, "function broken( { missing brace");
@@ -130,7 +123,6 @@ try {
   fs.unlinkSync(syntaxErrorFile);
 }
 
-// Test 8: Multiple errors in different files
 console.log("Test 8: Multiple files with errors");
 try {
   execFileSync(
