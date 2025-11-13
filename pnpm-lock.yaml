@@ -29,7 +29,7 @@ importers:
         specifier: 20.1.0
         version: 20.1.0(@types/node@24.10.0)(typescript@5.9.3)
       '@commitlint/config-conventional':
-        specifier: 20.0.0
+        specifier: ^20.0.0
         version: 20.0.0
       codependence:
         specifier: ^0.3.1
