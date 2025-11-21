@@ -57,15 +57,15 @@
     "@commitlint/config-conventional": "^20.0.0",
     "codependence": "^0.3.1",
     "commitizen": "4.3.1",
-    "oxlint": "^1.24.0",
-    "pastoralist": "1.8.2-5",
+    "oxlint": "^1.29.0",
+    "pastoralist": "1.8.2",
     "prettier": "3.6.2",
     "release-it": "19.0.6"
   },
   "dependencies": {
     "acorn": "8.15.0",
-    "browserslist": "^4.23.3",
-    "fast-brake": "^0.1.4",
+    "browserslist": "^4.28.0",
+    "fast-brake": "^0.1.6",
     "fast-glob": "^3.3.3"
   },
   "engines": {
@@ -129,15 +129,15 @@
   "packageManager": "pnpm@10.12.1",
   "pastoralist": {
     "appendix": {
-      "vite@6.3.6": {
+      "vite@6.4.1": {
         "dependents": {
           "es-check": "vite (transitive dependency)"
         },
         "ledger": {
-          "addedDate": "2025-11-11T09:03:17.559Z",
+          "addedDate": "2025-11-21T20:27:19.148Z",
           "reason": "Security fix: vite allows server.fs.deny bypass via backslash on Windows (medium)",
           "securityChecked": true,
-          "securityCheckDate": "2025-11-11T09:03:17.559Z",
+          "securityCheckDate": "2025-11-21T20:27:19.148Z",
           "securityProvider": "github",
           "cve": "CVE-2025-62522",
           "severity": "medium",
@@ -149,14 +149,38 @@
           "es-check": "tmp (transitive dependency)"
         },
         "ledger": {
-          "addedDate": "2025-11-11T09:03:17.559Z",
-          "reason": "Security fix: tmp allows arbitrary temporary file / directory write via symbolic link `dir` parameter (low)",
+          "addedDate": "2025-11-21T20:27:19.148Z"
+        }
+      },
+      "astro@5.15.9": {
+        "dependents": {
+          "es-check": "astro (transitive dependency)",
+          "es-check-docs": "astro@^5.15.9"
+        },
+        "ledger": {
+          "addedDate": "2025-11-21T20:27:19.148Z",
+          "reason": "Security fix: Astro Cloudflare adapter has Stored Cross Site Scripting vulnerability in /_image endpoint (medium)",
           "securityChecked": true,
-          "securityCheckDate": "2025-11-11T09:03:17.559Z",
+          "securityCheckDate": "2025-11-21T20:27:19.148Z",
           "securityProvider": "github",
-          "cve": "CVE-2025-54798",
-          "severity": "low",
-          "url": "https://github.com/yowainwright/es-check/security/dependabot/24"
+          "cve": "CVE-2025-65019",
+          "severity": "medium",
+          "url": "https://github.com/yowainwright/es-check/security/dependabot/51"
+        }
+      },
+      "js-yaml@4.1.1": {
+        "dependents": {
+          "es-check": "js-yaml (transitive dependency)"
+        },
+        "ledger": {
+          "addedDate": "2025-11-21T20:27:19.148Z",
+          "reason": "Security fix: js-yaml has prototype pollution in merge (<<) (medium)",
+          "securityChecked": true,
+          "securityCheckDate": "2025-11-21T20:27:19.148Z",
+          "securityProvider": "github",
+          "cve": "CVE-2025-64718",
+          "severity": "medium",
+          "url": "https://github.com/yowainwright/es-check/security/dependabot/46"
         }
       }
     },
@@ -175,8 +199,10 @@
   },
   "pnpm": {
     "overrides": {
-      "vite": "6.3.6",
-      "tmp": "0.2.4"
+      "vite": "6.4.1",
+      "tmp": "0.2.4",
+      "astro": "5.15.9",
+      "js-yaml": "4.1.1"
     }
   }
 }
