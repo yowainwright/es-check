@@ -118,6 +118,67 @@ describe("cli/parser.js", () => {
         verbose: true,
       });
     });
+
+    it("should not consume next argument for boolean flags", () => {
+      const argv = [
+        "node",
+        "script.js",
+        "--module",
+        "es2022",
+        "dist/**/*.js",
+        "--checkFeatures",
+      ];
+      const result = parseArgs(argv);
+
+      assert.deepStrictEqual(result.positional, ["es2022", "dist/**/*.js"]);
+      assert.deepStrictEqual(result.options, {
+        module: true,
+        checkFeatures: true,
+      });
+    });
+
+    it("should handle multiple boolean flags with positional args", () => {
+      const argv = [
+        "node",
+        "script.js",
+        "--light",
+        "--module",
+        "es2020",
+        "src/**/*.js",
+        "--checkFeatures",
+        "--verbose",
+      ];
+      const result = parseArgs(argv);
+
+      assert.deepStrictEqual(result.positional, ["es2020", "src/**/*.js"]);
+      assert.deepStrictEqual(result.options, {
+        light: true,
+        module: true,
+        checkFeatures: true,
+        verbose: true,
+      });
+    });
+
+    it("should handle boolean flags before value-taking options", () => {
+      const argv = [
+        "node",
+        "script.js",
+        "--module",
+        "es2022",
+        "dist/*.js",
+        "--not",
+        "vendor",
+        "--checkFeatures",
+      ];
+      const result = parseArgs(argv);
+
+      assert.deepStrictEqual(result.positional, ["es2022", "dist/*.js"]);
+      assert.deepStrictEqual(result.options, {
+        module: true,
+        not: "vendor",
+        checkFeatures: true,
+      });
+    });
   });
 
   describe("showVersion()", () => {

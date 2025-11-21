@@ -58,7 +58,6 @@
     "codependence": "^0.3.1",
     "commitizen": "4.3.1",
     "oxlint": "^1.24.0",
-    "pastoralist": "1.8.2-5",
     "prettier": "3.6.2",
     "release-it": "19.0.6"
   },
@@ -66,7 +65,8 @@
     "acorn": "8.15.0",
     "browserslist": "^4.23.3",
     "fast-brake": "^0.1.4",
-    "fast-glob": "^3.3.3"
+    "fast-glob": "^3.3.3",
+    "pastoralist": "link:../pastoralist"
   },
   "engines": {
     "node": ">=18.0.0",
@@ -129,15 +129,15 @@
   "packageManager": "pnpm@10.12.1",
   "pastoralist": {
     "appendix": {
-      "vite@6.3.6": {
+      "vite@6.4.1": {
         "dependents": {
           "es-check": "vite (transitive dependency)"
         },
         "ledger": {
-          "addedDate": "2025-11-11T09:03:17.559Z",
+          "addedDate": "2025-11-14T17:27:03.470Z",
           "reason": "Security fix: vite allows server.fs.deny bypass via backslash on Windows (medium)",
           "securityChecked": true,
-          "securityCheckDate": "2025-11-11T09:03:17.559Z",
+          "securityCheckDate": "2025-11-14T17:27:03.470Z",
           "securityProvider": "github",
           "cve": "CVE-2025-62522",
           "severity": "medium",
@@ -149,14 +149,23 @@
           "es-check": "tmp (transitive dependency)"
         },
         "ledger": {
-          "addedDate": "2025-11-11T09:03:17.559Z",
-          "reason": "Security fix: tmp allows arbitrary temporary file / directory write via symbolic link `dir` parameter (low)",
+          "addedDate": "2025-11-14T17:27:03.470Z"
+        }
+      },
+      "astro@5.15.6": {
+        "dependents": {
+          "es-check": "astro (transitive dependency)",
+          "es-check-docs": "astro@^5.15.1"
+        },
+        "ledger": {
+          "addedDate": "2025-11-14T17:27:03.470Z",
+          "reason": "Security fix: Astro development server error page vulnerable to reflected Cross-site Scripting (low)",
           "securityChecked": true,
-          "securityCheckDate": "2025-11-11T09:03:17.559Z",
+          "securityCheckDate": "2025-11-14T17:27:03.470Z",
           "securityProvider": "github",
-          "cve": "CVE-2025-54798",
+          "cve": "CVE-2025-64745",
           "severity": "low",
-          "url": "https://github.com/yowainwright/es-check/security/dependabot/24"
+          "url": "https://github.com/yowainwright/es-check/security/dependabot/41"
         }
       }
     },
@@ -175,8 +184,9 @@
   },
   "pnpm": {
     "overrides": {
-      "vite": "6.3.6",
-      "tmp": "0.2.4"
+      "vite": "6.4.1",
+      "tmp": "0.2.4",
+      "astro": "5.15.6"
     }
   }
 }
