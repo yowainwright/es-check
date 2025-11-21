@@ -27,7 +27,7 @@
     "@tailwindcss/vite": "^4.1.16",
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",
-    "astro": "^5.15.1",
+    "astro": "^5.15.9",
     "daisyui": "^5.3.10",
     "oxlint": "^1.24.0",
     "prettier": "3.6.2",
