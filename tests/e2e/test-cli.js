@@ -80,7 +80,6 @@ try {
   console.log("✅ Test 5 passed (expected failure)\n");
 }
 
-// Test 6: Issue #350 - Boolean flags should not consume next argument
 console.log(
   "Test 6: Boolean flags before positional args (--module es2022 'pattern' --checkFeatures)",
 );
@@ -98,14 +97,6 @@ try {
   );
   console.log("✅ Test 6 passed\n");
 } catch (error) {
-  const errorMessage = error.message || "";
-  if (errorMessage.includes("No file patterns specified to check")) {
-    console.error(
-      "❌ Test 6 failed - boolean flag consumed positional argument (issue #350)",
-    );
-    console.error(error.message);
-    process.exit(1);
-  }
   console.error("❌ Test 6 failed");
   console.error(error.message);
   process.exit(1);
