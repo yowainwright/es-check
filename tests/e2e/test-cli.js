@@ -80,20 +80,51 @@ try {
   console.log("✅ Test 5 passed (expected failure)\n");
 }
 
-// Test 6: Check multiple files with glob pattern
-console.log("Test 6: Multiple files with glob pattern");
+// Test 6: Issue #350 - Boolean flags should not consume next argument
+console.log(
+  "Test 6: Boolean flags before positional args (--module es2022 'pattern' --checkFeatures)",
+);
+try {
+  execFileSync(
+    "node",
+    [
+      esCheckPath,
+      "--module",
+      "es2022",
+      "./tests/fixtures/modules/es6-module.js",
+      "--checkFeatures",
+    ],
+    { encoding: "utf8" },
+  );
+  console.log("✅ Test 6 passed\n");
+} catch (error) {
+  const errorMessage = error.message || "";
+  if (errorMessage.includes("No file patterns specified to check")) {
+    console.error(
+      "❌ Test 6 failed - boolean flag consumed positional argument (issue #350)",
+    );
+    console.error(error.message);
+    process.exit(1);
+  }
+  console.error("❌ Test 6 failed");
+  console.error(error.message);
+  process.exit(1);
+}
+
+// Test 7: Check multiple files with glob pattern
+console.log("Test 7: Multiple files with glob pattern");
 try {
   execFileSync("node", [esCheckPath, "es5", "./tests/fixtures/es5*.js"], {
     encoding: "utf8",
   });
-  console.log("✅ Test 6 passed\n");
+  console.log("✅ Test 7 passed\n");
 } catch (error) {
-  console.error("❌ Test 6 failed");
+  console.error("❌ Test 7 failed");
   process.exit(1);
 }
 
-// Test 7: Check with config file
-console.log("Test 7: Using config file");
+// Test 8: Check with config file
+console.log("Test 8: Using config file");
 const configPath = path.join(__dirname, "test.escheckrc");
 const config = {
   ecmaVersion: "es5",
@@ -106,49 +137,49 @@ try {
   execFileSync("node", [esCheckPath, "--config", configPath], {
     encoding: "utf8",
   });
-  console.log("✅ Test 7 passed\n");
+  console.log("✅ Test 8 passed\n");
 } catch (error) {
-  console.error("❌ Test 7 failed");
+  console.error("❌ Test 8 failed");
   process.exit(1);
 } finally {
   // Clean up
   fs.unlinkSync(configPath);
 }
 
-console.log("Test 8: Lightweight mode with --light flag");
+console.log("Test 9: Lightweight mode with --light flag");
 try {
   execFileSync(
     "node",
     [esCheckPath, "es5", "./tests/fixtures/es5.js", "--light"],
     { encoding: "utf8" },
   );
-  console.log("✅ Test 8 passed\n");
+  console.log("✅ Test 9 passed\n");
 } catch (error) {
-  console.error("❌ Test 8 failed");
+  console.error("❌ Test 9 failed");
   process.exit(1);
 }
 
-console.log("Test 9: Lightweight mode should catch ES6 code");
+console.log("Test 10: Lightweight mode should catch ES6 code");
 try {
   execFileSync(
     "node",
     [esCheckPath, "es5", "./tests/fixtures/es6.js", "--light"],
     { encoding: "utf8" },
   );
-  console.error("❌ Test 9 failed - should have thrown an error");
+  console.error("❌ Test 10 failed - should have thrown an error");
   process.exit(1);
 } catch (error) {
-  console.log("✅ Test 9 passed (expected failure)\n");
+  console.log("✅ Test 10 passed (expected failure)\n");
 }
 
-console.log("Test 10: Default mode without --light flag uses Acorn parser");
+console.log("Test 11: Default mode without --light flag uses Acorn parser");
 try {
   execFileSync("node", [esCheckPath, "es5", "./tests/fixtures/es5.js"], {
     encoding: "utf8",
   });
-  console.log("✅ Test 10 passed\n");
+  console.log("✅ Test 11 passed\n");
 } catch (error) {
-  console.error("❌ Test 10 failed");
+  console.error("❌ Test 11 failed");
   console.error(error.message);
   process.exit(1);
 }
