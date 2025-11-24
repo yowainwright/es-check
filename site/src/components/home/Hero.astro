@@ -50,21 +50,21 @@ import { getUrl } from "../../utils/url";
       
       <TerminalDemo />
       
-      <div class="flex sm:flex-row flex-col justify-center items-center gap-5 mt-8">
+      <div class="flex sm:flex-row flex-col justify-center items-center gap-5 mt-8 w-full max-w-2xl mx-auto">
         <a href={getUrl('docs/gettingstarted')}>
           <button
-            class="btn bg-base-content text-base-100 hover:bg-base-content/80"
+            class="btn btn-lg btn-primary text-lg"
             >Get Started
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
               <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
             </svg>
-            
+
             </button
           >
         </a>
 
           <div
-            class="flex items-center bg-base-300 rounded-lg shadow-sm justify-between"
+            class="flex items-center bg-base-300 rounded-lg shadow-sm justify-between overflow-hidden py-2 max-w-full w-full"
           >
               <svg
                 width="22"
@@ -72,12 +72,12 @@ import { getUrl } from "../../utils/url";
                 viewBox="0 0 22 13"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
-                class="relative ml-4 mr-2 block w-3 -rotate-90"
+                class="relative ml-4 mr-2 block w-3 flex-shrink-0 -rotate-90"
               >
                 <path d="M1 1L11 11L21 1" stroke="currentColor" stroke-Width="2"
                 ></path>
               </svg>
-              <code class="flex-1 text-left leading-none mr-4">
+              <code class="flex-1 text-left leading-none text-sm md:text-base pr-2 overflow-x-auto whitespace-nowrap">
                 npm i es-check --save-dev
               </code>
               <CopyButton client:only="react" />

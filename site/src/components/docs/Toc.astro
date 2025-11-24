@@ -1,5 +1,5 @@
 ---
-import TocHeadings from "./TocHeadings.astro";
+import { TableOfContents } from "./TableOfContents";
 
 const { headings = [] } = Astro.props;
 
@@ -9,7 +9,7 @@ function buildToc(headings) {
   const toc = [];
   const parentHeadings = new Map();
   if (!headings || headings.length === 0) return toc;
-  
+
   headings.forEach((h) => {
     const heading = { ...h, subheadings: [] };
     parentHeadings.set(heading.depth, heading);
@@ -26,10 +26,4 @@ function buildToc(headings) {
 }
 ---
 
-<div class="hidden xl:sticky xl:block xl:top-28">
-  <h1 class="mb-4 text-xl font-bold font-outfit">On this page</h1>
-
-  <ul>
-    {toc.map((heading) => <TocHeadings heading={heading} />)}
-  </ul>
-</div>
+<TableOfContents client:only="react" headings={toc} />

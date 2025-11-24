@@ -52,6 +52,7 @@
     "url": "https://github.com/yowainwright/es-check/issues"
   },
   "homepage": "https://github.com/yowainwright/es-check#readme",
+  "website": "https://jeffry.in/es-check",
   "devDependencies": {
     "@commitlint/cli": "20.1.0",
     "@commitlint/config-conventional": "^20.0.0",
