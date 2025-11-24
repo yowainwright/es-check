@@ -1,23 +1,22 @@
-import React, { useEffect, useState } from 'react';
-import type { TableOfContentsProps, Heading } from './types';
-import { OBSERVER_OPTIONS } from './constants';
+import React, { useEffect, useState } from "react";
+import type { TableOfContentsProps, Heading } from "./types";
+import { OBSERVER_OPTIONS } from "./constants";
 
-export const TableOfContents: React.FC<TableOfContentsProps> = ({ headings }) => {
-  const [activeId, setActiveId] = useState<string>('');
+export const TableOfContents: React.FC<TableOfContentsProps> = ({
+  headings,
+}) => {
+  const [activeId, setActiveId] = useState<string>("");
 
   useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setActiveId(entry.target.id);
-          }
-        });
-      },
-      OBSERVER_OPTIONS
-    );
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          setActiveId(entry.target.id);
+        }
+      });
+    }, OBSERVER_OPTIONS);
 
-    const headingElements = document.querySelectorAll('h2[id], h3[id], h4[id]');
+    const headingElements = document.querySelectorAll("h2[id], h3[id], h4[id]");
     headingElements.forEach((element) => observer.observe(element));
 
     return () => {
@@ -33,7 +32,7 @@ export const TableOfContents: React.FC<TableOfContentsProps> = ({ headings }) =>
         <a
           href={`#${heading.slug}`}
           className={`text-sm transition font-outfit ${
-            isActive ? 'text-primary font-semibold' : 'hover:text-primary'
+            isActive ? "text-primary font-semibold" : "hover:text-primary"
           }`}
         >
           {heading.text}

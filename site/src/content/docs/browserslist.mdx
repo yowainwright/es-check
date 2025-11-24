@@ -25,6 +25,16 @@ If you have a `.browserslistrc` file or `browserslist` in `package.json`:
 es-check checkBrowser ./dist/**/*.js
 ```
 
+### Custom Browserslist Config Path
+
+Specify a custom path to your browserslist configuration:
+
+```bash
+es-check --checkBrowser --browserslistPath=./config/.browserslistrc ./dist/**/*.js
+```
+
+This is useful when you have multiple browserslist configs for different build targets or environments.
+
 ### .browserslistrc Example
 
 ```

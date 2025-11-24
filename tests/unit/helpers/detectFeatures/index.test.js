@@ -201,7 +201,7 @@ describe("detectFeatures", () => {
   });
 
   describe("Feature detection", () => {
-    it("should not confuse console.group with ArrayGroup", () => {
+    it("should not confuse console.group with groupBy methods", () => {
       const code = `
         console.group('Test Group');
         console.log('Inside group');
@@ -218,13 +218,10 @@ describe("detectFeatures", () => {
         assert.strictEqual(
           unsupportedFeatures.length,
           0,
-          "console.group should not be detected as ArrayGroup",
+          "console.group should not be detected as any groupBy feature",
         );
-        assert.strictEqual(
-          foundFeatures.ArrayGroup,
-          false,
-          "ArrayGroup should not be detected for console.group",
-        );
+        assert(!foundFeatures.ObjectGroupBy, "ObjectGroupBy should not be detected for console.group");
+        assert(!foundFeatures.MapGroupBy, "MapGroupBy should not be detected for console.group");
       } catch (error) {
         assert.fail(
           `Should not throw for console.group in ES2022: ${error.message}`,
@@ -299,6 +296,57 @@ describe("detectFeatures", () => {
       assert(
         Object.values(foundFeatures).some(Boolean),
         "Should detect some ES2022 features",
+      );
+    });
+
+    it("should detect ES2024 (ES15) features", () => {
+      const code = `
+        const str = "test";
+        str.isWellFormed();
+        str.toWellFormed();
+
+        const { promise, resolve, reject } = Promise.withResolvers();
+
+        const items = [{ type: 'a' }, { type: 'b' }];
+        const grouped = Object.groupBy(items, item => item.type);
+        const groupedMap = Map.groupBy(items, item => item.type);
+
+        const sab = new SharedArrayBuffer(16);
+        const int32 = new Int32Array(sab);
+        Atomics.waitAsync(int32, 0, 0);
+      `;
+
+      const { foundFeatures } = detectFeatures(code, 2024, "script", new Set());
+      assert(
+        Object.values(foundFeatures).some(Boolean),
+        "Should detect some ES2024 features",
+      );
+    });
+
+    it("should detect ES2025 (ES16) features", () => {
+      const code = `
+        Promise.try(() => Math.random());
+
+        const regex = /(?<year>\\d{4})-\\d{2}|(?<year>\\d{4})\\/\\d{2}/;
+
+        const set1 = new Set([1, 2, 3]);
+        const set2 = new Set([3, 4, 5]);
+        set1.union(set2);
+        set1.intersection(set2);
+        set1.difference(set2);
+        set1.symmetricDifference(set2);
+        set1.isSubsetOf(set2);
+        set1.isSupersetOf(set2);
+        set1.isDisjointFrom(set2);
+
+        const float16 = new Float16Array([1.5, 2.5]);
+        const escaped = RegExp.escape("test");
+      `;
+
+      const { foundFeatures } = detectFeatures(code, 2025, "script", new Set());
+      assert(
+        Object.values(foundFeatures).some(Boolean),
+        "Should detect some ES2025 features",
       );
     });
   });
