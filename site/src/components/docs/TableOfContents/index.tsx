@@ -26,30 +26,37 @@ export const TableOfContents: React.FC<TableOfContentsProps> = ({
 
   const renderHeading = (heading: Heading) => {
     const isActive = activeId === heading.slug;
+    const linkClassName = `text-sm transition font-outfit ${
+      isActive ? "text-primary font-semibold" : "hover:text-primary"
+    }`;
+    const hasSubheadings = heading.subheadings && heading.subheadings.length > 0;
+    const subheadingItems = hasSubheadings
+      ? heading.subheadings.map((subheading) => renderHeading(subheading))
+      : null;
 
     return (
       <li key={heading.slug} className="mb-4">
         <a
           href={`#${heading.slug}`}
-          className={`text-sm transition font-outfit ${
-            isActive ? "text-primary font-semibold" : "hover:text-primary"
-          }`}
+          className={linkClassName}
         >
           {heading.text}
         </a>
-        {heading.subheadings && heading.subheadings.length > 0 && (
+        {hasSubheadings && (
           <ul className="ml-4 mt-2">
-            {heading.subheadings.map((subheading) => renderHeading(subheading))}
+            {subheadingItems}
           </ul>
         )}
       </li>
     );
   };
 
+  const headingItems = headings.map((heading) => renderHeading(heading));
+
   return (
     <div className="hidden xl:sticky xl:block xl:top-28">
       <h1 className="mb-4 text-xl font-bold font-outfit">On this page</h1>
-      <ul>{headings.map((heading) => renderHeading(heading))}</ul>
+      <ul>{headingItems}</ul>
     </div>
   );
 };
