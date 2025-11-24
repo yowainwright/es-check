@@ -35,7 +35,6 @@ const SIDEBAR = [
       {
         title: "Browserslist",
         href: "/docs/browserslist",
-        label: "New",
       },
     ],
   },
@@ -46,7 +45,6 @@ const SIDEBAR = [
       {
         title: "Programmatic API",
         href: "/docs/programmatic-api",
-        label: "New",
       },
       {
         title: "Performance",

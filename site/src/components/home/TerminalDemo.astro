@@ -1,44 +1,61 @@
 ---
+import { AnimatedTerminal } from './AnimatedTerminal';
+import { codeToHtml } from 'shiki';
+import '../../styles/terminal.css';
+
+const extractInnerHTML = (html: string) => {
+  const match = html.match(/<code[^>]*>(.*?)<\/code>/s);
+  return match ? match[1] : html;
+};
+
+const cmd1Html = await codeToHtml("npx es-check es5 './dist/**/*.js'", {
+  lang: 'bash',
+  theme: 'github-dark',
+});
+const cmd1 = extractInnerHTML(cmd1Html);
+
+const cmd2Html = await codeToHtml("npx es-check es6 './src/**/*.js' --module", {
+  lang: 'bash',
+  theme: 'github-dark',
+});
+const cmd2 = extractInnerHTML(cmd2Html);
+
+const cmd3Html = await codeToHtml("npx es-check es5 './build/**/*.js'", {
+  lang: 'bash',
+  theme: 'github-dark',
+});
+const cmd3 = extractInnerHTML(cmd3Html);
+
+const demos = [
+  {
+    lines: [
+      { prefix: '$', text: cmd1, animate: true },
+      { prefix: '', text: 'info: ES-Check: checking 24 files...', className: 'text-cyan-400', delay: 200, animate: false },
+      { prefix: '', text: 'info: ✓ ES-Check passed! All files are ES5 compatible.', className: 'text-success', delay: 300, animate: false },
+    ],
+    pauseAfter: 2500,
+  },
+  {
+    lines: [
+      { prefix: '$', text: cmd2, animate: true },
+      { prefix: '', text: 'info: ES-Check: checking 18 files...', className: 'text-cyan-400', delay: 200, animate: false },
+      { prefix: '', text: 'info: ✓ ES-Check passed! All files are ES6 compatible.', className: 'text-success', delay: 300, animate: false },
+    ],
+    pauseAfter: 2500,
+  },
+  {
+    lines: [
+      { prefix: '$', text: cmd3, animate: true },
+      { prefix: '', text: 'info: ES-Check: checking 3 files...', className: 'text-cyan-400', delay: 200, animate: false },
+      { prefix: '', text: 'error: ES-Check: there were 2 ES version matching errors.', className: 'text-red-400', delay: 300, animate: false },
+      { prefix: '', text: '  ./build/app.js - Unexpected token', className: 'text-red-400', delay: 50, animate: false },
+      { prefix: '', text: '  ./build/utils.js - Unexpected token', className: 'text-red-400', delay: 50, animate: false },
+    ],
+    pauseAfter: 2500,
+  },
+];
 ---
 
-<div class="mockup-code bg-base-300 text-base-content max-w-3xl mx-auto my-8">
-  <pre data-prefix="$"><code>npx es-check es5 './dist/**/*.js'</code></pre>
-  <pre data-prefix="" class="text-success"><code>✓ Checking 24 files...</code></pre>
-  <pre data-prefix="" class="text-success"><code>✓ ES Check passed! All files are ES5 compatible.</code></pre>
+<div class="w-full overflow-hidden">
+  <AnimatedTerminal client:only="react" demos={demos} loop={false} typingSpeed={15} height="180px" />
 </div>
-
-<style>
-  .mockup-code {
-    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-  }
-  
-  .mockup-code pre {
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
-  }
-  
-  .mockup-code pre[data-prefix]::before {
-    content: attr(data-prefix);
-    display: inline-block;
-    text-align: right;
-    width: 1rem;
-    margin-right: 0.5rem;
-    opacity: 0.7;
-  }
-  
-  /* Mobile improvements */
-  @media (max-width: 768px) {
-    .mockup-code {
-      font-size: 0.875rem;
-      margin-left: 1rem;
-      margin-right: 1rem;
-    }
-    
-    .mockup-code pre {
-      padding-left: 1rem;
-      padding-right: 1rem;
-      overflow-x: auto;
-      white-space: pre;
-    }
-  }
-</style>

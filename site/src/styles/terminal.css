@@ -1,0 +1,71 @@
+.mockup-code {
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  overflow-y: auto;
+  position: relative;
+  text-align: left;
+  padding-top: 3rem;
+}
+
+.mockup-code::before {
+  content: '';
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 50%;
+  background-color: #ff5f56;
+  box-shadow: 1.5rem 0 0 #ffbd2e, 3rem 0 0 #27c93f;
+  z-index: 10;
+  opacity: 1 !important;
+}
+
+.mockup-code pre {
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  min-height: 1.5rem;
+  margin: 0;
+  line-height: 1.5;
+  display: block;
+  white-space: pre-wrap;
+}
+
+.mockup-code pre[data-prefix]:not([data-prefix=""])::before {
+  content: attr(data-prefix);
+  margin-right: 0.5rem;
+  opacity: 0.7;
+}
+
+.mockup-code pre code {
+  white-space: pre-wrap;
+}
+
+.cursor {
+  display: inline-block;
+  width: 0.5rem;
+  height: 1rem;
+  margin-left: 0.125rem;
+  background-color: currentColor;
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+@media (max-width: 768px) {
+  .mockup-code {
+    font-size: 0.875rem;
+    margin-left: 0;
+    margin-right: 0;
+    max-width: 100%;
+  }
+
+  .mockup-code pre {
+    padding-left: 1rem;
+    padding-right: 1rem;
+    overflow-x: auto;
+    white-space: pre;
+  }
+}
