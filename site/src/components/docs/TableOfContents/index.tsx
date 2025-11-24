@@ -29,24 +29,18 @@ export const TableOfContents: React.FC<TableOfContentsProps> = ({
     const linkClassName = `text-sm transition font-outfit ${
       isActive ? "text-primary font-semibold" : "hover:text-primary"
     }`;
-    const hasSubheadings = heading.subheadings && heading.subheadings.length > 0;
+    const hasSubheadings =
+      heading.subheadings && heading.subheadings.length > 0;
     const subheadingItems = hasSubheadings
       ? heading.subheadings.map((subheading) => renderHeading(subheading))
       : null;
 
     return (
       <li key={heading.slug} className="mb-4">
-        <a
-          href={`#${heading.slug}`}
-          className={linkClassName}
-        >
+        <a href={`#${heading.slug}`} className={linkClassName}>
           {heading.text}
         </a>
-        {hasSubheadings && (
-          <ul className="ml-4 mt-2">
-            {subheadingItems}
-          </ul>
-        )}
+        {hasSubheadings && <ul className="ml-4 mt-2">{subheadingItems}</ul>}
       </li>
     );
   };
