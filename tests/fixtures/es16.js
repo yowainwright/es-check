@@ -1,36 +1,20 @@
-// ES16 / ES2025 Features
+const result1 = Promise.try(() => Math.random());
+const result2 = Promise.try(() => Promise.resolve(42));
 
-// Array.prototype.group()
-const items = [
-  { category: "fruit", name: "apple" },
-  { category: "fruit", name: "banana" },
-  { category: "vegetable", name: "carrot" },
-  { category: "vegetable", name: "broccoli" },
-  { category: "fruit", name: "orange" },
-];
+const regex = /(?<year>\d{4})-\d{2}|(?<year>\d{4})\/\d{2}/;
+const match = regex.exec("2025-01");
 
-// Group items by category
-const groupedByCategory = items.group((item) => item.category);
+const set1 = new Set([1, 2, 3]);
+const set2 = new Set([3, 4, 5]);
 
-// Array.prototype.groupToMap()
-const groupedMap = items.groupToMap((item) => item.category);
+const union = set1.union(set2);
+const intersection = set1.intersection(set2);
+const difference = set1.difference(set2);
+const symmetricDiff = set1.symmetricDifference(set2);
+const isSubset = set1.isSubsetOf(set2);
+const isSuperset = set1.isSupersetOf(set2);
+const isDisjoint = set1.isDisjointFrom(set2);
 
-// Promise.try()
-function maybeAsyncFunction(shouldBeAsync) {
-  if (shouldBeAsync) {
-    return Promise.resolve("async result");
-  } else {
-    return "sync result";
-  }
-}
+const float16Array = new Float16Array([1.5, 2.5, 3.5]);
 
-// Promise.try() handles both sync and async functions uniformly
-const result1 = Promise.try(() => maybeAsyncFunction(false));
-const result2 = Promise.try(() => maybeAsyncFunction(true));
-
-console.log({
-  groupedByCategory,
-  groupedMap,
-  result1,
-  result2,
-});
+const escaped = RegExp.escape("Hello (world)");

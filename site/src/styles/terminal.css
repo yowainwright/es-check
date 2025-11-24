@@ -1,5 +1,5 @@
 .mockup-code {
-  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  font-family: "Consolas", "Monaco", "Courier New", monospace;
   overflow-y: auto;
   position: relative;
   text-align: left;
@@ -7,7 +7,7 @@
 }
 
 .mockup-code::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 1rem;
   left: 1rem;
@@ -15,7 +15,9 @@
   height: 0.75rem;
   border-radius: 50%;
   background-color: #ff5f56;
-  box-shadow: 1.5rem 0 0 #ffbd2e, 3rem 0 0 #27c93f;
+  box-shadow:
+    1.5rem 0 0 #ffbd2e,
+    3rem 0 0 #27c93f;
   z-index: 10;
   opacity: 1 !important;
 }
@@ -50,8 +52,14 @@
 }
 
 @keyframes blink {
-  0%, 49% { opacity: 1; }
-  50%, 100% { opacity: 0; }
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
 }
 
 @media (max-width: 768px) {

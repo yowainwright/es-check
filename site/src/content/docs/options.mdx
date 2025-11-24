@@ -79,6 +79,20 @@ Comma-separated list of features to ignore
 es-check es6 './dist/**/*.js' --checkFeatures --ignore="ErrorCause,TopLevelAwait"
 ```
 
+### `--ignoreFile <path>`
+
+Path to JSON file with features to ignore (requires --checkFeatures)
+
+```bash
+es-check es6 './dist/**/*.js' --checkFeatures --ignoreFile=./ignore-features.json
+```
+
+Example `ignore-features.json`:
+
+```json
+["TopLevelAwait", "ErrorCause", "PrivateClassFields"]
+```
+
 ### `--allowList <features>`
 
 Allow specific features even in lower ES versions
@@ -101,6 +115,14 @@ Custom browserslist query
 
 ```bash
 es-check checkBrowser ./dist/**/*.js --browserslistQuery=">0.5%, not dead"
+```
+
+### `--browserslistPath <path>`
+
+Custom path to browserslist configuration file
+
+```bash
+es-check --checkBrowser --browserslistPath=./config/.browserslistrc ./dist/**/*.js
 ```
 
 ### `--config <path>`
@@ -152,3 +174,43 @@ In our benchmarks, caching provided ~28% performance improvement. See [performan
 - `--looseGlobMatching` - Don't fail if some globs match no files
 - `--version` or `-V` - Show version number
 - `--help` or `-h` - Show help message
+
+## Shell Completion
+
+ES Check supports generating shell completion scripts for Bash and Zsh to enable tab completion for commands and options.
+
+### Generate Bash Completion
+
+```bash
+es-check completion > ~/.es-check-completion.bash
+```
+
+Then add to your `~/.bashrc` or `~/.bash_profile`:
+
+```bash
+source ~/.es-check-completion.bash
+```
+
+### Generate Zsh Completion
+
+```bash
+es-check completion zsh > ~/.es-check-completion.zsh
+```
+
+Then add to your `~/.zshrc`:
+
+```bash
+source ~/.es-check-completion.zsh
+```
+
+### Usage
+
+After setting up completion, you can use tab to autocomplete:
+
+```bash
+es-check <TAB>              # Shows available ES versions
+es-check es6 --<TAB>        # Shows available options
+es-check --check<TAB>       # Completes to --checkFeatures
+```
+
+Supported shells: `bash`, `zsh`

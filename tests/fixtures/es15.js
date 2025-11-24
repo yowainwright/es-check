@@ -1,21 +1,22 @@
-// ES15 / ES2024 Features
-
-// String.prototype.isWellFormed()
 const wellFormedString = "Hello, World!";
 const malformedString = "\uD800";
 const isWellFormed1 = wellFormedString.isWellFormed();
 const isWellFormed2 = malformedString.isWellFormed();
 
-// String.prototype.toWellFormed()
 const correctedString = malformedString.toWellFormed();
 
-// Additional ES2024 features for testing
-const testArray = [1, 2, 3, 4, 5];
-const testFindLast = testArray.findLast((x) => x > 3);
-const testArrayAt = testArray.at(-1);
+const { promise, resolve, reject } = Promise.withResolvers();
+setTimeout(() => resolve("resolved"), 100);
 
-console.log({
-  isWellFormed1,
-  isWellFormed2,
-  correctedString,
-});
+const items = [
+  { category: "fruit", name: "apple" },
+  { category: "fruit", name: "banana" },
+  { category: "vegetable", name: "carrot" },
+];
+const groupedByCategory = Object.groupBy(items, (item) => item.category);
+
+const groupedMap = Map.groupBy(items, (item) => item.category);
+
+const sab = new SharedArrayBuffer(16);
+const int32 = new Int32Array(sab);
+const waitResult = Atomics.waitAsync(int32, 0, 0);

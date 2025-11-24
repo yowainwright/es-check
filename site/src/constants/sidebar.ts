@@ -63,6 +63,10 @@ const SIDEBAR = [
         title: "Debugging",
         href: "/docs/debugging",
       },
+      {
+        title: "Source Maps",
+        href: "/docs/source-maps",
+      },
     ],
   },
 
