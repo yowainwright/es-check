@@ -220,8 +220,14 @@ describe("detectFeatures", () => {
           0,
           "console.group should not be detected as any groupBy feature",
         );
-        assert(!foundFeatures.ObjectGroupBy, "ObjectGroupBy should not be detected for console.group");
-        assert(!foundFeatures.MapGroupBy, "MapGroupBy should not be detected for console.group");
+        assert(
+          !foundFeatures.ObjectGroupBy,
+          "ObjectGroupBy should not be detected for console.group",
+        );
+        assert(
+          !foundFeatures.MapGroupBy,
+          "MapGroupBy should not be detected for console.group",
+        );
       } catch (error) {
         assert.fail(
           `Should not throw for console.group in ES2022: ${error.message}`,
