@@ -20,9 +20,6 @@ importers:
       browserslist:
         specifier: ^4.28.0
         version: 4.28.0
-      fast-brake:
-        specifier: ^0.1.6
-        version: 0.1.6
       fast-glob:
         specifier: ^3.3.3
         version: 3.3.3
@@ -1902,9 +1899,6 @@ packages:
   external-editor@3.1.0:
     resolution: {integrity: sha512-hMQ4CX1p1izmuLYyZqLMO/qGNw10wSv9QDCPfzXfyFrOaCSSoRfqE1Kf1s5an66J5JZC62NewG+mK49jOCtQew==}
     engines: {node: '>=4'}
-
-  fast-brake@0.1.6:
-    resolution: {integrity: sha512-V3j0HTIs70OOxRpbqT0bWVdrmP86s6N8TBPw/WyKJqdJ2Fwh3CuMmlO83uIIDpqik6m1Io9fT6qwNn69EqvXYA==}
 
   fast-content-type-parse@3.0.0:
     resolution: {integrity: sha512-ZvLdcY8P+N8mGQJahJV5G4U88CSvT1rP8ApL6uETe88MBXrBHAkZlSEySdUlyztF7ccb+Znos3TFqaepHxdhBg==}
@@ -5691,8 +5685,6 @@ snapshots:
       chardet: 0.7.0
       iconv-lite: 0.4.24
       tmp: 0.2.4
-
-  fast-brake@0.1.6: {}
 
   fast-content-type-parse@3.0.0: {}
 

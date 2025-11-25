@@ -671,7 +671,7 @@ Tested on lodash, axios, react, moment, express, and chalk. See [benchmarks](./t
 
 ## Contributing
 
-ES Check has only 4 core dependencies: [acorn](https://github.com/ternjs/acorn/) for JavaScript parsing, [fast-brake](https://github.com/stackblitz/fast-brake) for lightweight feature detection, [fast-glob](https://github.com/mrmlnc/fast-glob) for file globbing, and [browserslist](https://github.com/browserslist/browserslist) for browser targeting.
+ES Check has only 3 core dependencies: [acorn](https://github.com/ternjs/acorn/) for JavaScript parsing, [fast-glob](https://github.com/mrmlnc/fast-glob) for file globbing, and [browserslist](https://github.com/browserslist/browserslist) for browser targeting.
 
 The CLI, logging, and source map support are implemented with custom lightweight solutions using Node.js built-ins to minimize dependencies. To contribute, file an [issue](https://github.com/yowainwright/es-check/issues) or submit a pull request.
 
