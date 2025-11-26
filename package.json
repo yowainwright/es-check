@@ -17,8 +17,6 @@
     "es-check": "lib/cli/index.js"
   },
   "scripts": {
-    "commit": "git-cz",
-    "commit-msg": "commitlint --edit $1",
     "dev": "pnpm site:dev",
     "lint": "oxlint lib",
     "lint:ci": "oxlint lib --quiet",
@@ -54,10 +52,7 @@
   "homepage": "https://github.com/yowainwright/es-check#readme",
   "website": "https://jeffry.in/es-check",
   "devDependencies": {
-    "@commitlint/cli": "20.1.0",
-    "@commitlint/config-conventional": "^20.0.0",
     "codependence": "^0.3.1",
-    "commitizen": "4.3.1",
     "oxlint": "^1.29.0",
     "pastoralist": "1.8.2",
     "prettier": "3.6.2",
@@ -90,18 +85,6 @@
     "test js version",
     "test ecmascript version"
   ],
-  "commitlint": {
-    "extends": [
-      "@commitlint/config-conventional"
-    ],
-    "rules": {
-      "header-max-length": [
-        2,
-        "always",
-        120
-      ]
-    }
-  },
   "release-it": {
     "git": {
       "commitMessage": "chore: release v${version}",

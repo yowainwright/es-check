@@ -34,15 +34,53 @@ try {
 `,
   "commit-msg": `#!/usr/bin/env node
 
-const { execSync } = require('child_process');
+const { readFileSync } = require('fs');
 
 const commitMsgFile = process.argv[2];
+const message = readFileSync(commitMsgFile, 'utf8').trim();
 
-try {
-  execSync(\`pnpm commit-msg \${commitMsgFile}\`, { stdio: 'inherit' });
-} catch (error) {
+// Valid commit types
+const types = ['feat', 'fix', 'docs', 'style', 'refactor', 'perf', 'test', 'build', 'ci', 'chore', 'revert'];
+
+// Pattern: type(optional-scope): lowercase description
+const pattern = /^(\\w+)(\\([\\w-]+\\))?!?: .+$/;
+
+const match = message.match(pattern);
+
+if (!match) {
+  console.error('\\x1b[31m✗ Invalid commit message format\\x1b[0m');
+  console.error('');
+  console.error('Expected format: type(scope): description');
+  console.error('Examples:');
+  console.error('  feat: add new feature');
+  console.error('  fix(cli): resolve parsing issue');
+  console.error('  chore: update dependencies');
+  console.error('');
+  console.error(\`Valid types: \${types.join(', ')}\`);
   process.exit(1);
 }
+
+const type = match[1];
+
+if (!types.includes(type)) {
+  console.error(\`\\x1b[31m✗ Invalid commit type: "\${type}"\\x1b[0m\`);
+  console.error(\`Valid types: \${types.join(', ')}\`);
+  process.exit(1);
+}
+
+// Check that description starts with lowercase
+const colonIndex = message.indexOf(': ');
+if (colonIndex !== -1) {
+  const description = message.slice(colonIndex + 2);
+  const firstChar = description[0];
+  if (firstChar && firstChar !== firstChar.toLowerCase()) {
+    console.error('\\x1b[31m✗ Description must start with lowercase\\x1b[0m');
+    console.error(\`Got: "\${description}"\`);
+    process.exit(1);
+  }
+}
+
+console.log('\\x1b[32m✓ Commit message valid\\x1b[0m');
 `,
   "post-merge": `#!/usr/bin/env node
 
