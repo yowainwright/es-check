@@ -1,8 +1,12 @@
 const { describe, it } = require("node:test");
 const assert = require("node:assert");
+const acorn = require("acorn");
 const detectFeatures = require("../../../../lib/detectFeatures");
 const detectPolyfills = detectFeatures.detectPolyfills;
 const filterPolyfilled = detectFeatures.filterPolyfilled;
+
+const parse = (code, sourceType = "script") =>
+  acorn.parse(code, { ecmaVersion: 2025, sourceType });
 
 function createSilentLogger() {
   return {
@@ -39,6 +43,28 @@ const testFeatureMap = {
 
 describe("detectFeatures", () => {
   describe("Basic functionality", () => {
+    it("should throw when AST is not provided", () => {
+      const code = "const x = 1;";
+
+      assert.throws(
+        () => detectFeatures(code, 6, "script", new Set(), {}),
+        {
+          message: "AST is required for feature detection",
+        },
+      );
+    });
+
+    it("should throw when options is omitted", () => {
+      const code = "const x = 1;";
+
+      assert.throws(
+        () => detectFeatures(code, 6, "script", new Set()),
+        {
+          message: "AST is required for feature detection",
+        },
+      );
+    });
+
     it("should detect ES6 features", () => {
       const code = `
         const x = 1;
@@ -52,6 +78,7 @@ describe("detectFeatures", () => {
         6,
         "script",
         new Set(),
+        { ast: parse(code) },
       );
 
       assert(
@@ -72,7 +99,7 @@ describe("detectFeatures", () => {
       `;
 
       try {
-        detectFeatures(code, 5, "script", new Set());
+        detectFeatures(code, 5, "script", new Set(), { ast: parse(code) });
         assert.fail("Should throw for ES5 with ES6 features");
       } catch (error) {
         assert(error, "Should throw an error for ES6 features in ES5");
@@ -97,6 +124,7 @@ describe("detectFeatures", () => {
           5,
           "script",
           ignoreList,
+          { ast: parse(code) },
         );
         assert.strictEqual(
           unsupportedFeatures.length,
@@ -118,7 +146,7 @@ describe("detectFeatures", () => {
         const sorted = arr.toSorted();
       `;
 
-      const options = { checkForPolyfills: true };
+      const options = { checkForPolyfills: true, ast: parse(code, "module") };
 
       try {
         const { unsupportedFeatures } = detectFeatures(
@@ -150,7 +178,7 @@ describe("detectFeatures", () => {
         const sorted = arr.toSorted();
       `;
 
-      const options = { checkForPolyfills: true };
+      const options = { checkForPolyfills: true, ast: parse(code) };
 
       try {
         const { unsupportedFeatures } = detectFeatures(
@@ -178,25 +206,13 @@ describe("detectFeatures", () => {
         export const bar = 1;
       `;
 
-      const { foundFeatures } = detectFeatures(code, 6, "module", new Set());
+      const { foundFeatures } = detectFeatures(code, 6, "module", new Set(), {
+        ast: parse(code, "module"),
+      });
       assert(
         Object.values(foundFeatures).some(Boolean),
         "Should detect some features in ES modules",
       );
-    });
-
-    it("should throw for ES modules in script mode", () => {
-      const code = `
-        import { foo } from './foo.js';
-        export const bar = 1;
-      `;
-
-      try {
-        detectFeatures(code, 6, "script", new Set());
-        assert.fail("Should throw for ES modules in script mode");
-      } catch (error) {
-        assert(error, "Should throw an error");
-      }
     });
   });
 
@@ -214,6 +230,7 @@ describe("detectFeatures", () => {
           13,
           "script",
           new Set(),
+          { ast: parse(code) },
         );
         assert.strictEqual(
           unsupportedFeatures.length,
@@ -228,11 +245,45 @@ describe("detectFeatures", () => {
           !foundFeatures.MapGroupBy,
           "MapGroupBy should not be detected for console.group",
         );
+        assert(
+          !foundFeatures.ArrayPrototypeGroup,
+          "ArrayPrototypeGroup should not be detected for console.group",
+        );
       } catch (error) {
         assert.fail(
           `Should not throw for console.group in ES2022: ${error.message}`,
         );
       }
+    });
+
+    it("should have superseded Array.prototype.group methods in feature list", () => {
+      const { ES_FEATURES } = require("../../../../lib/constants");
+
+      assert(
+        ES_FEATURES.ArrayPrototypeGroup,
+        "ArrayPrototypeGroup should exist in ES_FEATURES",
+      );
+      assert(
+        ES_FEATURES.ArrayPrototypeGroup.superseded === true,
+        "ArrayPrototypeGroup should be marked as superseded",
+      );
+      assert(
+        ES_FEATURES.ArrayPrototypeGroup.supersededBy === "ObjectGroupBy",
+        "ArrayPrototypeGroup should reference ObjectGroupBy as replacement",
+      );
+
+      assert(
+        ES_FEATURES.ArrayPrototypeGroupToMap,
+        "ArrayPrototypeGroupToMap should exist in ES_FEATURES",
+      );
+      assert(
+        ES_FEATURES.ArrayPrototypeGroupToMap.superseded === true,
+        "ArrayPrototypeGroupToMap should be marked as superseded",
+      );
+      assert(
+        ES_FEATURES.ArrayPrototypeGroupToMap.supersededBy === "MapGroupBy",
+        "ArrayPrototypeGroupToMap should reference MapGroupBy as replacement",
+      );
     });
 
     it("should detect ES2020 features", () => {
@@ -247,7 +298,15 @@ describe("detectFeatures", () => {
         const value = obj?.prop;
         const nullish = null ?? 'default';
       `;
-      const { foundFeatures } = detectFeatures(code, 2020, "script", new Set());
+      const { foundFeatures } = detectFeatures(
+        code,
+        2020,
+        "script",
+        new Set(),
+        {
+          ast: parse(code),
+        },
+      );
       assert(
         Object.values(foundFeatures).some(Boolean),
         "Should detect some ES2020 features",
@@ -259,7 +318,15 @@ describe("detectFeatures", () => {
         const str = 'hello';
         const replaced = str.replaceAll('l', 'x');
       `;
-      const { foundFeatures } = detectFeatures(code, 2021, "script", new Set());
+      const { foundFeatures } = detectFeatures(
+        code,
+        2021,
+        "script",
+        new Set(),
+        {
+          ast: parse(code),
+        },
+      );
       assert(
         Object.values(foundFeatures).some(Boolean),
         "Should detect some ES2021 features",
@@ -298,7 +365,15 @@ describe("detectFeatures", () => {
         }
       `;
 
-      const { foundFeatures } = detectFeatures(code, 2022, "script", new Set());
+      const { foundFeatures } = detectFeatures(
+        code,
+        2022,
+        "script",
+        new Set(),
+        {
+          ast: parse(code),
+        },
+      );
       assert(
         Object.values(foundFeatures).some(Boolean),
         "Should detect some ES2022 features",
@@ -322,7 +397,15 @@ describe("detectFeatures", () => {
         Atomics.waitAsync(int32, 0, 0);
       `;
 
-      const { foundFeatures } = detectFeatures(code, 2024, "script", new Set());
+      const { foundFeatures } = detectFeatures(
+        code,
+        2024,
+        "script",
+        new Set(),
+        {
+          ast: parse(code),
+        },
+      );
       assert(
         Object.values(foundFeatures).some(Boolean),
         "Should detect some ES2024 features",
@@ -349,7 +432,15 @@ describe("detectFeatures", () => {
         const escaped = RegExp.escape("test");
       `;
 
-      const { foundFeatures } = detectFeatures(code, 2025, "script", new Set());
+      const { foundFeatures } = detectFeatures(
+        code,
+        2025,
+        "script",
+        new Set(),
+        {
+          ast: parse(code),
+        },
+      );
       assert(
         Object.values(foundFeatures).some(Boolean),
         "Should detect some ES2025 features",
@@ -557,8 +648,6 @@ describe("Polyfill Detection", () => {
 });
 
 describe("AST-based feature detection", () => {
-  const acorn = require("acorn");
-
   it("should not detect ExponentOperator for ** inside string literals", () => {
     const code = 'var str = "This is a **bold** text";';
     const ast = acorn.parse(code, { ecmaVersion: 5 });
