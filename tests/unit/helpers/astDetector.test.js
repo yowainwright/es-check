@@ -8,7 +8,8 @@ const {
   detectFeaturesFromAST,
 } = require("../../../lib/helpers/astDetector.js");
 
-const parse = (code) => acorn.parse(code, { ecmaVersion: 2025, sourceType: "module" });
+const parse = (code) =>
+  acorn.parse(code, { ecmaVersion: 2025, sourceType: "module" });
 
 describe("helpers/astDetector.js", () => {
   describe("normalizeNodeType()", () => {
@@ -71,7 +72,10 @@ describe("helpers/astDetector.js", () => {
         type: "ArrayExpression",
         elements: [{ type: "SpreadElement" }],
       };
-      const astInfo = { nodeType: "ArrayExpression", childType: "SpreadElement" };
+      const astInfo = {
+        nodeType: "ArrayExpression",
+        childType: "SpreadElement",
+      };
       assert.strictEqual(matchesFeature(node, astInfo), true);
     });
 
@@ -80,7 +84,10 @@ describe("helpers/astDetector.js", () => {
         type: "ArrayExpression",
         elements: [{ type: "Literal" }],
       };
-      const astInfo = { nodeType: "ArrayExpression", childType: "SpreadElement" };
+      const astInfo = {
+        nodeType: "ArrayExpression",
+        childType: "SpreadElement",
+      };
       assert.strictEqual(matchesFeature(node, astInfo), false);
     });
 
@@ -115,7 +122,10 @@ describe("helpers/astDetector.js", () => {
     });
 
     it("should match superClass presence", () => {
-      const node = { type: "ClassDeclaration", superClass: { type: "Identifier" } };
+      const node = {
+        type: "ClassDeclaration",
+        superClass: { type: "Identifier" },
+      };
       const astInfo = { nodeType: "ClassDeclaration", property: "superClass" };
       assert.strictEqual(matchesFeature(node, astInfo), true);
     });

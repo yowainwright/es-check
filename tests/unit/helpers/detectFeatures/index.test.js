@@ -43,6 +43,28 @@ const testFeatureMap = {
 
 describe("detectFeatures", () => {
   describe("Basic functionality", () => {
+    it("should throw when AST is not provided", () => {
+      const code = "const x = 1;";
+
+      assert.throws(
+        () => detectFeatures(code, 6, "script", new Set(), {}),
+        {
+          message: "AST is required for feature detection",
+        },
+      );
+    });
+
+    it("should throw when options is omitted", () => {
+      const code = "const x = 1;";
+
+      assert.throws(
+        () => detectFeatures(code, 6, "script", new Set()),
+        {
+          message: "AST is required for feature detection",
+        },
+      );
+    });
+
     it("should detect ES6 features", () => {
       const code = `
         const x = 1;
@@ -276,9 +298,15 @@ describe("detectFeatures", () => {
         const value = obj?.prop;
         const nullish = null ?? 'default';
       `;
-      const { foundFeatures } = detectFeatures(code, 2020, "script", new Set(), {
-        ast: parse(code),
-      });
+      const { foundFeatures } = detectFeatures(
+        code,
+        2020,
+        "script",
+        new Set(),
+        {
+          ast: parse(code),
+        },
+      );
       assert(
         Object.values(foundFeatures).some(Boolean),
         "Should detect some ES2020 features",
@@ -290,9 +318,15 @@ describe("detectFeatures", () => {
         const str = 'hello';
         const replaced = str.replaceAll('l', 'x');
       `;
-      const { foundFeatures } = detectFeatures(code, 2021, "script", new Set(), {
-        ast: parse(code),
-      });
+      const { foundFeatures } = detectFeatures(
+        code,
+        2021,
+        "script",
+        new Set(),
+        {
+          ast: parse(code),
+        },
+      );
       assert(
         Object.values(foundFeatures).some(Boolean),
         "Should detect some ES2021 features",
@@ -331,9 +365,15 @@ describe("detectFeatures", () => {
         }
       `;
 
-      const { foundFeatures } = detectFeatures(code, 2022, "script", new Set(), {
-        ast: parse(code),
-      });
+      const { foundFeatures } = detectFeatures(
+        code,
+        2022,
+        "script",
+        new Set(),
+        {
+          ast: parse(code),
+        },
+      );
       assert(
         Object.values(foundFeatures).some(Boolean),
         "Should detect some ES2022 features",
@@ -357,9 +397,15 @@ describe("detectFeatures", () => {
         Atomics.waitAsync(int32, 0, 0);
       `;
 
-      const { foundFeatures } = detectFeatures(code, 2024, "script", new Set(), {
-        ast: parse(code),
-      });
+      const { foundFeatures } = detectFeatures(
+        code,
+        2024,
+        "script",
+        new Set(),
+        {
+          ast: parse(code),
+        },
+      );
       assert(
         Object.values(foundFeatures).some(Boolean),
         "Should detect some ES2024 features",
@@ -386,9 +432,15 @@ describe("detectFeatures", () => {
         const escaped = RegExp.escape("test");
       `;
 
-      const { foundFeatures } = detectFeatures(code, 2025, "script", new Set(), {
-        ast: parse(code),
-      });
+      const { foundFeatures } = detectFeatures(
+        code,
+        2025,
+        "script",
+        new Set(),
+        {
+          ast: parse(code),
+        },
+      );
       assert(
         Object.values(foundFeatures).some(Boolean),
         "Should detect some ES2025 features",
@@ -596,7 +648,6 @@ describe("Polyfill Detection", () => {
 });
 
 describe("AST-based feature detection", () => {
-
   it("should not detect ExponentOperator for ** inside string literals", () => {
     const code = 'var str = "This is a **bold** text";';
     const ast = acorn.parse(code, { ecmaVersion: 5 });
