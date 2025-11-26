@@ -9,4 +9,4 @@ export const INTERSECTION_OBSERVER_OPTIONS = {
 };
 
 export const TERMINAL_CLASSES =
-  "mockup-code bg-base-300 text-base-content max-w-3xl w-full mx-auto my-8";
+  "mockup-code bg-base-300 text-base-content max-w-5xl w-full mx-auto my-8 border border-base-content/10";
