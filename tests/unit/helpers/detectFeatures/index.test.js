@@ -46,23 +46,17 @@ describe("detectFeatures", () => {
     it("should throw when AST is not provided", () => {
       const code = "const x = 1;";
 
-      assert.throws(
-        () => detectFeatures(code, 6, "script", new Set(), {}),
-        {
-          message: "AST is required for feature detection",
-        },
-      );
+      assert.throws(() => detectFeatures(code, 6, "script", new Set(), {}), {
+        message: "AST is required for feature detection",
+      });
     });
 
     it("should throw when options is omitted", () => {
       const code = "const x = 1;";
 
-      assert.throws(
-        () => detectFeatures(code, 6, "script", new Set()),
-        {
-          message: "AST is required for feature detection",
-        },
-      );
+      assert.throws(() => detectFeatures(code, 6, "script", new Set()), {
+        message: "AST is required for feature detection",
+      });
     });
 
     it("should detect ES6 features", () => {
