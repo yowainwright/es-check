@@ -184,7 +184,13 @@ try {
   );
   const lightResult = execFileSync(
     "node",
-    [esCheckPath, "es6", "./tests/fixtures/es6.js", "--light", "--checkFeatures"],
+    [
+      esCheckPath,
+      "es6",
+      "./tests/fixtures/es6.js",
+      "--light",
+      "--checkFeatures",
+    ],
     { encoding: "utf8" },
   );
   assert.strictEqual(
@@ -199,26 +205,42 @@ try {
   process.exit(1);
 }
 
-console.log("Test 13: --light with feature detection catches unsupported features");
+console.log(
+  "Test 13: --light with feature detection catches unsupported features",
+);
 try {
   execFileSync(
     "node",
-    [esCheckPath, "es5", "./tests/fixtures/es6.js", "--light", "--checkFeatures"],
+    [
+      esCheckPath,
+      "es5",
+      "./tests/fixtures/es6.js",
+      "--light",
+      "--checkFeatures",
+    ],
     { encoding: "utf8" },
   );
   console.error("❌ Test 13 failed - should have thrown an error");
   process.exit(1);
 } catch (error) {
-  const hasFeatureError = error.stderr && error.stderr.includes("ES version matching errors");
+  const hasFeatureError =
+    error.stderr && error.stderr.includes("ES version matching errors");
   assert.ok(hasFeatureError, "Should report feature detection errors");
   console.log("✅ Test 13 passed (expected failure)\n");
 }
 
-console.log("Test 14: Superseded features (Array.prototype.group) are detected");
+console.log(
+  "Test 14: Superseded features (Array.prototype.group) are detected",
+);
 try {
   execFileSync(
     "node",
-    [esCheckPath, "es5", "./tests/fixtures/superseded-features.js", "--checkFeatures"],
+    [
+      esCheckPath,
+      "es5",
+      "./tests/fixtures/superseded-features.js",
+      "--checkFeatures",
+    ],
     { encoding: "utf8" },
   );
   console.error("❌ Test 14 failed - should have detected superseded features");
@@ -226,7 +248,10 @@ try {
 } catch (error) {
   const stderr = error.stderr || "";
   const hasError = stderr.includes("ES version matching errors");
-  assert.ok(hasError, "Should detect superseded Array.prototype.group features");
+  assert.ok(
+    hasError,
+    "Should detect superseded Array.prototype.group features",
+  );
   console.log("✅ Test 14 passed (expected failure)\n");
 }
 
