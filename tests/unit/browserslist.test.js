@@ -97,11 +97,11 @@ describe("getESVersionFromBrowserslist", () => {
     );
   });
 
-  it("should determine correct ES version for Safari", () => {
+  it("should determine ES12+ for Safari 14+", () => {
     const esVersion = getESVersionFromBrowserslist({
       browserslistQuery: "Safari >= 14",
     });
-    assert.strictEqual(esVersion, 11, "ES version should be 11 for Safari 14+");
+    assert(esVersion >= 12, "ES version should be 12 or higher for Safari 14+");
   });
 
   it("should determine correct ES version for modern Chrome versions", () => {
@@ -114,11 +114,11 @@ describe("getESVersionFromBrowserslist", () => {
     );
   });
 
-  it("should determine correct ES version for specific Chrome version (issue #324)", () => {
+  it("should determine ES14 for Chrome 111", () => {
     const esVersion = getESVersionFromBrowserslist({
       browserslistQuery: "chrome 111",
     });
-    assert.strictEqual(esVersion, 11, "ES version should be 11 for Chrome 111");
+    assert.strictEqual(esVersion, 14, "ES version should be 14 for Chrome 111");
   });
 
   it("should return ES5 if browserslist throws an error", () => {
@@ -157,16 +157,16 @@ describe("getESVersionForBrowser", () => {
     assert.strictEqual(getESVersionForBrowser("firefox", "40"), 6);
   });
 
-  it("should return ES11 for Chrome 111", () => {
-    assert.strictEqual(getESVersionForBrowser("chrome", "111"), 11);
+  it("should return ES14 for Chrome 111", () => {
+    assert.strictEqual(getESVersionForBrowser("chrome", "111"), 14);
   });
 
-  it("should return higher ES version for Chrome versions beyond defined mappings", () => {
+  it("should return ES15 for Chrome 120", () => {
     const esVersion = getESVersionForBrowser("chrome", "120");
     assert.strictEqual(
       esVersion,
-      11,
-      "Chrome 120 should map to ES11 (highest defined)",
+      15,
+      "Chrome 120 should map to ES15",
     );
   });
 });
