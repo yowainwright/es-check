@@ -163,10 +163,6 @@ describe("getESVersionForBrowser", () => {
 
   it("should return ES15 for Chrome 120", () => {
     const esVersion = getESVersionForBrowser("chrome", "120");
-    assert.strictEqual(
-      esVersion,
-      15,
-      "Chrome 120 should map to ES15",
-    );
+    assert.strictEqual(esVersion, 15, "Chrome 120 should map to ES15");
   });
 });
