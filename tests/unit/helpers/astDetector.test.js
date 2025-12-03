@@ -121,6 +121,18 @@ describe("helpers/astDetector.js", () => {
       assert.strictEqual(matchesFeature(node, astInfo), true);
     });
 
+    it("should match operators array", () => {
+      const node = { type: "AssignmentExpression", operator: "&&=" };
+      const astInfo = { nodeType: "AssignmentExpression", operators: ["&&=", "||=", "??="] };
+      assert.strictEqual(matchesFeature(node, astInfo), true);
+    });
+
+    it("should not match when operator not in operators array", () => {
+      const node = { type: "AssignmentExpression", operator: "=" };
+      const astInfo = { nodeType: "AssignmentExpression", operators: ["&&=", "||=", "??="] };
+      assert.strictEqual(matchesFeature(node, astInfo), false);
+    });
+
     it("should match superClass presence", () => {
       const node = {
         type: "ClassDeclaration",
@@ -276,6 +288,36 @@ describe("helpers/astDetector.js", () => {
       const ast = parse("function foo(...args) {}");
       const result = detectFeaturesFromAST(ast);
       assert.strictEqual(result.RestSpread, true);
+    });
+
+    it("should detect LogicalAssignment with &&=", () => {
+      const ast = parse("let x = 1; x &&= 2;");
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.LogicalAssignment, true);
+    });
+
+    it("should detect LogicalAssignment with ||=", () => {
+      const ast = parse("let x = 1; x ||= 2;");
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.LogicalAssignment, true);
+    });
+
+    it("should detect LogicalAssignment with ??=", () => {
+      const ast = parse("let x = null; x ??= 2;");
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.LogicalAssignment, true);
+    });
+
+    it("should not detect LogicalAssignment for regular assignment", () => {
+      const ast = parse("let x = 1; x = 2;");
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.LogicalAssignment, false);
+    });
+
+    it("should not detect LogicalAssignment for compound assignment", () => {
+      const ast = parse("let x = 1; x += 2;");
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.LogicalAssignment, false);
     });
   });
 });
