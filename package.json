@@ -54,8 +54,8 @@
   "devDependencies": {
     "codependence": "^0.3.1",
     "oxlint": "^1.29.0",
-    "pastoralist": "1.8.2",
-    "prettier": "3.6.2",
+    "pastoralist": "1.8.3",
+    "prettier": "3.7.4",
     "release-it": "19.0.6"
   },
   "dependencies": {
@@ -117,14 +117,14 @@
           "es-check": "vite (transitive dependency)"
         },
         "ledger": {
-          "addedDate": "2025-11-21T20:27:19.148Z",
+          "addedDate": "2025-12-08T16:58:23.419Z",
           "reason": "Security fix: vite allows server.fs.deny bypass via backslash on Windows (medium)",
           "securityChecked": true,
-          "securityCheckDate": "2025-11-21T20:27:19.148Z",
+          "securityCheckDate": "2025-12-08T16:58:23.419Z",
           "securityProvider": "github",
           "cve": "CVE-2025-62522",
           "severity": "medium",
-          "url": "https://github.com/yowainwright/es-check/security/dependabot/39"
+          "url": "https://github.com/yowainwright/es-check/security/dependabot/38"
         }
       },
       "tmp@0.2.4": {
@@ -132,7 +132,7 @@
           "es-check": "tmp (transitive dependency)"
         },
         "ledger": {
-          "addedDate": "2025-11-21T20:27:19.148Z"
+          "addedDate": "2025-12-08T16:58:23.419Z"
         }
       },
       "astro@5.15.9": {
@@ -141,10 +141,10 @@
           "es-check-docs": "astro@^5.15.9"
         },
         "ledger": {
-          "addedDate": "2025-11-21T20:27:19.148Z",
-          "reason": "Security fix: Astro Cloudflare adapter has Stored Cross Site Scripting vulnerability in /_image endpoint (medium)",
+          "addedDate": "2025-12-08T16:58:23.419Z",
+          "reason": "Security fix: Astro Cloudflare adapter has Stored Cross-site Scripting vulnerability in /_image endpoint (medium)",
           "securityChecked": true,
-          "securityCheckDate": "2025-11-21T20:27:19.148Z",
+          "securityCheckDate": "2025-12-08T16:58:23.419Z",
           "securityProvider": "github",
           "cve": "CVE-2025-65019",
           "severity": "medium",
@@ -156,14 +156,29 @@
           "es-check": "js-yaml (transitive dependency)"
         },
         "ledger": {
-          "addedDate": "2025-11-21T20:27:19.148Z",
+          "addedDate": "2025-12-08T16:58:23.419Z",
           "reason": "Security fix: js-yaml has prototype pollution in merge (<<) (medium)",
           "securityChecked": true,
-          "securityCheckDate": "2025-11-21T20:27:19.148Z",
+          "securityCheckDate": "2025-12-08T16:58:23.419Z",
           "securityProvider": "github",
           "cve": "CVE-2025-64718",
           "severity": "medium",
           "url": "https://github.com/yowainwright/es-check/security/dependabot/46"
+        }
+      },
+      "mdast-util-to-hast@13.2.1": {
+        "dependents": {
+          "es-check": "mdast-util-to-hast (transitive dependency)"
+        },
+        "ledger": {
+          "addedDate": "2025-12-08T16:58:23.419Z",
+          "reason": "Security fix: mdast-util-to-hast has unsanitized class attribute (medium)",
+          "securityChecked": true,
+          "securityCheckDate": "2025-12-08T16:58:23.419Z",
+          "securityProvider": "github",
+          "cve": "CVE-2025-66400",
+          "severity": "medium",
+          "url": "https://github.com/yowainwright/es-check/security/dependabot/54"
         }
       }
     },
@@ -185,7 +200,8 @@
       "vite": "6.4.1",
       "tmp": "0.2.4",
       "astro": "5.15.9",
-      "js-yaml": "4.1.1"
+      "js-yaml": "4.1.1",
+      "mdast-util-to-hast": "13.2.1"
     }
   }
 }
