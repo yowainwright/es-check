@@ -99,3 +99,4 @@ dist/
 .browserslistrc-old-edge
 
 /benchmarks
+.claude
