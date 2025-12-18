@@ -325,5 +325,55 @@ describe("helpers/astDetector.js", () => {
       const result = detectFeaturesFromAST(ast);
       assert.strictEqual(result.LogicalAssignment, false);
     });
+
+    it("should not detect TopLevelAwait for await inside async function", () => {
+      const ast = parse("export async function a() { await Promise.all(); }");
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.TopLevelAwait, false);
+    });
+
+    it("should detect TopLevelAwait for await at module level", () => {
+      const ast = parse("const data = await fetch('url');");
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.TopLevelAwait, true);
+    });
+
+    it("should not detect ErgonomicBrandChecks for regular 'in' operator", () => {
+      const ast = parse("const b = {}; if ('c' in b) {}");
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.ErgonomicBrandChecks, false);
+    });
+
+    it("should detect ErgonomicBrandChecks for private field 'in' check", () => {
+      const ast = parse(
+        "class Foo { #field; check(obj) { return #field in obj; } }",
+      );
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.ErgonomicBrandChecks, true);
+    });
+
+    it("should not detect ErrorCause for basic Error constructor", () => {
+      const ast = parse("throw new Error('message');");
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.ErrorCause, false);
+    });
+
+    it("should detect ErrorCause for Error with cause option", () => {
+      const ast = parse("throw new Error('message', { cause: err });");
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.ErrorCause, true);
+    });
+
+    it("should not detect RegExpEscape for direct RegExp constructor call", () => {
+      const ast = parse("const re = RegExp(str, 'g');");
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.RegExpEscape, false);
+    });
+
+    it("should detect RegExpEscape for RegExp.escape call", () => {
+      const ast = parse("const escaped = RegExp.escape(str);");
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.RegExpEscape, true);
+    });
   });
 });
