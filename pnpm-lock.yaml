@@ -31,8 +31,8 @@ importers:
         specifier: ^1.29.0
         version: 1.29.0
       pastoralist:
-        specifier: 1.8.2
-        version: 1.8.2
+        specifier: 1.8.3
+        version: 1.8.3
       prettier:
         specifier: 3.6.2
         version: 3.6.2
@@ -2307,8 +2307,8 @@ packages:
   parse5@7.3.0:
     resolution: {integrity: sha512-IInvU7fabl34qmi9gY8XOVxhYyMyuH2xUNpb2q8/Y+7552KlejkRvqvD19nMoUW/uQGGbqNpA6Tufu5FL5BZgw==}
 
-  pastoralist@1.8.2:
-    resolution: {integrity: sha512-oqDN9mNfupqfl2JnNvIzOsbgxefH6gx+PcZJyvY1/v1oUmjUBLJpaD9NCZrnrIJ1ZjKEgZOKfG2kQMCEG8geHA==}
+  pastoralist@1.8.3:
+    resolution: {integrity: sha512-bcbBs/CYsKUHbuY66QXFmjis/Jrbt2PdSB812liB1NG8sdXvAcl/dLyi8Xq2aI+r7EIbvkOX5aff2c0QR9hzjw==}
     hasBin: true
 
   path-key@3.1.1:
@@ -5583,7 +5583,7 @@ snapshots:
     dependencies:
       entities: 6.0.1
 
-  pastoralist@1.8.2: {}
+  pastoralist@1.8.3: {}
 
   path-key@3.1.1: {}
 
