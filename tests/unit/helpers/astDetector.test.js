@@ -123,13 +123,19 @@ describe("helpers/astDetector.js", () => {
 
     it("should match operators array", () => {
       const node = { type: "AssignmentExpression", operator: "&&=" };
-      const astInfo = { nodeType: "AssignmentExpression", operators: ["&&=", "||=", "??="] };
+      const astInfo = {
+        nodeType: "AssignmentExpression",
+        operators: ["&&=", "||=", "??="],
+      };
       assert.strictEqual(matchesFeature(node, astInfo), true);
     });
 
     it("should not match when operator not in operators array", () => {
       const node = { type: "AssignmentExpression", operator: "=" };
-      const astInfo = { nodeType: "AssignmentExpression", operators: ["&&=", "||=", "??="] };
+      const astInfo = {
+        nodeType: "AssignmentExpression",
+        operators: ["&&=", "||=", "??="],
+      };
       assert.strictEqual(matchesFeature(node, astInfo), false);
     });
 
@@ -339,7 +345,9 @@ describe("helpers/astDetector.js", () => {
     });
 
     it("should detect ErgonomicBrandChecks for private field 'in' check", () => {
-      const ast = parse("class Foo { #field; check(obj) { return #field in obj; } }");
+      const ast = parse(
+        "class Foo { #field; check(obj) { return #field in obj; } }",
+      );
       const result = detectFeaturesFromAST(ast);
       assert.strictEqual(result.ErgonomicBrandChecks, true);
     });
