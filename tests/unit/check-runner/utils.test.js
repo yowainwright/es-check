@@ -1,6 +1,7 @@
-const { describe, it } = require("node:test");
+const { describe, it, test, mock } = require("node:test");
 const assert = require("node:assert");
 const path = require("path");
+const fs = require("fs");
 const {
   parseFilePatterns,
   validateConfig,
@@ -8,6 +9,7 @@ const {
   determineEcmaVersion,
   filterIgnoredFiles,
   parseIgnoreList,
+  createFileProcessor,
 } = require("../../../lib/check-runner/utils.js");
 
 describe("check-runner/utils.js", () => {
@@ -397,3 +399,234 @@ describe("check-runner/utils.js", () => {
     });
   });
 });
+
+const testDir = path.join(__dirname, "test-files-utils");
+
+if (!fs.existsSync(testDir)) {
+  fs.mkdirSync(testDir, { recursive: true });
+}
+
+function cleanupTestDir() {
+  if (fs.existsSync(testDir)) {
+    fs.rmSync(testDir, { recursive: true, force: true });
+  }
+}
+
+test("createFileProcessor returns ES-Check feature error with file and stack", () => {
+  const testFile = path.join(testDir, "es6-features.js");
+  fs.writeFileSync(testFile, "const x = 1; let y = 2;");
+
+  const config = { checkFeatures: true };
+  const acornOpts = { ecmaVersion: 2025, sourceType: "script" };
+  const processFile = createFileProcessor(config, {
+    acornOpts,
+    ignoreList: new Set(),
+    logger: null,
+    isDebug: false,
+    ecmaVersion: "5",
+  });
+
+  const result = processFile(testFile);
+
+  assert.ok(result !== null);
+  assert.ok(result.err);
+  assert.ok(result.file);
+  assert.ok(result.stack);
+});
+
+test("createFileProcessor returns null for valid ES version match", () => {
+  const testFile = path.join(testDir, "es5-valid.js");
+  fs.writeFileSync(testFile, "var x = 1;");
+
+  const config = { checkFeatures: true };
+  const acornOpts = { ecmaVersion: 2025, sourceType: "script" };
+  const processFile = createFileProcessor(config, {
+    acornOpts,
+    ignoreList: new Set(),
+    logger: null,
+    isDebug: false,
+    ecmaVersion: "5",
+  });
+
+  const result = processFile(testFile);
+
+  assert.strictEqual(result, null);
+});
+
+test("parses static initialization blocks when checkFeatures enabled", () => {
+  const testFile = path.join(testDir, "static-block.js");
+  fs.writeFileSync(testFile, "class App { static { console.log('hi'); } }");
+
+  const config = { checkFeatures: true };
+  const acornOpts = { ecmaVersion: 2025, sourceType: "script" };
+  const processFile = createFileProcessor(config, {
+    acornOpts,
+    ignoreList: new Set(),
+    logger: null,
+    isDebug: false,
+    ecmaVersion: "13",
+  });
+
+  const result = processFile(testFile);
+
+  assert.strictEqual(result, null);
+});
+
+test("parses nullish coalescing assignment when checkFeatures enabled", () => {
+  const testFile = path.join(testDir, "nullish-assign.js");
+  fs.writeFileSync(testFile, "const x = {}; x.val ??= 'test';");
+
+  const config = { checkFeatures: true };
+  const acornOpts = { ecmaVersion: 2025, sourceType: "script" };
+  const processFile = createFileProcessor(config, {
+    acornOpts,
+    ignoreList: new Set(),
+    logger: null,
+    isDebug: false,
+    ecmaVersion: "12",
+  });
+
+  const result = processFile(testFile);
+
+  assert.strictEqual(result, null);
+});
+
+test("does not flag RegExp constructor as RegExpEscape", () => {
+  const testFile = path.join(testDir, "regexp.js");
+  fs.writeFileSync(
+    testFile,
+    "function a(v) { return v.replace(RegExp(v, 'g')); }",
+  );
+
+  const config = { checkFeatures: true };
+  const acornOpts = { ecmaVersion: 2025, sourceType: "script" };
+  const processFile = createFileProcessor(config, {
+    acornOpts,
+    ignoreList: new Set(),
+    logger: null,
+    isDebug: false,
+    ecmaVersion: "12",
+  });
+
+  const result = processFile(testFile);
+
+  assert.strictEqual(result, null);
+});
+
+test("does not flag basic Error constructor as ErrorCause", () => {
+  const testFile = path.join(testDir, "error.js");
+  fs.writeFileSync(testFile, "function a() { throw new Error('message'); }");
+
+  const config = { checkFeatures: true };
+  const acornOpts = { ecmaVersion: 2025, sourceType: "script" };
+  const processFile = createFileProcessor(config, {
+    acornOpts,
+    ignoreList: new Set(),
+    logger: null,
+    isDebug: false,
+    ecmaVersion: "12",
+  });
+
+  const result = processFile(testFile);
+
+  assert.strictEqual(result, null);
+});
+
+test("does not flag await in async function as TopLevelAwait", () => {
+  const testFile = path.join(testDir, "async-await.js");
+  fs.writeFileSync(testFile, "async function a() { await Promise.resolve(); }");
+
+  const config = { checkFeatures: true };
+  const acornOpts = { ecmaVersion: 2025, sourceType: "script" };
+  const processFile = createFileProcessor(config, {
+    acornOpts,
+    ignoreList: new Set(),
+    logger: null,
+    isDebug: false,
+    ecmaVersion: "12",
+  });
+
+  const result = processFile(testFile);
+
+  assert.strictEqual(result, null);
+});
+
+test("does not flag standard in operator as ErgonomicBrandChecks", () => {
+  const testFile = path.join(testDir, "in-operator.js");
+  fs.writeFileSync(testFile, "function a() { const b = {}; return 'c' in b; }");
+
+  const config = { checkFeatures: true };
+  const acornOpts = { ecmaVersion: 2025, sourceType: "script" };
+  const processFile = createFileProcessor(config, {
+    acornOpts,
+    ignoreList: new Set(),
+    logger: null,
+    isDebug: false,
+    ecmaVersion: "12",
+  });
+
+  const result = processFile(testFile);
+
+  assert.strictEqual(result, null);
+});
+
+test("returns error when unsupported features detected", () => {
+  const testFile = path.join(testDir, "unsupported.js");
+  fs.writeFileSync(testFile, "const x = 1; let y = 2; const fn = () => {};");
+
+  const config = { checkFeatures: true };
+  const acornOpts = { ecmaVersion: 2025, sourceType: "script" };
+  const processFile = createFileProcessor(config, {
+    acornOpts,
+    ignoreList: new Set(),
+    logger: null,
+    isDebug: false,
+    ecmaVersion: "5",
+  });
+
+  const result = processFile(testFile);
+
+  assert.ok(result !== null);
+  assert.ok(result.err.message.includes("Unsupported features"));
+  assert.ok(result.file);
+  assert.ok(result.stack);
+});
+
+test("re-throws non-ES-Check errors from detectFeatures", () => {
+  const testFile = path.join(testDir, "rethrow.js");
+  fs.writeFileSync(testFile, "var x = 1;");
+
+  const helpers = require("../../../lib/helpers");
+  const originalDetectFeatures = helpers.detectFeatures;
+  const unexpectedError = new Error("Unexpected internal error");
+  helpers.detectFeatures = () => {
+    throw unexpectedError;
+  };
+
+  const utilsPath = require.resolve("../../../lib/check-runner/utils.js");
+  delete require.cache[utilsPath];
+
+  const { createFileProcessor: freshProcessor } = require("../../../lib/check-runner/utils.js");
+
+  const config = { checkFeatures: true };
+  const acornOpts = { ecmaVersion: 2025, sourceType: "script" };
+  const processFile = freshProcessor(config, {
+    acornOpts,
+    ignoreList: new Set(),
+    logger: null,
+    isDebug: false,
+    ecmaVersion: "5",
+  });
+
+  try {
+    processFile(testFile);
+    assert.fail("Should have thrown");
+  } catch (err) {
+    assert.strictEqual(err, unexpectedError);
+  } finally {
+    helpers.detectFeatures = originalDetectFeatures;
+    delete require.cache[utilsPath];
+  }
+});
+
+process.on("exit", cleanupTestDir);
