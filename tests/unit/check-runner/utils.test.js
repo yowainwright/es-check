@@ -1,4 +1,4 @@
-const { describe, it, test } = require("node:test");
+const { describe, it, test, mock } = require("node:test");
 const assert = require("node:assert");
 const path = require("path");
 const fs = require("fs");
@@ -493,7 +493,10 @@ test("parses nullish coalescing assignment when checkFeatures enabled", () => {
 
 test("does not flag RegExp constructor as RegExpEscape", () => {
   const testFile = path.join(testDir, "regexp.js");
-  fs.writeFileSync(testFile, "function a(v) { return v.replace(RegExp(v, 'g')); }");
+  fs.writeFileSync(
+    testFile,
+    "function a(v) { return v.replace(RegExp(v, 'g')); }",
+  );
 
   const config = { checkFeatures: true };
   const acornOpts = { ecmaVersion: 2025, sourceType: "script" };
@@ -565,6 +568,65 @@ test("does not flag standard in operator as ErgonomicBrandChecks", () => {
   const result = processFile(testFile);
 
   assert.strictEqual(result, null);
+});
+
+test("returns error when unsupported features detected", () => {
+  const testFile = path.join(testDir, "unsupported.js");
+  fs.writeFileSync(testFile, "const x = 1; let y = 2; const fn = () => {};");
+
+  const config = { checkFeatures: true };
+  const acornOpts = { ecmaVersion: 2025, sourceType: "script" };
+  const processFile = createFileProcessor(config, {
+    acornOpts,
+    ignoreList: new Set(),
+    logger: null,
+    isDebug: false,
+    ecmaVersion: "5",
+  });
+
+  const result = processFile(testFile);
+
+  assert.ok(result !== null);
+  assert.ok(result.err.message.includes("Unsupported features"));
+  assert.ok(result.file);
+  assert.ok(result.stack);
+});
+
+test("re-throws non-ES-Check errors from detectFeatures", () => {
+  const testFile = path.join(testDir, "rethrow.js");
+  fs.writeFileSync(testFile, "var x = 1;");
+
+  const helpers = require("../../../lib/helpers");
+  const originalDetectFeatures = helpers.detectFeatures;
+  const unexpectedError = new Error("Unexpected internal error");
+  helpers.detectFeatures = () => {
+    throw unexpectedError;
+  };
+
+  const utilsPath = require.resolve("../../../lib/check-runner/utils.js");
+  delete require.cache[utilsPath];
+
+  const { createFileProcessor: freshProcessor } = require("../../../lib/check-runner/utils.js");
+
+  const config = { checkFeatures: true };
+  const acornOpts = { ecmaVersion: 2025, sourceType: "script" };
+  const processFile = freshProcessor(config, {
+    acornOpts,
+    ignoreList: new Set(),
+    logger: null,
+    isDebug: false,
+    ecmaVersion: "5",
+  });
+
+  try {
+    processFile(testFile);
+    assert.fail("Should have thrown");
+  } catch (err) {
+    assert.strictEqual(err, unexpectedError);
+  } finally {
+    helpers.detectFeatures = originalDetectFeatures;
+    delete require.cache[utilsPath];
+  }
 });
 
 process.on("exit", cleanupTestDir);
