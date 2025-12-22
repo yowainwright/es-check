@@ -38,8 +38,8 @@ importers:
         specifier: 3.7.4
         version: 3.7.4
       release-it:
-        specifier: 19.0.6
-        version: 19.0.6(@types/node@24.10.1)(magicast@0.3.5)
+        specifier: 19.1.0
+        version: 19.1.0(@types/node@24.10.1)(magicast@0.3.5)
 
   site:
     dependencies:
@@ -2506,8 +2506,8 @@ packages:
   rehype@13.0.2:
     resolution: {integrity: sha512-j31mdaRFrwFRUIlxGeuPXXKWQxet52RBQRvCmzl5eCefn/KGbomK5GMHNMsOJf55fgo3qw5tST5neDuarDYR2A==}
 
-  release-it@19.0.6:
-    resolution: {integrity: sha512-XTCNZ2mV9wjASQmc2bcQjA+ImJiFMijbFSyQE6lDmP1Plq17acjYaoY5FmJb5Lh/Nv4UDwfRlKQMv1DvHFKf1g==}
+  release-it@19.1.0:
+    resolution: {integrity: sha512-XgAIZVKgHgOBUUoLFrUfXHG4cUDiXPWFW0AHIAgk17Tk9JbIjz9YyAU8MyQer7dWkfG5IpNU9QH8tViQZGfhaw==}
     engines: {node: ^20.12.0 || >=22.0.0}
     hasBin: true
 
@@ -5902,7 +5902,7 @@ snapshots:
       rehype-stringify: 10.0.1
       unified: 11.0.5
 
-  release-it@19.0.6(@types/node@24.10.1)(magicast@0.3.5):
+  release-it@19.1.0(@types/node@24.10.1)(magicast@0.3.5):
     dependencies:
       '@nodeutils/defaults-deep': 1.1.0
       '@octokit/rest': 22.0.0
