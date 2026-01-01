@@ -3,7 +3,7 @@
   overflow-y: auto;
   position: relative;
   text-align: left;
-  padding-top: 3rem;
+  padding-top: 3.5rem;
 }
 
 .mockup-code::before {
@@ -22,14 +22,19 @@
   opacity: 1 !important;
 }
 
+.mockup-code .terminal-header {
+  display: none;
+}
+
 .mockup-code pre {
-  padding-left: 1.5rem;
-  padding-right: 1.5rem;
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
   min-height: 1.5rem;
   margin: 0;
   line-height: 1.5;
   display: block;
-  white-space: pre-wrap;
+  white-space: pre;
+  overflow-x: auto;
 }
 
 .mockup-code pre[data-prefix]:not([data-prefix=""])::before {
@@ -39,7 +44,7 @@
 }
 
 .mockup-code pre code {
-  white-space: pre-wrap;
+  white-space: pre;
 }
 
 .cursor {
@@ -64,16 +69,14 @@
 
 @media (max-width: 768px) {
   .mockup-code {
-    font-size: 0.875rem;
+    font-size: 0.75rem;
     margin-left: 0;
     margin-right: 0;
     max-width: 100%;
   }
 
   .mockup-code pre {
-    padding-left: 1rem;
-    padding-right: 1rem;
-    overflow-x: auto;
-    white-space: pre;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
   }
 }

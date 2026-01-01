@@ -1,23 +1,28 @@
-// Contributors from both yowainwright/es-check and dollarshaveclub/es-check
-// Fetched from GitHub API, excluding bots
-const contributors = [
+export interface Contributor {
+  name: string;
+  profile: string;
+  githubUrl: string;
+  contributions: number;
+}
+
+export const contributors: Contributor[] = [
   {
     name: "yowainwright",
     profile: "https://avatars.githubusercontent.com/u/1074042?v=4",
     githubUrl: "https://github.com/yowainwright",
-    contributions: 475, // Combined from both repos
+    contributions: 475,
   },
   {
     name: "briangonzalez",
     profile: "https://avatars.githubusercontent.com/u/659829?v=4",
     githubUrl: "https://github.com/briangonzalez",
-    contributions: 14, // Combined from both repos
+    contributions: 14,
   },
   {
     name: "brandonocasey",
     profile: "https://avatars.githubusercontent.com/u/2381475?v=4",
     githubUrl: "https://github.com/brandonocasey",
-    contributions: 10, // Combined from both repos
+    contributions: 10,
   },
   {
     name: "merrywhether",
@@ -29,19 +34,19 @@ const contributors = [
     name: "sudo-suhas",
     profile: "https://avatars.githubusercontent.com/u/22251956?v=4",
     githubUrl: "https://github.com/sudo-suhas",
-    contributions: 6, // Combined from both repos
+    contributions: 6,
   },
   {
     name: "jakiestfu",
     profile: "https://avatars.githubusercontent.com/u/1041792?v=4",
     githubUrl: "https://github.com/jakiestfu",
-    contributions: 4, // Combined from both repos
+    contributions: 4,
   },
   {
     name: "someguynamedmatt",
     profile: "https://avatars.githubusercontent.com/u/17413539?v=4",
     githubUrl: "https://github.com/someguynamedmatt",
-    contributions: 4, // Combined from both repos
+    contributions: 4,
   },
   {
     name: "mitzafon-wix",
@@ -71,13 +76,13 @@ const contributors = [
     name: "MrBenJ",
     profile: "https://avatars.githubusercontent.com/u/7918387?v=4",
     githubUrl: "https://github.com/MrBenJ",
-    contributions: 2, // Combined from both repos
+    contributions: 2,
   },
   {
     name: "shellbj",
     profile: "https://avatars.githubusercontent.com/u/397853?v=4",
     githubUrl: "https://github.com/shellbj",
-    contributions: 2, // Combined from both repos
+    contributions: 2,
   },
   {
     name: "jeffbski",
@@ -122,5 +127,3 @@ const contributors = [
     contributions: 1,
   },
 ];
-
-export default contributors;
