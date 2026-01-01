@@ -1,198 +1,126 @@
 @import "tailwindcss";
-@plugin "daisyui" {
-  themes: light, dark;
+@import "./terminal.css";
+@import "./animations.css";
+@plugin "daisyui";
+@plugin "daisyui/theme" {
+  name: "light";
+  default: true;
+  color-scheme: light;
+
+  --color-base-100: oklch(100% 0 0);
+  --color-base-200: oklch(97% 0.005 250);
+  --color-base-300: oklch(94% 0.008 250);
+  --color-base-content: oklch(25% 0.02 250);
+  --color-primary: oklch(58% 0.12 240);
+  --color-primary-content: oklch(100% 0 0);
+  --color-secondary: oklch(65% 0.10 240);
+  --color-secondary-content: oklch(100% 0 0);
+  --color-accent: oklch(58% 0.12 240);
+  --color-accent-content: oklch(100% 0 0);
+  --color-neutral: oklch(35% 0.02 250);
+  --color-neutral-content: oklch(100% 0 0);
+  --color-info: oklch(72% 0.15 220);
+  --color-info-content: oklch(100% 0 0);
+  --color-success: oklch(72% 0.17 155);
+  --color-success-content: oklch(100% 0 0);
+  --color-warning: oklch(82% 0.16 85);
+  --color-warning-content: oklch(25% 0 0);
+  --color-error: oklch(65% 0.20 25);
+  --color-error-content: oklch(100% 0 0);
+
+  --radius-selector: 0.5rem;
+  --radius-field: 0.5rem;
+  --radius-box: 0.5rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 1;
+  --noise: 0;
+}
+@plugin "daisyui/theme" {
+  name: "dark";
+  prefersdark: true;
+  color-scheme: dark;
+
+  --color-base-100: oklch(25% 0.02 250);
+  --color-base-200: oklch(20% 0.015 250);
+  --color-base-300: oklch(30% 0.02 250);
+  --color-base-content: oklch(92% 0.01 250);
+  --color-primary: oklch(70% 0.12 240);
+  --color-primary-content: oklch(25% 0.02 250);
+  --color-secondary: oklch(75% 0.10 240);
+  --color-secondary-content: oklch(25% 0.02 250);
+  --color-accent: oklch(68% 0.12 240);
+  --color-accent-content: oklch(25% 0.02 250);
+  --color-neutral: oklch(85% 0.02 250);
+  --color-neutral-content: oklch(25% 0.02 250);
+  --color-info: oklch(72% 0.15 220);
+  --color-info-content: oklch(25% 0.02 250);
+  --color-success: oklch(72% 0.17 155);
+  --color-success-content: oklch(15% 0 0);
+  --color-warning: oklch(82% 0.16 85);
+  --color-warning-content: oklch(15% 0 0);
+  --color-error: oklch(65% 0.20 25);
+  --color-error-content: oklch(100% 0 0);
+
+  --radius-selector: 0.5rem;
+  --radius-field: 0.5rem;
+  --radius-box: 0.5rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 1;
+  --noise: 0;
 }
 @plugin "@tailwindcss/typography";
 
 @theme {
-  --font-outfit: "Outfit Variable", "sans-serif";
+  --font-outfit: "Outfit Variable", sans-serif;
 }
 
-/* Override DaisyUI light theme */
-[data-theme="light"] {
-  color-scheme: light;
-  --p: 210 50% 53%; /* Primary blue #4486c6 */
-  --pc: 0 0% 100%; /* White text on primary */
-  --pf: 210 50% 43%; /* Primary focus */
-  --s: 210 50% 63%; /* Secondary blue */
-  --sc: 0 0% 100%; /* Secondary content */
-  --sf: 210 50% 58%; /* Secondary focus */
-  --a: 210 50% 53%; /* Accent blue */
-  --ac: 0 0% 100%; /* Accent content */
-  --af: 210 50% 48%; /* Accent focus */
-  --n: 215 15% 30%; /* Neutral */
-  --nc: 0 0% 100%; /* Neutral content */
-  --b1: 0 0% 100%; /* Base white */
-  --b2: 210 20% 96%; /* Light gray */
-  --b3: 210 20% 92%; /* Medium gray */
-  --bc: 215 25% 15%; /* Base content dark gray */
-  --in: 198 93% 60%; /* Info */
-  --inc: 0 0% 100%; /* Info content */
-  --su: 158 64% 52%; /* Success */
-  --suc: 0 0% 100%; /* Success content */
-  --wa: 43 96% 56%; /* Warning */
-  --wac: 0 0% 0%; /* Warning content */
-  --er: 0 91% 71%; /* Error */
-  --erc: 0 0% 100%; /* Error content */
+html {
+  font-family: var(--font-outfit);
+  overflow-x: hidden;
 }
 
-/* Override DaisyUI dark theme */
-[data-theme="dark"] {
-  color-scheme: dark;
-  --p: 210 50% 63%; /* Lighter primary blue based on #4486c6 */
-  --pc: 222 47% 20%; /* Dark text on primary */
-  --pf: 210 50% 58%; /* Primary focus */
-  --s: 210 50% 68%; /* Secondary lighter blue */
-  --sc: 222 47% 20%; /* Secondary content */
-  --sf: 210 50% 63%; /* Secondary focus */
-  --a: 210 50% 58%; /* Accent blue */
-  --ac: 222 47% 20%; /* Accent content */
-  --af: 210 50% 53%; /* Accent focus */
-  --n: 210 20% 92%; /* Neutral light */
-  --nc: 222 47% 20%; /* Neutral content */
-  --b1: 222 47% 20%; /* Base dark blue */
-  --b2: 222 47% 10%; /* Darker */
-  --b3: 215 25% 30%; /* Medium dark */
-  --bc: 210 40% 96%; /* Base content light */
-  --in: 217 91% 70%; /* Info */
-  --inc: 222 47% 20%; /* Info content */
-  --su: 158 64% 52%; /* Success */
-  --suc: 0 0% 0%; /* Success content */
-  --wa: 43 96% 56%; /* Warning */
-  --wac: 0 0% 0%; /* Warning content */
-  --er: 0 91% 71%; /* Error */
-  --erc: 0 0% 100%; /* Error content */
+body {
+  font-family: var(--font-outfit);
+  overflow-x: hidden;
 }
 
-/* Ensure root picks up light theme by default */
-:root {
-  color-scheme: light;
-  --p: 210 50% 53%;
-  --pc: 0 0% 100%;
-  --pf: 210 50% 43%;
-  --s: 210 50% 63%;
-  --sc: 0 0% 100%;
-  --sf: 210 50% 58%;
-  --a: 210 50% 53%;
-  --ac: 0 0% 100%;
-  --af: 210 50% 48%;
-  --n: 215 15% 30%;
-  --nc: 0 0% 100%;
-  --b1: 0 0% 100%;
-  --b2: 210 20% 96%;
-  --b3: 210 20% 92%;
-  --bc: 215 25% 15%;
-  --in: 198 93% 60%;
-  --inc: 0 0% 100%;
-  --su: 158 64% 52%;
-  --suc: 0 0% 100%;
-  --wa: 43 96% 56%;
-  --wac: 0 0% 0%;
-  --er: 0 91% 71%;
-  --erc: 0 0% 100%;
+#root {
+  overflow-x: hidden;
 }
 
-/* Additional explicit color overrides to ensure #4486c6 */
-[data-theme="light"] .text-primary {
-  color: #4486c6 !important;
+.font-outfit {
+  font-family: var(--font-outfit);
 }
 
-[data-theme="light"] .bg-primary {
-  background-color: #4486c6 !important;
+.shiki,
+.shiki span {
+  color: var(--shiki-light);
+  background-color: var(--shiki-light-bg);
 }
 
-[data-theme="light"] .btn-primary {
-  background-color: #4486c6 !important;
-  border-color: #4486c6 !important;
+[data-theme="dark"] .shiki,
+[data-theme="dark"] .shiki span {
+  color: var(--shiki-dark);
+  background-color: var(--shiki-dark-bg);
 }
 
-[data-theme="light"] .btn-primary:hover {
-  background-color: #3a75b3 !important;
-  border-color: #3a75b3 !important;
-}
-
-[data-theme="light"] .bg-gradient-to-r.from-primary {
-  --tw-gradient-from: #4486c6 !important;
-}
-
-[data-theme="light"] .bg-gradient-to-r.to-primary\/50 {
-  --tw-gradient-to: rgb(68 134 198 / 0.5) !important;
-}
-
-/* Dark mode overrides */
-[data-theme="dark"] .text-primary {
-  color: #6aa3d4 !important;
-}
-
-[data-theme="dark"] .bg-primary {
-  background-color: #6aa3d4 !important;
-}
-
-[data-theme="dark"] .btn-primary {
-  background-color: #6aa3d4 !important;
-  border-color: #6aa3d4 !important;
-}
-
-[data-theme="dark"] .btn-primary:hover {
-  background-color: #5893c4 !important;
-  border-color: #5893c4 !important;
-}
-
-[data-theme="dark"] .bg-gradient-to-r.from-primary {
-  --tw-gradient-from: #6aa3d4 !important;
-}
-
-[data-theme="dark"] .bg-gradient-to-r.to-primary\/50 {
-  --tw-gradient-to: rgb(106 163 212 / 0.5) !important;
-}
-
-/* Badge styling for dark mode */
-[data-theme="dark"] .badge-primary {
-  background-color: #6aa3d4 !important;
-  border-color: #6aa3d4 !important;
-  color: #1e293b !important;
-}
-
-/* Mobile-specific improvements */
 @media (max-width: 768px) {
-  /* Prevent horizontal scroll */
-  body {
-    overflow-x: hidden;
-  }
-
-  /* Ensure containers respect viewport */
   .hero,
   .navbar,
   .container {
     max-width: 100vw;
   }
 
-  /* Fix padding on mobile */
-  .px-2 {
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
-  }
-
-  /* Improve touch targets */
   .btn,
   .menu li a {
     min-height: 44px;
     min-width: 44px;
   }
 
-  /* Fix dropdown menu positioning */
-  .dropdown-content {
-    left: 0;
-    right: auto;
-  }
-
-  /* Improve text readability on small screens */
-  .text-4xl {
-    font-size: 1.875rem;
-    line-height: 2.25rem;
-  }
-
-  /* Fix code block overflow */
   pre,
   code {
     overflow-x: auto;

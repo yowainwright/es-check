@@ -606,7 +606,9 @@ test("re-throws non-ES-Check errors from detectFeatures", () => {
   const utilsPath = require.resolve("../../../lib/check-runner/utils.js");
   delete require.cache[utilsPath];
 
-  const { createFileProcessor: freshProcessor } = require("../../../lib/check-runner/utils.js");
+  const {
+    createFileProcessor: freshProcessor,
+  } = require("../../../lib/check-runner/utils.js");
 
   const config = { checkFeatures: true };
   const acornOpts = { ecmaVersion: 2025, sourceType: "script" };

@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="description"
+      content="es-check - Check JavaScript files ES version compatibility"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="preload" href="/es-check-logo.svg" as="image" />
+    <link rel="modulepreload" href="/src/main.tsx" />
+
+    <link rel="dns-prefetch" href="https://badge.fury.io" />
+    <link rel="dns-prefetch" href="https://img.shields.io" />
+    <link rel="dns-prefetch" href="https://github.com" />
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="theme-color" content="#4486c6" />
+    <title>es-check - JavaScript ES Version Checker</title>
+
+    <script>
+      const theme =
+        localStorage.getItem("theme") ||
+        (window.matchMedia("(prefers-color-scheme: dark)").matches
+          ? "dark"
+          : "light");
+      document.documentElement.setAttribute("data-theme", theme);
+    </script>
+
+    <style>
+      #root {
+        min-height: 100vh;
+      }
+      .initial-loader {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--fallback-b1, oklch(var(--b1)));
+      }
+      .initial-loader::after {
+        content: "";
+        width: 2rem;
+        height: 2rem;
+        border: 2px solid transparent;
+        border-top-color: #4486c6;
+        border-radius: 50%;
+        animation: spin 0.6s linear infinite;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"><div class="initial-loader"></div></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
