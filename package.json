@@ -56,7 +56,7 @@
     "oxlint": "^1.29.0",
     "pastoralist": "1.9.0",
     "prettier": "3.7.4",
-    "release-it": "19.0.6"
+    "release-it": "19.2.2"
   },
   "dependencies": {
     "acorn": "8.15.0",
@@ -117,14 +117,7 @@
           "es-check": "vite (transitive dependency)"
         },
         "ledger": {
-          "addedDate": "2025-12-19T09:08:36.393Z",
-          "reason": "Security fix: vite allows server.fs.deny bypass via backslash on Windows (medium)",
-          "securityChecked": true,
-          "securityCheckDate": "2025-12-19T09:08:36.393Z",
-          "securityProvider": "github",
-          "cve": "CVE-2025-62522",
-          "severity": "medium",
-          "url": "https://github.com/yowainwright/es-check/security/dependabot/38"
+          "addedDate": "2025-12-29T05:15:16.557Z"
         }
       },
       "tmp@0.2.4": {
@@ -132,7 +125,7 @@
           "es-check": "tmp (transitive dependency)"
         },
         "ledger": {
-          "addedDate": "2025-12-19T09:08:36.393Z"
+          "addedDate": "2025-12-29T05:15:16.557Z"
         }
       },
       "astro@5.16.6": {
@@ -141,14 +134,7 @@
           "es-check-docs": "astro@^5.15.9"
         },
         "ledger": {
-          "addedDate": "2025-12-19T09:08:36.393Z",
-          "reason": "Security fix: Astro Cloudflare adapter has Stored Cross-site Scripting vulnerability in /_image endpoint (medium)",
-          "securityChecked": true,
-          "securityCheckDate": "2025-12-19T09:08:36.393Z",
-          "securityProvider": "github",
-          "cve": "CVE-2025-65019",
-          "severity": "medium",
-          "url": "https://github.com/yowainwright/es-check/security/dependabot/51"
+          "addedDate": "2025-12-29T05:15:16.557Z"
         }
       },
       "js-yaml@4.1.1": {
@@ -156,14 +142,7 @@
           "es-check": "js-yaml (transitive dependency)"
         },
         "ledger": {
-          "addedDate": "2025-12-19T09:08:36.393Z",
-          "reason": "Security fix: js-yaml has prototype pollution in merge (<<) (medium)",
-          "securityChecked": true,
-          "securityCheckDate": "2025-12-19T09:08:36.393Z",
-          "securityProvider": "github",
-          "cve": "CVE-2025-64718",
-          "severity": "medium",
-          "url": "https://github.com/yowainwright/es-check/security/dependabot/46"
+          "addedDate": "2025-12-29T05:15:16.557Z"
         }
       },
       "mdast-util-to-hast@13.2.1": {
@@ -171,14 +150,7 @@
           "es-check": "mdast-util-to-hast (transitive dependency)"
         },
         "ledger": {
-          "addedDate": "2025-12-19T09:08:36.393Z",
-          "reason": "Security fix: mdast-util-to-hast has unsanitized class attribute (medium)",
-          "securityChecked": true,
-          "securityCheckDate": "2025-12-19T09:08:36.393Z",
-          "securityProvider": "github",
-          "cve": "CVE-2025-66400",
-          "severity": "medium",
-          "url": "https://github.com/yowainwright/es-check/security/dependabot/53"
+          "addedDate": "2025-12-29T05:15:16.557Z"
         }
       }
     },
