@@ -17,4 +17,8 @@ export { TableOfContents } from "./TableOfContents";
 export { ThemeToggle } from "./ThemeToggle";
 
 export type { Heading } from "./TableOfContents";
-export type { TerminalDemo, TerminalLine, AnimatedTerminalProps } from "./AnimatedTerminal";
+export type {
+  TerminalDemo,
+  TerminalLine,
+  AnimatedTerminalProps,
+} from "./AnimatedTerminal";

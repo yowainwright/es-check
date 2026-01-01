@@ -1,6 +1,10 @@
 import { useState, useEffect } from "react";
 
-export function useTypingAnimation(text: string, speed: number, isActive: boolean) {
+export function useTypingAnimation(
+  text: string,
+  speed: number,
+  isActive: boolean,
+) {
   const [displayedText, setDisplayedText] = useState("");
 
   useEffect(() => {

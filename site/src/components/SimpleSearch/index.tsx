@@ -58,7 +58,7 @@ export function SimpleSearch() {
       acc[category].push(item);
       return acc;
     },
-    {} as Record<string, SearchItem[]>
+    {} as Record<string, SearchItem[]>,
   );
 
   return (
@@ -74,7 +74,7 @@ export function SimpleSearch() {
             inputRef={inputRef}
             onClose={closeSearch}
           />,
-          document.body
+          document.body,
         )}
     </div>
   );
@@ -87,7 +87,9 @@ function SearchButton({ onClick }: { onClick: () => void }) {
       className="flex items-center gap-2 md:gap-3 px-3 md:px-4 py-2 bg-base-200/50 hover:bg-base-200 rounded-lg transition-all duration-200 min-w-[140px] md:min-w-[200px] text-left"
     >
       <Search className="h-4 w-4 text-base-content/50" />
-      <span className="text-xs md:text-sm text-base-content/50 flex-1">Search...</span>
+      <span className="text-xs md:text-sm text-base-content/50 flex-1">
+        Search...
+      </span>
       <kbd className="hidden md:flex px-1.5 py-0.5 text-xs rounded border border-base-300 bg-base-100 font-mono text-base-content/70">
         <span className="text-sm">⌘</span> K
       </kbd>
@@ -103,18 +105,29 @@ interface SearchModalProps {
   onClose: () => void;
 }
 
-function SearchModal({ query, setQuery, groupedResults, inputRef, onClose }: SearchModalProps) {
+function SearchModal({
+  query,
+  setQuery,
+  groupedResults,
+  inputRef,
+  onClose,
+}: SearchModalProps) {
   const hasResults = Object.keys(groupedResults).length > 0;
   const showNoResults = query.length > 1 && !hasResults;
   const showInitialState = query.length <= 1;
 
   return (
     <>
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9998]" onClick={onClose} />
+      <div
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9998]"
+        onClick={onClose}
+      />
       <div className="fixed inset-0 z-[9999] flex items-start justify-center pt-[5vh] md:pt-[10vh] pointer-events-none">
         <div className="bg-base-100 rounded-lg md:rounded-2xl shadow-2xl border border-base-300 overflow-hidden w-full max-w-2xl mx-2 md:mx-4 pointer-events-auto">
           <SearchHeader query={query} setQuery={setQuery} inputRef={inputRef} />
-          {hasResults && <SearchResults groupedResults={groupedResults} onClose={onClose} />}
+          {hasResults && (
+            <SearchResults groupedResults={groupedResults} onClose={onClose} />
+          )}
           {showNoResults && <NoResults query={query} />}
           {showInitialState && <InitialState />}
         </div>
@@ -165,7 +178,9 @@ function SearchResults({ groupedResults, onClose }: SearchResultsProps) {
       {Object.entries(groupedResults).map(([category, items]) => (
         <div key={category}>
           <div className="px-4 pt-3 pb-2">
-            <div className="text-xs font-semibold text-base-content/60 uppercase tracking-wider">{category}</div>
+            <div className="text-xs font-semibold text-base-content/60 uppercase tracking-wider">
+              {category}
+            </div>
           </div>
           {items.map((result, index) => (
             <Link
@@ -174,8 +189,12 @@ function SearchResults({ groupedResults, onClose }: SearchResultsProps) {
               className="block px-4 py-3 hover:bg-primary/10 focus:bg-primary/10 focus:outline-none transition-colors border-l-2 border-transparent hover:border-primary focus:border-primary"
               onClick={onClose}
             >
-              <div className="font-medium text-base-content">{result.title}</div>
-              <div className="text-sm text-base-content/60 mt-0.5">{result.description}</div>
+              <div className="font-medium text-base-content">
+                {result.title}
+              </div>
+              <div className="text-sm text-base-content/60 mt-0.5">
+                {result.description}
+              </div>
             </Link>
           ))}
         </div>
@@ -189,7 +208,9 @@ function NoResults({ query }: { query: string }) {
     <div className="p-12 text-center">
       <Frown className="h-12 w-12 mx-auto text-base-content/20 mb-4" />
       <div className="text-base-content/60">No results found for "{query}"</div>
-      <div className="text-sm text-base-content/40 mt-2">Try searching for "installation" or "configuration"</div>
+      <div className="text-sm text-base-content/40 mt-2">
+        Try searching for "installation" or "configuration"
+      </div>
     </div>
   );
 }
@@ -198,7 +219,9 @@ function InitialState() {
   return (
     <div className="p-12 text-center">
       <div className="text-base-content/60">Start typing to search...</div>
-      <div className="text-sm text-base-content/40 mt-2">Search docs, commands, and features</div>
+      <div className="text-sm text-base-content/40 mt-2">
+        Search docs, commands, and features
+      </div>
       <div className="flex justify-center gap-6 mt-6">
         <KeyboardHint keys="↑↓" label="Navigate" />
         <KeyboardHint keys="↵" label="Select" />
@@ -211,7 +234,9 @@ function InitialState() {
 function KeyboardHint({ keys, label }: { keys: string; label: string }) {
   return (
     <div className="flex items-center gap-2 text-xs text-base-content/40">
-      <kbd className="px-1.5 py-0.5 text-xs rounded border border-base-300 bg-base-200 font-mono">{keys}</kbd>
+      <kbd className="px-1.5 py-0.5 text-xs rounded border border-base-300 bg-base-200 font-mono">
+        {keys}
+      </kbd>
       <span>{label}</span>
     </div>
   );

@@ -13,7 +13,11 @@ export function Footer() {
         </div>
 
         <Link to="/" className="hover:opacity-80 transition">
-          <img src={resolveUrl("/es-check-logo.svg")} alt="ES Check" className="h-8 w-8" />
+          <img
+            src={resolveUrl("/es-check-logo.svg")}
+            alt="ES Check"
+            className="h-8 w-8"
+          />
         </Link>
 
         <div className="lg:flex-1 flex justify-center lg:justify-end">

@@ -14,7 +14,11 @@ function Pre({ children, ...props }: React.HTMLAttributes<HTMLPreElement>) {
   );
 }
 
-function Anchor({ href, children, ...props }: React.AnchorHTMLAttributes<HTMLAnchorElement>) {
+function Anchor({
+  href,
+  children,
+  ...props
+}: React.AnchorHTMLAttributes<HTMLAnchorElement>) {
   const isInternal = href?.startsWith("/") || href?.startsWith("#");
 
   if (isInternal && href && !href.startsWith("#")) {
@@ -38,7 +42,11 @@ function Anchor({ href, children, ...props }: React.AnchorHTMLAttributes<HTMLAnc
   );
 }
 
-function Heading2({ children, id, ...props }: React.HTMLAttributes<HTMLHeadingElement>) {
+function Heading2({
+  children,
+  id,
+  ...props
+}: React.HTMLAttributes<HTMLHeadingElement>) {
   return (
     <h2 id={id} className="group scroll-mt-24" {...props}>
       <a href={`#${id}`} className="no-underline hover:underline">
@@ -48,7 +56,11 @@ function Heading2({ children, id, ...props }: React.HTMLAttributes<HTMLHeadingEl
   );
 }
 
-function Heading3({ children, id, ...props }: React.HTMLAttributes<HTMLHeadingElement>) {
+function Heading3({
+  children,
+  id,
+  ...props
+}: React.HTMLAttributes<HTMLHeadingElement>) {
   return (
     <h3 id={id} className="group scroll-mt-24" {...props}>
       <a href={`#${id}`} className="no-underline hover:underline">

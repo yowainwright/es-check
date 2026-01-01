@@ -98,7 +98,9 @@ function Breadcrumbs({ title }: { title: string }) {
   );
 }
 
-type MDXContent = React.ComponentType<{ components?: Record<string, React.ComponentType> }>;
+type MDXContent = React.ComponentType<{
+  components?: Record<string, React.ComponentType>;
+}>;
 
 interface ContentRendererProps {
   loading: boolean;

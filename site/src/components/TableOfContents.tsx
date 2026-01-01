@@ -41,27 +41,46 @@ export function TableOfContents({ headings }: TableOfContentsProps) {
       <h1 className="mb-4 text-xl font-bold font-outfit">On this page</h1>
       <ul>
         {headings.map((heading) => (
-          <HeadingItem key={heading.slug} heading={heading} activeId={activeId} />
+          <HeadingItem
+            key={heading.slug}
+            heading={heading}
+            activeId={activeId}
+          />
         ))}
       </ul>
     </div>
   );
 }
 
-function HeadingItem({ heading, activeId }: { heading: Heading; activeId: string }) {
+function HeadingItem({
+  heading,
+  activeId,
+}: {
+  heading: Heading;
+  activeId: string;
+}) {
   const isActive = activeId === heading.slug;
-  const linkClass = isActive ? "text-primary font-semibold" : "hover:text-primary";
+  const linkClass = isActive
+    ? "text-primary font-semibold"
+    : "hover:text-primary";
   const hasSubheadings = heading.subheadings && heading.subheadings.length > 0;
 
   return (
     <li className="mb-4">
-      <a href={`#${heading.slug}`} className={`text-sm transition font-outfit ${linkClass}`}>
+      <a
+        href={`#${heading.slug}`}
+        className={`text-sm transition font-outfit ${linkClass}`}
+      >
         {heading.text}
       </a>
       {hasSubheadings && (
         <ul className="ml-4 mt-2">
           {heading.subheadings!.map((subheading) => (
-            <HeadingItem key={subheading.slug} heading={subheading} activeId={activeId} />
+            <HeadingItem
+              key={subheading.slug}
+              heading={subheading}
+              activeId={activeId}
+            />
           ))}
         </ul>
       )}

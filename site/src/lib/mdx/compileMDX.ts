@@ -5,7 +5,10 @@ import rehypeSlug from "rehype-slug";
 import rehypeShikiFromHighlighter from "@shikijs/rehype/core";
 import { createHighlighterCore } from "shiki/core";
 import { createOnigurumaEngine } from "shiki/engine/oniguruma";
-import { transformerNotationDiff, transformerNotationHighlight } from "@shikijs/transformers";
+import {
+  transformerNotationDiff,
+  transformerNotationHighlight,
+} from "@shikijs/transformers";
 import GithubSlugger from "github-slugger";
 
 const highlighterPromise = createHighlighterCore({
@@ -60,7 +63,10 @@ function extractHeadings(source: string): Heading[] {
   return headings;
 }
 
-function extractFrontmatter(source: string): { frontmatter: Record<string, unknown>; content: string } {
+function extractFrontmatter(source: string): {
+  frontmatter: Record<string, unknown>;
+  content: string;
+} {
   const frontmatterRegex = /^---\n([\s\S]*?)\n---\n/;
   const match = source.match(frontmatterRegex);
 
@@ -104,7 +110,10 @@ export async function compileMDX(source: string): Promise<CompiledMDX> {
             dark: "github-dark",
           },
           defaultColor: false,
-          transformers: [transformerNotationDiff(), transformerNotationHighlight()],
+          transformers: [
+            transformerNotationDiff(),
+            transformerNotationHighlight(),
+          ],
         },
       ],
     ],

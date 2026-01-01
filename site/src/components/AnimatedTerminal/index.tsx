@@ -85,13 +85,13 @@ export function AnimatedTerminal({
   const { isTyping, setIsTyping } = useLineProcessor(
     hasStarted ? currentLine : undefined,
     visibleLines,
-    moveToNextLine
+    moveToNextLine,
   );
 
   const { displayedText, isComplete } = useTypingAnimation(
     currentLine?.text ?? "",
     typingSpeed,
-    isTyping
+    isTyping,
   );
 
   useEffect(() => {
@@ -107,15 +107,27 @@ export function AnimatedTerminal({
   };
 
   return (
-    <div ref={containerRef} className={TERMINAL_CLASSES} style={containerStyle} data-prefix=" ">
+    <div
+      ref={containerRef}
+      className={TERMINAL_CLASSES}
+      style={containerStyle}
+      data-prefix=" "
+    >
       <span className="terminal-header">{title}</span>
       {visibleLines.map((line, index) => (
-        <pre key={index} data-prefix={line.prefix ?? ""} className={line.className ?? ""}>
+        <pre
+          key={index}
+          data-prefix={line.prefix ?? ""}
+          className={line.className ?? ""}
+        >
           <code dangerouslySetInnerHTML={{ __html: line.text }} />
         </pre>
       ))}
       {isTyping && currentLine && (
-        <pre data-prefix={currentLine.prefix ?? ""} className={currentLine.className ?? ""}>
+        <pre
+          data-prefix={currentLine.prefix ?? ""}
+          className={currentLine.className ?? ""}
+        >
           <code>
             <span dangerouslySetInnerHTML={{ __html: displayedText }} />
             <span className="cursor" />
@@ -126,4 +138,8 @@ export function AnimatedTerminal({
   );
 }
 
-export type { AnimatedTerminalProps, TerminalDemo, TerminalLine } from "./types";
+export type {
+  AnimatedTerminalProps,
+  TerminalDemo,
+  TerminalLine,
+} from "./types";

@@ -16,7 +16,9 @@ function getPaginationLinks(currentPath: string): PaginationLinks {
   let currentItemIndex: number | undefined;
 
   SIDEBAR.forEach((section, sectionIdx) => {
-    const itemIdx = section.items.findIndex((item) => item.href === currentPath);
+    const itemIdx = section.items.findIndex(
+      (item) => item.href === currentPath,
+    );
     if (itemIdx !== -1) {
       currentSectionIndex = sectionIdx;
       currentItemIndex = itemIdx;
@@ -58,7 +60,13 @@ export function Pagination({ currentPath }: PaginationProps) {
   );
 }
 
-function PaginationButton({ direction, item }: { direction: "prev" | "next"; item: SidebarItem }) {
+function PaginationButton({
+  direction,
+  item,
+}: {
+  direction: "prev" | "next";
+  item: SidebarItem;
+}) {
   const isPrev = direction === "prev";
   const containerClass = isPrev ? "mr-auto" : "ml-auto";
 

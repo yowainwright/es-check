@@ -3,16 +3,24 @@ import { Loader2 } from "lucide-react";
 import { HeroSection } from "@/components";
 
 const FeaturesSection = lazy(() =>
-  import("@/components/FeaturesSection").then((m) => ({ default: m.FeaturesSection }))
+  import("@/components/FeaturesSection").then((m) => ({
+    default: m.FeaturesSection,
+  })),
 );
 const CodeBlockSection = lazy(() =>
-  import("@/components/CodeBlockSection").then((m) => ({ default: m.CodeBlockSection }))
+  import("@/components/CodeBlockSection").then((m) => ({
+    default: m.CodeBlockSection,
+  })),
 );
 const ContributorsSection = lazy(() =>
-  import("@/components/ContributorsSection").then((m) => ({ default: m.ContributorsSection }))
+  import("@/components/ContributorsSection").then((m) => ({
+    default: m.ContributorsSection,
+  })),
 );
 const InstallSection = lazy(() =>
-  import("@/components/InstallSection").then((m) => ({ default: m.InstallSection }))
+  import("@/components/InstallSection").then((m) => ({
+    default: m.InstallSection,
+  })),
 );
 
 function SectionLoader() {
