@@ -1,4 +1,5 @@
 import type { TerminalProps } from "./types";
+import { TERMINAL } from "./constants";
 
 export function Terminal({
   children,
@@ -14,16 +15,16 @@ export function Terminal({
   };
 
   return (
-    <div id={id} className={`terminal ${className}`} style={style}>
-      <div className="terminal-header">
-        <div className="terminal-traffic-lights">
-          <span className="terminal-traffic-light terminal-traffic-light--close" />
-          <span className="terminal-traffic-light terminal-traffic-light--minimize" />
-          <span className="terminal-traffic-light terminal-traffic-light--maximize" />
+    <div id={id} className={`${TERMINAL.container} ${className}`} style={style}>
+      <div className={TERMINAL.header}>
+        <div className={TERMINAL.trafficLights}>
+          <span className={`${TERMINAL.trafficLight} ${TERMINAL.close}`} />
+          <span className={`${TERMINAL.trafficLight} ${TERMINAL.minimize}`} />
+          <span className={`${TERMINAL.trafficLight} ${TERMINAL.maximize}`} />
         </div>
-        <span className="terminal-title">{title}</span>
+        <span className={TERMINAL.title}>{title}</span>
       </div>
-      <div className="terminal-content">{children}</div>
+      <div className={TERMINAL.content}>{children}</div>
     </div>
   );
 }
