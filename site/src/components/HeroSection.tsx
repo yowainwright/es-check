@@ -7,7 +7,7 @@ export function HeroSection() {
   return (
     <div className="hero">
       <BackgroundBlobs />
-      <div className="hero-content text-center min-h-[40rem] font-outfit">
+      <div className="hero-content text-center min-h-[40rem] font-sans">
         <div className="max-w-2xl md:max-w-6xl">
           <Logo />
           <VersionBadge />

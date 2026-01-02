@@ -38,7 +38,7 @@ export function TableOfContents({ headings }: TableOfContentsProps) {
 
   return (
     <div className="hidden xl:sticky xl:block xl:top-28">
-      <h1 className="mb-4 text-xl font-bold font-outfit">On this page</h1>
+      <h1 className="mb-4 text-xl font-bold font-sans">On this page</h1>
       <ul>
         {headings.map((heading) => (
           <HeadingItem
@@ -69,7 +69,7 @@ function HeadingItem({
     <li className="mb-4">
       <a
         href={`#${heading.slug}`}
-        className={`text-sm transition font-outfit ${linkClass}`}
+        className={`text-sm transition font-sans ${linkClass}`}
       >
         {heading.text}
       </a>
