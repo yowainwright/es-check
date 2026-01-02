@@ -19,7 +19,7 @@ export function CodeBlockSection() {
 
 function ContentBlock() {
   return (
-    <div className="xl:max-w-xl flex flex-col justify-center font-outfit">
+    <div className="xl:max-w-xl flex flex-col justify-center font-sans">
       <h2 className="text-4xl lg:text-5xl font-black">
         Simple <span className="text-primary">ES Version </span>Checking for
         Production

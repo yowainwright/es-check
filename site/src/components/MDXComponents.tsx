@@ -1,10 +1,17 @@
 import { Link } from "@tanstack/react-router";
 import { CopyButton } from "./CopyButton";
 
-function Pre({ children, ...props }: React.HTMLAttributes<HTMLPreElement>) {
+function Pre({
+  children,
+  className,
+  ...props
+}: React.HTMLAttributes<HTMLPreElement>) {
   return (
     <div className="relative group">
-      <pre {...props} className="overflow-x-auto p-4 rounded-lg">
+      <pre
+        {...props}
+        className={`overflow-x-auto p-4 rounded-lg border border-base-content/20 shadow-inner ${className || ""}`}
+      >
         {children}
       </pre>
       <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">

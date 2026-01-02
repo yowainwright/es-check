@@ -13,7 +13,6 @@
     "test": "node --import tsx --test 'src/**/__tests__/*.test.ts' 'src/**/__tests__/*.test.tsx'"
   },
   "dependencies": {
-    "@fontsource-variable/outfit": "^5.0.13",
     "@mdx-js/mdx": "^3.1.0",
     "@shikijs/rehype": "^3.2.1",
     "@shikijs/transformers": "^3.2.1",

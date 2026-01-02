@@ -51,7 +51,7 @@ export function DocsPage() {
   const currentPath = `/docs/${slug}`;
 
   return (
-    <section className="flex flex-col lg:flex-row p-4 sm:p-6 md:p-10 md:pt-10 font-outfit gap-8">
+    <section className="flex flex-col lg:flex-row p-4 sm:p-6 md:p-10 md:pt-10 font-sans gap-8">
       <article className="flex flex-col w-full max-w-[620px]">
         <Breadcrumbs title={title} />
 

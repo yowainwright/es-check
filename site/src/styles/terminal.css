@@ -2,7 +2,8 @@
   position: relative;
   text-align: left;
   border-radius: 0.5rem;
-  border: 1px solid color-mix(in oklch, var(--color-base-content) 30%, transparent);
+  border: 1px solid
+    color-mix(in oklch, var(--color-base-content) 30%, transparent);
   background-color: var(--color-base-200);
   overflow: hidden;
 }

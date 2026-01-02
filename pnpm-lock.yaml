@@ -43,9 +43,6 @@ importers:
 
   site:
     dependencies:
-      '@fontsource-variable/outfit':
-        specifier: ^5.0.13
-        version: 5.2.8
       '@mdx-js/mdx':
         specifier: ^3.1.0
         version: 3.1.1
@@ -513,9 +510,6 @@ packages:
     engines: {node: '>=18'}
     cpu: [x64]
     os: [win32]
-
-  '@fontsource-variable/outfit@5.2.8':
-    resolution: {integrity: sha512-4oUDCZx/Tcz6HZP423w/niqEH31Gks5IsqHV2ZZz1qKHaVIZdj2f0/S1IK2n8jl6Xo0o3N+3RjNHlV9R73ozQA==}
 
   '@inquirer/ansi@1.0.2':
     resolution: {integrity: sha512-S8qNSZiYzFd0wAcyG5AXCvUHC5Sr7xpZ9wZ2py9XR88jUz8wooStVx5M6dRzczbBWjic9NP7+rY0Xi7qqK/aMQ==}
@@ -2875,8 +2869,6 @@ snapshots:
 
   '@esbuild/win32-x64@0.27.2':
     optional: true
-
-  '@fontsource-variable/outfit@5.2.8': {}
 
   '@inquirer/ansi@1.0.2': {}
 
