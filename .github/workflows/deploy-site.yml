@@ -33,10 +33,7 @@ jobs:
         run: pnpm install
 
       - name: Build site
-        run: |
-          # For GitHub Pages deployment, we need to use a special config
-          echo "Building for GitHub Pages deployment..."
-          pnpm astro build --config astro.config.gh-pages.mjs
+        run: pnpm build
         working-directory: ./site
 
       - name: Setup Pages
