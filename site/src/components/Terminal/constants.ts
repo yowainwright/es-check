@@ -1,6 +1,8 @@
 export const TERMINAL = {
-  container: "relative text-left rounded-lg border border-base-content/20 bg-base-200 overflow-hidden",
-  header: "relative h-10 bg-base-300 border-b border-base-300 flex items-center justify-center",
+  container:
+    "relative text-left rounded-lg border border-base-content/20 bg-base-200 overflow-hidden",
+  header:
+    "relative h-10 bg-base-300 border-b border-base-300 flex items-center justify-center",
   trafficLights: "absolute left-4 top-1/2 -translate-y-1/2 flex gap-2",
   trafficLight: "w-3 h-3 rounded-full",
   close: "bg-[#ff5f56]",

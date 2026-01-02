@@ -22,10 +22,10 @@ export interface AnimatedTerminalProps {
 export type CurrentLineData = {
   className?: string;
   prefix?: string;
-}
+};
 
 export type CodeBlockProps = {
   isTyping: boolean;
   currentLine?: CurrentLineData;
   displayedText: string;
-}
+};
