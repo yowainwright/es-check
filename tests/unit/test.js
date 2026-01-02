@@ -35,7 +35,7 @@ const generatedFixturesRoot = path.join(process.cwd(), "fixtures");
 
 it("🎉  Es Check should pass when checking an array of es5 files as es5", (done) => {
   execFileWithGlob(
-    "node",
+    process.execPath,
     ["lib/index.js", "es5", FIXTURE_FILES.ES5, FIXTURE_FILES.ES5_2],
     (err, stdout, stderr) => {
       if (assertSuccess(err, stdout, stderr, done)) {
@@ -47,7 +47,7 @@ it("🎉  Es Check should pass when checking an array of es5 files as es5", (don
 
 it("🎉  Es Check should pass when checking a file with a hash bang", (done) => {
   execFileWithGlob(
-    "node",
+    process.execPath,
     ["lib/index.js", "es6", FIXTURE_FILES.HASH_BANG, "--allow-hash-bang"],
     (err, stdout, stderr) => {
       if (assertSuccess(err, stdout, stderr, done)) {
@@ -59,7 +59,7 @@ it("🎉  Es Check should pass when checking a file with a hash bang", (done) =>
 
 it("👌  Es Check should fail when checking an array of es6 files as es5", (done) => {
   execFileWithGlob(
-    "node",
+    process.execPath,
     ["lib/index.js", "es5", FIXTURE_FILES.ES6, FIXTURE_FILES.ES6_2],
     (err, stdout) => {
       if (assertFailure(err, stdout, done)) {
@@ -71,7 +71,7 @@ it("👌  Es Check should fail when checking an array of es6 files as es5", (don
 
 it("🎉  Es Check should pass when checking a glob of es6 files as es6", (done) => {
   execFileWithGlob(
-    "node",
+    process.execPath,
     ["lib/index.js", "es6", FIXTURE_FILES.ES6],
     (err, stdout, stderr) => {
       if (assertSuccess(err, stdout, stderr, done)) {
@@ -83,7 +83,7 @@ it("🎉  Es Check should pass when checking a glob of es6 files as es6", (done)
 
 it("👌  Es Check fails when give an invalid version", (done) => {
   execFileWithGlob(
-    "node",
+    process.execPath,
     ["lib/index.js", "foo", "./tests/fixtures/*.js"],
     (err, stdout) => {
       if (assertFailure(err, stdout, done)) {
@@ -95,7 +95,7 @@ it("👌  Es Check fails when give an invalid version", (done) => {
 
 it("👌  Es Check should fail when checking a glob of es6 files as es5", (done) => {
   execFileWithGlob(
-    "node",
+    process.execPath,
     ["lib/index.js", "es5", "./tests/fixtures/*.js"],
     (err, stdout) => {
       if (assertFailure(err, stdout, done)) {
@@ -107,7 +107,7 @@ it("👌  Es Check should fail when checking a glob of es6 files as es5", (done)
 
 it("👌  Es Check should fail when given a glob that matches no files", (done) => {
   execFileWithGlob(
-    "node",
+    process.execPath,
     ["lib/index.js", "es5", "foo-bar.js"],
     (err, stdout) => {
       if (assertFailure(err, stdout, done)) {
@@ -119,7 +119,7 @@ it("👌  Es Check should fail when given a glob that matches no files", (done) 
 
 it("👌  Es Check should fail when given a glob that matches files and a glob that does not", (done) => {
   execFileWithGlob(
-    "node",
+    process.execPath,
     ["lib/index.js", "es5", "./tests/fixtures/es5.js", "foo-bar.js"],
     (err, stdout) => {
       if (assertFailure(err, stdout, done)) {
@@ -131,7 +131,7 @@ it("👌  Es Check should fail when given a glob that matches files and a glob t
 
 it("👌  Es Check should fail when checking a glob of es6 modules as es5 without --module flag", (done) => {
   execFileWithGlob(
-    "node",
+    process.execPath,
     ["lib/index.js", "es5", "./tests/fixtures/modules/*.js"],
     (err, stdout) => {
       if (assertFailure(err, stdout, done)) {
@@ -143,7 +143,7 @@ it("👌  Es Check should fail when checking a glob of es6 modules as es5 withou
 
 it("🎉  Es Check should pass when checking es5 syntax module with es5 and --module flag", (done) => {
   execFileWithGlob(
-    "node",
+    process.execPath,
     [
       "lib/index.js",
       "es5",
@@ -160,7 +160,7 @@ it("🎉  Es Check should pass when checking es5 syntax module with es5 and --mo
 
 it("🎉  Es Check should pass when checking a glob of es6 modules as es6 without --module flag", (done) => {
   execFileWithGlob(
-    "node",
+    process.execPath,
     ["lib/index.js", "es6", "./tests/fixtures/modules/*.js"],
     (err, stdout, stderr) => {
       if (err) {
@@ -177,7 +177,7 @@ it("🎉  Es Check should pass when checking a glob of es6 modules as es6 withou
 
 it("🎉  Es Check should pass when checking a glob of es6 modules using the --module flag", (done) => {
   execFileWithGlob(
-    "node",
+    process.execPath,
     ["lib/index.js", "es6", "./tests/fixtures/modules/*.js", "--module"],
     (err, stdout, stderr) => {
       assert(stdout);
@@ -195,7 +195,7 @@ it("🎉  Es Check should pass when checking a glob of es6 modules using the --m
 
 it("🎉  Es Check should pass when checking a glob of es6 modules using the --module flag in another order", (done) => {
   execFileWithGlob(
-    "node",
+    process.execPath,
     [
       "lib/index.js",
       "es6",
@@ -219,7 +219,7 @@ it("🎉  Es Check should pass when checking a glob of es6 modules using the --m
 
 it("🎉  Es Check should fail when checking a glob of es6 modules using the --module flag in any order", (done) => {
   execFileWithGlob(
-    "node",
+    process.execPath,
     ["lib/index.js", "es6", "--module", "./tests/fixtures/modules/*.js"],
     (err, stdout) => {
       /**
@@ -244,7 +244,7 @@ it("👌 Es Check should read from an .escheckrc file for config", (done) => {
   const configFileName = createUniqueConfigFile(config, "read-from-escheckrc");
 
   execFileWithGlob(
-    "node",
+    process.execPath,
     ["lib/index.js", `--config=${configFileName}`],
     (err, stdout, stderr) => {
       removeConfigFile(configFileName);

@@ -3,7 +3,7 @@ import { Terminal } from "../Terminal";
 import { AnimatedTerminal } from "../AnimatedTerminal";
 import { ES_CHECK_DEMO } from "../AnimatedTerminal/constants";
 
-const TERMINAL_HEIGHT = "520px";
+const TERMINAL_HEIGHT = "530px";
 const TYPING_SPEED = 15;
 
 export function CodeBlockSection() {

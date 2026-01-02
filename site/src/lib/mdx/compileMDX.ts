@@ -4,7 +4,7 @@ import remarkGfm from "remark-gfm";
 import rehypeSlug from "rehype-slug";
 import rehypeShikiFromHighlighter from "@shikijs/rehype/core";
 import { createHighlighterCore } from "shiki/core";
-import { createOnigurumaEngine } from "shiki/engine/oniguruma";
+import { createJavaScriptRegexEngine } from "shiki/engine/javascript";
 import {
   transformerNotationDiff,
   transformerNotationHighlight,
@@ -24,7 +24,7 @@ const highlighterPromise = createHighlighterCore({
     import("shiki/langs/yaml.mjs"),
     import("shiki/langs/groovy.mjs"),
   ],
-  engine: createOnigurumaEngine(import("shiki/wasm")),
+  engine: createJavaScriptRegexEngine(),
 });
 
 export interface Heading {
