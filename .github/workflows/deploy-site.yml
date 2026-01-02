@@ -33,7 +33,7 @@ jobs:
         run: pnpm install
 
       - name: Build site
-        run: pnpm build
+        run: pnpm build && cp dist/index.html dist/404.html
         working-directory: ./site
 
       - name: Setup Pages
