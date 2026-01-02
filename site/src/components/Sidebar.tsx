@@ -26,7 +26,7 @@ export function Sidebar() {
 
 function SidebarHeader() {
   return (
-    <div className="bg-base-100 sticky top-0 z-20 items-center gap-2 bg-opacity-90 px-4 py-2 backdrop-blur lg:flex font-outfit">
+    <div className="bg-base-100 sticky top-0 z-20 items-center gap-2 bg-opacity-90 px-4 py-2 backdrop-blur lg:flex font-sans">
       <Link to="/" className="btn btn-ghost px-2">
         <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/50">
           ES Check
@@ -38,7 +38,7 @@ function SidebarHeader() {
 
 function SidebarNav({ pathname }: { pathname: string }) {
   return (
-    <ul className="menu w-full px-4 py-0 font-outfit">
+    <ul className="menu w-full px-4 py-0 font-sans">
       {SIDEBAR.map((section) => (
         <SidebarSectionItem
           key={section.title}

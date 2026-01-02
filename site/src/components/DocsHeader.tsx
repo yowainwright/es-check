@@ -5,7 +5,7 @@ import { SimpleSearch } from "./SimpleSearch";
 export function DocsHeader() {
   return (
     <header className="sticky top-0 z-30 border-b border-base-content/10 bg-base-100/80 backdrop-blur-xl">
-      <nav className="navbar min-h-16 px-4 font-outfit">
+      <nav className="navbar min-h-16 px-4 font-sans">
         <MobileMenuButton />
         <div className="flex-1">
           <SimpleSearch />

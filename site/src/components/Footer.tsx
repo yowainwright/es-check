@@ -6,7 +6,7 @@ export function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="footer px-4 md:px-10 xl:px-28 py-6 md:py-7 border-t border-base-300 font-outfit">
+    <footer className="footer px-4 md:px-10 xl:px-28 py-6 md:py-7 border-t border-base-300 font-sans">
       <div className="flex flex-col lg:flex-row w-full justify-between items-center gap-3 md:gap-4">
         <div className="text-sm opacity-70 lg:flex-1 text-center lg:text-left">
           <p>&copy; {year} - MIT License</p>

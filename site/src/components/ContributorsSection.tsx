@@ -10,7 +10,7 @@ export function ContributorsSection() {
     : "opacity-0 translate-y-10";
 
   return (
-    <div ref={ref} className={`py-20 lg:py-28 font-outfit ${animationClass}`}>
+    <div ref={ref} className={`py-20 lg:py-28 font-sans ${animationClass}`}>
       <SectionHeader />
       <ContributorGrid />
       <HelpCard />

@@ -75,8 +75,8 @@
 @plugin "@tailwindcss/typography";
 
 @theme {
-  --font-sans:
-    system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    sans-serif;
 }
 
 html {
@@ -93,7 +93,7 @@ body {
   overflow-x: hidden;
 }
 
-.font-outfit {
+.font-sans {
   font-family: var(--font-sans);
 }
 
@@ -107,6 +107,14 @@ body {
 [data-theme="dark"] .shiki span {
   color: var(--shiki-dark);
   background-color: var(--shiki-dark-bg);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .shiki,
+  :root:not([data-theme="light"]) .shiki span {
+    color: var(--shiki-dark);
+    background-color: var(--shiki-dark-bg);
+  }
 }
 
 @media (max-width: 768px) {

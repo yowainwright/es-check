@@ -109,7 +109,7 @@
       "after:release": "echo Successfully released ${name} v${version} to ${repo.repository}."
     }
   },
-  "packageManager": "pnpm@10.26.1",
+  "packageManager": "pnpm@10.27.0",
   "pastoralist": {
     "appendix": {
       "vite@6.4.1": {

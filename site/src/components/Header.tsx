@@ -13,7 +13,7 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-30">
-      <nav className="navbar bg-base-100/80 border-b border-base-content/10 backdrop-blur-3xl justify-center items-center py-2 sm:px-0 md:px-20 font-outfit">
+      <nav className="navbar bg-base-100/80 border-b border-base-content/10 backdrop-blur-3xl justify-center items-center py-2 sm:px-0 md:px-20 font-sans">
         <MobileMenu pathname={pathname} />
         <Logo />
         <DesktopNav pathname={pathname} />

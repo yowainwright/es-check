@@ -39,7 +39,7 @@ export function FeatureCard({ feature, index, isVisible }: FeatureCardProps) {
       className={`${baseClasses} ${visibilityClasses} transition-[opacity,transform] duration-500 ease-out`}
       style={delayStyle}
     >
-      <div className="card-body font-outfit p-6 md:p-8">
+      <div className="card-body font-sans p-6 md:p-8">
         <h2 className="card-title text-lg md:text-xl flex items-center justify-between">
           {feature.title}
           <ArrowRight className="w-5 h-5 text-primary" />
