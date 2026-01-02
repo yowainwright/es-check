@@ -10,21 +10,32 @@ export const INTERSECTION_OBSERVER_OPTIONS = {
   threshold: 0.1,
 };
 
+export const LINE_STYLES = {
+  info: "text-cyan-400",
+  success: "text-success",
+  error: "text-red-400",
+  divider: "opacity-50",
+} as const;
+
 export const ES_CHECK_DEMO: TerminalDemo[] = [
   {
     lines: [
-      { prefix: "$", text: "npx es-check es5 './dist/*.js'", animate: true },
+      {
+        prefix: "$",
+        text: "npx es-check es5 './dist/*.js'",
+        animate: true,
+      },
       {
         prefix: "",
         text: "info: ES-Check: checking 24 files...",
-        className: "text-info",
+        className: LINE_STYLES.info,
         delay: 200,
         animate: false,
       },
       {
         prefix: "",
         text: "info: ✓ ES-Check passed!",
-        className: "text-success",
+        className: LINE_STYLES.success,
         delay: 300,
         animate: false,
       },
@@ -38,14 +49,14 @@ export const ES_CHECK_DEMO: TerminalDemo[] = [
       {
         prefix: "",
         text: "info: ES-Check: checking 3 files...",
-        className: "text-info",
+        className: LINE_STYLES.info,
         delay: 200,
         animate: false,
       },
       {
         prefix: "",
         text: "error: ES-Check: there were 2 errors.",
-        className: "text-error",
+        className: LINE_STYLES.error,
         delay: 300,
         animate: false,
       },
@@ -59,28 +70,28 @@ export const ES_CHECK_DEMO: TerminalDemo[] = [
       {
         prefix: "",
         text: "----",
-        className: "opacity-50",
+        className: LINE_STYLES.divider,
         delay: 50,
         animate: false,
       },
       {
         prefix: "",
         text: "· file: ./build/app.js",
-        className: "text-error",
+        className: LINE_STYLES.error,
         delay: 50,
         animate: false,
       },
       {
         prefix: "",
         text: "· SyntaxError: Unexpected token (12:15)",
-        className: "text-error",
+        className: LINE_STYLES.error,
         delay: 50,
         animate: false,
       },
       {
         prefix: "",
         text: "----",
-        className: "opacity-50",
+        className: LINE_STYLES.divider,
         delay: 50,
         animate: false,
       },
@@ -94,28 +105,28 @@ export const ES_CHECK_DEMO: TerminalDemo[] = [
       {
         prefix: "",
         text: "----",
-        className: "opacity-50",
+        className: LINE_STYLES.divider,
         delay: 50,
         animate: false,
       },
       {
         prefix: "",
         text: "· file: ./build/utils.js",
-        className: "text-error",
+        className: LINE_STYLES.error,
         delay: 50,
         animate: false,
       },
       {
         prefix: "",
         text: "· SyntaxError: 'const' is reserved (8:0)",
-        className: "text-error",
+        className: LINE_STYLES.error,
         delay: 50,
         animate: false,
       },
       {
         prefix: "",
         text: "----",
-        className: "opacity-50",
+        className: LINE_STYLES.divider,
         delay: 50,
         animate: false,
       },

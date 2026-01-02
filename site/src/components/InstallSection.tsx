@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { Rocket } from "lucide-react";
 import { CopyButton } from "./CopyButton";
 import { useScrollAnimation } from "@/hooks";
 
@@ -57,6 +58,7 @@ function InstallationGuideLink() {
         className="btn btn-lg btn-primary btn-glow text-lg"
       >
         Installation Guide
+        <Rocket className="size-5" />
       </Link>
     </div>
   );

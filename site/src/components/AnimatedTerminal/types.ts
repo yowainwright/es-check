@@ -18,3 +18,14 @@ export interface AnimatedTerminalProps {
   onComplete?: () => void;
   autoStart?: boolean;
 }
+
+export type CurrentLineData = {
+  className?: string;
+  prefix?: string;
+};
+
+export type CodeBlockProps = {
+  isTyping: boolean;
+  currentLine?: CurrentLineData;
+  displayedText: string;
+};

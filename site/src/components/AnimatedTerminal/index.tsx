@@ -1,5 +1,9 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import type { AnimatedTerminalProps, TerminalLine } from "./types";
+import type {
+  AnimatedTerminalProps,
+  TerminalLine,
+  CodeBlockProps,
+} from "./types";
 import {
   DEFAULT_TYPING_SPEED,
   DEFAULT_LOOP,
@@ -108,32 +112,43 @@ export function AnimatedTerminal({
 
   return (
     <div ref={containerRef}>
-      {visibleLines.map((line, index) => (
-        <pre
-          key={index}
-          data-prefix={line.prefix ?? ""}
-          className={line.className ?? ""}
-        >
-          <code dangerouslySetInnerHTML={{ __html: line.text }} />
+      {visibleLines.map(({ prefix = "", className = "", text }, index) => (
+        <pre key={index} data-prefix={prefix} className={className}>
+          <code dangerouslySetInnerHTML={{ __html: text }} />
         </pre>
       ))}
-      {isTyping && currentLine && (
-        <pre
-          data-prefix={currentLine.prefix ?? ""}
-          className={currentLine.className ?? ""}
-        >
-          <code>
-            <span dangerouslySetInnerHTML={{ __html: displayedText }} />
-            <span className="cursor" />
-          </code>
-        </pre>
-      )}
+      <CodeBlock
+        isTyping={isTyping}
+        currentLine={currentLine}
+        displayedText={displayedText}
+      />
     </div>
   );
 }
+
+export const CodeBlock = ({
+  isTyping,
+  currentLine,
+  displayedText,
+}: CodeBlockProps) => {
+  const isInactive = !isTyping || !currentLine;
+  if (isInactive) return;
+  const dataPrefix = currentLine.prefix ?? "";
+  const className = currentLine.className ?? "";
+  const text = { __html: displayedText };
+  return (
+    <pre data-prefix={dataPrefix} className={className}>
+      <code>
+        <span dangerouslySetInnerHTML={text} />
+        <span className="cursor" />
+      </code>
+    </pre>
+  );
+};
 
 export type {
   AnimatedTerminalProps,
   TerminalDemo,
   TerminalLine,
+  CodeBlockProps,
 } from "./types";

@@ -20,7 +20,7 @@ export function CopyButton() {
 
   return (
     <button
-      className="btn btn-ghost btn-square rounded-s-none min-w-[44px] min-h-[44px]"
+      className={`btn btn-ghost btn-square rounded-s-none min-w-[44px] min-h-[44px] ${copied ? "text-success" : ""}`}
       onClick={handleCopy}
       aria-label="Copy"
       disabled={copied}
