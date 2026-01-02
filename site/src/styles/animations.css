@@ -159,16 +159,7 @@
   inset: -1px;
   border-radius: inherit;
   padding: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    oklch(0.7 0.12 240),
-    transparent,
-    oklch(0.7 0.12 240),
-    transparent
-  );
-  background-size: 200% 100%;
-  animation: border-sparkle 4s linear infinite;
+  background: oklch(0.7 0.12 240);
   mask:
     linear-gradient(#fff 0 0) content-box,
     linear-gradient(#fff 0 0);
