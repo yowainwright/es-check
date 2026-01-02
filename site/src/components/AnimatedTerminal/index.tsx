@@ -5,7 +5,6 @@ import {
   DEFAULT_LOOP,
   DEFAULT_PAUSE_DURATION,
   INTERSECTION_OBSERVER_OPTIONS,
-  TERMINAL_CLASSES,
 } from "./constants";
 import { useTypingAnimation } from "./useTypingAnimation";
 import { useLineProcessor } from "./useLineProcessor";
@@ -14,14 +13,13 @@ export function AnimatedTerminal({
   demos,
   loop = DEFAULT_LOOP,
   typingSpeed = DEFAULT_TYPING_SPEED,
-  height,
-  width,
-  title = "cli",
+  onComplete,
+  autoStart = true,
 }: AnimatedTerminalProps) {
   const [currentDemoIndex, setCurrentDemoIndex] = useState(0);
   const [currentLineIndex, setCurrentLineIndex] = useState(0);
   const [visibleLines, setVisibleLines] = useState<TerminalLine[]>([]);
-  const [hasStarted, setHasStarted] = useState(false);
+  const [hasStarted, setHasStarted] = useState(!autoStart);
   const containerRef = useRef<HTMLDivElement>(null);
   const processedLinesRef = useRef<Set<number>>(new Set());
 
@@ -29,6 +27,11 @@ export function AnimatedTerminal({
   const currentLine = currentDemo?.lines[currentLineIndex];
 
   useEffect(() => {
+    if (!autoStart) {
+      setHasStarted(true);
+      return;
+    }
+
     const observer = new IntersectionObserver((entries) => {
       const isInView = entries[0]?.isIntersecting;
       if (isInView && !hasStarted) {
@@ -46,7 +49,7 @@ export function AnimatedTerminal({
         observer.unobserve(current);
       }
     };
-  }, [hasStarted]);
+  }, [hasStarted, autoStart]);
 
   const resetAnimation = useCallback(() => {
     setCurrentLineIndex(0);
@@ -60,11 +63,13 @@ export function AnimatedTerminal({
     if (isLastDemo && loop) {
       setCurrentDemoIndex(0);
       resetAnimation();
+    } else if (isLastDemo && onComplete) {
+      onComplete();
     } else if (!isLastDemo) {
       setCurrentDemoIndex(currentDemoIndex + 1);
       resetAnimation();
     }
-  }, [currentDemoIndex, demos.length, loop, resetAnimation]);
+  }, [currentDemoIndex, demos.length, loop, resetAnimation, onComplete]);
 
   const moveToNextLine = useCallback(() => {
     const isLastLine = currentLineIndex === currentDemo.lines.length - 1;
@@ -101,19 +106,8 @@ export function AnimatedTerminal({
     }
   }, [isComplete, isTyping, moveToNextLine, setIsTyping]);
 
-  const containerStyle = {
-    ...(height ? { height } : {}),
-    ...(width ? { width } : {}),
-  };
-
   return (
-    <div
-      ref={containerRef}
-      className={TERMINAL_CLASSES}
-      style={containerStyle}
-      data-prefix=" "
-    >
-      <span className="terminal-header">{title}</span>
+    <div ref={containerRef}>
       {visibleLines.map((line, index) => (
         <pre
           key={index}
