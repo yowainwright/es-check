@@ -136,32 +136,6 @@
   box-shadow: 0 0 30px 4px rgba(106, 163, 212, 0.5);
 }
 
-.sparkle-border {
-  position: relative;
-}
-
-.sparkle-border::before {
-  content: "";
-  position: absolute;
-  inset: -1px;
-  border-radius: inherit;
-  padding: 1px;
-  background: oklch(0.7 0.12 240);
-  mask:
-    linear-gradient(#fff 0 0) content-box,
-    linear-gradient(#fff 0 0);
-  mask-composite: exclude;
-  -webkit-mask:
-    linear-gradient(#fff 0 0) content-box,
-    linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.sparkle-border:hover::before {
-  opacity: 1;
-}
 
 .code-block-glow {
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
