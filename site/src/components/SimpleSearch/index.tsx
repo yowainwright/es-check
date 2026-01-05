@@ -3,12 +3,14 @@ import { createPortal } from "react-dom";
 import { Link } from "@tanstack/react-router";
 import Fuse from "fuse.js";
 import { Search, Frown } from "lucide-react";
-import type { SearchItem } from "./types";
+import type { SearchItem, SimpleSearchProps, SearchButtonProps } from "./types";
 import { SEARCH_DATA, FUSE_OPTIONS } from "./constants";
+
+export type { SimpleSearchProps } from "./types";
 
 const fuse = new Fuse(SEARCH_DATA, FUSE_OPTIONS);
 
-export function SimpleSearch() {
+export function SimpleSearch({ variant = "default" }: SimpleSearchProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchItem[]>([]);
@@ -63,7 +65,7 @@ export function SimpleSearch() {
 
   return (
     <div ref={searchRef} className="relative">
-      <SearchButton onClick={openSearch} />
+      <SearchButton onClick={openSearch} variant={variant} />
       {isOpen &&
         typeof document !== "undefined" &&
         createPortal(
@@ -80,7 +82,20 @@ export function SimpleSearch() {
   );
 }
 
-function SearchButton({ onClick }: { onClick: () => void }) {
+function SearchButton({ onClick, variant }: SearchButtonProps) {
+  if (variant === "compact") {
+    return (
+      <button
+        onClick={onClick}
+        className="btn btn-ghost btn-sm gap-1.5 font-normal"
+        aria-label="Search"
+      >
+        <Search className="h-4 w-4" />
+        <kbd className="text-xs text-base-content/60 font-mono">⌘K</kbd>
+      </button>
+    );
+  }
+
   return (
     <button
       onClick={onClick}

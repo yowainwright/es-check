@@ -1,9 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Rocket } from "lucide-react";
-import { CopyButton } from "./CopyButton";
+import { InstallCodeBlock } from "./InstallCodeBlock";
 import { useScrollAnimation } from "@/hooks";
-
-const INSTALL_COMMAND = "npm install es-check --save-dev";
 
 export function InstallSection() {
   const { ref, isVisible } = useScrollAnimation(0.1);
@@ -29,7 +27,7 @@ function SectionHeader() {
         <span className="italic">Install</span>{" "}
         <span className="text-primary">ES Check</span>
       </h2>
-      <p className="mt-4 text-lg max-w-2xl mx-auto whitespace-nowrap">
+      <p className="mt-4 text-lg max-w-2xl mx-auto">
         Install ES Check as a development dependency
       </p>
     </>
@@ -39,12 +37,7 @@ function SectionHeader() {
 function InstallCommand() {
   return (
     <div className="mt-10">
-      <div className="flex items-center bg-base-300 rounded-lg shadow-sm overflow-hidden h-14 border border-base-content/10 w-fit mx-auto px-4">
-        <code className="flex-1 text-left text-sm md:text-base overflow-x-auto whitespace-nowrap">
-          {INSTALL_COMMAND}
-        </code>
-        <CopyButton />
-      </div>
+      <InstallCodeBlock className="w-full md:w-fit md:mx-auto" />
     </div>
   );
 }
@@ -52,13 +45,11 @@ function InstallCommand() {
 function InstallationGuideLink() {
   return (
     <div className="mt-10">
-      <Link
-        to="/docs/$slug"
-        params={{ slug: "installation" }}
-        className="btn btn-lg btn-primary btn-glow text-lg"
-      >
-        Installation Guide
-        <Rocket className="size-5" />
+      <Link to="/docs/$slug" params={{ slug: "installation" }}>
+        <button className="btn btn-lg btn-primary btn-glow text-lg w-full md:w-auto">
+          Installation Guide
+          <Rocket className="size-5" />
+        </button>
       </Link>
     </div>
   );
