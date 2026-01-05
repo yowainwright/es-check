@@ -1,2 +1,1 @@
-export { RootLayout } from "./RootLayout";
-export { DocsLayout } from "./DocsLayout";
+export { AppLayout } from "./AppLayout";

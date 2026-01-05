@@ -48,13 +48,11 @@ function ContentBlock({ className }: { className: string }) {
 function LearnMoreButton() {
   return (
     <div className="mt-8 flex justify-end">
-      <Link
-        to="/docs/$slug"
-        params={{ slug: "features" }}
-        className="btn btn-lg btn-primary btn-glow text-lg"
-      >
-        <BookOpen className="size-5" />
-        Learn More
+      <Link to="/docs/$slug" params={{ slug: "features" }}>
+        <button className="btn btn-lg btn-primary btn-glow text-lg">
+          <BookOpen className="size-5" />
+          Learn More
+        </button>
       </Link>
     </div>
   );

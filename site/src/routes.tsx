@@ -2,11 +2,8 @@ import { lazy, Suspense } from "react";
 import { createRootRoute, createRoute, Outlet } from "@tanstack/react-router";
 import { Loader2 } from "lucide-react";
 
-const RootLayout = lazy(() =>
-  import("./layouts/RootLayout").then((m) => ({ default: m.RootLayout })),
-);
-const DocsLayout = lazy(() =>
-  import("./layouts/DocsLayout").then((m) => ({ default: m.DocsLayout })),
+const AppLayout = lazy(() =>
+  import("./layouts/AppLayout").then((m) => ({ default: m.AppLayout })),
 );
 const HomePage = lazy(() =>
   import("./pages/HomePage").then((m) => ({ default: m.HomePage })),
@@ -35,9 +32,9 @@ const indexRoute = createRoute({
   path: "/",
   component: () => (
     <Suspense fallback={<PageLoader />}>
-      <RootLayout>
+      <AppLayout>
         <HomePage />
-      </RootLayout>
+      </AppLayout>
     </Suspense>
   ),
 });
@@ -47,9 +44,9 @@ const communityRoute = createRoute({
   path: "/community",
   component: () => (
     <Suspense fallback={<PageLoader />}>
-      <RootLayout>
+      <AppLayout>
         <CommunityPage />
-      </RootLayout>
+      </AppLayout>
     </Suspense>
   ),
 });
@@ -59,9 +56,9 @@ const docsRoute = createRoute({
   path: "/docs/$slug",
   component: () => (
     <Suspense fallback={<PageLoader />}>
-      <DocsLayout>
+      <AppLayout>
         <DocsPage />
-      </DocsLayout>
+      </AppLayout>
     </Suspense>
   ),
 });

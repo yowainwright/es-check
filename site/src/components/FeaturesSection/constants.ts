@@ -4,37 +4,37 @@ export const FEATURES: Feature[] = [
   {
     title: "Fast",
     description:
-      "Quickly scan thousands of tokens to ensure ES compatibility without slowing down your build process.",
+      "ES-Check quickly scan thousands of tokens ensuring ES compatibility while minimally effecting you build process.",
     slug: "performance",
   },
   {
     title: "Version Specific",
     description:
-      "Support for all ECMAScript versions from ES3 to ES16/ES2025, ensuring comprehensive coverage.",
+      "ES-Check supports all ECMAScript versions from ES5 to ES2025 ensuring your code will work to your specified version or browser spec",
     slug: "options",
   },
   {
     title: "CI/CD Ready",
     description:
-      "Seamlessly integrate with your build pipeline to catch compatibility issues before production.",
+      "ES-Check seamlessly integrates with your build pipeline to catch compatibility issues before production.",
     slug: "ci-integration",
   },
   {
     title: "Flexible Configuration",
     description:
-      "Use CLI arguments or configuration files to customize ES Check for your specific needs.",
+      "ES-Check can be executed via CLI arguments or configuration files to customize to your project's specific needs.",
     slug: "configuration",
   },
   {
     title: "Browserslist Support",
     description:
-      "Automatically determine ES version based on your target browsers using browserslist integration.",
+      "ES-Check automatically determines the correct ES version based on your target browsers using browserslist.",
     slug: "browserslist",
   },
   {
-    title: "Detailed Error Reports",
+    title: "Detailed Error Outputs",
     description:
-      "Get precise error locations and descriptions to quickly fix compatibility issues.",
+      "ES-Check can provide precise error locations and descriptions to quickly find and fix compatibility issues.",
     slug: "debugging",
   },
 ];

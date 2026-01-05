@@ -1,6 +1,7 @@
 import { Link, useLocation } from "@tanstack/react-router";
-import { Github } from "lucide-react";
+import { Github, Menu } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
+import { SimpleSearch } from "./SimpleSearch";
 
 const NAVIGATION = [
   { title: "Home", href: "/" },
@@ -10,12 +11,15 @@ const NAVIGATION = [
 export function Header() {
   const location = useLocation();
   const pathname = location.pathname;
+  const isDocsPage = pathname.startsWith("/docs");
 
   return (
     <header className="sticky top-0 z-30">
-      <nav className="navbar bg-base-100/80 border-b border-base-content/10 backdrop-blur-3xl justify-center items-center py-2 sm:px-0 md:px-20 font-sans">
-        <MobileMenu pathname={pathname} />
-        <Logo />
+      <nav className="navbar bg-base-100/80 border-b border-base-content/10 backdrop-blur-3xl justify-between items-center py-2 px-4 md:px-20 font-sans">
+        <div className="flex items-center gap-2">
+          {isDocsPage && <MobileMenuButton />}
+          <Logo />
+        </div>
         <DesktopNav pathname={pathname} />
         <NavActions />
       </nav>
@@ -23,49 +27,31 @@ export function Header() {
   );
 }
 
-function MobileMenu({ pathname }: { pathname: string }) {
+function MobileMenuButton() {
   return (
-    <div className="dropdown">
-      <div
-        tabIndex={0}
-        role="button"
-        className="btn btn-ghost btn-square lg:hidden"
-      >
-        <MenuIcon />
-      </div>
-      <ul
-        tabIndex={0}
-        className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52"
-      >
-        {NAVIGATION.map((item) => (
-          <li key={item.href}>
-            <NavLink
-              href={item.href}
-              title={item.title}
-              isActive={pathname === item.href}
-            />
-          </li>
-        ))}
-      </ul>
-    </div>
+    <label
+      htmlFor="app-drawer"
+      className="btn btn-ghost btn-square lg:hidden"
+      aria-label="Open menu"
+    >
+      <Menu className="h-5 w-5" />
+    </label>
   );
 }
 
 function Logo() {
   return (
-    <div className="navbar-start">
-      <Link to="/" className="btn btn-ghost px-2">
-        <h1 className="text-xl md:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/50">
-          ES Check
-        </h1>
-      </Link>
-    </div>
+    <Link to="/" className="btn btn-ghost px-2">
+      <span className="text-xl md:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/50">
+        ES Check
+      </span>
+    </Link>
   );
 }
 
 function DesktopNav({ pathname }: { pathname: string }) {
   return (
-    <div className="navbar-center hidden lg:flex">
+    <div className="hidden lg:flex">
       <ul className="menu menu-horizontal text-base font-medium">
         {NAVIGATION.map((item) => (
           <li key={item.href}>
@@ -104,34 +90,17 @@ function NavLink({
 
 function NavActions() {
   return (
-    <div className="navbar-end">
+    <div className="flex items-center gap-1">
+      <SimpleSearch variant="compact" />
       <a
         className="btn btn-sm btn-ghost btn-square"
         href="https://github.com/yowainwright/es-check"
         aria-label="GitHub"
       >
-        <Github className="h-4 w-4" />
+        <Github className="h-5 w-5" />
       </a>
       <ThemeToggle />
     </div>
   );
 }
 
-function MenuIcon() {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      className="h-5 w-5"
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M4 6h16M4 12h8m-8 6h16"
-      />
-    </svg>
-  );
-}
