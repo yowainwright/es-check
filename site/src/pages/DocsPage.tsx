@@ -1,15 +1,17 @@
 import { useParams, Link, Navigate } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
-import { ChevronRight, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { getDocBySlug } from "@/content";
 import { compileMDX, type CompiledMDX } from "@/lib/mdx/compileMDX";
 import { TableOfContents, mdxComponents, Pagination } from "@/components";
+import { useLayout } from "@/contexts";
 
 export function DocsPage() {
   const { slug } = useParams({ from: "/docs/$slug" });
   const [compiled, setCompiled] = useState<CompiledMDX | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { setRightSidebarContent } = useLayout();
 
   useEffect(() => {
     let cancelled = false;
@@ -40,6 +42,13 @@ export function DocsPage() {
     };
   }, [slug]);
 
+  const headings = compiled?.headings || [];
+
+  useEffect(() => {
+    setRightSidebarContent(<TableOfContents headings={headings} />);
+    return () => setRightSidebarContent(null);
+  }, [headings, setRightSidebarContent]);
+
   if (error) {
     return <Navigate to="/docs/$slug" params={{ slug: "gettingstarted" }} />;
   }
@@ -47,11 +56,10 @@ export function DocsPage() {
   const title = (compiled?.frontmatter?.title as string) || slug;
   const description = (compiled?.frontmatter?.description as string) || "";
   const Content = compiled?.content;
-  const headings = compiled?.headings || [];
   const currentPath = `/docs/${slug}`;
 
   return (
-    <section className="flex flex-col lg:flex-row p-4 sm:p-6 md:p-10 md:pt-10 font-sans gap-8">
+    <section className="p-4 sm:p-6 md:p-10 md:pt-10 font-sans">
       <article className="flex flex-col w-full max-w-[620px]">
         <Breadcrumbs title={title} />
 
@@ -69,10 +77,6 @@ export function DocsPage() {
         <div className="divider" />
         <Pagination currentPath={currentPath} />
       </article>
-
-      <aside className="hidden xl:block pl-8">
-        <TableOfContents headings={headings} />
-      </aside>
     </section>
   );
 }
@@ -89,10 +93,7 @@ function Breadcrumbs({ title }: { title: string }) {
             Docs
           </Link>
         </li>
-        <li className="flex items-center gap-1">
-          <ChevronRight className="h-3 w-3" />
-          {title}
-        </li>
+        <li>{title}</li>
       </ul>
     </div>
   );

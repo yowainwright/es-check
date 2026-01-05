@@ -12,8 +12,8 @@ interface TableOfContentsProps {
 }
 
 const OBSERVER_OPTIONS = {
-  rootMargin: "-100px 0px -66%",
-  threshold: 1.0,
+  rootMargin: "-80px 0px -80%",
+  threshold: 0,
 };
 
 export function TableOfContents({ headings }: TableOfContentsProps) {

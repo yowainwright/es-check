@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
-import { CopyButton } from "./CopyButton";
+import { InstallCodeBlock } from "./InstallCodeBlock";
+import { NewBadge } from "./NewBadge";
 import { resolveUrl } from "@/utils/url";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
@@ -14,9 +15,7 @@ export function HeroSection() {
       <div className="hero-content text-center min-h-[40rem] font-sans">
         <div className="max-w-2xl md:max-w-6xl">
           <Logo className={`animate-on-scroll ${visibleClass}`} />
-          <VersionBadge
-            className={`animate-on-scroll stagger-1 ${visibleClass}`}
-          />
+          <NewBadge className={`animate-on-scroll stagger-1 ${visibleClass}`} />
           <Headline className={`animate-on-scroll stagger-2 ${visibleClass}`} />
           <Description
             className={`animate-on-scroll stagger-3 ${visibleClass}`}
@@ -65,17 +64,6 @@ function Logo({ className }: { className: string }) {
   );
 }
 
-function VersionBadge({ className }: { className: string }) {
-  return (
-    <a
-      className={`badge badge-outline badge-xs md:badge-lg mb-5 p-2 border-dashed border-base-content/40 ${className}`}
-      href="https://github.com/yowainwright/es-check/releases"
-    >
-      ES Check v9.4.7 • Now with ES2025 support
-    </a>
-  );
-}
-
 function Headline({ className }: { className: string }) {
   return (
     <h1 className={`text-4xl md:text-5xl lg:text-7xl ${className}`}>
@@ -113,34 +101,7 @@ function CTAButtons({ className }: { className: string }) {
         </button>
       </Link>
 
-      <InstallCommand />
+      <InstallCodeBlock className="w-full md:w-fit" />
     </div>
-  );
-}
-
-function InstallCommand() {
-  return (
-    <div className="flex items-center bg-base-300 rounded-lg shadow-sm overflow-hidden h-12 py-1 border border-base-content/10 w-fit">
-      <ChevronIcon />
-      <code className="text-left leading-none text-sm md:text-base pr-2 whitespace-nowrap">
-        npm i es-check --save-dev
-      </code>
-      <CopyButton />
-    </div>
-  );
-}
-
-function ChevronIcon() {
-  return (
-    <svg
-      width="22"
-      height="13"
-      viewBox="0 0 22 13"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className="relative ml-4 mr-2 block w-3 flex-shrink-0 -rotate-90"
-    >
-      <path d="M1 1L11 11L21 1" stroke="currentColor" strokeWidth="2" />
-    </svg>
   );
 }

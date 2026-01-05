@@ -2,7 +2,6 @@ export { AnimatedTerminal } from "./AnimatedTerminal";
 export { CodeBlockSection } from "./CodeBlockSection";
 export { ContributorsSection } from "./ContributorsSection";
 export { CopyButton } from "./CopyButton";
-export { DocsHeader } from "./DocsHeader";
 export { FeaturesSection } from "./FeaturesSection";
 export { Footer } from "./Footer";
 export { Header } from "./Header";

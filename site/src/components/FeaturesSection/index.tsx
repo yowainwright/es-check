@@ -26,7 +26,7 @@ export function FeaturesSection() {
 
 export function FeatureCard({ feature, index, isVisible }: FeatureCardProps) {
   const baseClasses =
-    "card w-full max-w-sm md:max-w-2xl bg-gradient-to-t from-base-100 to-base-300/50 border border-base-content/10 hover:border-primary transition-all duration-200 cursor-pointer";
+    "card w-full md:max-w-sm lg:max-w-2xl bg-gradient-to-t from-base-100 to-base-300/50 border border-base-content/10 hover:border-primary transition-all duration-200 cursor-pointer";
   const visibilityClasses = isVisible
     ? "opacity-100 translate-y-0"
     : "opacity-0 translate-y-8";

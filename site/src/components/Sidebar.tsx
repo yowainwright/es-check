@@ -12,26 +12,13 @@ export function Sidebar() {
   return (
     <div className="drawer-side z-40 md:border-r md:border-base-content/10">
       <label
-        htmlFor="docs-drawer"
+        htmlFor="app-drawer"
         aria-label="close sidebar"
         className="drawer-overlay"
       />
-      <aside className="bg-base-100 min-h-screen w-72 md:w-80">
-        <SidebarHeader />
+      <aside className="bg-base-100 min-h-screen w-72 md:w-80 pt-4">
         <SidebarNav pathname={pathname} />
       </aside>
-    </div>
-  );
-}
-
-function SidebarHeader() {
-  return (
-    <div className="bg-base-100 sticky top-0 z-20 items-center gap-2 bg-opacity-90 px-4 py-2 backdrop-blur lg:flex font-sans">
-      <Link to="/" className="btn btn-ghost px-2">
-        <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/50">
-          ES Check
-        </h1>
-      </Link>
     </div>
   );
 }

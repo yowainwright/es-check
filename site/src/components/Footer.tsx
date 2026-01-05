@@ -26,7 +26,7 @@ export function Footer() {
             href="https://github.com/yowainwright/es-check"
             aria-label="GitHub"
           >
-            <Github className="h-4 w-4" />
+            <Github className="h-5 w-5" />
           </a>
         </div>
       </div>
