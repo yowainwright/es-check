@@ -114,10 +114,11 @@
     "appendix": {
       "vite@6.4.1": {
         "dependents": {
-          "es-check": "vite (transitive dependency)"
+          "es-check": "vite (transitive dependency)",
+          "es-check-docs": "vite@^7.3.0"
         },
         "ledger": {
-          "addedDate": "2025-12-29T05:15:16.557Z"
+          "addedDate": "2026-01-05T05:19:21.523Z"
         }
       },
       "tmp@0.2.4": {
@@ -125,16 +126,15 @@
           "es-check": "tmp (transitive dependency)"
         },
         "ledger": {
-          "addedDate": "2025-12-29T05:15:16.557Z"
+          "addedDate": "2026-01-05T05:19:21.523Z"
         }
       },
       "astro@5.16.6": {
         "dependents": {
-          "es-check": "astro (transitive dependency)",
-          "es-check-docs": "astro@^5.15.9"
+          "es-check": "astro (transitive dependency)"
         },
         "ledger": {
-          "addedDate": "2025-12-29T05:15:16.557Z"
+          "addedDate": "2026-01-05T05:19:21.523Z"
         }
       },
       "js-yaml@4.1.1": {
@@ -142,7 +142,7 @@
           "es-check": "js-yaml (transitive dependency)"
         },
         "ledger": {
-          "addedDate": "2025-12-29T05:15:16.557Z"
+          "addedDate": "2026-01-05T05:19:21.523Z"
         }
       },
       "mdast-util-to-hast@13.2.1": {
@@ -150,7 +150,7 @@
           "es-check": "mdast-util-to-hast (transitive dependency)"
         },
         "ledger": {
-          "addedDate": "2025-12-29T05:15:16.557Z"
+          "addedDate": "2026-01-05T05:19:21.523Z"
         }
       }
     },
