@@ -3,6 +3,9 @@
 const fs = require("fs");
 const path = require("path");
 const { mkdirSync, writeFileSync } = fs;
+const { createTestLogger } = require("../helpers");
+
+const log = createTestLogger();
 
 const numFiles = parseInt(process.argv[2], 10) || 100;
 const outputDir = process.argv[3] || path.join(__dirname, "test-files");
@@ -161,7 +164,7 @@ function ensureDirectoryExists(dir) {
 }
 
 function generateTestFiles() {
-  console.log(`Generating ${numFiles} test files in ${outputDir}...`);
+  log.info(`Generating ${numFiles} test files in ${outputDir}...`);
 
   ensureDirectoryExists(outputDir);
 
@@ -193,7 +196,7 @@ function generateTestFiles() {
     writeFileSync(filePath, es2025Template);
   }
 
-  console.log(
+  log.info(
     `Generated ${es5Count} ES5, ${es6Count} ES6, ${es2020Count} ES2020, ${es2024Count} ES2024, and ${es2025Count} ES2025 files.`,
   );
 }

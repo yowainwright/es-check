@@ -29,11 +29,13 @@ const {
   assertSuccess,
   assertFailure,
   execFileWithGlob,
+  createTestLogger,
 } = require("../helpers");
 
+const log = createTestLogger();
 const generatedFixturesRoot = path.join(process.cwd(), "fixtures");
 
-it("🎉  Es Check should pass when checking an array of es5 files as es5", (done) => {
+it("[PASS]  Es Check should pass when checking an array of es5 files as es5", (done) => {
   execFileWithGlob(
     process.execPath,
     ["lib/index.js", "es5", FIXTURE_FILES.ES5, FIXTURE_FILES.ES5_2],
@@ -45,7 +47,7 @@ it("🎉  Es Check should pass when checking an array of es5 files as es5", (don
   );
 });
 
-it("🎉  Es Check should pass when checking a file with a hash bang", (done) => {
+it("[PASS]  Es Check should pass when checking a file with a hash bang", (done) => {
   execFileWithGlob(
     process.execPath,
     ["lib/index.js", "es6", FIXTURE_FILES.HASH_BANG, "--allow-hash-bang"],
@@ -69,7 +71,7 @@ it("👌  Es Check should fail when checking an array of es6 files as es5", (don
   );
 });
 
-it("🎉  Es Check should pass when checking a glob of es6 files as es6", (done) => {
+it("[PASS]  Es Check should pass when checking a glob of es6 files as es6", (done) => {
   execFileWithGlob(
     process.execPath,
     ["lib/index.js", "es6", FIXTURE_FILES.ES6],
@@ -141,7 +143,7 @@ it("👌  Es Check should fail when checking a glob of es6 modules as es5 withou
   );
 });
 
-it("🎉  Es Check should pass when checking es5 syntax module with es5 and --module flag", (done) => {
+it("[PASS]  Es Check should pass when checking es5 syntax module with es5 and --module flag", (done) => {
   execFileWithGlob(
     process.execPath,
     [
@@ -158,15 +160,15 @@ it("🎉  Es Check should pass when checking es5 syntax module with es5 and --mo
   );
 });
 
-it("🎉  Es Check should pass when checking a glob of es6 modules as es6 without --module flag", (done) => {
+it("[PASS]  Es Check should pass when checking a glob of es6 modules as es6 without --module flag", (done) => {
   execFileWithGlob(
     process.execPath,
     ["lib/index.js", "es6", "./tests/fixtures/modules/*.js"],
     (err, stdout, stderr) => {
       if (err) {
-        console.error(err.stack);
-        console.error(stdout.toString());
-        console.error(stderr.toString());
+        log.error(err.stack);
+        log.error(stdout.toString());
+        log.error(stderr.toString());
         done(err);
         return;
       }
@@ -175,16 +177,16 @@ it("🎉  Es Check should pass when checking a glob of es6 modules as es6 withou
   );
 });
 
-it("🎉  Es Check should pass when checking a glob of es6 modules using the --module flag", (done) => {
+it("[PASS]  Es Check should pass when checking a glob of es6 modules using the --module flag", (done) => {
   execFileWithGlob(
     process.execPath,
     ["lib/index.js", "es6", "./tests/fixtures/modules/*.js", "--module"],
     (err, stdout, stderr) => {
       assert(stdout);
       if (err) {
-        console.error(err.stack);
-        console.error(stdout.toString());
-        console.error(stderr.toString());
+        log.error(err.stack);
+        log.error(stdout.toString());
+        log.error(stderr.toString());
         done(err);
         return;
       }
@@ -193,7 +195,7 @@ it("🎉  Es Check should pass when checking a glob of es6 modules using the --m
   );
 });
 
-it("🎉  Es Check should pass when checking a glob of es6 modules using the --module flag in another order", (done) => {
+it("[PASS]  Es Check should pass when checking a glob of es6 modules using the --module flag in another order", (done) => {
   execFileWithGlob(
     process.execPath,
     [
@@ -206,9 +208,9 @@ it("🎉  Es Check should pass when checking a glob of es6 modules using the --m
     (err, stdout, stderr) => {
       assert(stdout);
       if (err) {
-        console.error(err.stack);
-        console.error(stdout.toString());
-        console.error(stderr.toString());
+        log.error(err.stack);
+        log.error(stdout.toString());
+        log.error(stderr.toString());
         done(err);
         return;
       }
@@ -217,7 +219,7 @@ it("🎉  Es Check should pass when checking a glob of es6 modules using the --m
   );
 });
 
-it("🎉  Es Check should fail when checking a glob of es6 modules using the --module flag in any order", (done) => {
+it("[PASS]  Es Check should fail when checking a glob of es6 modules using the --module flag in any order", (done) => {
   execFileWithGlob(
     process.execPath,
     ["lib/index.js", "es6", "--module", "./tests/fixtures/modules/*.js"],
@@ -229,7 +231,7 @@ it("🎉  Es Check should fail when checking a glob of es6 modules using the --m
        * This issue exists with Caporal and will be fixed in the next major release by switching to another CLI tool,
        */
       assert(!err);
-      console.log(err, stdout);
+      log.debug(err, stdout);
       done();
     },
   );
@@ -271,9 +273,9 @@ describe("Es Check skips folders and files included in the not flag", () => {
       ],
       (err, stdout, stderr) => {
         if (err) {
-          console.error(err.stack);
-          console.error(stdout.toString());
-          console.error(stderr.toString());
+          log.error(err.stack);
+          log.error(stdout.toString());
+          log.error(stderr.toString());
           done(err);
           return;
         }
@@ -294,9 +296,9 @@ describe("Es Check skips folders and files included in the not flag", () => {
       ],
       (err, stdout, stderr) => {
         if (err) {
-          console.error(err.stack);
-          console.error(stdout.toString());
-          console.error(stderr.toString());
+          log.error(err.stack);
+          log.error(stdout.toString());
+          log.error(stderr.toString());
           done(err);
           return;
         }
@@ -343,9 +345,9 @@ describe("Es Check skips folders and files included in the not flag", () => {
         removeConfigFile(configFileName);
 
         if (err) {
-          console.error(err.stack);
-          console.error(stdout.toString());
-          console.error(stderr.toString());
+          log.error(err.stack);
+          log.error(stdout.toString());
+          log.error(stderr.toString());
           done(err);
           return;
         }
@@ -356,16 +358,16 @@ describe("Es Check skips folders and files included in the not flag", () => {
 });
 
 describe("Es Check supports the --files flag", () => {
-  it("🎉  Es Check should pass when checking a glob with es6 modules as es6 using the --files flag", (done) => {
+  it("[PASS]  Es Check should pass when checking a glob with es6 modules as es6 using the --files flag", (done) => {
     execFileWithGlob(
       "node",
       ["lib/index.js", "es6", "--files=./tests/fixtures/es6.js"],
       (err, stdout, stderr) => {
         assert(stdout);
         if (err) {
-          console.error(err.stack);
-          console.error(stdout.toString());
-          console.error(stderr.toString());
+          log.error(err.stack);
+          log.error(stdout.toString());
+          log.error(stderr.toString());
           done(err);
           return;
         }
@@ -380,7 +382,7 @@ describe("Es Check supports the --files flag", () => {
       ["lib/index.js", "es5", "--files=./tests/fixtures/es6.js"],
       (err, stdout, stderr) => {
         assert(err);
-        console.log(stdout);
+        log.debug(stdout);
         done();
       },
     );
@@ -397,7 +399,7 @@ describe("Es Check supports the --files flag", () => {
       ],
       (err, stdout, stderr) => {
         assert(err);
-        console.log(stdout);
+        log.debug(stdout);
         done();
       },
     );
@@ -405,7 +407,7 @@ describe("Es Check supports the --files flag", () => {
 });
 
 describe("Es Check supports the es2018 flag", () => {
-  it("🎉  Es Check should pass when checking a file with es2018 syntax as es2018", (done) => {
+  it("[PASS]  Es Check should pass when checking a file with es2018 syntax as es2018", (done) => {
     execFileWithGlob(
       "node",
       [
@@ -416,9 +418,9 @@ describe("Es Check supports the es2018 flag", () => {
       ],
       (err, stdout, stderr) => {
         if (err) {
-          console.error(err.stack);
-          console.error(stdout.toString());
-          console.error(stderr.toString());
+          log.error(err.stack);
+          log.error(stdout.toString());
+          log.error(stderr.toString());
           done(err);
           return;
         }
@@ -431,7 +433,7 @@ describe("Es Check supports the es2018 flag", () => {
       "node",
       ["lib/index.js", "es6", "./tests/fixtures/es2018.js", "--checkFeatures"],
       (err, stdout, stderr) => {
-        console.log({ err, stdout, stderr });
+        log.debug({ err, stdout, stderr });
         assert(err);
         done();
       },
@@ -440,15 +442,15 @@ describe("Es Check supports the es2018 flag", () => {
 });
 
 describe("ES7 / ES2016 Feature Tests", () => {
-  it("🎉  Es Check should pass when checking an ES7 file as es7", (done) => {
+  it("[PASS]  Es Check should pass when checking an ES7 file as es7", (done) => {
     execFileWithGlob(
       "node",
       ["lib/index.js", "es7", "./tests/fixtures/es7.js", "--checkFeatures"],
       (err, stdout, stderr) => {
         if (err) {
-          console.error(err.stack);
-          console.error(stdout.toString());
-          console.error(stderr.toString());
+          log.error(err.stack);
+          log.error(stdout.toString());
+          log.error(stderr.toString());
           return done(err);
         }
         done();
@@ -461,7 +463,7 @@ describe("ES7 / ES2016 Feature Tests", () => {
       "node",
       ["lib/index.js", "es6", "./tests/fixtures/es7.js", "--checkFeatures"],
       (err, stdout, stderr) => {
-        console.log(stdout);
+        log.debug(stdout);
         assert(err, "Expected an error but command ran successfully");
         done();
       },
@@ -470,15 +472,15 @@ describe("ES7 / ES2016 Feature Tests", () => {
 });
 
 describe("ES10 / ES2019 Feature Tests", () => {
-  it("🎉  Es Check should pass when checking an ES10 file as es10", (done) => {
+  it("[PASS]  Es Check should pass when checking an ES10 file as es10", (done) => {
     execFileWithGlob(
       "node",
       ["lib/index.js", "es10", "./tests/fixtures/es10.js", "--checkFeatures"],
       (err, stdout, stderr) => {
         if (err) {
-          console.error(err.stack);
-          console.error(stdout.toString());
-          console.error(stderr.toString());
+          log.error(err.stack);
+          log.error(stdout.toString());
+          log.error(stderr.toString());
           return done(err);
         }
         done();
@@ -491,7 +493,7 @@ describe("ES10 / ES2019 Feature Tests", () => {
       "node",
       ["lib/index.js", "es6", "./tests/fixtures/es10.js", "--checkFeatures"],
       (err, stdout, stderr) => {
-        console.log(stdout);
+        log.debug(stdout);
         assert(err, "Expected an error but command ran successfully");
         done();
       },
@@ -500,15 +502,15 @@ describe("ES10 / ES2019 Feature Tests", () => {
 });
 
 describe("ES11 / ES2020 Feature Tests", () => {
-  it("🎉  Es Check should pass when checking an ES11 file as es11", (done) => {
+  it("[PASS]  Es Check should pass when checking an ES11 file as es11", (done) => {
     execFileWithGlob(
       "node",
       ["lib/index.js", "es11", "./tests/fixtures/es11.js", "--checkFeatures"],
       (err, stdout, stderr) => {
         if (err) {
-          console.error(err.stack);
-          console.error(stdout.toString());
-          console.error(stderr.toString());
+          log.error(err.stack);
+          log.error(stdout.toString());
+          log.error(stderr.toString());
           return done(err);
         }
         done();
@@ -521,7 +523,7 @@ describe("ES11 / ES2020 Feature Tests", () => {
       "node",
       ["lib/index.js", "es6", "./tests/fixtures/es11.js", "--checkFeatures"],
       (err, stdout, stderr) => {
-        console.log(stdout);
+        log.debug(stdout);
         assert(err, "Expected an error but command ran successfully");
         done();
       },
@@ -530,15 +532,15 @@ describe("ES11 / ES2020 Feature Tests", () => {
 });
 
 describe("ES12 / ES2021 Feature Tests", () => {
-  it("🎉  Es Check should pass when checking an ES12 file as es12", (done) => {
+  it("[PASS]  Es Check should pass when checking an ES12 file as es12", (done) => {
     execFileWithGlob(
       "node",
       ["lib/index.js", "es12", "./tests/fixtures/es12.js", "--checkFeatures"],
       (err, stdout, stderr) => {
         if (err) {
-          console.error(err.stack);
-          console.error(stdout.toString());
-          console.error(stderr.toString());
+          log.error(err.stack);
+          log.error(stdout.toString());
+          log.error(stderr.toString());
           return done(err);
         }
         done();
@@ -551,7 +553,7 @@ describe("ES12 / ES2021 Feature Tests", () => {
       "node",
       ["lib/index.js", "es6", "./tests/fixtures/es12.js", "--checkFeatures"],
       (err, stdout, stderr) => {
-        console.log(stdout);
+        log.debug(stdout);
         assert(err, "Expected an error but command ran successfully");
         done();
       },
@@ -560,15 +562,15 @@ describe("ES12 / ES2021 Feature Tests", () => {
 });
 
 describe("ES13 / ES2022 Feature Tests", () => {
-  it("🎉  Es Check should pass when checking an ES13 file as es13", (done) => {
+  it("[PASS]  Es Check should pass when checking an ES13 file as es13", (done) => {
     execFileWithGlob(
       "node",
       ["lib/index.js", "es13", "./tests/fixtures/es13.js", "--checkFeatures"],
       (err, stdout, stderr) => {
         if (err) {
-          console.error(err.stack);
-          console.error(stdout.toString());
-          console.error(stderr.toString());
+          log.error(err.stack);
+          log.error(stdout.toString());
+          log.error(stderr.toString());
           return done(err);
         }
         done();
@@ -576,15 +578,15 @@ describe("ES13 / ES2022 Feature Tests", () => {
     );
   });
 
-  it("🎉  Es Check should pass when checking an ES13 file as es2022", (done) => {
+  it("[PASS]  Es Check should pass when checking an ES13 file as es2022", (done) => {
     execFileWithGlob(
       "node",
       ["lib/index.js", "es2022", "./tests/fixtures/es13.js", "--checkFeatures"],
       (err, stdout, stderr) => {
         if (err) {
-          console.error(err.stack);
-          console.error(stdout.toString());
-          console.error(stderr.toString());
+          log.error(err.stack);
+          log.error(stdout.toString());
+          log.error(stderr.toString());
           return done(err);
         }
         done();
@@ -597,7 +599,7 @@ describe("ES13 / ES2022 Feature Tests", () => {
       "node",
       ["lib/index.js", "es6", "./tests/fixtures/es13.js", "--checkFeatures"],
       (err, stdout, stderr) => {
-        console.log(stdout);
+        log.debug(stdout);
         assert(err, "Expected an error but command ran successfully");
         done();
       },
@@ -606,7 +608,7 @@ describe("ES13 / ES2022 Feature Tests", () => {
 });
 
 describe("ES14 / ES2023 Feature Tests", () => {
-  it("🎉  Es Check should pass when checking an ES14 file as es14", (done) => {
+  it("[PASS]  Es Check should pass when checking an ES14 file as es14", (done) => {
     execFileWithGlob(
       "node",
       [
@@ -618,9 +620,9 @@ describe("ES14 / ES2023 Feature Tests", () => {
       ],
       (err, stdout, stderr) => {
         if (err) {
-          console.error(err.stack);
-          console.error(stdout.toString());
-          console.error(stderr.toString());
+          log.error(err.stack);
+          log.error(stdout.toString());
+          log.error(stderr.toString());
           return done(err);
         }
         done();
@@ -628,7 +630,7 @@ describe("ES14 / ES2023 Feature Tests", () => {
     );
   });
 
-  it("🎉  Es Check should pass when checking an ES14 file as es2023", (done) => {
+  it("[PASS]  Es Check should pass when checking an ES14 file as es2023", (done) => {
     execFileWithGlob(
       "node",
       [
@@ -640,9 +642,9 @@ describe("ES14 / ES2023 Feature Tests", () => {
       ],
       (err, stdout, stderr) => {
         if (err) {
-          console.error(err.stack);
-          console.error(stdout.toString());
-          console.error(stderr.toString());
+          log.error(err.stack);
+          log.error(stdout.toString());
+          log.error(stderr.toString());
           return done(err);
         }
         done();
@@ -661,7 +663,7 @@ describe("ES14 / ES2023 Feature Tests", () => {
         "--allow-hash-bang",
       ],
       (err, stdout, stderr) => {
-        console.log(stdout);
+        log.debug(stdout);
         assert(err, "Expected an error but command ran successfully");
         done();
       },
@@ -670,15 +672,15 @@ describe("ES14 / ES2023 Feature Tests", () => {
 });
 
 describe("ES15 / ES2024 Feature Tests", () => {
-  it("🎉  Es Check should pass when checking an ES15 file as es15", (done) => {
+  it("[PASS]  Es Check should pass when checking an ES15 file as es15", (done) => {
     execFileWithGlob(
       "node",
       ["lib/index.js", "es15", "./tests/fixtures/es15.js", "--checkFeatures"],
       (err, stdout, stderr) => {
         if (err) {
-          console.error(err.stack);
-          console.error(stdout.toString());
-          console.error(stderr.toString());
+          log.error(err.stack);
+          log.error(stdout.toString());
+          log.error(stderr.toString());
           return done(err);
         }
         done();
@@ -686,15 +688,15 @@ describe("ES15 / ES2024 Feature Tests", () => {
     );
   });
 
-  it("🎉  Es Check should pass when checking an ES15 file as es2024", (done) => {
+  it("[PASS]  Es Check should pass when checking an ES15 file as es2024", (done) => {
     execFileWithGlob(
       "node",
       ["lib/index.js", "es2024", "./tests/fixtures/es15.js", "--checkFeatures"],
       (err, stdout, stderr) => {
         if (err) {
-          console.error(err.stack);
-          console.error(stdout.toString());
-          console.error(stderr.toString());
+          log.error(err.stack);
+          log.error(stdout.toString());
+          log.error(stderr.toString());
           return done(err);
         }
         done();
@@ -707,7 +709,7 @@ describe("ES15 / ES2024 Feature Tests", () => {
       "node",
       ["lib/index.js", "es6", "./tests/fixtures/es15.js", "--checkFeatures"],
       (err, stdout, stderr) => {
-        console.log(stdout);
+        log.debug(stdout);
         assert(err, "Expected an error but command ran successfully");
         done();
       },
@@ -716,15 +718,15 @@ describe("ES15 / ES2024 Feature Tests", () => {
 });
 
 describe("ES16 / ES2025 Feature Tests", () => {
-  it("🎉  Es Check should pass when checking an ES16 file as es16", (done) => {
+  it("[PASS]  Es Check should pass when checking an ES16 file as es16", (done) => {
     execFileWithGlob(
       "node",
       ["lib/index.js", "es16", "./tests/fixtures/es16.js", "--checkFeatures"],
       (err, stdout, stderr) => {
         if (err) {
-          console.error(err.stack);
-          console.error(stdout.toString());
-          console.error(stderr.toString());
+          log.error(err.stack);
+          log.error(stdout.toString());
+          log.error(stderr.toString());
           return done(err);
         }
         done();
@@ -732,15 +734,15 @@ describe("ES16 / ES2025 Feature Tests", () => {
     );
   });
 
-  it("🎉  Es Check should pass when checking an ES16 file as es2025", (done) => {
+  it("[PASS]  Es Check should pass when checking an ES16 file as es2025", (done) => {
     execFileWithGlob(
       "node",
       ["lib/index.js", "es2025", "./tests/fixtures/es16.js", "--checkFeatures"],
       (err, stdout, stderr) => {
         if (err) {
-          console.error(err.stack);
-          console.error(stdout.toString());
-          console.error(stderr.toString());
+          log.error(err.stack);
+          log.error(stdout.toString());
+          log.error(stderr.toString());
           return done(err);
         }
         done();
@@ -753,7 +755,7 @@ describe("ES16 / ES2025 Feature Tests", () => {
       "node",
       ["lib/index.js", "es6", "./tests/fixtures/es16.js", "--checkFeatures"],
       (err, stdout, stderr) => {
-        console.log(stdout);
+        log.debug(stdout);
         assert(err, "Expected an error but command ran successfully");
         done();
       },
@@ -767,22 +769,22 @@ describe("ES6 / Proxy Feature Tests", () => {
       "node",
       ["lib/index.js", "es5", "./tests/fixtures/proxy.js", "--checkFeatures"],
       (err, stdout, stderr) => {
-        console.log(stdout);
+        log.debug(stdout);
         assert(err, "Expected an error but command ran successfully");
         done();
       },
     );
   });
 
-  it("🎉  Es Check should pass when checking a file with `new Proxy(...)` as es6", (done) => {
+  it("[PASS]  Es Check should pass when checking a file with `new Proxy(...)` as es6", (done) => {
     execFileWithGlob(
       "node",
       ["lib/index.js", "es6", "./tests/fixtures/proxy.js", "--checkFeatures"],
       (err, stdout, stderr) => {
         if (err) {
-          console.error(err.stack);
-          console.error(stdout.toString());
-          console.error(stderr.toString());
+          log.error(err.stack);
+          log.error(stdout.toString());
+          log.error(stderr.toString());
           return done(err);
         }
         done();
@@ -802,14 +804,14 @@ describe("ES6 / Promise", () => {
         "--checkFeatures",
       ],
       (err, stdout, stderr) => {
-        console.log(stdout);
+        log.debug(stdout);
         assert(err, "Expected an error but command ran successfully");
         done();
       },
     );
   });
 
-  it("🎉  Es Check should pass when checking a file with `new Promise(...)` as es6", (done) => {
+  it("[PASS]  Es Check should pass when checking a file with `new Promise(...)` as es6", (done) => {
     execFileWithGlob(
       "node",
       [
@@ -820,9 +822,9 @@ describe("ES6 / Promise", () => {
       ],
       (err, stdout, stderr) => {
         if (err) {
-          console.error(err.stack);
-          console.error(stdout.toString());
-          console.error(stderr.toString());
+          log.error(err.stack);
+          log.error(stdout.toString());
+          log.error(stderr.toString());
           return done(err);
         }
         done();
@@ -840,14 +842,14 @@ describe("ES6 / Promise", () => {
         "--checkFeatures",
       ],
       (err, stdout, stderr) => {
-        console.log(stdout);
+        log.debug(stdout);
         assert(err, "Expected an error but command ran successfully");
         done();
       },
     );
   });
 
-  it("🎉  Es Check should pass when checking a file with `Promise.resolve(...)` as es6", (done) => {
+  it("[PASS]  Es Check should pass when checking a file with `Promise.resolve(...)` as es6", (done) => {
     execFileWithGlob(
       "node",
       [
@@ -858,9 +860,9 @@ describe("ES6 / Promise", () => {
       ],
       (err, stdout, stderr) => {
         if (err) {
-          console.error(err.stack);
-          console.error(stdout.toString());
-          console.error(stderr.toString());
+          log.error(err.stack);
+          log.error(stdout.toString());
+          log.error(stderr.toString());
           return done(err);
         }
         done();
@@ -878,14 +880,14 @@ describe("ES6 / Promise", () => {
         "--checkFeatures",
       ],
       (err, stdout, stderr) => {
-        console.log(stdout);
+        log.debug(stdout);
         assert(err, "Expected an error but command ran successfully");
         done();
       },
     );
   });
 
-  it("🎉  Es Check should pass when checking a file with `Promise.reject(...)` as es6", (done) => {
+  it("[PASS]  Es Check should pass when checking a file with `Promise.reject(...)` as es6", (done) => {
     execFileWithGlob(
       "node",
       [
@@ -896,9 +898,9 @@ describe("ES6 / Promise", () => {
       ],
       (err, stdout, stderr) => {
         if (err) {
-          console.error(err.stack);
-          console.error(stdout.toString());
-          console.error(stderr.toString());
+          log.error(err.stack);
+          log.error(stdout.toString());
+          log.error(stderr.toString());
           return done(err);
         }
         done();
@@ -952,9 +954,9 @@ describe("Array Configuration", () => {
         removeConfigFile(configFileName);
 
         if (err) {
-          console.error(err.stack);
-          console.error(stdout.toString());
-          console.error(stderr.toString());
+          log.error(err.stack);
+          log.error(stdout.toString());
+          log.error(stderr.toString());
           done(err);
           return;
         }
@@ -969,7 +971,7 @@ describe("Array Configuration", () => {
 });
 
 describe("CheckBrowser Tests", () => {
-  it("🎉 Es Check should pass when using --checkBrowser without specifying ES version", (done) => {
+  it("[PASS] Es Check should pass when using --checkBrowser without specifying ES version", (done) => {
     execFileWithGlob(
       "node",
       [
@@ -981,9 +983,9 @@ describe("CheckBrowser Tests", () => {
       ],
       (err, stdout, stderr) => {
         if (err) {
-          console.error(err.stack);
-          console.error(stdout.toString());
-          console.error(stderr.toString());
+          log.error(err.stack);
+          log.error(stdout.toString());
+          log.error(stderr.toString());
           done(err);
           return;
         }
@@ -996,7 +998,7 @@ describe("CheckBrowser Tests", () => {
     );
   });
 
-  it('🎉 Es Check should pass when using "checkBrowser" as ES version', (done) => {
+  it('[PASS] Es Check should pass when using "checkBrowser" as ES version', (done) => {
     execFileWithGlob(
       "node",
       [
@@ -1007,9 +1009,9 @@ describe("CheckBrowser Tests", () => {
       ],
       (err, stdout, stderr) => {
         if (err) {
-          console.error(err.stack);
-          console.error(stdout.toString());
-          console.error(stderr.toString());
+          log.error(err.stack);
+          log.error(stdout.toString());
+          log.error(stderr.toString());
           done(err);
           return;
         }
@@ -1022,7 +1024,7 @@ describe("CheckBrowser Tests", () => {
     );
   });
 
-  it("🎉 Es Check should pass when using only --checkBrowser flag without ES version", (done) => {
+  it("[PASS] Es Check should pass when using only --checkBrowser flag without ES version", (done) => {
     execFileWithGlob(
       "node",
       [
@@ -1033,9 +1035,9 @@ describe("CheckBrowser Tests", () => {
       ],
       (err, stdout, stderr) => {
         if (err) {
-          console.error(err.stack);
-          console.error(stdout.toString());
-          console.error(stderr.toString());
+          log.error(err.stack);
+          log.error(stdout.toString());
+          log.error(stderr.toString());
           done(err);
           return;
         }
@@ -1048,7 +1050,7 @@ describe("CheckBrowser Tests", () => {
     );
   });
 
-  it("🎉 Es Check should pass when using --files with --checkBrowser without ES version", (done) => {
+  it("[PASS] Es Check should pass when using --files with --checkBrowser without ES version", (done) => {
     execFileWithGlob(
       "node",
       [
@@ -1059,9 +1061,9 @@ describe("CheckBrowser Tests", () => {
       ],
       (err, stdout, stderr) => {
         if (err) {
-          console.error(err.stack);
-          console.error(stdout.toString());
-          console.error(stderr.toString());
+          log.error(err.stack);
+          log.error(stdout.toString());
+          log.error(stderr.toString());
           done(err);
           return;
         }
@@ -1086,7 +1088,7 @@ describe("CheckBrowser Tests", () => {
       ],
       (err, stdout, stderr) => {
         assert(err, "Expected an error but command ran successfully");
-        console.log(stdout);
+        log.debug(stdout);
         done();
       },
     );
@@ -1103,13 +1105,13 @@ describe("CheckBrowser Tests", () => {
       ],
       (err, stdout, stderr) => {
         assert(err, "Expected an error but command ran successfully");
-        console.log(stdout);
+        log.debug(stdout);
         done();
       },
     );
   });
 
-  it("🎉 Es Check should pass when ES2020 file is checked against modern browsers", (done) => {
+  it("[PASS] Es Check should pass when ES2020 file is checked against modern browsers", (done) => {
     execFileWithGlob(
       "node",
       [
@@ -1121,9 +1123,9 @@ describe("CheckBrowser Tests", () => {
       ],
       (err, stdout, stderr) => {
         if (err) {
-          console.error(err.stack);
-          console.error(stdout.toString());
-          console.error(stderr.toString());
+          log.error(err.stack);
+          log.error(stdout.toString());
+          log.error(stderr.toString());
           done(err);
           return;
         }
@@ -1145,7 +1147,7 @@ describe("CheckBrowser Tests", () => {
       ],
       (err, stdout, stderr) => {
         assert(err, "Expected an error but command ran successfully");
-        console.log(stdout);
+        log.debug(stdout);
         done();
       },
     );
@@ -1161,9 +1163,9 @@ describe("Shell Completion", () => {
         ["lib/index.js", "completion"],
         (err, stdout, stderr) => {
           if (err) {
-            console.error(err.stack);
-            console.error(stdout.toString());
-            console.error(stderr.toString());
+            log.error(err.stack);
+            log.error(stdout.toString());
+            log.error(stderr.toString());
             done(err);
             return;
           }
@@ -1190,9 +1192,9 @@ describe("Shell Completion", () => {
         ["lib/index.js", "completion", "zsh"],
         (err, stdout, stderr) => {
           if (err) {
-            console.error(err.stack);
-            console.error(stdout.toString());
-            console.error(stderr.toString());
+            log.error(err.stack);
+            log.error(stdout.toString());
+            log.error(stderr.toString());
             done(err);
             return;
           }
@@ -1358,15 +1360,15 @@ describe("Shell Completion", () => {
   });
 
   describe("🔬 Limited Tests for Addressed Scenarios (No New Files Constraint)", () => {
-    it('🎉 Should run with "checkBrowser" and an existing ES5 file, relying on browserslist default or ancestor configs', (done) => {
+    it('[PASS] Should run with "checkBrowser" and an existing ES5 file, relying on browserslist default or ancestor configs', (done) => {
       execFileWithGlob(
         "node",
         ["lib/index.js", "checkBrowser", "./tests/fixtures/es5.js"],
         (err, stdout, stderr) => {
           if (err) {
-            console.error(err.stack);
-            console.error(stdout.toString());
-            console.error(stderr.toString());
+            log.error(err.stack);
+            log.error(stdout.toString());
+            log.error(stderr.toString());
             done(err);
             return;
           }
@@ -1379,7 +1381,7 @@ describe("Shell Completion", () => {
       );
     });
 
-    it("🎉 Should use --browserslistQuery from CLI with --checkBrowser, effectively overriding a positional esVersion", (done) => {
+    it("[PASS] Should use --browserslistQuery from CLI with --checkBrowser, effectively overriding a positional esVersion", (done) => {
       execFileWithGlob(
         "node",
         [
@@ -1391,9 +1393,9 @@ describe("Shell Completion", () => {
         ],
         (err, stdout, stderr) => {
           if (err) {
-            console.error(err.stack);
-            console.error(stdout.toString());
-            console.error(stderr.toString());
+            log.error(err.stack);
+            log.error(stdout.toString());
+            log.error(stderr.toString());
             done(err);
             return;
           }
@@ -1412,15 +1414,15 @@ describe("🧪 Programmatic API Tests", () => {
   const { runChecks, loadConfig } = require("../../lib/index.js");
   const { createLogger } = require("../../lib/helpers");
 
-  it("✅ Should expose runChecks function", () => {
+  it("[PASS] Should expose runChecks function", () => {
     assert(typeof runChecks === "function", "runChecks should be a function");
   });
 
-  it("✅ Should expose loadConfig function", () => {
+  it("[PASS] Should expose loadConfig function", () => {
     assert(typeof loadConfig === "function", "loadConfig should be a function");
   });
 
-  it("✅ Should run checks programmatically with valid config", async () => {
+  it("[PASS] Should run checks programmatically with valid config", async () => {
     const testConfig = {
       ecmaVersion: "es5",
       files: ["./tests/fixtures/es5.js"],
@@ -1442,7 +1444,7 @@ describe("🧪 Programmatic API Tests", () => {
     }
   });
 
-  it("✅ Should fail programmatically when ES6 features found in ES5 check", async () => {
+  it("[PASS] Should fail programmatically when ES6 features found in ES5 check", async () => {
     const testConfig = {
       ecmaVersion: "es5",
       files: ["./tests/fixtures/es6.js"],
@@ -1471,7 +1473,7 @@ describe("🧪 Programmatic API Tests", () => {
     assert(errorCaught, "runChecks should fail for ES6 file checked as ES5");
   });
 
-  it("✅ Should load config from file system", async () => {
+  it("[PASS] Should load config from file system", async () => {
     const configs = await loadConfig();
     assert(Array.isArray(configs), "loadConfig should return an array");
   });
@@ -1619,7 +1621,7 @@ describe("🔬 Fixture-Based Tests for Addressed Scenarios", () => {
     });
   });
 
-  it("🎉 should PASS when --checkBrowser is used with a single positional file argument", (done) => {
+  it("[PASS] should PASS when --checkBrowser is used with a single positional file argument", (done) => {
     execFileWithGlob(
       "node",
       [
@@ -1640,7 +1642,7 @@ describe("🔬 Fixture-Based Tests for Addressed Scenarios", () => {
     );
   });
 
-  it("🎉 should PASS when checking a SCRIPT file (es6.js) with --checkBrowser", (done) => {
+  it("[PASS] should PASS when checking a SCRIPT file (es6.js) with --checkBrowser", (done) => {
     const command =
       'node lib/index.js --checkBrowser --browserslistQuery="Chrome >= 100" ./tests/fixtures/checkbrowser/es6.js';
     execFileWithGlob(
@@ -1648,7 +1650,7 @@ describe("🔬 Fixture-Based Tests for Addressed Scenarios", () => {
       command.split(" ").slice(1),
       (err, stdout, stderr) => {
         if (err) {
-          console.error("Test for es6.js failed unexpectedly:", stdout, stderr);
+          log.error("Test for es6.js failed unexpectedly:", stdout, stderr);
           done(err);
           return;
         }
@@ -1661,7 +1663,7 @@ describe("🔬 Fixture-Based Tests for Addressed Scenarios", () => {
     );
   });
 
-  it("🎉 should PASS when checking a MODULE file (es2020.js) by setting the version explicitly", (done) => {
+  it("[PASS] should PASS when checking a MODULE file (es2020.js) by setting the version explicitly", (done) => {
     const command =
       "node lib/index.js es2020 --module ./tests/fixtures/checkbrowser/es2020.js";
     execFileWithGlob(
@@ -1669,7 +1671,7 @@ describe("🔬 Fixture-Based Tests for Addressed Scenarios", () => {
       command.split(" ").slice(1),
       (err, stdout, stderr) => {
         if (err) {
-          console.error(
+          log.error(
             "Test for es2020.js failed unexpectedly:",
             stdout,
             stderr,
@@ -1686,7 +1688,7 @@ describe("🔬 Fixture-Based Tests for Addressed Scenarios", () => {
     );
   });
 
-  it("🎉 should PASS when file argument is passed before the --checkBrowser flag", (done) => {
+  it("[PASS] should PASS when file argument is passed before the --checkBrowser flag", (done) => {
     const command =
       'node lib/index.js ./tests/fixtures/checkbrowser/es6.js --checkBrowser --browserslistQuery="Chrome >= 100"';
 
@@ -1695,7 +1697,7 @@ describe("🔬 Fixture-Based Tests for Addressed Scenarios", () => {
       command.split(" ").slice(1),
       (err, stdout, stderr) => {
         if (err) {
-          console.error("Test failed unexpectedly:", stdout, stderr);
+          log.error("Test failed unexpectedly:", stdout, stderr);
           done(err);
           return;
         }
@@ -1708,7 +1710,7 @@ describe("🔬 Fixture-Based Tests for Addressed Scenarios", () => {
     );
   });
 
-  it("🎉 should PASS when file argument is passed before the --checkBrowser flag", (done) => {
+  it("[PASS] should PASS when file argument is passed before the --checkBrowser flag", (done) => {
     const command =
       'node lib/index.js checkBrowser ./tests/fixtures/checkbrowser/es6.js --browserslistQuery="Chrome >= 100"';
 
@@ -1717,7 +1719,7 @@ describe("🔬 Fixture-Based Tests for Addressed Scenarios", () => {
       command.split(" ").slice(1),
       (err, stdout, stderr) => {
         if (err) {
-          console.error("Test failed unexpectedly:", stdout, stderr);
+          log.error("Test failed unexpectedly:", stdout, stderr);
           done(err);
           return;
         }
@@ -1730,7 +1732,7 @@ describe("🔬 Fixture-Based Tests for Addressed Scenarios", () => {
     );
   });
 
-  it("🎉 should PASS when file argument is passed before the --checkBrowser flag", (done) => {
+  it("[PASS] should PASS when file argument is passed before the --checkBrowser flag", (done) => {
     const command =
       'node lib/index.js --checkBrowser ./tests/fixtures/checkbrowser/es6.js --browserslistQuery="Chrome >= 100"';
 
@@ -1739,7 +1741,7 @@ describe("🔬 Fixture-Based Tests for Addressed Scenarios", () => {
       command.split(" ").slice(1),
       (err, stdout, stderr) => {
         if (err) {
-          console.error("Test failed unexpectedly:", stdout, stderr);
+          log.error("Test failed unexpectedly:", stdout, stderr);
           done(err);
           return;
         }
@@ -1752,7 +1754,7 @@ describe("🔬 Fixture-Based Tests for Addressed Scenarios", () => {
     );
   });
 
-  it("🎉 should PASS when file argument is passed before the --checkBrowser flag", (done) => {
+  it("[PASS] should PASS when file argument is passed before the --checkBrowser flag", (done) => {
     const command =
       "node lib/index.js --checkBrowser ./tests/fixtures/checkbrowser/es6.js";
 
@@ -1761,7 +1763,7 @@ describe("🔬 Fixture-Based Tests for Addressed Scenarios", () => {
       command.split(" ").slice(1),
       (err, stdout, stderr) => {
         if (err) {
-          console.error("Test failed unexpectedly:", stdout, stderr);
+          log.error("Test failed unexpectedly:", stdout, stderr);
           done(err);
           return;
         }
@@ -1776,7 +1778,7 @@ describe("🔬 Fixture-Based Tests for Addressed Scenarios", () => {
 });
 
 describe("--batchSize option tests", () => {
-  it("🎉 Es Check should pass with --batchSize 0 (unlimited)", (done) => {
+  it("[PASS] Es Check should pass with --batchSize 0 (unlimited)", (done) => {
     execFileWithGlob(
       "node",
       [
@@ -1789,9 +1791,9 @@ describe("--batchSize option tests", () => {
       ],
       (err, stdout, stderr) => {
         if (err) {
-          console.error(err.stack);
-          console.error(stdout.toString());
-          console.error(stderr.toString());
+          log.error(err.stack);
+          log.error(stdout.toString());
+          log.error(stderr.toString());
           done(err);
           return;
         }
@@ -1801,7 +1803,7 @@ describe("--batchSize option tests", () => {
     );
   });
 
-  it("🎉 Es Check should pass with --batchSize 1 (process one at a time)", (done) => {
+  it("[PASS] Es Check should pass with --batchSize 1 (process one at a time)", (done) => {
     execFileWithGlob(
       "node",
       [
@@ -1814,9 +1816,9 @@ describe("--batchSize option tests", () => {
       ],
       (err, stdout, stderr) => {
         if (err) {
-          console.error(err.stack);
-          console.error(stdout.toString());
-          console.error(stderr.toString());
+          log.error(err.stack);
+          log.error(stdout.toString());
+          log.error(stderr.toString());
           done(err);
           return;
         }
@@ -1826,15 +1828,15 @@ describe("--batchSize option tests", () => {
     );
   });
 
-  it("🎉 Es Check should pass with --batchSize 10", (done) => {
+  it("[PASS] Es Check should pass with --batchSize 10", (done) => {
     execFileWithGlob(
       "node",
       ["lib/index.js", "es5", "./tests/fixtures/es5*.js", "--batchSize", "10"],
       (err, stdout, stderr) => {
         if (err) {
-          console.error(err.stack);
-          console.error(stdout.toString());
-          console.error(stderr.toString());
+          log.error(err.stack);
+          log.error(stdout.toString());
+          log.error(stderr.toString());
           done(err);
           return;
         }
@@ -1868,7 +1870,7 @@ describe("--batchSize option tests", () => {
     );
   });
 
-  it("🎉 Es Check should handle mixed file results with batching", (done) => {
+  it("[PASS] Es Check should handle mixed file results with batching", (done) => {
     execFileWithGlob(
       "node",
       [
@@ -1881,9 +1883,9 @@ describe("--batchSize option tests", () => {
       ],
       (err, stdout, stderr) => {
         if (err) {
-          console.error(err.stack);
-          console.error(stdout.toString());
-          console.error(stderr.toString());
+          log.error(err.stack);
+          log.error(stdout.toString());
+          log.error(stderr.toString());
           done(err);
           return;
         }
@@ -1895,16 +1897,16 @@ describe("--batchSize option tests", () => {
 });
 
 describe("Performance optimization integration tests", () => {
-  it("🎉 Should reuse AST when --checkFeatures is enabled", (done) => {
+  it("[PASS] Should reuse AST when --checkFeatures is enabled", (done) => {
     // This test verifies that the AST is reused (single parse optimization)
     execFileWithGlob(
       "node",
       ["lib/index.js", "es6", "./tests/fixtures/es6.js", "--checkFeatures"],
       (err, stdout, stderr) => {
         if (err) {
-          console.error(err.stack);
-          console.error(stdout.toString());
-          console.error(stderr.toString());
+          log.error(err.stack);
+          log.error(stdout.toString());
+          log.error(stderr.toString());
           done(err);
           return;
         }
@@ -1914,7 +1916,7 @@ describe("Performance optimization integration tests", () => {
     );
   });
 
-  it("🎉 Should work with async file processing", (done) => {
+  it("[PASS] Should work with async file processing", (done) => {
     // Test that async file reading works correctly
     execFileWithGlob(
       "node",
@@ -1926,9 +1928,9 @@ describe("Performance optimization integration tests", () => {
       ],
       (err, stdout, stderr) => {
         if (err) {
-          console.error(err.stack);
-          console.error(stdout.toString());
-          console.error(stderr.toString());
+          log.error(err.stack);
+          log.error(stdout.toString());
+          log.error(stderr.toString());
           done(err);
           return;
         }
@@ -1938,7 +1940,7 @@ describe("Performance optimization integration tests", () => {
     );
   });
 
-  it("🎉 Should handle large file sets with batching", (done) => {
+  it("[PASS] Should handle large file sets with batching", (done) => {
     // Test with multiple files to ensure batch processing works
     execFileWithGlob(
       "node",
@@ -1952,9 +1954,9 @@ describe("Performance optimization integration tests", () => {
       ],
       (err, stdout, stderr) => {
         if (err) {
-          console.error(err.stack);
-          console.error(stdout.toString());
-          console.error(stderr.toString());
+          log.error(err.stack);
+          log.error(stdout.toString());
+          log.error(stderr.toString());
           done(err);
           return;
         }
@@ -1964,7 +1966,7 @@ describe("Performance optimization integration tests", () => {
     );
   });
 
-  it("🎉 Should work with config file containing batchSize", (done) => {
+  it("[PASS] Should work with config file containing batchSize", (done) => {
     // Create a temporary config file
     const fs = require("fs");
     const configPath = "./.test-escheckrc";
@@ -1984,9 +1986,9 @@ describe("Performance optimization integration tests", () => {
         fs.unlinkSync(configPath);
 
         if (err) {
-          console.error(err.stack);
-          console.error(stdout.toString());
-          console.error(stderr.toString());
+          log.error(err.stack);
+          log.error(stdout.toString());
+          log.error(stderr.toString());
           done(err);
           return;
         }
@@ -1998,15 +2000,15 @@ describe("Performance optimization integration tests", () => {
 });
 
 describe("--cache option tests", () => {
-  it("🎉 Es Check should pass with cache enabled (default)", (done) => {
+  it("[PASS] Es Check should pass with cache enabled (default)", (done) => {
     execFileWithGlob(
       "node",
       ["lib/index.js", "es5", "./tests/fixtures/es5.js"],
       (err, stdout, stderr) => {
         if (err) {
-          console.error(err.stack);
-          console.error(stdout.toString());
-          console.error(stderr.toString());
+          log.error(err.stack);
+          log.error(stdout.toString());
+          log.error(stderr.toString());
           done(err);
           return;
         }
@@ -2016,15 +2018,15 @@ describe("--cache option tests", () => {
     );
   });
 
-  it("🎉 Es Check should pass with cache explicitly disabled", (done) => {
+  it("[PASS] Es Check should pass with cache explicitly disabled", (done) => {
     execFileWithGlob(
       "node",
       ["lib/index.js", "es5", "./tests/fixtures/es5.js", "--noCache"],
       (err, stdout, stderr) => {
         if (err) {
-          console.error(err.stack);
-          console.error(stdout.toString());
-          console.error(stderr.toString());
+          log.error(err.stack);
+          log.error(stdout.toString());
+          log.error(stderr.toString());
           done(err);
           return;
         }
@@ -2034,7 +2036,7 @@ describe("--cache option tests", () => {
     );
   });
 
-  it("🎉 Es Check should handle duplicate files with cache", (done) => {
+  it("[PASS] Es Check should handle duplicate files with cache", (done) => {
     execFileWithGlob(
       "node",
       [
@@ -2046,9 +2048,9 @@ describe("--cache option tests", () => {
       ],
       (err, stdout, stderr) => {
         if (err) {
-          console.error(err.stack);
-          console.error(stdout.toString());
-          console.error(stderr.toString());
+          log.error(err.stack);
+          log.error(stdout.toString());
+          log.error(stderr.toString());
           done(err);
           return;
         }
@@ -2080,7 +2082,7 @@ describe("--cache option tests", () => {
     );
   });
 
-  it("🎉 Es Check should work with cache in config file", (done) => {
+  it("[PASS] Es Check should work with cache in config file", (done) => {
     const fs = require("fs");
     const path = require("path");
     const configPath = path.join(__dirname, ".test-escheckrc");
@@ -2099,9 +2101,9 @@ describe("--cache option tests", () => {
         fs.unlinkSync(configPath);
 
         if (err) {
-          console.error(err.stack);
-          console.error(stdout.toString());
-          console.error(stderr.toString());
+          log.error(err.stack);
+          log.error(stdout.toString());
+          log.error(stderr.toString());
           done(err);
           return;
         }
@@ -2111,7 +2113,7 @@ describe("--cache option tests", () => {
     );
   });
 
-  it("🎉 Es Check should work with cache disabled in config file", (done) => {
+  it("[PASS] Es Check should work with cache disabled in config file", (done) => {
     const fs = require("fs");
     const path = require("path");
     const configPath = path.join(__dirname, ".test-escheckrc");
@@ -2130,9 +2132,9 @@ describe("--cache option tests", () => {
         fs.unlinkSync(configPath);
 
         if (err) {
-          console.error(err.stack);
-          console.error(stdout.toString());
-          console.error(stderr.toString());
+          log.error(err.stack);
+          log.error(stdout.toString());
+          log.error(stderr.toString());
           done(err);
           return;
         }

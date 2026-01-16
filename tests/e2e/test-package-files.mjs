@@ -4,10 +4,14 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import { execSync } from "child_process";
+import { createLogger } from "../../lib/esm-wrapper.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const rootDir = path.join(__dirname, "..", "..");
+
+const verbose = process.env.VERBOSE === "true" || process.env.DEBUG === "true";
+const log = createLogger({ verbose });
 
 const packageJson = JSON.parse(
   fs.readFileSync(path.join(rootDir, "package.json"), "utf8"),
@@ -55,7 +59,7 @@ function analyzeFileDependencies(filePath, visited = new Set()) {
       }
     }
   } catch (error) {
-    console.error(`Error analyzing ${filePath}: ${error.message}`);
+    log.error(`Error analyzing ${filePath}: ${error.message}`);
   }
 
   return [...new Set(dependencies)];
@@ -106,13 +110,13 @@ function findAllRequiredFiles() {
 }
 
 function verifyPackageFiles() {
-  console.log("[INFO] Dynamically analyzing required files...\n");
+  log.info("[INFO] Dynamically analyzing required files...\n");
 
   const requiredFiles = findAllRequiredFiles();
   const errors = [];
   const warnings = [];
 
-  console.log("[PKG] Entry points and their dependencies:\n");
+  log.info("[PKG] Entry points and their dependencies:\n");
 
   for (const file of requiredFiles.sort()) {
     const isCovered = filesInPackage.some((pkgFile) => {
@@ -125,32 +129,32 @@ function verifyPackageFiles() {
       errors.push(
         `[FAIL] Required file "${file}" is missing from package.json files array`,
       );
-      console.log(`[FAIL] ${file}`);
+      log.info(`[FAIL] ${file}`);
     } else {
-      console.log(`[PASS] ${file}`);
+      log.info(`[PASS] ${file}`);
     }
   }
 
-  console.log("\n[CHECK] Checking for orphaned files in package.json...\n");
+  log.info("\n[CHECK] Checking for orphaned files in package.json...\n");
 
   for (const file of filesInPackage) {
     if (!fs.existsSync(path.join(rootDir, file))) {
       warnings.push(`[WARN]  File "${file}" in package.json does not exist`);
     } else if (!requiredFiles.includes(file)) {
-      console.log(
+      log.info(
         `[NOTE]  ${file} - in package.json but not detected as dependency`,
       );
     }
   }
 
   if (warnings.length > 0) {
-    console.log("\n[WARN]  Warnings:");
-    warnings.forEach((w) => console.log(w));
+    log.info("\n[WARN]  Warnings:");
+    warnings.forEach((w) => log.info(w));
   }
 
   if (errors.length > 0) {
-    console.log("\n[FAIL] Errors found:");
-    errors.forEach((e) => console.log(e));
+    log.info("\n[FAIL] Errors found:");
+    errors.forEach((e) => log.info(e));
 
     const missingFiles = errors
       .map((e) => e.match(/"([^"]+)"/)?.[1])
@@ -158,8 +162,8 @@ function verifyPackageFiles() {
       .filter((f, i, arr) => arr.indexOf(f) === i);
 
     if (missingFiles.length > 0) {
-      console.log('\n[FIX] Add these to package.json "files" array:');
-      console.log(JSON.stringify(missingFiles, null, 2));
+      log.info('\n[FIX] Add these to package.json "files" array:');
+      log.info(JSON.stringify(missingFiles, null, 2));
     }
 
     process.exit(1);
@@ -167,14 +171,14 @@ function verifyPackageFiles() {
 
   testNpmPack(requiredFiles);
 
-  console.log(
+  log.info(
     "\n[PASS] All dynamically detected files are properly configured!",
   );
-  console.log(`   Total required files: ${requiredFiles.length}`);
+  log.info(`   Total required files: ${requiredFiles.length}`);
 }
 
 function testNpmPack(requiredFiles) {
-  console.log("\n[PKG] Testing npm pack to verify files will be included...\n");
+  log.info("\n[PKG] Testing npm pack to verify files will be included...\n");
 
   try {
     const packOutput = execSync("npm pack --dry-run --json", {
@@ -189,7 +193,7 @@ function testNpmPack(requiredFiles) {
     let hasError = false;
     for (const requiredFile of requiredFiles) {
       if (!packedFiles.includes(requiredFile)) {
-        console.log(
+        log.info(
           `[FAIL] Required file "${requiredFile}" will NOT be included in npm package`,
         );
         hasError = true;
@@ -200,9 +204,9 @@ function testNpmPack(requiredFiles) {
       process.exit(1);
     }
 
-    console.log("[PASS] npm pack verification passed");
+    log.info("[PASS] npm pack verification passed");
   } catch (error) {
-    console.log("[WARN]  Could not verify with npm pack --dry-run");
+    log.info("[WARN]  Could not verify with npm pack --dry-run");
   }
 }
 

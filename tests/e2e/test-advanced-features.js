@@ -3,12 +3,15 @@
 const { execFileSync } = require("child_process");
 const path = require("path");
 const fs = require("fs");
+const { createTestLogger } = require("../helpers");
 
-console.log("Testing advanced features...\n");
+const log = createTestLogger();
+
+log.info("Testing advanced features...\n");
 
 const esCheckPath = path.join(__dirname, "..", "..", "lib", "cli", "index.js");
 
-console.log("Test 1: Using --not flag to exclude patterns");
+log.info("Test 1: Using --not flag to exclude patterns");
 try {
   execFileSync(
     "node",
@@ -24,14 +27,14 @@ try {
       encoding: "utf8",
     },
   );
-  console.log("[PASS] Test 1 passed\n");
+  log.info("[PASS] Test 1 passed\n");
 } catch (error) {
-  console.error("[FAIL] Test 1 failed");
-  console.error(error.stderr || error.stdout || error.message);
+  log.error("[FAIL] Test 1 failed");
+  log.error(error.stderr || error.stdout || error.message);
   process.exit(1);
 }
 
-console.log("Test 2: Using --ignore with --checkFeatures");
+log.info("Test 2: Using --ignore with --checkFeatures");
 try {
   execFileSync(
     "node",
@@ -47,14 +50,14 @@ try {
       encoding: "utf8",
     },
   );
-  console.log("[PASS] Test 2 passed (ignored features work)\n");
+  log.info("[PASS] Test 2 passed (ignored features work)\n");
 } catch (error) {
-  console.log(
+  log.info(
     "[WARN] Test 2 partial - ignore flag tested but may have other features\n",
   );
 }
 
-console.log("Test 3: Detecting polyfills with --checkForPolyfills");
+log.info("Test 3: Detecting polyfills with --checkForPolyfills");
 const polyfillFile = path.join(__dirname, "temp-polyfill.js");
 fs.writeFileSync(
   polyfillFile,
@@ -76,9 +79,9 @@ try {
   const hasPolyfillWarning =
     output.includes("polyfill") || output.includes("includes");
   if (hasPolyfillWarning) {
-    console.log("[PASS] Test 3 passed (polyfill detected)\n");
+    log.info("[PASS] Test 3 passed (polyfill detected)\n");
   } else {
-    console.log(
+    log.info(
       "[WARN] Test 3 partial - polyfill check ran but may not detect all patterns\n",
     );
   }
@@ -87,15 +90,15 @@ try {
   const hasPolyfillWarning =
     output.includes("polyfill") || output.includes("includes");
   if (hasPolyfillWarning) {
-    console.log("[PASS] Test 3 passed (polyfill detected in error)\n");
+    log.info("[PASS] Test 3 passed (polyfill detected in error)\n");
   } else {
-    console.log("[WARN] Test 3 partial - no polyfill detection in output\n");
+    log.info("[WARN] Test 3 partial - no polyfill detection in output\n");
   }
 } finally {
   fs.unlinkSync(polyfillFile);
 }
 
-console.log("Test 4: Using config file with multiple entries");
+log.info("Test 4: Using config file with multiple entries");
 const multiConfigPath = path.join(__dirname, "multi-config.json");
 const multiConfig = [
   {
@@ -113,16 +116,16 @@ try {
   execFileSync("node", [esCheckPath, "--config", multiConfigPath], {
     encoding: "utf8",
   });
-  console.log("[PASS] Test 4 passed\n");
+  log.info("[PASS] Test 4 passed\n");
 } catch (error) {
-  console.error("[FAIL] Test 4 failed");
-  console.error(error.stderr || error.stdout || error.message);
+  log.error("[FAIL] Test 4 failed");
+  log.error(error.stderr || error.stdout || error.message);
   process.exit(1);
 } finally {
   fs.unlinkSync(multiConfigPath);
 }
 
-console.log("Test 5: Using --allowList flag");
+log.info("Test 5: Using --allowList flag");
 try {
   execFileSync(
     "node",
@@ -138,12 +141,12 @@ try {
       encoding: "utf8",
     },
   );
-  console.log("[PASS] Test 5 passed\n");
+  log.info("[PASS] Test 5 passed\n");
 } catch (error) {
-  console.log("[WARN] Test 5 partial - allowList flag tested\n");
+  log.info("[WARN] Test 5 partial - allowList flag tested\n");
 }
 
-console.log("Test 6: Using --batchSize option");
+log.info("Test 6: Using --batchSize option");
 try {
   execFileSync(
     "node",
@@ -159,14 +162,14 @@ try {
       encoding: "utf8",
     },
   );
-  console.log("[PASS] Test 6 passed\n");
+  log.info("[PASS] Test 6 passed\n");
 } catch (error) {
-  console.error("[FAIL] Test 6 failed");
-  console.error(error.stderr || error.stdout || error.message);
+  log.error("[FAIL] Test 6 failed");
+  log.error(error.stderr || error.stdout || error.message);
   process.exit(1);
 }
 
-console.log("Test 7: Using --noCache option");
+log.info("Test 7: Using --noCache option");
 try {
   execFileSync(
     "node",
@@ -175,14 +178,14 @@ try {
       encoding: "utf8",
     },
   );
-  console.log("[PASS] Test 7 passed\n");
+  log.info("[PASS] Test 7 passed\n");
 } catch (error) {
-  console.error("[FAIL] Test 7 failed");
-  console.error(error.stderr || error.stdout || error.message);
+  log.error("[FAIL] Test 7 failed");
+  log.error(error.stderr || error.stdout || error.message);
   process.exit(1);
 }
 
-console.log("Test 8: Using --files option");
+log.info("Test 8: Using --files option");
 try {
   execFileSync(
     "node",
@@ -196,11 +199,11 @@ try {
       encoding: "utf8",
     },
   );
-  console.log("[PASS] Test 8 passed\n");
+  log.info("[PASS] Test 8 passed\n");
 } catch (error) {
-  console.error("[FAIL] Test 8 failed");
-  console.error(error.stderr || error.stdout || error.message);
+  log.error("[FAIL] Test 8 failed");
+  log.error(error.stderr || error.stdout || error.message);
   process.exit(1);
 }
 
-console.log("[PASS] All advanced feature tests passed!");
+log.info("[PASS] All advanced feature tests passed!");

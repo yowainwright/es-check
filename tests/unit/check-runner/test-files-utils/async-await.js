@@ -1,0 +1,1 @@
+async function a() { await Promise.resolve(); }

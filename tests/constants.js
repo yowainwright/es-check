@@ -60,7 +60,7 @@ const FLAGS = {
 
 // Test emojis
 const TEST_EMOJIS = {
-  PASS: "🎉",
+  PASS: "[PASS]",
   FAIL: "👌",
   TEST: "🧪",
   LAB: "🔬",

@@ -5,6 +5,10 @@ const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
 const fg = require("fast-glob");
+const { createLogger } = require("../lib/helpers/logger");
+
+const verbose = process.env.VERBOSE === "true" || process.env.DEBUG === "true";
+const defaultLogger = createLogger({ verbose });
 
 function createUniqueConfigFile(config, testName) {
   const hash = crypto
@@ -61,9 +65,9 @@ function execFilePromise(file, args, options = {}) {
 
 function assertSuccess(err, stdout, stderr, done) {
   if (err) {
-    console.error(err.stack);
-    console.error(stdout.toString());
-    console.error(stderr.toString());
+    defaultLogger.error(err.stack);
+    defaultLogger.error(stdout.toString());
+    defaultLogger.error(stderr.toString());
     done(err);
     return false;
   }
@@ -72,11 +76,11 @@ function assertSuccess(err, stdout, stderr, done) {
 
 function assertFailure(err, stdout, done) {
   if (!err) {
-    console.error("Expected command to fail but it succeeded");
+    defaultLogger.error("Expected command to fail but it succeeded");
     done(new Error("Expected command to fail but it succeeded"));
     return false;
   }
-  console.log(stdout);
+  defaultLogger.debug(stdout);
   return true;
 }
 
@@ -123,6 +127,11 @@ function createSilentLogger() {
     debug: () => {},
     isLevelEnabled: () => false,
   };
+}
+
+function createTestLogger(options = {}) {
+  const verbose = process.env.VERBOSE === "true" || process.env.DEBUG === "true";
+  return createLogger({ verbose, ...options });
 }
 
 function mockFs(mockFsState) {
@@ -173,6 +182,7 @@ module.exports = {
   createTempFile,
   createMockLogger,
   createSilentLogger,
+  createTestLogger,
   mockFs,
   createMockFsState,
 };
