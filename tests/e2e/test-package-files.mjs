@@ -112,7 +112,7 @@ function verifyPackageFiles() {
   const errors = [];
   const warnings = [];
 
-  console.log("📦 Entry points and their dependencies:\n");
+  console.log("[PKG] Entry points and their dependencies:\n");
 
   for (const file of requiredFiles.sort()) {
     const isCovered = filesInPackage.some((pkgFile) => {
@@ -123,33 +123,33 @@ function verifyPackageFiles() {
 
     if (!isCovered) {
       errors.push(
-        `❌ Required file "${file}" is missing from package.json files array`,
+        `[FAIL] Required file "${file}" is missing from package.json files array`,
       );
-      console.log(`❌ ${file}`);
+      console.log(`[FAIL] ${file}`);
     } else {
       console.log(`[PASS] ${file}`);
     }
   }
 
-  console.log("\n📊 Checking for orphaned files in package.json...\n");
+  console.log("\n[CHECK] Checking for orphaned files in package.json...\n");
 
   for (const file of filesInPackage) {
     if (!fs.existsSync(path.join(rootDir, file))) {
-      warnings.push(`⚠️  File "${file}" in package.json does not exist`);
+      warnings.push(`[WARN]  File "${file}" in package.json does not exist`);
     } else if (!requiredFiles.includes(file)) {
       console.log(
-        `ℹ️  ${file} - in package.json but not detected as dependency`,
+        `[NOTE]  ${file} - in package.json but not detected as dependency`,
       );
     }
   }
 
   if (warnings.length > 0) {
-    console.log("\n⚠️  Warnings:");
+    console.log("\n[WARN]  Warnings:");
     warnings.forEach((w) => console.log(w));
   }
 
   if (errors.length > 0) {
-    console.log("\n❌ Errors found:");
+    console.log("\n[FAIL] Errors found:");
     errors.forEach((e) => console.log(e));
 
     const missingFiles = errors
@@ -158,7 +158,7 @@ function verifyPackageFiles() {
       .filter((f, i, arr) => arr.indexOf(f) === i);
 
     if (missingFiles.length > 0) {
-      console.log('\n🔧 Add these to package.json "files" array:');
+      console.log('\n[FIX] Add these to package.json "files" array:');
       console.log(JSON.stringify(missingFiles, null, 2));
     }
 
@@ -174,7 +174,7 @@ function verifyPackageFiles() {
 }
 
 function testNpmPack(requiredFiles) {
-  console.log("\n📦 Testing npm pack to verify files will be included...\n");
+  console.log("\n[PKG] Testing npm pack to verify files will be included...\n");
 
   try {
     const packOutput = execSync("npm pack --dry-run --json", {
@@ -190,7 +190,7 @@ function testNpmPack(requiredFiles) {
     for (const requiredFile of requiredFiles) {
       if (!packedFiles.includes(requiredFile)) {
         console.log(
-          `❌ Required file "${requiredFile}" will NOT be included in npm package`,
+          `[FAIL] Required file "${requiredFile}" will NOT be included in npm package`,
         );
         hasError = true;
       }
@@ -202,7 +202,7 @@ function testNpmPack(requiredFiles) {
 
     console.log("[PASS] npm pack verification passed");
   } catch (error) {
-    console.log("⚠️  Could not verify with npm pack --dry-run");
+    console.log("[WARN]  Could not verify with npm pack --dry-run");
   }
 }
 

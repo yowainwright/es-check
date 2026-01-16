@@ -26,7 +26,7 @@ export function CopyButton({ text, className = "" }: CopyButtonProps) {
         setTimeout(() => setCopied(false), 800);
       });
     },
-    [text],
+    [text]
   );
 
   return (

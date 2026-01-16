@@ -56,7 +56,7 @@
     "oxlint": "^1.29.0",
     "pastoralist": "1.9.0",
     "prettier": "3.7.4",
-    "release-it": "19.2.2"
+    "release-it": "19.2.3"
   },
   "dependencies": {
     "acorn": "8.15.0",
@@ -114,10 +114,11 @@
     "appendix": {
       "vite@6.4.1": {
         "dependents": {
-          "es-check": "vite (transitive dependency)"
+          "es-check": "vite (transitive dependency)",
+          "es-check-docs": "vite@^7.3.0"
         },
         "ledger": {
-          "addedDate": "2025-12-29T05:15:16.557Z"
+          "addedDate": "2026-01-12T05:15:47.989Z"
         }
       },
       "tmp@0.2.4": {
@@ -125,7 +126,7 @@
           "es-check": "tmp (transitive dependency)"
         },
         "ledger": {
-          "addedDate": "2025-12-29T05:15:16.557Z"
+          "addedDate": "2026-01-12T05:15:47.989Z"
         }
       },
       "js-yaml@4.1.1": {
@@ -133,7 +134,7 @@
           "es-check": "js-yaml (transitive dependency)"
         },
         "ledger": {
-          "addedDate": "2025-12-29T05:15:16.557Z"
+          "addedDate": "2026-01-12T05:15:47.989Z"
         }
       },
       "mdast-util-to-hast@13.2.1": {
@@ -141,7 +142,7 @@
           "es-check": "mdast-util-to-hast (transitive dependency)"
         },
         "ledger": {
-          "addedDate": "2025-12-29T05:15:16.557Z"
+          "addedDate": "2026-01-12T05:15:47.989Z"
         }
       }
     },
