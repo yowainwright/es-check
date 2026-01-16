@@ -42,16 +42,21 @@ function analyzeFileDependencies(filePath, visited = new Set()) {
 
         if (depPath.startsWith(".")) {
           depPath = path.normalize(path.join(path.dirname(filePath), depPath));
+          const fullDepPath = path.join(rootDir, depPath);
 
           if (!depPath.endsWith(".js") && !depPath.endsWith(".mjs")) {
-            if (fs.existsSync(path.join(rootDir, depPath + ".js"))) {
+            if (fs.existsSync(fullDepPath) && fs.statSync(fullDepPath).isDirectory()) {
+              if (fs.existsSync(path.join(fullDepPath, "index.js"))) {
+                depPath = path.join(depPath, "index.js");
+              }
+            } else if (fs.existsSync(fullDepPath + ".js")) {
               depPath += ".js";
-            } else if (fs.existsSync(path.join(rootDir, depPath + ".mjs"))) {
+            } else if (fs.existsSync(fullDepPath + ".mjs")) {
               depPath += ".mjs";
             }
           }
 
-          if (fs.existsSync(path.join(rootDir, depPath))) {
+          if (fs.existsSync(path.join(rootDir, depPath)) && !fs.statSync(path.join(rootDir, depPath)).isDirectory()) {
             dependencies.push(depPath);
             dependencies.push(...analyzeFileDependencies(depPath, visited));
           }
