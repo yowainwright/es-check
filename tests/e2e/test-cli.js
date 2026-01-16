@@ -243,7 +243,9 @@ try {
     ],
     { encoding: "utf8" },
   );
-  console.error("[FAIL] Test 14 failed - should have detected superseded features");
+  console.error(
+    "[FAIL] Test 14 failed - should have detected superseded features",
+  );
   process.exit(1);
 } catch (error) {
   const stderr = error.stderr || "";
@@ -259,7 +261,10 @@ console.log(
   "Test 15: Object spread syntax should pass for Chrome 60 (issue #383)",
 );
 const objectSpreadFile = path.join(__dirname, "temp-object-spread.js");
-fs.writeFileSync(objectSpreadFile, "function merge(obj) { return { ...obj, added: true }; }");
+fs.writeFileSync(
+  objectSpreadFile,
+  "function merge(obj) { return { ...obj, added: true }; }",
+);
 try {
   execFileSync(
     "node",
@@ -273,7 +278,9 @@ try {
   );
   console.log("[PASS] Test 15 passed\n");
 } catch (error) {
-  console.error("[FAIL] Test 15 failed - Chrome 60 should support object spread");
+  console.error(
+    "[FAIL] Test 15 failed - Chrome 60 should support object spread",
+  );
   console.error(error.message);
   process.exit(1);
 } finally {
@@ -284,7 +291,10 @@ console.log(
   "Test 16: Object spread should fail for Chrome 55 (ES7, before object spread)",
 );
 const objectSpreadFile2 = path.join(__dirname, "temp-object-spread2.js");
-fs.writeFileSync(objectSpreadFile2, "function merge(obj) { return { ...obj }; }");
+fs.writeFileSync(
+  objectSpreadFile2,
+  "function merge(obj) { return { ...obj }; }",
+);
 try {
   execFileSync(
     "node",
@@ -296,7 +306,9 @@ try {
     ],
     { encoding: "utf8" },
   );
-  console.error("[FAIL] Test 16 failed - Chrome 55 should not support object spread");
+  console.error(
+    "[FAIL] Test 16 failed - Chrome 55 should not support object spread",
+  );
   process.exit(1);
 } catch (error) {
   console.log("[PASS] Test 16 passed (expected failure)\n");
@@ -322,7 +334,9 @@ try {
   );
   console.log("[PASS] Test 17 passed\n");
 } catch (error) {
-  console.error("[FAIL] Test 17 failed - ES6 code should pass for chrome 51+ query");
+  console.error(
+    "[FAIL] Test 17 failed - ES6 code should pass for chrome 51+ query",
+  );
   console.error(error.message);
   process.exit(1);
 } finally {

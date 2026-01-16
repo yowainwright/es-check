@@ -187,11 +187,7 @@ describe("getESVersionFromBrowserslist", () => {
     const esVersion = getESVersionFromBrowserslist({
       browserslistQuery: "chrome 97, firefox 104, edge 97",
     });
-    assert.strictEqual(
-      esVersion,
-      14,
-      "All ES14 browsers should return ES14",
-    );
+    assert.strictEqual(esVersion, 14, "All ES14 browsers should return ES14");
   });
 
   it("should handle three browsers with different ES versions and return minimum", () => {

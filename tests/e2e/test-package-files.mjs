@@ -106,7 +106,7 @@ function findAllRequiredFiles() {
 }
 
 function verifyPackageFiles() {
-  console.log("🔍 Dynamically analyzing required files...\n");
+  console.log("[INFO] Dynamically analyzing required files...\n");
 
   const requiredFiles = findAllRequiredFiles();
   const errors = [];
@@ -167,7 +167,9 @@ function verifyPackageFiles() {
 
   testNpmPack(requiredFiles);
 
-  console.log("\n[PASS] All dynamically detected files are properly configured!");
+  console.log(
+    "\n[PASS] All dynamically detected files are properly configured!",
+  );
   console.log(`   Total required files: ${requiredFiles.length}`);
 }
 
