@@ -128,15 +128,6 @@
           "addedDate": "2025-12-29T05:15:16.557Z"
         }
       },
-      "astro@5.16.6": {
-        "dependents": {
-          "es-check": "astro (transitive dependency)",
-          "es-check-docs": "astro@^5.15.9"
-        },
-        "ledger": {
-          "addedDate": "2025-12-29T05:15:16.557Z"
-        }
-      },
       "js-yaml@4.1.1": {
         "dependents": {
           "es-check": "js-yaml (transitive dependency)"
@@ -171,7 +162,6 @@
     "overrides": {
       "vite": "6.4.1",
       "tmp": "0.2.4",
-      "astro": "5.16.6",
       "js-yaml": "4.1.1",
       "mdast-util-to-hast": "13.2.1"
     }

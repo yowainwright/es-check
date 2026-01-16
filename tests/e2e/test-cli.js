@@ -15,9 +15,9 @@ try {
   execFileSync("node", [esCheckPath, "es5", "./tests/fixtures/es5.js"], {
     encoding: "utf8",
   });
-  console.log("✅ Test 1 passed\n");
+  console.log("[PASS] Test 1 passed\n");
 } catch (error) {
-  console.error("❌ Test 1 failed");
+  console.error("[FAIL] Test 1 failed");
   process.exit(1);
 }
 
@@ -27,10 +27,10 @@ try {
   execFileSync("node", [esCheckPath, "es5", "./tests/fixtures/es6.js"], {
     encoding: "utf8",
   });
-  console.error("❌ Test 2 failed - should have thrown an error");
+  console.error("[FAIL] Test 2 failed - should have thrown an error");
   process.exit(1);
 } catch (error) {
-  console.log("✅ Test 2 passed (expected failure)\n");
+  console.log("[PASS] Test 2 passed (expected failure)\n");
 }
 
 // Test 3: Check with --module flag
@@ -41,9 +41,9 @@ try {
     [esCheckPath, "es6", "./tests/fixtures/modules/es6-module.js", "--module"],
     { encoding: "utf8" },
   );
-  console.log("✅ Test 3 passed\n");
+  console.log("[PASS] Test 3 passed\n");
 } catch (error) {
-  console.error("❌ Test 3 failed");
+  console.error("[FAIL] Test 3 failed");
   process.exit(1);
 }
 
@@ -60,9 +60,9 @@ try {
     ],
     { encoding: "utf8" },
   );
-  console.log("✅ Test 4 passed\n");
+  console.log("[PASS] Test 4 passed\n");
 } catch (error) {
-  console.error("❌ Test 4 failed");
+  console.error("[FAIL] Test 4 failed");
   process.exit(1);
 }
 
@@ -74,10 +74,10 @@ try {
     [esCheckPath, "es5", "./tests/fixtures/es6.js", "--checkFeatures"],
     { encoding: "utf8" },
   );
-  console.error("❌ Test 5 failed - should have thrown an error");
+  console.error("[FAIL] Test 5 failed - should have thrown an error");
   process.exit(1);
 } catch (error) {
-  console.log("✅ Test 5 passed (expected failure)\n");
+  console.log("[PASS] Test 5 passed (expected failure)\n");
 }
 
 console.log(
@@ -95,9 +95,9 @@ try {
     ],
     { encoding: "utf8" },
   );
-  console.log("✅ Test 6 passed\n");
+  console.log("[PASS] Test 6 passed\n");
 } catch (error) {
-  console.error("❌ Test 6 failed");
+  console.error("[FAIL] Test 6 failed");
   console.error(error.message);
   process.exit(1);
 }
@@ -108,9 +108,9 @@ try {
   execFileSync("node", [esCheckPath, "es5", "./tests/fixtures/es5*.js"], {
     encoding: "utf8",
   });
-  console.log("✅ Test 7 passed\n");
+  console.log("[PASS] Test 7 passed\n");
 } catch (error) {
-  console.error("❌ Test 7 failed");
+  console.error("[FAIL] Test 7 failed");
   process.exit(1);
 }
 
@@ -128,9 +128,9 @@ try {
   execFileSync("node", [esCheckPath, "--config", configPath], {
     encoding: "utf8",
   });
-  console.log("✅ Test 8 passed\n");
+  console.log("[PASS] Test 8 passed\n");
 } catch (error) {
-  console.error("❌ Test 8 failed");
+  console.error("[FAIL] Test 8 failed");
   process.exit(1);
 } finally {
   // Clean up
@@ -144,9 +144,9 @@ try {
     [esCheckPath, "es5", "./tests/fixtures/es5.js", "--light"],
     { encoding: "utf8" },
   );
-  console.log("✅ Test 9 passed\n");
+  console.log("[PASS] Test 9 passed\n");
 } catch (error) {
-  console.error("❌ Test 9 failed");
+  console.error("[FAIL] Test 9 failed");
   process.exit(1);
 }
 
@@ -157,10 +157,10 @@ try {
     [esCheckPath, "es5", "./tests/fixtures/es6.js", "--light"],
     { encoding: "utf8" },
   );
-  console.error("❌ Test 10 failed - should have thrown an error");
+  console.error("[FAIL] Test 10 failed - should have thrown an error");
   process.exit(1);
 } catch (error) {
-  console.log("✅ Test 10 passed (expected failure)\n");
+  console.log("[PASS] Test 10 passed (expected failure)\n");
 }
 
 console.log("Test 11: Default mode without --light flag uses Acorn parser");
@@ -168,9 +168,9 @@ try {
   execFileSync("node", [esCheckPath, "es5", "./tests/fixtures/es5.js"], {
     encoding: "utf8",
   });
-  console.log("✅ Test 11 passed\n");
+  console.log("[PASS] Test 11 passed\n");
 } catch (error) {
-  console.error("❌ Test 11 failed");
+  console.error("[FAIL] Test 11 failed");
   console.error(error.message);
   process.exit(1);
 }
@@ -198,9 +198,9 @@ try {
     lightResult.includes("passed"),
     "Both modes should have same pass/fail result",
   );
-  console.log("✅ Test 12 passed\n");
+  console.log("[PASS] Test 12 passed\n");
 } catch (error) {
-  console.error("❌ Test 12 failed");
+  console.error("[FAIL] Test 12 failed");
   console.error(error.message);
   process.exit(1);
 }
@@ -220,13 +220,13 @@ try {
     ],
     { encoding: "utf8" },
   );
-  console.error("❌ Test 13 failed - should have thrown an error");
+  console.error("[FAIL] Test 13 failed - should have thrown an error");
   process.exit(1);
 } catch (error) {
   const hasFeatureError =
     error.stderr && error.stderr.includes("ES version matching errors");
   assert.ok(hasFeatureError, "Should report feature detection errors");
-  console.log("✅ Test 13 passed (expected failure)\n");
+  console.log("[PASS] Test 13 passed (expected failure)\n");
 }
 
 console.log(
@@ -243,7 +243,7 @@ try {
     ],
     { encoding: "utf8" },
   );
-  console.error("❌ Test 14 failed - should have detected superseded features");
+  console.error("[FAIL] Test 14 failed - should have detected superseded features");
   process.exit(1);
 } catch (error) {
   const stderr = error.stderr || "";
@@ -252,7 +252,81 @@ try {
     hasError,
     "Should detect superseded Array.prototype.group features",
   );
-  console.log("✅ Test 14 passed (expected failure)\n");
+  console.log("[PASS] Test 14 passed (expected failure)\n");
 }
 
-console.log("✅ All CLI tests passed!");
+console.log(
+  "Test 15: Object spread syntax should pass for Chrome 60 (issue #383)",
+);
+const objectSpreadFile = path.join(__dirname, "temp-object-spread.js");
+fs.writeFileSync(objectSpreadFile, "function merge(obj) { return { ...obj, added: true }; }");
+try {
+  execFileSync(
+    "node",
+    [
+      esCheckPath,
+      "checkBrowser",
+      objectSpreadFile,
+      "--browserslistQuery=chrome 60",
+    ],
+    { encoding: "utf8" },
+  );
+  console.log("[PASS] Test 15 passed\n");
+} catch (error) {
+  console.error("[FAIL] Test 15 failed - Chrome 60 should support object spread");
+  console.error(error.message);
+  process.exit(1);
+} finally {
+  fs.unlinkSync(objectSpreadFile);
+}
+
+console.log(
+  "Test 16: Object spread should fail for Chrome 55 (ES7, before object spread)",
+);
+const objectSpreadFile2 = path.join(__dirname, "temp-object-spread2.js");
+fs.writeFileSync(objectSpreadFile2, "function merge(obj) { return { ...obj }; }");
+try {
+  execFileSync(
+    "node",
+    [
+      esCheckPath,
+      "checkBrowser",
+      objectSpreadFile2,
+      "--browserslistQuery=chrome 55",
+    ],
+    { encoding: "utf8" },
+  );
+  console.error("[FAIL] Test 16 failed - Chrome 55 should not support object spread");
+  process.exit(1);
+} catch (error) {
+  console.log("[PASS] Test 16 passed (expected failure)\n");
+} finally {
+  fs.unlinkSync(objectSpreadFile2);
+}
+
+console.log(
+  "Test 17: Minimum ES version selection with mixed browsers (issue #382)",
+);
+const es6File = path.join(__dirname, "temp-es6-arrow.js");
+fs.writeFileSync(es6File, "const fn = () => 42;");
+try {
+  execFileSync(
+    "node",
+    [
+      esCheckPath,
+      "checkBrowser",
+      es6File,
+      "--browserslistQuery=chrome 120, chrome 51",
+    ],
+    { encoding: "utf8" },
+  );
+  console.log("[PASS] Test 17 passed\n");
+} catch (error) {
+  console.error("[FAIL] Test 17 failed - ES6 code should pass for chrome 51+ query");
+  console.error(error.message);
+  process.exit(1);
+} finally {
+  fs.unlinkSync(es6File);
+}
+
+console.log("[PASS] All CLI tests passed!");

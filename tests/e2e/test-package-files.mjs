@@ -127,7 +127,7 @@ function verifyPackageFiles() {
       );
       console.log(`❌ ${file}`);
     } else {
-      console.log(`✅ ${file}`);
+      console.log(`[PASS] ${file}`);
     }
   }
 
@@ -167,7 +167,7 @@ function verifyPackageFiles() {
 
   testNpmPack(requiredFiles);
 
-  console.log("\n✅ All dynamically detected files are properly configured!");
+  console.log("\n[PASS] All dynamically detected files are properly configured!");
   console.log(`   Total required files: ${requiredFiles.length}`);
 }
 
@@ -198,7 +198,7 @@ function testNpmPack(requiredFiles) {
       process.exit(1);
     }
 
-    console.log("✅ npm pack verification passed");
+    console.log("[PASS] npm pack verification passed");
   } catch (error) {
     console.log("⚠️  Could not verify with npm pack --dry-run");
   }

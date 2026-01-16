@@ -22,7 +22,7 @@ assert.strictEqual(
   "function",
   "loadConfig should be a function",
 );
-console.log("✅ Test 1 passed\n");
+console.log("[PASS] Test 1 passed\n");
 
 // Test 2: Test runChecks with ES5 file
 console.log("Test 2: runChecks with ES5 file");
@@ -37,7 +37,7 @@ const es5Config = [
 const es5Result = await runChecks(es5Config);
 assert.strictEqual(es5Result.success, true, "ES5 file should pass ES5 check");
 assert.strictEqual(es5Result.errors.length, 0, "Should have no errors");
-console.log("✅ Test 2 passed\n");
+console.log("[PASS] Test 2 passed\n");
 
 // Test 3: Test runChecks with ES6 file against ES5
 console.log("Test 3: runChecks with ES6 file against ES5 (should fail)");
@@ -52,7 +52,7 @@ const es6Config = [
 const es6Result = await runChecks(es6Config);
 assert.strictEqual(es6Result.success, false, "ES6 file should fail ES5 check");
 assert.ok(es6Result.errors.length > 0, "Should have errors");
-console.log("✅ Test 3 passed (expected failure)\n");
+console.log("[PASS] Test 3 passed (expected failure)\n");
 
 // Test 4: Test with multiple files
 console.log("Test 4: runChecks with multiple files");
@@ -66,7 +66,7 @@ const multiConfig = [
 
 const multiResult = await runChecks(multiConfig);
 assert.strictEqual(multiResult.success, true, "Multiple ES5 files should pass");
-console.log("✅ Test 4 passed\n");
+console.log("[PASS] Test 4 passed\n");
 
 // Test 5: Test loadConfig function
 console.log("Test 5: loadConfig function");
@@ -89,7 +89,7 @@ try {
     "es6",
     "Should load correct ecmaVersion",
   );
-  console.log("✅ Test 5 passed\n");
+  console.log("[PASS] Test 5 passed\n");
 } finally {
   unlinkSync(configPath);
 }
@@ -114,6 +114,6 @@ const loggerConfig = [
 
 await runChecks(loggerConfig, { logger: customLogger });
 assert.ok(logs.length > 0, "Should have logged messages");
-console.log("✅ Test 6 passed\n");
+console.log("[PASS] Test 6 passed\n");
 
-console.log("✅ All ESM import tests passed!");
+console.log("[PASS] All ESM import tests passed!");
