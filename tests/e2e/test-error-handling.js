@@ -3,34 +3,37 @@
 const { execFileSync } = require("child_process");
 const path = require("path");
 const fs = require("fs");
+const { createTestLogger } = require("../helpers");
 
-console.log("Testing error handling scenarios...\n");
+const log = createTestLogger();
+
+log.info("Testing error handling scenarios...\n");
 
 const esCheckPath = path.join(__dirname, "..", "..", "lib", "cli", "index.js");
 
-console.log("Test 1: Invalid ES version should fail");
+log.info("Test 1: Invalid ES version should fail");
 try {
   execFileSync("node", [esCheckPath, "es99", "./tests/fixtures/es5.js"], {
     encoding: "utf8",
   });
-  console.error("[FAIL] Test 1 failed - should have thrown an error");
+  log.error("[FAIL] Test 1 failed - should have thrown an error");
   process.exit(1);
 } catch (error) {
-  console.log("[PASS] Test 1 passed (expected failure)\n");
+  log.info("[PASS] Test 1 passed (expected failure)\n");
 }
 
-console.log("Test 2: No files found should fail");
+log.info("Test 2: No files found should fail");
 try {
   execFileSync("node", [esCheckPath, "es5", "./nonexistent/**/*.js"], {
     encoding: "utf8",
   });
-  console.error("[FAIL] Test 2 failed - should have thrown an error");
+  log.error("[FAIL] Test 2 failed - should have thrown an error");
   process.exit(1);
 } catch (error) {
-  console.log("[PASS] Test 2 passed (expected failure)\n");
+  log.info("[PASS] Test 2 passed (expected failure)\n");
 }
 
-console.log("Test 3: No files with --looseGlobMatching should warn");
+log.info("Test 3: No files with --looseGlobMatching should warn");
 try {
   execFileSync(
     "node",
@@ -45,16 +48,16 @@ try {
       encoding: "utf8",
     },
   );
-  console.log("[PASS] Test 3 passed\n");
+  log.info("[PASS] Test 3 passed\n");
 } catch (error) {
-  console.error(
+  log.error(
     "[FAIL] Test 3 failed - should not have thrown with loose matching",
   );
-  console.error(error.stderr || error.stdout || error.message);
+  log.error(error.stderr || error.stdout || error.message);
   process.exit(1);
 }
 
-console.log("Test 4: Invalid JSON in config file");
+log.info("Test 4: Invalid JSON in config file");
 const invalidConfigPath = path.join(__dirname, "invalid-config.json");
 fs.writeFileSync(invalidConfigPath, "{ invalid json }");
 
@@ -62,15 +65,15 @@ try {
   execFileSync("node", [esCheckPath, "--config", invalidConfigPath], {
     encoding: "utf8",
   });
-  console.error("[FAIL] Test 4 failed - should have thrown an error");
+  log.error("[FAIL] Test 4 failed - should have thrown an error");
   process.exit(1);
 } catch (error) {
-  console.log("[PASS] Test 4 passed (expected failure)\n");
+  log.info("[PASS] Test 4 passed (expected failure)\n");
 } finally {
   fs.unlinkSync(invalidConfigPath);
 }
 
-console.log("Test 5: No ecmaVersion or files should fail");
+log.info("Test 5: No ecmaVersion or files should fail");
 const emptyConfigPath = path.join(__dirname, "empty-config.json");
 fs.writeFileSync(emptyConfigPath, "{}");
 
@@ -78,15 +81,15 @@ try {
   execFileSync("node", [esCheckPath, "--config", emptyConfigPath], {
     encoding: "utf8",
   });
-  console.error("[FAIL] Test 5 failed - should have thrown an error");
+  log.error("[FAIL] Test 5 failed - should have thrown an error");
   process.exit(1);
 } catch (error) {
-  console.log("[PASS] Test 5 passed (expected failure)\n");
+  log.info("[PASS] Test 5 passed (expected failure)\n");
 } finally {
   fs.unlinkSync(emptyConfigPath);
 }
 
-console.log("Test 6: Conflicting --files flag and files argument");
+log.info("Test 6: Conflicting --files flag and files argument");
 try {
   execFileSync(
     "node",
@@ -101,13 +104,13 @@ try {
       encoding: "utf8",
     },
   );
-  console.error("[FAIL] Test 6 failed - should have thrown an error");
+  log.error("[FAIL] Test 6 failed - should have thrown an error");
   process.exit(1);
 } catch (error) {
-  console.log("[PASS] Test 6 passed (expected failure)\n");
+  log.info("[PASS] Test 6 passed (expected failure)\n");
 }
 
-console.log("Test 7: File with syntax error should fail");
+log.info("Test 7: File with syntax error should fail");
 const syntaxErrorFile = path.join(__dirname, "syntax-error.js");
 fs.writeFileSync(syntaxErrorFile, "function broken( { missing brace");
 
@@ -115,15 +118,15 @@ try {
   execFileSync("node", [esCheckPath, "es5", syntaxErrorFile], {
     encoding: "utf8",
   });
-  console.error("[FAIL] Test 7 failed - should have thrown an error");
+  log.error("[FAIL] Test 7 failed - should have thrown an error");
   process.exit(1);
 } catch (error) {
-  console.log("[PASS] Test 7 passed (expected failure)\n");
+  log.info("[PASS] Test 7 passed (expected failure)\n");
 } finally {
   fs.unlinkSync(syntaxErrorFile);
 }
 
-console.log("Test 8: Multiple files with errors");
+log.info("Test 8: Multiple files with errors");
 try {
   execFileSync(
     "node",
@@ -132,17 +135,17 @@ try {
       encoding: "utf8",
     },
   );
-  console.error("[FAIL] Test 8 failed - should have thrown an error");
+  log.error("[FAIL] Test 8 failed - should have thrown an error");
   process.exit(1);
 } catch (error) {
   const output = error.stderr || error.stdout || "";
   const hasEs6Error = output.includes("es6.js");
   const hasEs7Error = output.includes("es7.js");
   if (hasEs6Error && hasEs7Error) {
-    console.log("[PASS] Test 8 passed (errors reported for both files)\n");
+    log.info("[PASS] Test 8 passed (errors reported for both files)\n");
   } else {
-    console.log("[PASS] Test 8 passed (at least one error reported)\n");
+    log.info("[PASS] Test 8 passed (at least one error reported)\n");
   }
 }
 
-console.log("[PASS] All error handling tests passed!");
+log.info("[PASS] All error handling tests passed!");

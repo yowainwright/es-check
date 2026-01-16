@@ -138,6 +138,68 @@ describe("getESVersionFromBrowserslist", () => {
       "ES version should be 5 for no matching browsers",
     );
   });
+
+  it("should return minimum ES version when browsers have different support levels (issue #382)", () => {
+    const esVersion = getESVersionFromBrowserslist({
+      browserslistQuery: "firefox 100, chrome 51",
+    });
+    assert.strictEqual(
+      esVersion,
+      6,
+      "Should return ES6 (minimum) when mixing modern Firefox with older Chrome",
+    );
+  });
+
+  it("should filter out unknown browsers and use minimum of known browsers", () => {
+    const esVersion = getESVersionFromBrowserslist({
+      browserslistQuery: "chrome 100, chrome 60",
+    });
+    assert.strictEqual(
+      esVersion,
+      9,
+      "Should return ES9 as the minimum between Chrome 100 (ES14) and Chrome 60 (ES9)",
+    );
+  });
+
+  it("should return ES5 when only unknown browsers are specified", () => {
+    const esVersion = getESVersionFromBrowserslist({
+      browserslistQuery: "kaios 2.5",
+    });
+    assert.strictEqual(
+      esVersion,
+      5,
+      "Should return ES5 when no known browsers are in the query",
+    );
+  });
+
+  it("should return correct version for single browser query", () => {
+    const esVersion = getESVersionFromBrowserslist({
+      browserslistQuery: "chrome 97",
+    });
+    assert.strictEqual(
+      esVersion,
+      14,
+      "Single browser Chrome 97 should return ES14",
+    );
+  });
+
+  it("should return same version when all browsers have same ES level", () => {
+    const esVersion = getESVersionFromBrowserslist({
+      browserslistQuery: "chrome 97, firefox 104, edge 97",
+    });
+    assert.strictEqual(esVersion, 14, "All ES14 browsers should return ES14");
+  });
+
+  it("should handle three browsers with different ES versions and return minimum", () => {
+    const esVersion = getESVersionFromBrowserslist({
+      browserslistQuery: "chrome 117, firefox 52, safari 14",
+    });
+    assert.strictEqual(
+      esVersion,
+      6,
+      "Firefox 52 (ES6) should be the minimum among Chrome 117 (ES15), Firefox 52 (ES6), Safari 14 (ES12)",
+    );
+  });
 });
 
 describe("getESVersionForBrowser", () => {
@@ -164,5 +226,19 @@ describe("getESVersionForBrowser", () => {
   it("should return ES15 for Chrome 120", () => {
     const esVersion = getESVersionForBrowser("chrome", "120");
     assert.strictEqual(esVersion, 15, "Chrome 120 should map to ES15");
+  });
+
+  it("should return ES9 for Chrome 60 to support object spread (issue #383)", () => {
+    const esVersion = getESVersionForBrowser("chrome", "60");
+    assert.strictEqual(
+      esVersion,
+      9,
+      "Chrome 60 should map to ES9 to support object spread syntax",
+    );
+  });
+
+  it("should return ES8 for Chrome 58", () => {
+    const esVersion = getESVersionForBrowser("chrome", "58");
+    assert.strictEqual(esVersion, 8, "Chrome 58 should map to ES8");
   });
 });

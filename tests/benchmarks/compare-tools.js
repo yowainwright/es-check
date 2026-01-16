@@ -13,7 +13,9 @@ const {
   DEFAULT_ES_VERSION,
   DEFAULT_MAX_FILES,
 } = require("./constants");
+const { createTestLogger } = require("../helpers");
 
+const log = createTestLogger({ verbose: true });
 const execFileAsync = promisify(execFile);
 
 const iterations = parseInt(process.argv[2], 10) || DEFAULT_ITERATIONS;
@@ -44,7 +46,7 @@ const tools = [
       try {
         fs.accessSync("./node_modules/.bin/are-you-es5");
       } catch (error) {
-        console.log("are-you-es5 is not installed. Installing temporarily...");
+        log.info("are-you-es5 is not installed. Installing temporarily...");
         await execFileAsync("npm", ["install", "--no-save", "are-you-es5"]);
       }
 
@@ -134,7 +136,7 @@ const tools = [
       try {
         fs.accessSync("./node_modules/@swc/core");
       } catch (error) {
-        console.log("@swc/core is not installed. Installing temporarily...");
+        log.info("@swc/core is not installed. Installing temporarily...");
         await execFileAsync("npm", ["install", "--no-save", "@swc/core"]);
       }
 
@@ -185,9 +187,7 @@ const tools = [
       try {
         fs.accessSync("./node_modules/@babel/parser");
       } catch (error) {
-        console.log(
-          "@babel/parser is not installed. Installing temporarily...",
-        );
+        log.info("@babel/parser is not installed. Installing temporarily...");
         await execFileAsync("npm", ["install", "--no-save", "@babel/parser"]);
       }
 
@@ -284,7 +284,7 @@ const tools = [
       try {
         fs.accessSync("./node_modules/eslint");
       } catch (error) {
-        console.log("eslint is not installed. Installing temporarily...");
+        log.info("eslint is not installed. Installing temporarily...");
         await execFileAsync("npm", [
           "install",
           "--no-save",
@@ -356,20 +356,20 @@ async function findJsFiles(dir) {
       absolute: true,
     });
   } catch (error) {
-    console.error("Error finding JS files:", error);
+    log.error("Error finding JS files:", error);
     return [];
   }
 }
 
 async function getLibraryFiles(libraries) {
   const files = [];
-  console.log(`\nScanning real-world libraries: ${libraries.join(", ")}...`);
+  log.info(`\nScanning real-world libraries: ${libraries.join(", ")}...`);
 
   for (const lib of libraries) {
     const libPath = path.join("./node_modules", lib);
 
     if (!fs.existsSync(libPath)) {
-      console.warn(`  ${lib}: not installed, skipping`);
+      log.warn(`  ${lib}: not installed, skipping`);
       continue;
     }
 
@@ -379,10 +379,10 @@ async function getLibraryFiles(libraries) {
         ignore: IGNORE_PATTERNS,
         absolute: true,
       });
-      console.log(`  ${lib}: found ${libFiles.length} files`);
+      log.info(`  ${lib}: found ${libFiles.length} files`);
       files.push(...libFiles);
     } catch (error) {
-      console.warn(`  ${lib}: could not scan - ${error.message}`);
+      log.warn(`  ${lib}: could not scan - ${error.message}`);
     }
   }
 
@@ -390,22 +390,22 @@ async function getLibraryFiles(libraries) {
 }
 
 async function runBenchmarks() {
-  console.log(`Running benchmarks (${iterations} iterations each)...`);
+  log.info(`Running benchmarks (${iterations} iterations each)...`);
 
   let testFiles;
 
   if (useRealLibraries) {
-    console.log("Using real-world libraries for benchmarking...");
+    log.info("Using real-world libraries for benchmarking...");
     testFiles = await getLibraryFiles(POPULAR_LIBRARIES);
   } else {
-    console.log(`Finding JavaScript files in ${testDir}...`);
+    log.info(`Finding JavaScript files in ${testDir}...`);
     testFiles = await findJsFiles(testDir);
   }
 
-  console.log(`Found ${testFiles.length} JavaScript files to test`);
+  log.info(`Found ${testFiles.length} JavaScript files to test`);
 
   if (testFiles.length === 0) {
-    console.error(
+    log.error(
       "No JavaScript files found to test. Please specify a directory with JS files.",
     );
     process.exit(1);
@@ -415,12 +415,12 @@ async function runBenchmarks() {
   const filesToTest =
     testFiles.length > maxFiles ? testFiles.slice(0, maxFiles) : testFiles;
 
-  console.log(`Testing with ${filesToTest.length} files`);
+  log.info(`Testing with ${filesToTest.length} files`);
 
   const results = {};
 
   for (const tool of tools) {
-    console.log(`\nBenchmarking ${tool.name}...`);
+    log.info(`\nBenchmarking ${tool.name}...`);
     const times = [];
 
     for (let i = 0; i < iterations; i++) {
@@ -437,33 +437,33 @@ async function runBenchmarks() {
 
     results[tool.name] = { times, avg, min, max };
 
-    console.log(`  Average: ${avg.toFixed(2)}ms`);
-    console.log(`  Min: ${min.toFixed(2)}ms`);
-    console.log(`  Max: ${max.toFixed(2)}ms`);
+    log.info(`  Average: ${avg.toFixed(2)}ms`);
+    log.info(`  Min: ${min.toFixed(2)}ms`);
+    log.info(`  Max: ${max.toFixed(2)}ms`);
   }
 
-  console.log("\n=== COMPARISON ===");
+  log.info("\n=== COMPARISON ===");
   const sortedTools = Object.keys(results).sort(
     (a, b) => results[a].avg - results[b].avg,
   );
 
-  console.log("Tools ranked by average execution time (fastest first):");
+  log.info("Tools ranked by average execution time (fastest first):");
   sortedTools.forEach((toolName, index) => {
     const { avg } = results[toolName];
     const fastestAvg = results[sortedTools[0]].avg;
     const percentSlower =
       index === 0 ? 0 : ((avg - fastestAvg) / fastestAvg) * 100;
 
-    console.log(
+    log.info(
       `${index + 1}. ${toolName}: ${avg.toFixed(2)}ms ${index === 0 ? "(fastest)" : `(${percentSlower.toFixed(2)}% slower)`}`,
     );
   });
 
-  console.log("\n=== MARKDOWN TABLE ===");
-  console.log(
+  log.info("\n=== MARKDOWN TABLE ===");
+  log.info(
     "| Tool | Average (ms) | Min (ms) | Max (ms) | Relative Performance |",
   );
-  console.log(
+  log.info(
     "|------|-------------|----------|----------|----------------------|",
   );
 
@@ -475,13 +475,13 @@ async function runBenchmarks() {
         ? "1x (fastest)"
         : `${(avg / fastestAvg).toFixed(2)}x slower`;
 
-    console.log(
+    log.info(
       `| ${toolName} | ${avg.toFixed(2)} | ${min.toFixed(2)} | ${max.toFixed(2)} | ${relativePerf} |`,
     );
   });
 }
 
 runBenchmarks().catch((error) => {
-  console.error("Error running benchmarks:", error);
+  log.error("Error running benchmarks:", error);
   process.exit(1);
 });

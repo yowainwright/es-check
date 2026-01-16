@@ -4,7 +4,9 @@ const fs = require("fs");
 const path = require("path");
 const https = require("https");
 const { POPULAR_LIBRARIES, LIBRARY_URLS } = require("./constants");
+const { createTestLogger } = require("../helpers");
 
+const log = createTestLogger({ verbose: true });
 const outputDir = path.join(__dirname, "real-libs");
 
 function ensureDirectoryExists(dir) {
@@ -62,9 +64,7 @@ function downloadFile(url, destPath) {
 }
 
 async function downloadLibraries() {
-  console.log(
-    `Downloading real-world libraries from unpkg to ${outputDir}...\n`,
-  );
+  log.info(`Downloading real-world libraries from unpkg to ${outputDir}...\n`);
 
   ensureDirectoryExists(outputDir);
 
@@ -73,7 +73,7 @@ async function downloadLibraries() {
     const hasUrl = Boolean(url);
 
     if (!hasUrl) {
-      console.warn(`  ${lib}: No URL configured, skipping`);
+      log.warn(`  ${lib}: No URL configured, skipping`);
       continue;
     }
 
@@ -85,19 +85,19 @@ async function downloadLibraries() {
       await downloadFile(url, destPath);
       const stats = fs.statSync(destPath);
       const fileSizeKB = (stats.size / 1024).toFixed(2);
-      console.log(`✓ (${fileSizeKB} KB)`);
+      log.info(`✓ (${fileSizeKB} KB)`);
     } catch (error) {
-      console.log(`✗ ${error.message}`);
+      log.info(`✗ ${error.message}`);
     }
   }
 
-  console.log("\nDownload complete!");
-  console.log(
+  log.info("\nDownload complete!");
+  log.info(
     `\nRun benchmarks with: node tests/benchmarks/compare-tools.js 3 tests/benchmarks/real-libs`,
   );
 }
 
 downloadLibraries().catch((error) => {
-  console.error("Error downloading libraries:", error);
+  log.error("Error downloading libraries:", error);
   process.exit(1);
 });
