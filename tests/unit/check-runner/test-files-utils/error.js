@@ -1,1 +1,0 @@
-function a() { throw new Error('message'); }

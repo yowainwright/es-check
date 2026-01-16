@@ -1,1 +1,0 @@
-function a() { const b = {}; return 'c' in b; }

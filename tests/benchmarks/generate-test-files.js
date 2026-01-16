@@ -5,7 +5,7 @@ const path = require("path");
 const { mkdirSync, writeFileSync } = fs;
 const { createTestLogger } = require("../helpers");
 
-const log = createTestLogger();
+const log = createTestLogger({ verbose: true });
 
 const numFiles = parseInt(process.argv[2], 10) || 100;
 const outputDir = process.argv[3] || path.join(__dirname, "test-files");

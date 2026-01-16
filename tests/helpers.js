@@ -130,7 +130,6 @@ function createSilentLogger() {
 }
 
 function createTestLogger(options = {}) {
-  const verbose = process.env.VERBOSE === "true" || process.env.DEBUG === "true";
   return createLogger({ verbose, ...options });
 }
 

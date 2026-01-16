@@ -232,9 +232,7 @@ try {
   log.info("[PASS] Test 13 passed (expected failure)\n");
 }
 
-log.info(
-  "Test 14: Superseded features (Array.prototype.group) are detected",
-);
+log.info("Test 14: Superseded features (Array.prototype.group) are detected");
 try {
   execFileSync(
     "node",
@@ -246,9 +244,7 @@ try {
     ],
     { encoding: "utf8" },
   );
-  log.error(
-    "[FAIL] Test 14 failed - should have detected superseded features",
-  );
+  log.error("[FAIL] Test 14 failed - should have detected superseded features");
   process.exit(1);
 } catch (error) {
   const stderr = error.stderr || "";
@@ -281,9 +277,7 @@ try {
   );
   log.info("[PASS] Test 15 passed\n");
 } catch (error) {
-  log.error(
-    "[FAIL] Test 15 failed - Chrome 60 should support object spread",
-  );
+  log.error("[FAIL] Test 15 failed - Chrome 60 should support object spread");
   log.error(error.message);
   process.exit(1);
 } finally {

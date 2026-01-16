@@ -171,9 +171,7 @@ function verifyPackageFiles() {
 
   testNpmPack(requiredFiles);
 
-  log.info(
-    "\n[PASS] All dynamically detected files are properly configured!",
-  );
+  log.info("\n[PASS] All dynamically detected files are properly configured!");
   log.info(`   Total required files: ${requiredFiles.length}`);
 }
 

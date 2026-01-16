@@ -1671,11 +1671,7 @@ describe("🔬 Fixture-Based Tests for Addressed Scenarios", () => {
       command.split(" ").slice(1),
       (err, stdout, stderr) => {
         if (err) {
-          log.error(
-            "Test for es2020.js failed unexpectedly:",
-            stdout,
-            stderr,
-          );
+          log.error("Test for es2020.js failed unexpectedly:", stdout, stderr);
           done(err);
           return;
         }

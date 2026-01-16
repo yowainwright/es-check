@@ -15,7 +15,7 @@ const {
 } = require("./constants");
 const { createTestLogger } = require("../helpers");
 
-const log = createTestLogger();
+const log = createTestLogger({ verbose: true });
 const execFileAsync = promisify(execFile);
 
 const iterations = parseInt(process.argv[2], 10) || DEFAULT_ITERATIONS;
@@ -187,9 +187,7 @@ const tools = [
       try {
         fs.accessSync("./node_modules/@babel/parser");
       } catch (error) {
-        log.info(
-          "@babel/parser is not installed. Installing temporarily...",
-        );
+        log.info("@babel/parser is not installed. Installing temporarily...");
         await execFileAsync("npm", ["install", "--no-save", "@babel/parser"]);
       }
 

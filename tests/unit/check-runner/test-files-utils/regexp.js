@@ -1,1 +1,0 @@
-function a(v) { return v.replace(RegExp(v, 'g')); }

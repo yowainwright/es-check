@@ -1,1 +1,0 @@
-const x = {}; x.val ??= 'test';

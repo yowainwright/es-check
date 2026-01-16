@@ -6,7 +6,7 @@ const https = require("https");
 const { POPULAR_LIBRARIES, LIBRARY_URLS } = require("./constants");
 const { createTestLogger } = require("../helpers");
 
-const log = createTestLogger();
+const log = createTestLogger({ verbose: true });
 const outputDir = path.join(__dirname, "real-libs");
 
 function ensureDirectoryExists(dir) {
@@ -64,9 +64,7 @@ function downloadFile(url, destPath) {
 }
 
 async function downloadLibraries() {
-  log.info(
-    `Downloading real-world libraries from unpkg to ${outputDir}...\n`,
-  );
+  log.info(`Downloading real-world libraries from unpkg to ${outputDir}...\n`);
 
   ensureDirectoryExists(outputDir);
 

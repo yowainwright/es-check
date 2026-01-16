@@ -31,9 +31,7 @@ try {
   process.exit(1);
 }
 
-log.info(
-  "Test 2: String with ** should NOT be flagged as exponent operator",
-);
+log.info("Test 2: String with ** should NOT be flagged as exponent operator");
 try {
   execFileSync(
     "node",
