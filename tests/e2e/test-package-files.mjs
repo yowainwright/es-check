@@ -40,26 +40,33 @@ function analyzeFileDependencies(filePath, visited = new Set()) {
       while ((match = pattern.exec(content)) !== null) {
         let depPath = match[1];
 
-        if (depPath.startsWith(".")) {
-          depPath = path.normalize(path.join(path.dirname(filePath), depPath));
-          const fullDepPath = path.join(rootDir, depPath);
+        const isRelativePath = depPath.startsWith(".");
+        if (!isRelativePath) continue;
 
-          if (!depPath.endsWith(".js") && !depPath.endsWith(".mjs")) {
-            if (fs.existsSync(fullDepPath) && fs.statSync(fullDepPath).isDirectory()) {
-              if (fs.existsSync(path.join(fullDepPath, "index.js"))) {
-                depPath = path.join(depPath, "index.js");
-              }
-            } else if (fs.existsSync(fullDepPath + ".js")) {
-              depPath += ".js";
-            } else if (fs.existsSync(fullDepPath + ".mjs")) {
-              depPath += ".mjs";
-            }
-          }
+        depPath = path.normalize(path.join(path.dirname(filePath), depPath));
+        const fullDepPath = path.join(rootDir, depPath);
 
-          if (fs.existsSync(path.join(rootDir, depPath)) && !fs.statSync(path.join(rootDir, depPath)).isDirectory()) {
-            dependencies.push(depPath);
-            dependencies.push(...analyzeFileDependencies(depPath, visited));
+        const hasJsExtension = depPath.endsWith(".js") || depPath.endsWith(".mjs");
+        if (!hasJsExtension) {
+          const isDirectory = fs.existsSync(fullDepPath) && fs.statSync(fullDepPath).isDirectory();
+          const hasIndexFile = isDirectory && fs.existsSync(path.join(fullDepPath, "index.js"));
+          const hasJsFile = fs.existsSync(fullDepPath + ".js");
+          const hasMjsFile = fs.existsSync(fullDepPath + ".mjs");
+
+          if (hasIndexFile) {
+            depPath = path.join(depPath, "index.js");
+          } else if (hasJsFile) {
+            depPath += ".js";
+          } else if (hasMjsFile) {
+            depPath += ".mjs";
           }
+        }
+
+        const resolvedPath = path.join(rootDir, depPath);
+        const isValidFile = fs.existsSync(resolvedPath) && !fs.statSync(resolvedPath).isDirectory();
+        if (isValidFile) {
+          dependencies.push(depPath);
+          dependencies.push(...analyzeFileDependencies(depPath, visited));
         }
       }
     }
