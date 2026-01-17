@@ -52,9 +52,9 @@
   "homepage": "https://github.com/yowainwright/es-check#readme",
   "website": "https://jeffry.in/es-check",
   "devDependencies": {
-    "codependence": "^0.3.1",
+    "codependence": "1.0.0-1",
     "oxlint": "^1.29.0",
-    "pastoralist": "1.9.0",
+    "pastoralist": "1.10.0-1",
     "prettier": "3.7.4",
     "release-it": "19.2.3"
   },
@@ -144,6 +144,21 @@
         "ledger": {
           "addedDate": "2026-01-12T05:15:47.989Z"
         }
+      },
+      "undici@6.23.0": {
+        "dependents": {
+          "es-check": "undici (transitive dependency)"
+        },
+        "ledger": {
+          "addedDate": "2026-01-17T00:15:11.438Z",
+          "reason": "Security fix: Undici has an unbounded decompression chain in HTTP responses on Node.js Fetch API via Content-Encoding leads to resource exhaustion (low)",
+          "securityChecked": true,
+          "securityCheckDate": "2026-01-17T00:15:11.438Z",
+          "securityProvider": "github",
+          "cve": "CVE-2026-22036",
+          "severity": "low",
+          "url": "https://github.com/yowainwright/es-check/security/dependabot/57"
+        }
       }
     },
     "depPaths": [
@@ -164,7 +179,8 @@
       "vite": "6.4.1",
       "tmp": "0.2.4",
       "js-yaml": "4.1.1",
-      "mdast-util-to-hast": "13.2.1"
+      "mdast-util-to-hast": "13.2.1",
+      "undici": "6.23.0"
     }
   }
 }
