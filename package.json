@@ -52,10 +52,10 @@
   "homepage": "https://github.com/yowainwright/es-check#readme",
   "website": "https://jeffry.in/es-check",
   "devDependencies": {
-    "codependence": "1.0.0-1",
+    "codependence": "0.3.1",
     "oxlint": "^1.29.0",
     "pastoralist": "1.10.0-1",
-    "prettier": "3.7.4",
+    "prettier": "3.8.0",
     "release-it": "19.2.3"
   },
   "dependencies": {
