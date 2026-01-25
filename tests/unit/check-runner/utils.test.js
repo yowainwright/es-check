@@ -453,6 +453,28 @@ test("createFileProcessor returns null for valid ES version match", () => {
   assert.strictEqual(result, null);
 });
 
+test("parses TypeScript syntax in .ts files", () => {
+  const testFile = path.join(testDir, "types.ts");
+  fs.writeFileSync(
+    testFile,
+    "type User = { id: number }; const user: User = { id: 1 }; enum ACCESS { ADMIN, USER }",
+  );
+
+  const config = { checkFeatures: false };
+  const acornOpts = { ecmaVersion: 2025, sourceType: "script" };
+  const processFile = createFileProcessor(config, {
+    acornOpts,
+    ignoreList: new Set(),
+    logger: null,
+    isDebug: false,
+    ecmaVersion: "5",
+  });
+
+  const result = processFile(testFile);
+
+  assert.strictEqual(result, null);
+});
+
 test("parses static initialization blocks when checkFeatures enabled", () => {
   const testFile = path.join(testDir, "static-block.js");
   fs.writeFileSync(testFile, "class App { static { console.log('hi'); } }");

@@ -60,6 +60,7 @@
   },
   "dependencies": {
     "acorn": "8.15.0",
+    "acorn-typescript": "^1.4.13",
     "browserslist": "^4.28.0",
     "fast-glob": "^3.3.3"
   },
