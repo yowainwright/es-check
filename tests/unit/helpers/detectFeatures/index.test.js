@@ -1,12 +1,19 @@
 const { describe, it } = require("node:test");
 const assert = require("node:assert");
-const acorn = require("acorn");
+const { parseCode } = require("../../../../lib/helpers/parsers.js");
 const detectFeatures = require("../../../../lib/detectFeatures");
 const detectPolyfills = detectFeatures.detectPolyfills;
 const filterPolyfilled = detectFeatures.filterPolyfilled;
 
-const parse = (code, sourceType = "script") =>
-  acorn.parse(code, { ecmaVersion: 2025, sourceType });
+const parse = (code, sourceType = "script", ecmaVersion = "latest") => {
+  const result = parseCode(
+    code,
+    { ecmaVersion, sourceType },
+    null,
+    "test.js",
+  );
+  return result.ast;
+};
 
 function createSilentLogger() {
   return {
@@ -644,7 +651,7 @@ describe("Polyfill Detection", () => {
 describe("AST-based feature detection", () => {
   it("should not detect ExponentOperator for ** inside string literals", () => {
     const code = 'var str = "This is a **bold** text";';
-    const ast = acorn.parse(code, { ecmaVersion: 5 });
+    const ast = parse(code, "script", 5);
 
     const { foundFeatures, unsupportedFeatures } = detectFeatures(
       code,
@@ -668,7 +675,7 @@ describe("AST-based feature detection", () => {
 
   it("should not detect NumericSeparators for underscores inside string literals", () => {
     const code = 'var str = "image-froth_1426534_7KYhd4UUl";';
-    const ast = acorn.parse(code, { ecmaVersion: 5 });
+    const ast = parse(code, "script", 5);
 
     const { foundFeatures, unsupportedFeatures } = detectFeatures(
       code,
@@ -692,7 +699,7 @@ describe("AST-based feature detection", () => {
 
   it("should not detect OptionalChaining for ternary operators with decimal values", () => {
     const code = "var value = e.isRemovedItem ? 0.35 : 1;";
-    const ast = acorn.parse(code, { ecmaVersion: 5 });
+    const ast = parse(code, "script", 5);
 
     const { foundFeatures, unsupportedFeatures } = detectFeatures(
       code,
@@ -720,7 +727,7 @@ describe("AST-based feature detection", () => {
       var b = "**markdown**";
       var c = obj.prop ? 0.5 : 1;
     `;
-    const ast = acorn.parse(code, { ecmaVersion: 5 });
+    const ast = parse(code, "script", 5);
 
     const { foundFeatures, unsupportedFeatures } = detectFeatures(
       code,

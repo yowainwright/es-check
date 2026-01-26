@@ -13,7 +13,7 @@
     "path-exists-cli",
     "prettier",
     "release-it",
-    "acorn",
+    "@typescript-eslint/parser",
     "commander",
     "fast-glob",
     { "supports-color": "8.1.1" },

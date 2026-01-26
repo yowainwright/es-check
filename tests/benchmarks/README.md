@@ -11,9 +11,10 @@ docker run --rm es-check-benchmark
 
 - **es-check** (and variants: bundled, light, batch-10, batch-50)
 - **are-you-es5**
-- **acorn** (direct parser)
+- **eslint** (parser only)
 - **babel-parser**
 - **swc/core**
+- **eslint** (parser only)
 - **eslint** (with eslint-plugin-es5)
 
 ## Libraries Tested On

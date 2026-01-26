@@ -79,7 +79,7 @@ export const SEARCH_DATA: SearchItem[] = [
     description: "Debug ES version issues effectively",
     href: "/docs/debugging",
     content:
-      "Debugging error messages line numbers acorn parser verbose mode troubleshooting",
+      "Debugging error messages line numbers eslint parser verbose mode troubleshooting",
     category: "Advanced",
   },
   {

@@ -660,8 +660,8 @@ ES Check is benchmarked against similar tools using real-world production librar
 | es-check-bundled      | 8.04         | 1.12x slower         |
 | es-check              | 9.17         | 1.27x slower         |
 | are-you-es5           | 15.05        | 2.09x slower         |
-| acorn (direct)        | 47.11        | 6.54x slower         |
-| eslint                | 55.21        | 7.67x slower         |
+| eslint (parser)       | 47.11        | 6.54x slower         |
+| eslint (plugin)       | 55.21        | 7.67x slower         |
 | swc/core              | 55.69        | 7.73x slower         |
 | babel-parser          | 65.00        | 9.03x slower         |
 
@@ -671,7 +671,7 @@ Tested on lodash, axios, react, moment, express, and chalk. See [benchmarks](./t
 
 ## Contributing
 
-ES Check has only 3 core dependencies: [acorn](https://github.com/ternjs/acorn/) for JavaScript parsing, [fast-glob](https://github.com/mrmlnc/fast-glob) for file globbing, and [browserslist](https://github.com/browserslist/browserslist) for browser targeting.
+ES Check has only 4 core dependencies: [eslint](https://eslint.org/) (espree) for JavaScript parsing, [@typescript-eslint/parser](https://github.com/typescript-eslint/typescript-eslint) for TypeScript parsing, [fast-glob](https://github.com/mrmlnc/fast-glob) for file globbing, and [browserslist](https://github.com/browserslist/browserslist) for browser targeting.
 
 The CLI, logging, and source map support are implemented with custom lightweight solutions using Node.js built-ins to minimize dependencies. To contribute, file an [issue](https://github.com/yowainwright/es-check/issues) or submit a pull request.
 
@@ -680,13 +680,13 @@ The CLI, logging, and source map support are implemented with custom lightweight
 To update ES version support:
 
 - Update [ES version mappings](./lib/constants/versions.js)
-- Reference [Acorn ES version support](https://github.com/acornjs/acorn/blob/3221fa54f9dea30338228b97210c4f1fd332652d/acorn/src/acorn.d.ts#L586)
+- Reference [Espree ES version support](https://github.com/eslint/espree/blob/main/lib/options.js)
 
 To update ES feature detection:
 
 - Add features to [version-specific files](./lib/helpers/detectFeatures/constants/es-features/) (e.g., `6.js` for ES6 features)
 - Update [polyfill patterns](./lib/helpers/detectFeatures/constants/polyfills.js) if needed
-- Feature detection uses [acorn walk](https://github.com/acornjs/acorn/blob/master/acorn-walk/README.md)
+- Feature detection uses a custom AST walker in `lib/helpers/astDetector.js`
 
 Tests are located in `tests/unit/` and mirror the `lib/` structure. Please add tests for new features!
 
