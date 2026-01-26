@@ -417,9 +417,9 @@ test("createFileProcessor returns ES-Check feature error with file and stack", (
   fs.writeFileSync(testFile, "const x = 1; let y = 2;");
 
   const config = { checkFeatures: true };
-  const acornOpts = { ecmaVersion: 2025, sourceType: "script" };
+  const parserOptions = { ecmaVersion: "latest", sourceType: "script" };
   const processFile = createFileProcessor(config, {
-    acornOpts,
+    parserOptions,
     ignoreList: new Set(),
     logger: null,
     isDebug: false,
@@ -439,9 +439,9 @@ test("createFileProcessor returns null for valid ES version match", () => {
   fs.writeFileSync(testFile, "var x = 1;");
 
   const config = { checkFeatures: true };
-  const acornOpts = { ecmaVersion: 2025, sourceType: "script" };
+  const parserOptions = { ecmaVersion: "latest", sourceType: "script" };
   const processFile = createFileProcessor(config, {
-    acornOpts,
+    parserOptions,
     ignoreList: new Set(),
     logger: null,
     isDebug: false,
@@ -461,9 +461,9 @@ test("parses TypeScript syntax in .ts files", () => {
   );
 
   const config = { checkFeatures: false };
-  const acornOpts = { ecmaVersion: 2025, sourceType: "script" };
+  const parserOptions = { ecmaVersion: "latest", sourceType: "script" };
   const processFile = createFileProcessor(config, {
-    acornOpts,
+    parserOptions,
     ignoreList: new Set(),
     logger: null,
     isDebug: false,
@@ -480,9 +480,9 @@ test("parses static initialization blocks when checkFeatures enabled", () => {
   fs.writeFileSync(testFile, "class App { static { console.log('hi'); } }");
 
   const config = { checkFeatures: true };
-  const acornOpts = { ecmaVersion: 2025, sourceType: "script" };
+  const parserOptions = { ecmaVersion: "latest", sourceType: "script" };
   const processFile = createFileProcessor(config, {
-    acornOpts,
+    parserOptions,
     ignoreList: new Set(),
     logger: null,
     isDebug: false,
@@ -499,9 +499,9 @@ test("parses nullish coalescing assignment when checkFeatures enabled", () => {
   fs.writeFileSync(testFile, "const x = {}; x.val ??= 'test';");
 
   const config = { checkFeatures: true };
-  const acornOpts = { ecmaVersion: 2025, sourceType: "script" };
+  const parserOptions = { ecmaVersion: "latest", sourceType: "script" };
   const processFile = createFileProcessor(config, {
-    acornOpts,
+    parserOptions,
     ignoreList: new Set(),
     logger: null,
     isDebug: false,
@@ -521,9 +521,9 @@ test("does not flag RegExp constructor as RegExpEscape", () => {
   );
 
   const config = { checkFeatures: true };
-  const acornOpts = { ecmaVersion: 2025, sourceType: "script" };
+  const parserOptions = { ecmaVersion: "latest", sourceType: "script" };
   const processFile = createFileProcessor(config, {
-    acornOpts,
+    parserOptions,
     ignoreList: new Set(),
     logger: null,
     isDebug: false,
@@ -540,9 +540,9 @@ test("does not flag basic Error constructor as ErrorCause", () => {
   fs.writeFileSync(testFile, "function a() { throw new Error('message'); }");
 
   const config = { checkFeatures: true };
-  const acornOpts = { ecmaVersion: 2025, sourceType: "script" };
+  const parserOptions = { ecmaVersion: "latest", sourceType: "script" };
   const processFile = createFileProcessor(config, {
-    acornOpts,
+    parserOptions,
     ignoreList: new Set(),
     logger: null,
     isDebug: false,
@@ -559,9 +559,9 @@ test("does not flag await in async function as TopLevelAwait", () => {
   fs.writeFileSync(testFile, "async function a() { await Promise.resolve(); }");
 
   const config = { checkFeatures: true };
-  const acornOpts = { ecmaVersion: 2025, sourceType: "script" };
+  const parserOptions = { ecmaVersion: "latest", sourceType: "script" };
   const processFile = createFileProcessor(config, {
-    acornOpts,
+    parserOptions,
     ignoreList: new Set(),
     logger: null,
     isDebug: false,
@@ -578,9 +578,9 @@ test("does not flag standard in operator as ErgonomicBrandChecks", () => {
   fs.writeFileSync(testFile, "function a() { const b = {}; return 'c' in b; }");
 
   const config = { checkFeatures: true };
-  const acornOpts = { ecmaVersion: 2025, sourceType: "script" };
+  const parserOptions = { ecmaVersion: "latest", sourceType: "script" };
   const processFile = createFileProcessor(config, {
-    acornOpts,
+    parserOptions,
     ignoreList: new Set(),
     logger: null,
     isDebug: false,
@@ -597,9 +597,9 @@ test("returns error when unsupported features detected", () => {
   fs.writeFileSync(testFile, "const x = 1; let y = 2; const fn = () => {};");
 
   const config = { checkFeatures: true };
-  const acornOpts = { ecmaVersion: 2025, sourceType: "script" };
+  const parserOptions = { ecmaVersion: "latest", sourceType: "script" };
   const processFile = createFileProcessor(config, {
-    acornOpts,
+    parserOptions,
     ignoreList: new Set(),
     logger: null,
     isDebug: false,
@@ -633,9 +633,9 @@ test("re-throws non-ES-Check errors from detectFeatures", () => {
   } = require("../../../lib/check-runner/utils.js");
 
   const config = { checkFeatures: true };
-  const acornOpts = { ecmaVersion: 2025, sourceType: "script" };
+  const parserOptions = { ecmaVersion: "latest", sourceType: "script" };
   const processFile = freshProcessor(config, {
-    acornOpts,
+    parserOptions,
     ignoreList: new Set(),
     logger: null,
     isDebug: false,

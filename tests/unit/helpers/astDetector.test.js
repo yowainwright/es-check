@@ -1,6 +1,6 @@
 const { describe, it } = require("node:test");
 const assert = require("node:assert");
-const acorn = require("acorn");
+const { parseCode } = require("../../../lib/helpers/parsers.js");
 const {
   normalizeNodeType,
   buildFeatureIndex,
@@ -8,8 +8,15 @@ const {
   detectFeaturesFromAST,
 } = require("../../../lib/helpers/astDetector.js");
 
-const parse = (code) =>
-  acorn.parse(code, { ecmaVersion: 2025, sourceType: "module" });
+const parse = (code) => {
+  const result = parseCode(
+    code,
+    { ecmaVersion: "latest", sourceType: "module" },
+    null,
+    "test.js",
+  );
+  return result.ast;
+};
 
 describe("helpers/astDetector.js", () => {
   describe("normalizeNodeType()", () => {

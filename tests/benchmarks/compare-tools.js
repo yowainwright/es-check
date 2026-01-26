@@ -235,21 +235,23 @@ const tools = [
     },
   },
   {
-    name: "acorn (direct)",
+    name: "eslint (parser)",
     run: async (testFiles) => {
-      const acornCheckScript = `
-        const acorn = require('acorn');
+      const eslintParserScript = `
+        const { Linter } = require('eslint');
         const fs = require('fs');
-        const path = require('path');
+
+        const linter = new Linter();
+        const parserOptions = {
+          ecmaVersion: ${esVersion === "es5" ? 5 : 6},
+          sourceType: 'script',
+        };
 
         function checkFile(filePath) {
           try {
             const code = fs.readFileSync(filePath, 'utf8');
-            acorn.parse(code, {
-              ecmaVersion: ${esVersion === "es5" ? 5 : 6},
-              sourceType: 'script',
-            });
-            return true;
+            const messages = linter.verify(code, { parserOptions, rules: {} }, filePath);
+            return !messages.some((message) => message.fatal);
           } catch (error) {
             return false;
           }
@@ -265,8 +267,8 @@ const tools = [
         main();
       `;
 
-      const tempScriptPath = path.join(__dirname, "temp-acorn-check.js");
-      fs.writeFileSync(tempScriptPath, acornCheckScript);
+      const tempScriptPath = path.join(__dirname, "temp-eslint-parser-check.js");
+      fs.writeFileSync(tempScriptPath, eslintParserScript);
 
       const startTime = performance.now();
       try {
@@ -279,7 +281,7 @@ const tools = [
     },
   },
   {
-    name: "eslint",
+    name: "eslint (plugin)",
     run: async (testFiles) => {
       try {
         fs.accessSync("./node_modules/eslint");
