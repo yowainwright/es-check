@@ -8,11 +8,11 @@ interface AdminUser extends User {
   permissions: string[];
 }
 
-type UserRole = 'admin' | 'user' | 'guest';
+type UserRole = "admin" | "user" | "guest";
 
 enum Status {
-  Active = 'ACTIVE',
-  Inactive = 'INACTIVE'
+  Active = "ACTIVE",
+  Inactive = "INACTIVE",
 }
 
 class Repository<T extends { id: string }> {
@@ -23,7 +23,7 @@ class Repository<T extends { id: string }> {
   }
 
   findById(id: string): T | undefined {
-    return this.items.find(item => item.id === id);
+    return this.items.find((item) => item.id === id);
   }
 }
 
@@ -45,8 +45,8 @@ class UserService {
 
   createUser(name: string, email?: string): User {
     const user = createEntity<User>(
-      { id: '', name: '', email: undefined },
-      { id: Date.now().toString(), name, email }
+      { id: "", name: "", email: undefined },
+      { id: Date.now().toString(), name, email },
     );
     this.repo.add(user);
     return user;
@@ -56,12 +56,12 @@ class UserService {
 const userRepo = new Repository<User>();
 const service = new UserService(userRepo);
 
-const newUser = service.createUser('John Doe', 'john@example.com');
-console.log('Created user:', newUser.name);
+const newUser = service.createUser("John Doe", "john@example.com");
+console.log("Created user:", newUser.name);
 
-service.getUser(newUser.id).then(user => {
+service.getUser(newUser.id).then((user) => {
   if (user) {
-    console.log('Found user:', user.name);
+    console.log("Found user:", user.name);
   }
 });
 

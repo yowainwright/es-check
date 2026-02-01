@@ -1,0 +1,20 @@
+FROM denoland/deno:latest
+
+# Set working directory
+WORKDIR /app
+
+# Install Node.js (we need it since es-check is a Node.js tool)
+RUN apt-get update && apt-get install -y nodejs npm && rm -rf /var/lib/apt/lists/*
+
+# Copy the entire project first to avoid conflicts
+COPY . .
+
+# Install dependencies using npm (may fail but that's ok for testing)
+RUN npm install --omit=dev --ignore-scripts || true
+
+# Set environment variable to identify the runtime
+ENV RUNTIME_ENV=deno
+ENV DENO_VERSION=latest
+
+# Run the TypeScript runtime test using node (testing es-check behavior in Deno environment)
+CMD ["node", "tests/e2e/typescript/test-typescript-runtimes.js"]

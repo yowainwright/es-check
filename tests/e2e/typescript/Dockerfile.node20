@@ -1,0 +1,21 @@
+FROM node:20-alpine
+
+# Set working directory
+WORKDIR /app
+
+# Install pnpm
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
+# Install dependencies first (for better caching)
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --prod --frozen-lockfile --ignore-scripts
+
+# Copy the entire project
+COPY . .
+
+# Set environment variable to identify the runtime
+ENV RUNTIME_ENV=node20
+ENV NODE_VERSION=20
+
+# Run the TypeScript runtime test (expected to fail)
+CMD ["node", "tests/e2e/typescript/test-typescript-runtimes.js"]

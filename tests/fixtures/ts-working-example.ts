@@ -4,7 +4,7 @@ interface User {
   email?: string;
 }
 
-type UserRole = 'admin' | 'user' | 'guest';
+type UserRole = "admin" | "user" | "guest";
 
 interface AdminUser extends User {
   role: UserRole;
@@ -12,9 +12,9 @@ interface AdminUser extends User {
 }
 
 enum Status {
-  Active = 'ACTIVE',
-  Inactive = 'INACTIVE',
-  Pending = 'PENDING'
+  Active = "ACTIVE",
+  Inactive = "INACTIVE",
+  Pending = "PENDING",
 }
 
 class Repository<T extends { id: string }> {
@@ -25,7 +25,7 @@ class Repository<T extends { id: string }> {
   }
 
   findById(id: string): T | undefined {
-    return this.items.find(item => item.id === id);
+    return this.items.find((item) => item.id === id);
   }
 
   getAll(): T[] {
@@ -35,9 +35,9 @@ class Repository<T extends { id: string }> {
 
 function createUser<T extends User>(data: Partial<T>): T {
   return {
-    id: 'user_' + Date.now(),
-    name: 'Default',
-    ...data
+    id: "user_" + Date.now(),
+    name: "Default",
+    ...data,
   } as T;
 }
 
@@ -46,22 +46,22 @@ function processUser(userData: any): User {
   return {
     id: user.id!,
     name: user.name,
-    email: user.email || undefined
+    email: user.email || undefined,
   };
 }
 
 const userRepo = new Repository();
 const admin = createUser({
-  name: 'Admin User',
-  role: 'admin',
-  permissions: ['read', 'write', 'delete']
+  name: "Admin User",
+  role: "admin",
+  permissions: ["read", "write", "delete"],
 });
 
 userRepo.add(admin);
 const foundUser = userRepo.findById(admin.id);
 
 if (foundUser) {
-  console.log('Found user:', foundUser.name);
+  console.log("Found user:", foundUser.name);
 }
 
 export { User, Repository, createUser };

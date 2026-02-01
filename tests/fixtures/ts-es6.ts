@@ -1,4 +1,4 @@
-const arrow = name => `Hello ${name}`;
+const arrow = (name) => `Hello ${name}`;
 
 class Person {
   constructor(name, age) {
@@ -7,5 +7,5 @@ class Person {
   }
 }
 
-const { name } = { name: 'John' };
+const { name } = { name: "John" };
 export default Person;

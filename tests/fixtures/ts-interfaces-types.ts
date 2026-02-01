@@ -10,28 +10,31 @@ interface AdminUser extends User {
   lastLogin?: Date;
 }
 
-type Permission = 'read' | 'write' | 'delete' | 'admin';
+type Permission = "read" | "write" | "delete" | "admin";
 
-type Status = 'pending' | 'approved' | 'rejected';
-type Priority = 'low' | 'medium' | 'high' | 'critical';
+type Status = "pending" | "approved" | "rejected";
+type Priority = "low" | "medium" | "high" | "critical";
 
 type Task = {
   id: string;
   title: string;
   status: Status;
-} & ({
-  priority: 'critical';
-  assignee: string;
-  deadline: Date;
-} | {
-  priority: Exclude<Priority, 'critical'>;
-  assignee?: string;
-  deadline?: Date;
-});
+} & (
+  | {
+      priority: "critical";
+      assignee: string;
+      deadline: Date;
+    }
+  | {
+      priority: Exclude<Priority, "critical">;
+      assignee?: string;
+      deadline?: Date;
+    }
+);
 
 namespace API {
   export interface Request {
-    method: 'GET' | 'POST' | 'PUT' | 'DELETE';
+    method: "GET" | "POST" | "PUT" | "DELETE";
     url: string;
     headers?: Record<string, string>;
   }
@@ -44,21 +47,21 @@ namespace API {
 }
 
 enum Color {
-  Red = '#ff0000',
-  Green = '#00ff00',
-  Blue = '#0000ff'
+  Red = "#ff0000",
+  Green = "#00ff00",
+  Blue = "#0000ff",
 }
 
 function isAdminUser(user: User): user is AdminUser {
-  return 'permissions' in user;
+  return "permissions" in user;
 }
 
-const user: User = { id: '1', name: 'John', roles: ['user'] };
+const user: User = { id: "1", name: "John", roles: ["user"] };
 const task: Task = {
-  id: '1',
-  title: 'Test',
-  status: 'pending',
-  priority: 'low'
+  id: "1",
+  title: "Test",
+  status: "pending",
+  priority: "low",
 };
 
 if (isAdminUser(user)) {
