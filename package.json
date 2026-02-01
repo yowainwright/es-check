@@ -55,8 +55,8 @@
     "codependence": "0.3.1",
     "oxlint": "^1.29.0",
     "pastoralist": "1.10.0-1",
-    "prettier": "3.8.0",
-    "release-it": "19.2.3"
+    "prettier": "3.8.1",
+    "release-it": "19.2.4"
   },
   "dependencies": {
     "acorn": "8.15.0",
