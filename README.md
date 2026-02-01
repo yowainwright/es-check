@@ -132,6 +132,7 @@ Here's a comprehensive list of all available options:
 | `-V, --version`               | Output the version number                                                                                                   |
 | `--module`                    | Use ES modules (default: false)                                                                                             |
 | `--allowHashBang`             | If the code starts with #! treat it as a comment (default: false)                                                           |
+| `--typescript, --ts`          | Enable TypeScript file support (default: false)                                                                             |
 | `--files <files>`             | A glob of files to test the ECMAScript version against (alias for [files...])                                               |
 | `--not <files>`               | Folder or file names to skip                                                                                                |
 | `--noColor`                   | Disable use of colors in output (default: false)                                                                            |
@@ -166,6 +167,14 @@ es-check es6 './dist/**/*.js' --module
 ```sh
 es-check es6 './tests/*.js' --allowHashBang
 ```
+
+**Checking TypeScript files:**
+
+```sh
+es-check es5 './src/**/*.{js,ts}' --typescript
+```
+
+This is experimental functionality that strips TypeScript type annotations and tests the resulting JavaScript against the specified ES version.
 
 **Skipping specific files or directories:**
 

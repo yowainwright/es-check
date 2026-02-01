@@ -39,6 +39,16 @@ Allow files starting with `#!` (shebang) (default: false)
 es-check es6 './tests/*.js' --allowHashBang
 ```
 
+### `--typescript`, `--ts`
+
+Enable TypeScript file support (default: false)
+
+```bash
+es-check es5 './src/**/*.{js,ts}' --typescript
+```
+
+This is experimental functionality that strips TypeScript type annotations and tests the resulting JavaScript against the specified ES version.
+
 ### `--files <files>`
 
 Specify files to check (alternative to positional arguments)

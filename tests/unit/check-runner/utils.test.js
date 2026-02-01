@@ -631,4 +631,61 @@ test("re-throws non-ES-Check errors from detectFeatures", () => {
   }
 });
 
+test("processes TypeScript files with ES5 syntax", () => {
+  const testFile = path.join(testDir, "es5.ts");
+  fs.writeFileSync(testFile, `
+function greet(name) {
+  return 'Hello ' + name;
+}
+
+var person = {
+  name: 'John',
+  age: 30
+};
+`);
+
+  const config = { checkFeatures: false };
+  const acornOpts = { ecmaVersion: 5, sourceType: "script" };
+  const processFile = createFileProcessor(config, {
+    acornOpts,
+    ignoreList: new Set(),
+    logger: null,
+    isDebug: false,
+    ecmaVersion: "5",
+  });
+
+  const result = processFile(testFile);
+  assert.strictEqual(result, null);
+});
+
+test("processes TypeScript files with ES6 syntax", () => {
+  const testFile = path.join(testDir, "es6.ts");
+  fs.writeFileSync(testFile, `
+const arrow = (name) => 'Hello ' + name;
+
+class Person {
+  constructor(name, age) {
+    this.name = name;
+    this.age = age;
+  }
+}
+
+const person = new Person('John', 30);
+const { name, age } = person;
+`);
+
+  const config = { checkFeatures: false };
+  const acornOpts = { ecmaVersion: 6, sourceType: "script" };
+  const processFile = createFileProcessor(config, {
+    acornOpts,
+    ignoreList: new Set(),
+    logger: null,
+    isDebug: false,
+    ecmaVersion: "6",
+  });
+
+  const result = processFile(testFile);
+  assert.strictEqual(result, null);
+});
+
 process.on("exit", cleanupTestDir);

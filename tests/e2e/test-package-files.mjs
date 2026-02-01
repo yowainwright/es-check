@@ -46,10 +46,14 @@ function analyzeFileDependencies(filePath, visited = new Set()) {
         depPath = path.normalize(path.join(path.dirname(filePath), depPath));
         const fullDepPath = path.join(rootDir, depPath);
 
-        const hasJsExtension = depPath.endsWith(".js") || depPath.endsWith(".mjs");
+        const hasJsExtension =
+          depPath.endsWith(".js") || depPath.endsWith(".mjs");
         if (!hasJsExtension) {
-          const isDirectory = fs.existsSync(fullDepPath) && fs.statSync(fullDepPath).isDirectory();
-          const hasIndexFile = isDirectory && fs.existsSync(path.join(fullDepPath, "index.js"));
+          const isDirectory =
+            fs.existsSync(fullDepPath) &&
+            fs.statSync(fullDepPath).isDirectory();
+          const hasIndexFile =
+            isDirectory && fs.existsSync(path.join(fullDepPath, "index.js"));
           const hasJsFile = fs.existsSync(fullDepPath + ".js");
           const hasMjsFile = fs.existsSync(fullDepPath + ".mjs");
 
@@ -63,7 +67,9 @@ function analyzeFileDependencies(filePath, visited = new Set()) {
         }
 
         const resolvedPath = path.join(rootDir, depPath);
-        const isValidFile = fs.existsSync(resolvedPath) && !fs.statSync(resolvedPath).isDirectory();
+        const isValidFile =
+          fs.existsSync(resolvedPath) &&
+          !fs.statSync(resolvedPath).isDirectory();
         if (isValidFile) {
           dependencies.push(depPath);
           dependencies.push(...analyzeFileDependencies(depPath, visited));
