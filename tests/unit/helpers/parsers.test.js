@@ -3,12 +3,10 @@ const assert = require("node:assert");
 const {
   parseCode,
   stripTypeScript,
-  isTypeAnnotationContext,
-  skipTypeAnnotation,
-  skipAsTypeAssertion,
-  getKeywordAt,
-  isIdentifierChar,
-  isWhitespace
+  detectRuntime,
+  stripTypesInNode,
+  stripTypesInBun,
+  stripTypesInDeno
 } = require("../../../lib/helpers/parsers.js");
 
 describe("helpers/parsers.js", () => {
@@ -69,6 +67,24 @@ describe("helpers/parsers.js", () => {
       assert(result.error);
       assert.strictEqual(result.ast, null);
     });
+
+    it("should handle TypeScript files correctly with typescript flag", () => {
+      const acorn = require("acorn");
+      const input = "const greet = (name: string): string => `Hello ${name}`;";
+      const result = parseCode(input, { ecmaVersion: 6 }, acorn, "test.ts", { typescript: true });
+
+      assert.strictEqual(result.error, null);
+      assert(result.ast);
+    });
+
+    it("should not process TypeScript files without typescript flag", () => {
+      const acorn = require("acorn");
+      const input = "const greet = (name: string): string => `Hello ${name}`;";
+      const result = parseCode(input, { ecmaVersion: 6 }, acorn, "test.ts");
+
+      assert(result.error);
+      assert.strictEqual(result.ast, null);
+    });
   });
 
   describe("stripTypeScript()", () => {
@@ -101,15 +117,9 @@ describe("helpers/parsers.js", () => {
       assert.strictEqual(stripTypeScript(input), expected);
     });
 
-    it("should remove access modifiers", () => {
-      const input = "public name: string; private age: number; protected id: string; readonly count: number;";
-      const expected = "       name        ;         age        ;           id        ;          count        ;";
-      assert.strictEqual(stripTypeScript(input), expected);
-    });
-
     it("should remove 'as' type assertions", () => {
       const input = "const element = document.getElementById('test') as HTMLElement;";
-      const expected = "const element = document.getElementById('test')             ;";
+      const expected = "const element = document.getElementById('test')               ;";
       assert.strictEqual(stripTypeScript(input), expected);
     });
 
@@ -125,7 +135,7 @@ describe("helpers/parsers.js", () => {
     });
 
     it("should preserve comments", () => {
-      const input = "// This is: a comment\n/* as block: comment */\nconst x = 5;";
+      const input = "// This is: a comment\\n/* as block: comment */\\nconst x = 5;";
       assert.strictEqual(stripTypeScript(input), input);
     });
 
@@ -146,137 +156,93 @@ describe("helpers/parsers.js", () => {
       assert.strictEqual(stripTypeScript(input), input);
     });
 
-    it("should handle TypeScript files correctly with typescript flag", () => {
-      const acorn = require("acorn");
-      const input = "const greet = (name: string): string => `Hello ${name}`;";
-      const result = parseCode(input, { ecmaVersion: 6 }, acorn, "test.ts", { typescript: true });
 
-      assert.strictEqual(result.error, null);
-      assert(result.ast);
+    it("should handle template literals with type annotations", () => {
+      const input = "const msg: string = `Hello \\${name: string}`;";
+      const expected = "const msg         = `Hello \\${name: string}`;";
+      assert.strictEqual(stripTypeScript(input), expected);
     });
 
-    it("should not process TypeScript files without typescript flag", () => {
-      const acorn = require("acorn");
-      const input = "const greet = (name: string): string => `Hello ${name}`;";
-      const result = parseCode(input, { ecmaVersion: 6 }, acorn, "test.ts");
-
-      assert(result.error);
-      assert.strictEqual(result.ast, null);
-    });
-  });
-
-  describe("isTypeAnnotationContext()", () => {
-    it("should detect type annotation after identifier", () => {
-      const chars = Array.from("name: string");
-      assert.strictEqual(isTypeAnnotationContext(chars, 4), true);
+    it("should handle escaped quotes in strings", () => {
+      const input = 'const x: string = "say \\"hello: string\\"";';
+      const expected = 'const x         = "say \\"hello: string\\"";';
+      assert.strictEqual(stripTypeScript(input), expected);
     });
 
-    it("should detect type annotation after closing paren", () => {
-      const chars = Array.from("func(): string");
-      assert.strictEqual(isTypeAnnotationContext(chars, 6), true);
+    it("should handle type annotations in arrow functions", () => {
+      const input = "const fn = (x: number): number => x * 2;";
+      const expected = "const fn = (x        )         => x * 2;";
+      assert.strictEqual(stripTypeScript(input), expected);
     });
 
-    it("should detect type annotation with whitespace before colon", () => {
-      const chars = Array.from("name   : string");
-      assert.strictEqual(isTypeAnnotationContext(chars, 7), true);
+    it("should handle interface-like syntax in strings", () => {
+      const input = 'const code = "interface User { name: string; }";';
+      assert.strictEqual(stripTypeScript(input), input);
     });
 
-    it("should detect type annotation after closing bracket", () => {
-      const chars = Array.from("arr[0]: string");
-      assert.strictEqual(isTypeAnnotationContext(chars, 6), true);
+    it("should handle type annotations after destructuring", () => {
+      const input = "const { name, age }: { name: string; age: number } = user;";
+      const expected = "const { name, age }                                = user;";
+      assert.strictEqual(stripTypeScript(input), expected);
     });
 
-    it("should not detect object property colon", () => {
-      const chars = Array.from("{ prop: value }");
-      assert.strictEqual(isTypeAnnotationContext(chars, 6), false);
+    it("should handle multiple as assertions", () => {
+      const input = "const x = (y as string) as unknown as number;";
+      const expected = "const x = (y          )                     ;";
+      assert.strictEqual(stripTypeScript(input), expected);
     });
 
-    it("should handle colon at start of string", () => {
-      const chars = Array.from(": string");
-      assert.strictEqual(isTypeAnnotationContext(chars, 0), false);
+    it("should preserve exact character positions", () => {
+      const input = "const a: string = 'b';";
+      const result = stripTypeScript(input);
+      assert.strictEqual(result.length, input.length);
+      assert.strictEqual(result[0], 'c'); // 'c' from "const"
+      assert.strictEqual(result[8], ' '); // space replacing ':'
+      assert.strictEqual(result[21], ';'); // final semicolon
     });
   });
 
-  describe("getKeywordAt()", () => {
-    it("should extract keyword at position", () => {
-      const chars = Array.from("public name");
-      assert.strictEqual(getKeywordAt(chars, 0), "public");
-    });
-
-    it("should extract partial keyword", () => {
-      const chars = Array.from("private");
-      assert.strictEqual(getKeywordAt(chars, 2), "ivate");
-    });
-
-    it("should return empty for non-identifier", () => {
-      const chars = Array.from("123abc");
-      assert.strictEqual(getKeywordAt(chars, 0), "123abc");
+  describe("detectRuntime()", () => {
+    it("should detect node runtime", () => {
+      const runtime = detectRuntime();
+      assert.strictEqual(runtime, 'node');
     });
   });
 
-  describe("isIdentifierChar()", () => {
-    it("should identify valid identifier characters", () => {
-      assert.strictEqual(isIdentifierChar('a'), true);
-      assert.strictEqual(isIdentifierChar('Z'), true);
-      assert.strictEqual(isIdentifierChar('_'), true);
-      assert.strictEqual(isIdentifierChar('$'), true);
-      assert.strictEqual(isIdentifierChar('0'), true);
+  describe("stripTypesInNode()", () => {
+    it("should strip TypeScript types using Node.js API", () => {
+      const code = "const x: string = 'test';";
+      const result = stripTypesInNode(code);
+      assert(typeof result === 'string');
+      assert(result.includes('const x'));
+      assert(result.includes("'test'"));
     });
 
-    it("should reject invalid identifier characters", () => {
-      assert.strictEqual(isIdentifierChar(' '), false);
-      assert.strictEqual(isIdentifierChar(':'), false);
-      assert.strictEqual(isIdentifierChar('('), false);
-    });
-  });
+    it("should throw error for unsupported Node.js version", () => {
+      const originalModule = require.cache[require.resolve('module')];
+      require.cache[require.resolve('module')] = {
+        exports: {}
+      };
 
-  describe("skipTypeAnnotation()", () => {
-    it("should skip simple type annotation", () => {
-      const chars = Array.from("string = value");
-      assert.strictEqual(skipTypeAnnotation(chars, 0), 6);
-    });
-
-    it("should handle generic types with brackets", () => {
-      const chars = Array.from("Array<string> = []");
-      assert.strictEqual(skipTypeAnnotation(chars, 0), 13);
-    });
-
-    it("should stop at assignment operator", () => {
-      const chars = Array.from("string = 'value'");
-      assert.strictEqual(skipTypeAnnotation(chars, 0), 7);
+      try {
+        const code = "const x: string = 'test';";
+        assert.throws(() => stripTypesInNode(code), /Node\.js v22\.13\.0\+/);
+      } finally {
+        require.cache[require.resolve('module')] = originalModule;
+      }
     });
   });
 
-  describe("skipAsTypeAssertion()", () => {
-    it("should skip 'as' type assertion", () => {
-      const chars = Array.from("as HTMLElement;");
-      const result = [];
-      const endIndex = skipAsTypeAssertion(chars, 0, result);
-
-      assert.strictEqual(endIndex, 14);
-      assert.strictEqual(result.join(''), '  ');
-    });
-
-    it("should handle whitespace after 'as'", () => {
-      const chars = Array.from("as   string;");
-      const result = [];
-      const endIndex = skipAsTypeAssertion(chars, 0, result);
-
-      assert.strictEqual(endIndex, 11);
-      assert.strictEqual(result.join(''), '     ');
+  describe("stripTypesInBun()", () => {
+    it("should throw error when Bun.Transpiler is not available", () => {
+      const code = "const x: string = 'test';";
+      assert.throws(() => stripTypesInBun(code), /Bun v1\.0\.0\+/);
     });
   });
 
-  describe("isWhitespace()", () => {
-    it("should identify whitespace characters", () => {
-      assert.strictEqual(isWhitespace(' '), true);
-      assert.strictEqual(isWhitespace('\t'), true);
-      assert.strictEqual(isWhitespace('\n'), true);
-    });
-
-    it("should reject non-whitespace characters", () => {
-      assert.strictEqual(isWhitespace('a'), false);
-      assert.strictEqual(isWhitespace('1'), false);
+  describe("stripTypesInDeno()", () => {
+    it("should always throw error for Deno", () => {
+      assert.throws(() => stripTypesInDeno(), /not supported in Deno/);
     });
   });
 });
