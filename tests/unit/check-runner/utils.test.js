@@ -633,7 +633,9 @@ test("re-throws non-ES-Check errors from detectFeatures", () => {
 
 test("processes TypeScript files with ES5 syntax", () => {
   const testFile = path.join(testDir, "es5.ts");
-  fs.writeFileSync(testFile, `
+  fs.writeFileSync(
+    testFile,
+    `
 function greet(name) {
   return 'Hello ' + name;
 }
@@ -642,7 +644,8 @@ var person = {
   name: 'John',
   age: 30
 };
-`);
+`,
+  );
 
   const config = { checkFeatures: false };
   const acornOpts = { ecmaVersion: 5, sourceType: "script" };
@@ -660,7 +663,9 @@ var person = {
 
 test("processes TypeScript files with ES6 syntax", () => {
   const testFile = path.join(testDir, "es6.ts");
-  fs.writeFileSync(testFile, `
+  fs.writeFileSync(
+    testFile,
+    `
 const arrow = (name) => 'Hello ' + name;
 
 class Person {
@@ -672,7 +677,8 @@ class Person {
 
 const person = new Person('John', 30);
 const { name, age } = person;
-`);
+`,
+  );
 
   const config = { checkFeatures: false };
   const acornOpts = { ecmaVersion: 6, sourceType: "script" };

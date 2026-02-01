@@ -6,7 +6,7 @@ const {
   detectRuntime,
   stripTypesInNode,
   stripTypesInBun,
-  stripTypesInDeno
+  stripTypesInDeno,
 } = require("../../../lib/helpers/parsers.js");
 
 describe("helpers/parsers.js", () => {
@@ -71,7 +71,9 @@ describe("helpers/parsers.js", () => {
     it("should handle TypeScript files correctly with typescript flag", () => {
       const acorn = require("acorn");
       const input = "const greet = (name: string): string => `Hello ${name}`;";
-      const result = parseCode(input, { ecmaVersion: 6 }, acorn, "test.ts", { typescript: true });
+      const result = parseCode(input, { ecmaVersion: 6 }, acorn, "test.ts", {
+        typescript: true,
+      });
 
       assert.strictEqual(result.error, null);
       assert(result.ast);
@@ -80,7 +82,9 @@ describe("helpers/parsers.js", () => {
     it("should handle TypeScript files correctly with ts flag", () => {
       const acorn = require("acorn");
       const input = "const greet = (name: string): string => `Hello ${name}`;";
-      const result = parseCode(input, { ecmaVersion: 6 }, acorn, "test.ts", { ts: true });
+      const result = parseCode(input, { ecmaVersion: 6 }, acorn, "test.ts", {
+        ts: true,
+      });
 
       assert.strictEqual(result.error, null);
       assert(result.ast);
@@ -89,7 +93,9 @@ describe("helpers/parsers.js", () => {
     it("should handle TypeScript files with .tsx extension", () => {
       const acorn = require("acorn");
       const input = "const greet = (name: string): string => `Hello ${name}`;";
-      const result = parseCode(input, { ecmaVersion: 6 }, acorn, "test.tsx", { typescript: true });
+      const result = parseCode(input, { ecmaVersion: 6 }, acorn, "test.tsx", {
+        typescript: true,
+      });
 
       assert.strictEqual(result.error, null);
       assert(result.ast);
@@ -115,8 +121,8 @@ describe("helpers/parsers.js", () => {
       assert.strictEqual(result.ast, null);
       assert.strictEqual(result.error.file, "test.js");
       assert(result.error.err);
-      assert(typeof result.error.line === 'number');
-      assert(typeof result.error.column === 'number');
+      assert(typeof result.error.line === "number");
+      assert(typeof result.error.column === "number");
     });
 
     it("should not process TypeScript files without typescript flag", () => {
@@ -148,8 +154,10 @@ describe("helpers/parsers.js", () => {
     });
 
     it("should remove function parameter type annotations", () => {
-      const input = "function greet(name: string, age: number) { return name; }";
-      const expected = "function greet(name        , age        ) { return name; }";
+      const input =
+        "function greet(name: string, age: number) { return name; }";
+      const expected =
+        "function greet(name        , age        ) { return name; }";
       assert.strictEqual(stripTypeScript(input), expected);
     });
 
@@ -160,8 +168,10 @@ describe("helpers/parsers.js", () => {
     });
 
     it("should remove 'as' type assertions", () => {
-      const input = "const element = document.getElementById('test') as HTMLElement;";
-      const expected = "const element = document.getElementById('test')               ;";
+      const input =
+        "const element = document.getElementById('test') as HTMLElement;";
+      const expected =
+        "const element = document.getElementById('test')               ;";
       assert.strictEqual(stripTypeScript(input), expected);
     });
 
@@ -177,7 +187,8 @@ describe("helpers/parsers.js", () => {
     });
 
     it("should preserve comments", () => {
-      const input = "// This is: a comment\\n/* as block: comment */\\nconst x = 5;";
+      const input =
+        "// This is: a comment\\n/* as block: comment */\\nconst x = 5;";
       assert.strictEqual(stripTypeScript(input), input);
     });
 
@@ -188,8 +199,10 @@ describe("helpers/parsers.js", () => {
     });
 
     it("should handle nested brackets in type annotations", () => {
-      const input = "const obj: { prop: string; nested: { value: number } } = {};";
-      const expected = "const obj                                              = {};";
+      const input =
+        "const obj: { prop: string; nested: { value: number } } = {};";
+      const expected =
+        "const obj                                              = {};";
       assert.strictEqual(stripTypeScript(input), expected);
     });
 
@@ -197,7 +210,6 @@ describe("helpers/parsers.js", () => {
       const input = "const obj = { name: 'John', age: 30 };";
       assert.strictEqual(stripTypeScript(input), input);
     });
-
 
     it("should handle template literals with type annotations", () => {
       const input = "const msg: string = `Hello \\${name: string}`;";
@@ -223,8 +235,10 @@ describe("helpers/parsers.js", () => {
     });
 
     it("should handle type annotations after destructuring", () => {
-      const input = "const { name, age }: { name: string; age: number } = user;";
-      const expected = "const { name, age }                                = user;";
+      const input =
+        "const { name, age }: { name: string; age: number } = user;";
+      const expected =
+        "const { name, age }                                = user;";
       assert.strictEqual(stripTypeScript(input), expected);
     });
 
@@ -238,29 +252,29 @@ describe("helpers/parsers.js", () => {
       const input = "const a: string = 'b';";
       const result = stripTypeScript(input);
       assert.strictEqual(result.length, input.length);
-      assert.strictEqual(result[0], 'c'); // 'c' from "const"
-      assert.strictEqual(result[8], ' '); // space replacing ':'
-      assert.strictEqual(result[21], ';'); // final semicolon
+      assert.strictEqual(result[0], "c"); // 'c' from "const"
+      assert.strictEqual(result[8], " "); // space replacing ':'
+      assert.strictEqual(result[21], ";"); // final semicolon
     });
   });
 
   describe("detectRuntime()", () => {
     it("should detect node runtime", () => {
       const runtime = detectRuntime();
-      assert.strictEqual(runtime, 'node');
+      assert.strictEqual(runtime, "node");
     });
 
     it("should detect bun runtime when Bun is available", () => {
-      global.Bun = { Transpiler: function() {} };
+      global.Bun = { Transpiler: function () {} };
       const runtime = detectRuntime();
-      assert.strictEqual(runtime, 'bun');
+      assert.strictEqual(runtime, "bun");
       delete global.Bun;
     });
 
     it("should detect deno runtime when Deno is available", () => {
       global.Deno = {};
       const runtime = detectRuntime();
-      assert.strictEqual(runtime, 'deno');
+      assert.strictEqual(runtime, "deno");
       delete global.Deno;
     });
   });
@@ -269,22 +283,22 @@ describe("helpers/parsers.js", () => {
     it("should strip TypeScript types using Node.js API", () => {
       const code = "const x: string = 'test';";
       const result = stripTypesInNode(code);
-      assert(typeof result === 'string');
-      assert(result.includes('const x'));
+      assert(typeof result === "string");
+      assert(result.includes("const x"));
       assert(result.includes("'test'"));
     });
 
     it("should throw error for unsupported Node.js version", () => {
-      const originalModule = require.cache[require.resolve('module')];
-      require.cache[require.resolve('module')] = {
-        exports: {}
+      const originalModule = require.cache[require.resolve("module")];
+      require.cache[require.resolve("module")] = {
+        exports: {},
       };
 
       try {
         const code = "const x: string = 'test';";
         assert.throws(() => stripTypesInNode(code), /Node\.js v22\.13\.0\+/);
       } finally {
-        require.cache[require.resolve('module')] = originalModule;
+        require.cache[require.resolve("module")] = originalModule;
       }
     });
   });
@@ -293,12 +307,12 @@ describe("helpers/parsers.js", () => {
     it("should use stripTypesInNode for node runtime", () => {
       const code = "const x: string = 'test';";
       const result = stripTypeScript(code);
-      assert(typeof result === 'string');
-      assert(result.includes('const x'));
+      assert(typeof result === "string");
+      assert(result.includes("const x"));
     });
 
     it("should handle empty or invalid code inputs", () => {
-      assert.strictEqual(stripTypeScript(''), '');
+      assert.strictEqual(stripTypeScript(""), "");
       assert.strictEqual(stripTypeScript(null), null);
       assert.strictEqual(stripTypeScript(undefined), undefined);
       assert.strictEqual(stripTypeScript(123), 123);
@@ -307,18 +321,18 @@ describe("helpers/parsers.js", () => {
     it("should call stripTypesInBun for bun runtime", () => {
       // Mock Bun global to trigger bun runtime detection
       global.Bun = {
-        Transpiler: function(options) {
-          this.transformSync = function(code) {
-            return code.replace(/: string/g, '       ');
+        Transpiler: function (options) {
+          this.transformSync = function (code) {
+            return code.replace(/: string/g, "       ");
           };
-        }
+        },
       };
 
       try {
         const code = "const x: string = 'test';";
         const result = stripTypeScript(code);
-        assert(typeof result === 'string');
-        assert(result.includes('const x'));
+        assert(typeof result === "string");
+        assert(result.includes("const x"));
         assert(result.includes("'test'"));
       } finally {
         delete global.Bun;
@@ -351,17 +365,17 @@ describe("helpers/parsers.js", () => {
 
     it("should strip TypeScript types when Bun.Transpiler is available", () => {
       global.Bun = {
-        Transpiler: function(options) {
-          this.transformSync = function(code) {
-            return code.replace(/: string/g, '       ');
+        Transpiler: function (options) {
+          this.transformSync = function (code) {
+            return code.replace(/: string/g, "       ");
           };
-        }
+        },
       };
 
       const code = "const x: string = 'test';";
       const result = stripTypesInBun(code);
-      assert(typeof result === 'string');
-      assert(result.includes('const x'));
+      assert(typeof result === "string");
+      assert(result.includes("const x"));
       assert(result.includes("'test'"));
 
       delete global.Bun;

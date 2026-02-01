@@ -6,5 +6,8 @@ function add(a: number, b: number): number {
 }
 
 class Person {
-  constructor(public name: string, private age: number) {}
+  constructor(
+    public name: string,
+    private age: number,
+  ) {}
 }

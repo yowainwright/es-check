@@ -29,5 +29,5 @@ type Partial<T> = {
 type EventName<T extends string> = `on${Capitalize<T>}`;
 type Handler<T> = (event: T) => void;
 
-const service = new GenericService({ name: 'test', value: 42 });
-const result = service.process('name');
+const service = new GenericService({ name: "test", value: 42 });
+const result = service.process("name");
