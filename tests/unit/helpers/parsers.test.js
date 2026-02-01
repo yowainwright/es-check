@@ -106,6 +106,19 @@ describe("helpers/parsers.js", () => {
       assert(result.error.err);
     });
 
+    it("should handle parsing errors with location info", () => {
+      const acorn = require("acorn");
+      const code = "const x = y.;";
+      const result = parseCode(code, { ecmaVersion: 6 }, acorn, "test.js");
+
+      assert(result.error);
+      assert.strictEqual(result.ast, null);
+      assert.strictEqual(result.error.file, "test.js");
+      assert(result.error.err);
+      assert(typeof result.error.line === 'number');
+      assert(typeof result.error.column === 'number');
+    });
+
     it("should not process TypeScript files without typescript flag", () => {
       const acorn = require("acorn");
       const input = "const greet = (name: string): string => `Hello ${name}`;";
@@ -290,6 +303,44 @@ describe("helpers/parsers.js", () => {
       assert.strictEqual(stripTypeScript(undefined), undefined);
       assert.strictEqual(stripTypeScript(123), 123);
     });
+
+    it("should call stripTypesInBun for bun runtime", () => {
+      // Mock Bun global to trigger bun runtime detection
+      global.Bun = {
+        Transpiler: function(options) {
+          this.transformSync = function(code) {
+            return code.replace(/: string/g, '       ');
+          };
+        }
+      };
+
+      try {
+        const code = "const x: string = 'test';";
+        const result = stripTypeScript(code);
+        assert(typeof result === 'string');
+        assert(result.includes('const x'));
+        assert(result.includes("'test'"));
+      } finally {
+        delete global.Bun;
+      }
+    });
+
+    it("should call stripTypesInDeno for deno runtime", () => {
+      // Mock Deno global to trigger deno runtime detection
+      global.Deno = {};
+
+      try {
+        const code = "const x: string = 'test';";
+        assert.throws(() => stripTypeScript(code), /not supported in Deno/);
+      } finally {
+        delete global.Deno;
+      }
+    });
+
+    it("should handle stripTypesInDeno directly", () => {
+      const { stripTypesInDeno } = require("../../../lib/helpers/parsers.js");
+      assert.throws(() => stripTypesInDeno(), /not supported in Deno/);
+    });
   });
 
   describe("stripTypesInBun()", () => {
@@ -320,6 +371,17 @@ describe("helpers/parsers.js", () => {
       delete global.Bun;
       const code = "const x: string = 'test';";
       assert.throws(() => stripTypesInBun(code), /Bun v1\.0\.0\+/);
+    });
+
+    it("should throw error when Bun exists but Transpiler is undefined", () => {
+      global.Bun = {}; // Bun exists but no Transpiler
+      const code = "const x: string = 'test';";
+
+      try {
+        assert.throws(() => stripTypesInBun(code), /Bun v1\.0\.0\+/);
+      } finally {
+        delete global.Bun;
+      }
     });
   });
 
