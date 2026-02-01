@@ -1,0 +1,74 @@
+services:
+  # Node.js 24 - Should pass with native stripTypeScriptTypes
+  node24:
+    build:
+      context: ../../..
+      dockerfile: tests/e2e/typescript/Dockerfile.node24
+    container_name: es-check-ts-node24
+    environment:
+      - RUNTIME_ENV=node24
+      - NODE_VERSION=24
+    volumes:
+      - ../../../tests/fixtures:/app/tests/fixtures:ro
+    networks:
+      - ts-test-network
+
+  # Node.js 22 - Should pass with native stripTypeScriptTypes
+  node22:
+    build:
+      context: ../../..
+      dockerfile: tests/e2e/typescript/Dockerfile.node22
+    container_name: es-check-ts-node22
+    environment:
+      - RUNTIME_ENV=node22
+      - NODE_VERSION=22
+    volumes:
+      - ../../../tests/fixtures:/app/tests/fixtures:ro
+    networks:
+      - ts-test-network
+
+  # Node.js 20 - Should fail with version error
+  node20:
+    build:
+      context: ../../..
+      dockerfile: tests/e2e/typescript/Dockerfile.node20
+    container_name: es-check-ts-node20
+    environment:
+      - RUNTIME_ENV=node20
+      - NODE_VERSION=20
+    volumes:
+      - ../../../tests/fixtures:/app/tests/fixtures:ro
+    networks:
+      - ts-test-network
+
+  # Bun - Should pass with Bun.Transpiler
+  bun:
+    build:
+      context: ../../..
+      dockerfile: tests/e2e/typescript/Dockerfile.bun
+    container_name: es-check-ts-bun
+    environment:
+      - RUNTIME_ENV=bun
+      - BUN_VERSION=1
+    volumes:
+      - ../../../tests/fixtures:/app/tests/fixtures:ro
+    networks:
+      - ts-test-network
+
+  # Deno - Should fail with unsupported error
+  deno:
+    build:
+      context: ../../..
+      dockerfile: tests/e2e/typescript/Dockerfile.deno
+    container_name: es-check-ts-deno
+    environment:
+      - RUNTIME_ENV=deno
+      - DENO_VERSION=latest
+    volumes:
+      - ../../../tests/fixtures:/app/tests/fixtures:ro
+    networks:
+      - ts-test-network
+
+networks:
+  ts-test-network:
+    driver: bridge

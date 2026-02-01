@@ -1,0 +1,17 @@
+FROM oven/bun:1
+
+# Set working directory
+WORKDIR /app
+
+# Copy the entire project first
+COPY . .
+
+# Install only the dependencies we absolutely need for testing, ignoring scripts
+RUN bun install --production --ignore-scripts || bun add acorn browserslist fast-glob
+
+# Set environment variable to identify the runtime
+ENV RUNTIME_ENV=bun
+ENV BUN_VERSION=1
+
+# Run the TypeScript runtime test using node (since we're testing es-check CLI compatibility)
+CMD ["node", "tests/e2e/typescript/test-typescript-runtimes.js"]
