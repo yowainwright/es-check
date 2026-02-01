@@ -1,4 +1,3 @@
-// Interfaces and Type Declarations
 interface User {
   id: string;
   name: string;
@@ -13,7 +12,6 @@ interface AdminUser extends User {
 
 type Permission = 'read' | 'write' | 'delete' | 'admin';
 
-// Complex Union and Intersection Types
 type Status = 'pending' | 'approved' | 'rejected';
 type Priority = 'low' | 'medium' | 'high' | 'critical';
 
@@ -31,7 +29,6 @@ type Task = {
   deadline?: Date;
 });
 
-// Namespace
 namespace API {
   export interface Request {
     method: 'GET' | 'POST' | 'PUT' | 'DELETE';
@@ -46,19 +43,16 @@ namespace API {
   }
 }
 
-// Enum
 enum Color {
   Red = '#ff0000',
   Green = '#00ff00',
   Blue = '#0000ff'
 }
 
-// Type Guards
 function isAdminUser(user: User): user is AdminUser {
   return 'permissions' in user;
 }
 
-// Implementation
 const user: User = { id: '1', name: 'John', roles: ['user'] };
 const task: Task = {
   id: '1',

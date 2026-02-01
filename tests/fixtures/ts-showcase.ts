@@ -1,5 +1,3 @@
-// TypeScript showcase - proving complex type support
-
 interface User {
   id: string;
   name: string;
@@ -17,7 +15,6 @@ enum Status {
   Inactive = 'INACTIVE'
 }
 
-// Generic class
 class Repository<T extends { id: string }> {
   private items: T[] = [];
 
@@ -30,17 +27,14 @@ class Repository<T extends { id: string }> {
   }
 }
 
-// Generic function
 function createEntity<T>(base: T, overrides: Partial<T>): T {
   return { ...base, ...overrides };
 }
 
-// Type assertions
 function processUserData(data: unknown): User {
   return data as User;
 }
 
-// Access modifiers and type annotations
 class UserService {
   constructor(private repo: Repository<User>) {}
 
@@ -59,7 +53,6 @@ class UserService {
   }
 }
 
-// Implementation
 const userRepo = new Repository<User>();
 const service = new UserService(userRepo);
 

@@ -1,4 +1,3 @@
-// Utility Types and Complex Type Manipulations
 type DeepPartial<T> = {
   [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];
 };
@@ -7,7 +6,6 @@ type DeepReadonly<T> = {
   readonly [P in keyof T]: T[P] extends object ? DeepReadonly<T[P]> : T[P];
 };
 
-// Recursive Types
 type Json =
   | string
   | number
@@ -16,7 +14,6 @@ type Json =
   | { [key: string]: Json }
   | Json[];
 
-// Complex Conditional Types
 type FunctionPropertyNames<T> = {
   [K in keyof T]: T[K] extends Function ? K : never;
 }[keyof T];
@@ -24,11 +21,9 @@ type FunctionPropertyNames<T> = {
 type FunctionProperties<T> = Pick<T, FunctionPropertyNames<T>>;
 type NonFunctionProperties<T> = Omit<T, FunctionPropertyNames<T>>;
 
-// Variadic Tuple Types
 type Head<T extends readonly any[]> = T extends readonly [any, ...any[]] ? T[0] : never;
 type Tail<T extends readonly any[]> = T extends readonly [any, ...infer U] ? U : [];
 
-// String Manipulation Types
 type Join<T extends readonly string[], D extends string = ',') =
   T extends readonly [] ? '' :
   T extends readonly [string] ? T[0] :
@@ -36,7 +31,6 @@ type Join<T extends readonly string[], D extends string = ',') =
     U extends readonly string[] ? `${T[0]}${D}${Join<U, D>}` : never :
   never;
 
-// Complex object with all TypeScript features
 interface ComplexConfig {
   database: {
     host: string;
@@ -54,7 +48,6 @@ interface ComplexConfig {
   };
 }
 
-// Factory function with complex generics
 function createManager<
   TConfig extends ComplexConfig,
   TMethods extends Record<string, (...args: any[]) => any> = {}
@@ -79,7 +72,6 @@ function createManager<
   };
 }
 
-// Usage with complex types
 const config: ComplexConfig = {
   database: { host: 'localhost', port: 5432 },
   cache: { type: 'redis', ttl: 3600 },

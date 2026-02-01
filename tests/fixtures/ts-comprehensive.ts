@@ -1,17 +1,12 @@
-// Comprehensive TypeScript feature demonstration
-
-// 1. Interfaces with optional properties
 interface Config {
   name: string;
   version?: string;
   features: string[];
 }
 
-// 2. Type aliases and unions
 type Status = 'active' | 'inactive' | 'pending';
 type Result<T> = { success: true; data: T } | { success: false; error: string };
 
-// 3. Enums
 enum LogLevel {
   Debug = 0,
   Info = 1,
@@ -19,7 +14,6 @@ enum LogLevel {
   Error = 3
 }
 
-// 4. Generic classes with constraints
 class Container<T extends { toString(): string }> {
   private items: T[] = [];
 
@@ -36,7 +30,6 @@ class Container<T extends { toString(): string }> {
   }
 }
 
-// 5. Functions with generics and type parameters
 function processData<T, U>(
   input: T,
   transformer: (value: T) => U
@@ -44,7 +37,6 @@ function processData<T, U>(
   return transformer(input);
 }
 
-// 6. Class with access modifiers and type annotations
 class Service {
   constructor(
     private readonly config: Config,
@@ -61,7 +53,6 @@ class Service {
   }
 }
 
-// 7. Type assertions and non-null assertions
 function parseJSON(text: string): any {
   const result = JSON.parse(text);
   return result as Record<string, any>;
@@ -71,14 +62,12 @@ function getProperty(obj: any, key: string): string {
   return obj[key]!;
 }
 
-// 8. Namespace (if supported)
 namespace Utils {
   export function formatString(value: string): string {
     return value.trim().toLowerCase();
   }
 }
 
-// 9. Usage - actual JavaScript implementation
 const config: Config = {
   name: 'MyApp',
   version: '1.0.0',
@@ -96,7 +85,6 @@ container.add({
 const result = processData(42, (x: number) => x.toString());
 const data = parseJSON('{"test": true}');
 
-// Initialize service
 service.initialize().then(success => {
   if (success) {
     console.log('Service initialized');

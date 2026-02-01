@@ -1,5 +1,3 @@
-// Working TypeScript example that demonstrates complex features
-
 interface User {
   id: string;
   name: string;
@@ -19,7 +17,6 @@ enum Status {
   Pending = 'PENDING'
 }
 
-// Generic class with constraints
 class Repository<T extends { id: string }> {
   private items: T[] = [];
 
@@ -36,7 +33,6 @@ class Repository<T extends { id: string }> {
   }
 }
 
-// Function with generic parameters and return types
 function createUser<T extends User>(data: Partial<T>): T {
   return {
     id: 'user_' + Date.now(),
@@ -45,7 +41,6 @@ function createUser<T extends User>(data: Partial<T>): T {
   } as T;
 }
 
-// Type assertions and non-null assertions
 function processUser(userData: any): User {
   const user = userData as User;
   return {
@@ -55,7 +50,6 @@ function processUser(userData: any): User {
   };
 }
 
-// Usage with actual JavaScript functionality
 const userRepo = new Repository();
 const admin = createUser({
   name: 'Admin User',
@@ -70,5 +64,4 @@ if (foundUser) {
   console.log('Found user:', foundUser.name);
 }
 
-// Export for module usage
 export { User, Repository, createUser };

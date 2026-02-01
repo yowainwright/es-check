@@ -77,6 +77,35 @@ describe("helpers/parsers.js", () => {
       assert(result.ast);
     });
 
+    it("should handle TypeScript files correctly with ts flag", () => {
+      const acorn = require("acorn");
+      const input = "const greet = (name: string): string => `Hello ${name}`;";
+      const result = parseCode(input, { ecmaVersion: 6 }, acorn, "test.ts", { ts: true });
+
+      assert.strictEqual(result.error, null);
+      assert(result.ast);
+    });
+
+    it("should handle TypeScript files with .tsx extension", () => {
+      const acorn = require("acorn");
+      const input = "const greet = (name: string): string => `Hello ${name}`;";
+      const result = parseCode(input, { ecmaVersion: 6 }, acorn, "test.tsx", { typescript: true });
+
+      assert.strictEqual(result.error, null);
+      assert(result.ast);
+    });
+
+    it("should handle parsing errors without location info", () => {
+      const acorn = require("acorn");
+      const code = "var x = \n;";
+      const result = parseCode(code, { ecmaVersion: 5 }, acorn, "test.js");
+
+      assert(result.error);
+      assert.strictEqual(result.ast, null);
+      assert.strictEqual(result.error.file, "test.js");
+      assert(result.error.err);
+    });
+
     it("should not process TypeScript files without typescript flag", () => {
       const acorn = require("acorn");
       const input = "const greet = (name: string): string => `Hello ${name}`;";
@@ -207,6 +236,20 @@ describe("helpers/parsers.js", () => {
       const runtime = detectRuntime();
       assert.strictEqual(runtime, 'node');
     });
+
+    it("should detect bun runtime when Bun is available", () => {
+      global.Bun = { Transpiler: function() {} };
+      const runtime = detectRuntime();
+      assert.strictEqual(runtime, 'bun');
+      delete global.Bun;
+    });
+
+    it("should detect deno runtime when Deno is available", () => {
+      global.Deno = {};
+      const runtime = detectRuntime();
+      assert.strictEqual(runtime, 'deno');
+      delete global.Deno;
+    });
   });
 
   describe("stripTypesInNode()", () => {
@@ -233,8 +276,48 @@ describe("helpers/parsers.js", () => {
     });
   });
 
+  describe("stripTypeScript() - runtime integration", () => {
+    it("should use stripTypesInNode for node runtime", () => {
+      const code = "const x: string = 'test';";
+      const result = stripTypeScript(code);
+      assert(typeof result === 'string');
+      assert(result.includes('const x'));
+    });
+
+    it("should handle empty or invalid code inputs", () => {
+      assert.strictEqual(stripTypeScript(''), '');
+      assert.strictEqual(stripTypeScript(null), null);
+      assert.strictEqual(stripTypeScript(undefined), undefined);
+      assert.strictEqual(stripTypeScript(123), 123);
+    });
+  });
+
   describe("stripTypesInBun()", () => {
     it("should throw error when Bun.Transpiler is not available", () => {
+      const code = "const x: string = 'test';";
+      assert.throws(() => stripTypesInBun(code), /Bun v1\.0\.0\+/);
+    });
+
+    it("should strip TypeScript types when Bun.Transpiler is available", () => {
+      global.Bun = {
+        Transpiler: function(options) {
+          this.transformSync = function(code) {
+            return code.replace(/: string/g, '       ');
+          };
+        }
+      };
+
+      const code = "const x: string = 'test';";
+      const result = stripTypesInBun(code);
+      assert(typeof result === 'string');
+      assert(result.includes('const x'));
+      assert(result.includes("'test'"));
+
+      delete global.Bun;
+    });
+
+    it("should throw error when Bun is undefined but trying to strip types", () => {
+      delete global.Bun;
       const code = "const x: string = 'test';";
       assert.throws(() => stripTypesInBun(code), /Bun v1\.0\.0\+/);
     });
