@@ -19,12 +19,12 @@ const transferred1 = buffer.transfer(8);
 const transferred2 = buffer.transferToFixedLength(32);
 
 // Intl.DurationFormat - format duration objects
-const formatter = new Intl.DurationFormat('en', { style: 'long' });
+const formatter = new Intl.DurationFormat("en", { style: "long" });
 const formatted = formatter.format({ hours: 1, minutes: 30, seconds: 45 });
 
 // Additional examples with different configurations
-const shortFormatter = new Intl.DurationFormat('fr', { style: 'short' });
-const narrowFormatter = new Intl.DurationFormat('ja', {
-  style: 'narrow',
-  fractionalDigits: 2
+const shortFormatter = new Intl.DurationFormat("fr", { style: "short" });
+const narrowFormatter = new Intl.DurationFormat("ja", {
+  style: "narrow",
+  fractionalDigits: 2,
 });
