@@ -399,5 +399,17 @@ describe("helpers/astDetector.js", () => {
       const result = detectFeaturesFromAST(ast);
       assert.strictEqual(result.ArrayPrototypeAt, true);
     });
+
+    it("should not detect OptionalCatchBinding for catch with param (ES5-valid)", () => {
+      const ast = parse("try { fn(); } catch (error) { fallback(); }");
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.OptionalCatchBinding, false);
+    });
+
+    it("should detect OptionalCatchBinding for catch without param (ES2019+)", () => {
+      const ast = parse("try { throw 1; } catch { console.log('caught'); }");
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.OptionalCatchBinding, true);
+    });
   });
 });
