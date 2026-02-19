@@ -191,6 +191,30 @@ describe("detectFeatures", () => {
         assert.fail("Should not throw when polyfills are detected");
       }
     });
+
+    it("should detect core-js polyfills via require (#389)", () => {
+      const code = `
+        require('core-js/modules/es.array.to-sorted');
+
+        const arr = [3, 1, 2];
+        const sorted = arr.toSorted();
+      `;
+
+      const options = { checkForPolyfills: true, ast: parse(code) };
+
+      try {
+        const { unsupportedFeatures } = detectFeatures(
+          code,
+          2020,
+          "script",
+          new Set(),
+          options,
+        );
+        assert.strictEqual(unsupportedFeatures.length, 0);
+      } catch (error) {
+        assert.fail("Should not throw when polyfills are detected via require");
+      }
+    });
   });
 
   describe("Module handling", () => {
