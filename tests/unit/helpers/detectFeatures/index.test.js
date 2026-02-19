@@ -210,10 +210,7 @@ describe("detectFeatures", () => {
           new Set(),
           options,
         );
-        assert.strictEqual(
-          unsupportedFeatures.length,
-          0,
-        );
+        assert.strictEqual(unsupportedFeatures.length, 0);
       } catch (error) {
         assert.fail("Should not throw when polyfills are detected via require");
       }
