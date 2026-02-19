@@ -200,6 +200,70 @@ describe("getESVersionFromBrowserslist", () => {
       "Firefox 52 (ES6) should be the minimum among Chrome 117 (ES15), Firefox 52 (ES6), Safari 14 (ES12)",
     );
   });
+
+  it("should return ES6 for chrome 6, firefox 100 (exact issue #382 case)", () => {
+    const esVersion = getESVersionFromBrowserslist({
+      browserslistQuery: "firefox 100, chrome 6",
+    });
+    assert.strictEqual(
+      esVersion,
+      6,
+      "Should return ES6 (from Chrome 6) even when Firefox 100 supports ES13",
+    );
+  });
+
+  it("should return ES6 for chrome 6 alone", () => {
+    const esVersion = getESVersionFromBrowserslist({
+      browserslistQuery: "chrome 6",
+    });
+    assert.strictEqual(
+      esVersion,
+      6,
+      "Chrome 6 should return ES6 (fallback for very old Chrome)",
+    );
+  });
+
+  it("should return ES13 for firefox 100 alone", () => {
+    const esVersion = getESVersionFromBrowserslist({
+      browserslistQuery: "firefox 100",
+    });
+    assert.strictEqual(
+      esVersion,
+      13,
+      "Firefox 100 should return ES13",
+    );
+  });
+
+  it("should always choose minimum when mixing old and new versions", () => {
+    const testCases = [
+      {
+        query: "chrome 51, firefox 119",
+        expected: 6,
+        description: "Chrome 51 (ES6) vs Firefox 119 (ES15)"
+      },
+      {
+        query: "safari 10, chrome 136",
+        expected: 6,
+        description: "Safari 10 (ES6) vs Chrome 136 (ES16)"
+      },
+      {
+        query: "edge 80, firefox 90, chrome 80",
+        expected: 11,
+        description: "Edge 80 (ES11) vs Firefox 90 (ES13) vs Chrome 80 (ES11)"
+      }
+    ];
+
+    testCases.forEach(({ query, expected, description }) => {
+      const esVersion = getESVersionFromBrowserslist({
+        browserslistQuery: query,
+      });
+      assert.strictEqual(
+        esVersion,
+        expected,
+        `${description} should return ES${expected}`,
+      );
+    });
+  });
 });
 
 describe("getESVersionForBrowser", () => {
