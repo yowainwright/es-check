@@ -375,5 +375,29 @@ describe("helpers/astDetector.js", () => {
       const result = detectFeaturesFromAST(ast);
       assert.strictEqual(result.RegExpEscape, true);
     });
+
+    it("should detect features in comma-separated expressions (#388)", () => {
+      const ast = parse("42,[].toReversed()");
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.ArrayToReversed, true);
+    });
+
+    it("should not detect ArrayPrototypeAt for object literal .at() call (#387)", () => {
+      const ast = parse("({ at() {} }).at()");
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.ArrayPrototypeAt, false);
+    });
+
+    it("should detect ArrayPrototypeAt for array .at() call", () => {
+      const ast = parse("[1,2,3].at(-1)");
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.ArrayPrototypeAt, true);
+    });
+
+    it("should detect ArrayPrototypeAt for identifier .at() call", () => {
+      const ast = parse("const arr = [1]; arr.at(0);");
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.ArrayPrototypeAt, true);
+    });
   });
 });
