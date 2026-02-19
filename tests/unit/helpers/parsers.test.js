@@ -139,9 +139,18 @@ describe("helpers/parsers.js", () => {
 
   describe("stripTypeScript()", () => {
     it("should return input unchanged for non-string input", () => {
-      assert.deepStrictEqual(stripTypeScript(null), { code: null, lineOffsets: null });
-      assert.deepStrictEqual(stripTypeScript(undefined), { code: undefined, lineOffsets: null });
-      assert.deepStrictEqual(stripTypeScript(123), { code: 123, lineOffsets: null });
+      assert.deepStrictEqual(stripTypeScript(null), {
+        code: null,
+        lineOffsets: null,
+      });
+      assert.deepStrictEqual(stripTypeScript(undefined), {
+        code: undefined,
+        lineOffsets: null,
+      });
+      assert.deepStrictEqual(stripTypeScript(123), {
+        code: 123,
+        lineOffsets: null,
+      });
     });
 
     it("should preserve plain JavaScript code", () => {
@@ -334,10 +343,22 @@ describe("helpers/parsers.js", () => {
     });
 
     it("should handle empty or invalid code inputs", () => {
-      assert.deepStrictEqual(stripTypeScript(""), { code: "", lineOffsets: null });
-      assert.deepStrictEqual(stripTypeScript(null), { code: null, lineOffsets: null });
-      assert.deepStrictEqual(stripTypeScript(undefined), { code: undefined, lineOffsets: null });
-      assert.deepStrictEqual(stripTypeScript(123), { code: 123, lineOffsets: null });
+      assert.deepStrictEqual(stripTypeScript(""), {
+        code: "",
+        lineOffsets: null,
+      });
+      assert.deepStrictEqual(stripTypeScript(null), {
+        code: null,
+        lineOffsets: null,
+      });
+      assert.deepStrictEqual(stripTypeScript(undefined), {
+        code: undefined,
+        lineOffsets: null,
+      });
+      assert.deepStrictEqual(stripTypeScript(123), {
+        code: 123,
+        lineOffsets: null,
+      });
     });
 
     it("should call stripTypesInBun for bun runtime", () => {
