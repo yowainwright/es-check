@@ -14,7 +14,11 @@ class TestSuite {
     this.assertions = ESCheckAssertions;
   }
 
-  async testESVersionCompatibility(esVersion, features = [], shouldPass = true) {
+  async testESVersionCompatibility(
+    esVersion,
+    features = [],
+    shouldPass = true,
+  ) {
     const testFile = this.fixtures.createESFile(esVersion, features);
     const result = await this.runner.runESCheck(`es${esVersion}`, [testFile]);
 
@@ -29,18 +33,27 @@ class TestSuite {
 
   async testPolyfillDetection(esVersion, features, polyfills = []) {
     const testFile = this.fixtures.createESFile(esVersion, features, true);
-    const result = await this.runner.runESCheck(`es${esVersion}`, [testFile], ["--checkForPolyfills"]);
+    const result = await this.runner.runESCheck(
+      `es${esVersion}`,
+      [testFile],
+      ["--checkForPolyfills"],
+    );
 
     this.assertions.assertPolyfillIgnored(result, polyfills);
     return result;
   }
 
-  async testBrowserslistIntegration(browserQuery, features = [], shouldPass = true) {
+  async testBrowserslistIntegration(
+    browserQuery,
+    features = [],
+    shouldPass = true,
+  ) {
     const testFile = this.fixtures.createESFile(11, features);
-    const result = await this.runner.runESCheck("checkBrowser", [testFile], [
-      "--browserslistQuery",
-      browserQuery,
-    ]);
+    const result = await this.runner.runESCheck(
+      "checkBrowser",
+      [testFile],
+      ["--browserslistQuery", browserQuery],
+    );
 
     if (shouldPass) {
       this.assertions.assertSuccess(result);
@@ -53,7 +66,11 @@ class TestSuite {
 
   async testFeatureDetection(targetES, modernFeatures = []) {
     const testFile = this.fixtures.createESFile(13, modernFeatures);
-    const result = await this.runner.runESCheck(`es${targetES}`, [testFile], ["--checkFeatures"]);
+    const result = await this.runner.runESCheck(
+      `es${targetES}`,
+      [testFile],
+      ["--checkFeatures"],
+    );
 
     if (targetES >= 13) {
       this.assertions.assertSuccess(result);
@@ -66,11 +83,11 @@ class TestSuite {
 
   async testIgnorePolyfillable(esVersion, features, library = "core-js") {
     const testFile = this.fixtures.createESFile(esVersion, features);
-    const result = await this.runner.runESCheck(`es${esVersion}`, [testFile], [
-      "--checkFeatures",
-      "--ignorePolyfillable",
-      library,
-    ]);
+    const result = await this.runner.runESCheck(
+      `es${esVersion}`,
+      [testFile],
+      ["--checkFeatures", "--ignorePolyfillable", library],
+    );
 
     this.assertions.assertSuccess(result);
     return result;

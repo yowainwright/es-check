@@ -7,7 +7,10 @@ test("should return all features when ignorePolyfillable is falsy", () => {
   const features = ["ArrayToSorted", "BigInt", "ArrayWith"];
 
   assert.deepStrictEqual(filterPolyfillableFeatures(features, null), features);
-  assert.deepStrictEqual(filterPolyfillableFeatures(features, undefined), features);
+  assert.deepStrictEqual(
+    filterPolyfillableFeatures(features, undefined),
+    features,
+  );
   assert.deepStrictEqual(filterPolyfillableFeatures(features, false), features);
   assert.deepStrictEqual(filterPolyfillableFeatures(features, ""), features);
 });

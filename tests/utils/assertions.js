@@ -27,7 +27,7 @@ class ESCheckAssertions {
     const output = result.stdout || result.stderr || "";
     assert.ok(
       output.includes(expectedText),
-      message || `Expected output to contain "${expectedText}", got: ${output}`
+      message || `Expected output to contain "${expectedText}", got: ${output}`,
     );
   }
 
@@ -35,7 +35,7 @@ class ESCheckAssertions {
     const output = result.stdout || result.stderr || "";
     assert.ok(
       regex.test(output),
-      message || `Expected output to match ${regex}, got: ${output}`
+      message || `Expected output to match ${regex}, got: ${output}`,
     );
   }
 
@@ -45,22 +45,32 @@ class ESCheckAssertions {
 
     if (features.length > 0) {
       features.forEach((feature) => {
-        this.assertOutputContains(result, feature, `Expected error to mention feature: ${feature}`);
+        this.assertOutputContains(
+          result,
+          feature,
+          `Expected error to mention feature: ${feature}`,
+        );
       });
     }
 
     if (esVersion) {
-      this.assertOutputContains(result, `ES${esVersion}`, `Expected error to mention target version ES${esVersion}`);
+      this.assertOutputContains(
+        result,
+        `ES${esVersion}`,
+        `Expected error to mention target version ES${esVersion}`,
+      );
     }
   }
 
   static assertESCheckPassed(result, esVersion) {
     this.assertSuccess(result);
-    const versionLabel = esVersion ? `ES${esVersion}` : "the specified ES version";
+    const versionLabel = esVersion
+      ? `ES${esVersion}`
+      : "the specified ES version";
     this.assertOutputContains(
       result,
       `All files are ${versionLabel} compatible`,
-      "Expected success message"
+      "Expected success message",
     );
   }
 
@@ -70,7 +80,7 @@ class ESCheckAssertions {
       this.assertOutputContains(
         result,
         feature,
-        `Expected feature "${feature}" to be detected in error output`
+        `Expected feature "${feature}" to be detected in error output`,
       );
     });
   }
@@ -81,7 +91,7 @@ class ESCheckAssertions {
       const output = result.stdout || result.stderr || "";
       assert.ok(
         !output.includes(feature),
-        `Expected feature "${feature}" to be ignored due to polyfill detection`
+        `Expected feature "${feature}" to be ignored due to polyfill detection`,
       );
     });
   }

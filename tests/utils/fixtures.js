@@ -84,10 +84,14 @@ class FixtureGenerator {
 
   generatePolyfill(feature) {
     const polyfillMap = {
-      "Array.prototype.toSorted": "Array.prototype.toSorted = function() { return [...this].sort(); };",
-      "Array.prototype.at": "Array.prototype.at = function(i) { return this[i < 0 ? this.length + i : i]; };",
-      "String.prototype.replaceAll": "String.prototype.replaceAll = function(s, r) { return this.split(s).join(r); };",
-      "Object.hasOwn": "Object.hasOwn = function(o, p) { return Object.prototype.hasOwnProperty.call(o, p); };",
+      "Array.prototype.toSorted":
+        "Array.prototype.toSorted = function() { return [...this].sort(); };",
+      "Array.prototype.at":
+        "Array.prototype.at = function(i) { return this[i < 0 ? this.length + i : i]; };",
+      "String.prototype.replaceAll":
+        "String.prototype.replaceAll = function(s, r) { return this.split(s).join(r); };",
+      "Object.hasOwn":
+        "Object.hasOwn = function(o, p) { return Object.prototype.hasOwnProperty.call(o, p); };",
     };
 
     return polyfillMap[feature];
@@ -100,7 +104,10 @@ class FixtureGenerator {
       .digest("hex")
       .substring(0, 8);
 
-    const configPath = this.createTempFile(`.escheckrc.${hash}`, JSON.stringify(config));
+    const configPath = this.createTempFile(
+      `.escheckrc.${hash}`,
+      JSON.stringify(config),
+    );
     return configPath;
   }
 

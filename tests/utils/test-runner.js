@@ -47,9 +47,14 @@ class TestRunner {
     const expandedArgs = await expandGlobs(args);
 
     return new Promise((resolve) => {
-      execFile(command, expandedArgs, { ...options, timeout: this.timeout }, (err, stdout, stderr) => {
-        resolve({ err, stdout, stderr });
-      });
+      execFile(
+        command,
+        expandedArgs,
+        { ...options, timeout: this.timeout },
+        (err, stdout, stderr) => {
+          resolve({ err, stdout, stderr });
+        },
+      );
     });
   }
 }

@@ -17,7 +17,11 @@ describe("Modern ES-Check Testing Example", () => {
   });
 
   test("should detect polyfills for modern features", async () => {
-    await testSuite.testPolyfillDetection(8, ["Array.prototype.toSorted"], ["Array.prototype.toSorted"]);
+    await testSuite.testPolyfillDetection(
+      8,
+      ["Array.prototype.toSorted"],
+      ["Array.prototype.toSorted"],
+    );
   });
 
   test("should work with browserslist queries", async () => {
@@ -25,7 +29,11 @@ describe("Modern ES-Check Testing Example", () => {
   });
 
   test("should ignore polyfillable features when requested", async () => {
-    await testSuite.testIgnorePolyfillable(8, ["Array.prototype.at"], "core-js");
+    await testSuite.testIgnorePolyfillable(
+      8,
+      ["Array.prototype.at"],
+      "core-js",
+    );
   });
 
   test("cleanup", () => {
