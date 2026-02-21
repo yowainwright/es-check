@@ -210,6 +210,21 @@
           "severity": "low",
           "url": "https://github.com/yowainwright/es-check/security/dependabot/61"
         }
+      },
+      "ajv@8.18.0": {
+        "dependents": {
+          "es-check": "ajv (transitive dependency)"
+        },
+        "ledger": {
+          "addedDate": "2026-02-21T09:31:35.017Z",
+          "reason": "Security fix: ajv has ReDoS when using `$data` option (medium)",
+          "securityChecked": true,
+          "securityCheckDate": "2026-02-21T09:31:35.017Z",
+          "securityProvider": "github",
+          "cve": "CVE-2025-69873",
+          "severity": "medium",
+          "url": "https://github.com/yowainwright/es-check/security/dependabot/67"
+        }
       }
     },
     "depPaths": [
@@ -233,7 +248,8 @@
     "undici": "6.23.0",
     "devalue": "5.6.3",
     "lodash": "4.17.23",
-    "diff": "5.2.2"
+    "diff": "5.2.2",
+    "ajv": "8.18.0"
   },
   "workspaces": [
     "site"
