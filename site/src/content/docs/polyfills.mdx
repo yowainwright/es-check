@@ -35,12 +35,35 @@ es-check es5 './dist/app.js' --checkForPolyfills
 
 ## Common Polyfills Detected
 
-- Array methods (includes, find, findIndex)
-- Object methods (assign, entries, values)
-- String methods (startsWith, endsWith, includes)
-- Promise
+- Array methods (includes, find, findIndex, at, toSorted, toReversed, with)
+- Object methods (assign, entries, values, hasOwn, groupBy)
+- String methods (startsWith, endsWith, includes, replaceAll, matchAll)
+- Promise (any, allSettled, try)
 - Symbol
 - Map/Set
+
+## Ignoring Polyfillable Features
+
+If your polyfills are provided externally (e.g., via a CDN or separate bundle), use `--ignorePolyfillable` to skip features that can be polyfilled:
+
+```bash
+# Ignore all polyfillable features
+es-check es2017 './dist/**/*.js' --checkFeatures --ignorePolyfillable
+
+# Ignore only features polyfillable by core-js
+es-check es2017 './dist/**/*.js' --checkFeatures --ignorePolyfillable=core-js
+```
+
+Non-polyfillable features (like `BigInt` or syntax features) will still be flagged.
+
+## Comparing Polyfill Options
+
+| Option                 | Use case                                                      |
+| ---------------------- | ------------------------------------------------------------- |
+| `--checkForPolyfills`  | Automatically detect polyfills in your code                   |
+| `--ignorePolyfillable` | Polyfills are provided externally; skip polyfillable features |
+| `--allowList`          | Explicitly allow specific features                            |
+| `--ignore`             | Temporarily ignore specific features                          |
 
 ## Configuration
 
@@ -48,9 +71,11 @@ In `.escheckrc`:
 
 ```json
 {
-  "ecmaVersion": "es5",
+  "ecmaVersion": "es2017",
   "files": "./dist/**/*.js",
-  "checkForPolyfills": true
+  "checkFeatures": true,
+  "checkForPolyfills": true,
+  "ignorePolyfillable": "core-js"
 }
 ```
 
@@ -59,4 +84,4 @@ In `.escheckrc`:
 1. **Test without polyfills**: Ensure your code works in target environments
 2. **Document polyfill requirements**: List required polyfills in your README
 3. **Use targeted polyfills**: Only include polyfills for features you actually use
-4. **Consider polyfill services**: Use services like polyfill.io for dynamic polyfilling
+4. **Use `--ignorePolyfillable`** when polyfills are loaded separately from your bundle

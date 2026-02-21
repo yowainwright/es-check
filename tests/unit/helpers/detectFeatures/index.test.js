@@ -215,6 +215,23 @@ describe("detectFeatures", () => {
         assert.fail("Should not throw when polyfills are detected via require");
       }
     });
+
+    it("should detect core-js polyfills via bare import (#389)", () => {
+      const code = `
+        import "core-js/modules/es.array.to-sorted";
+        const sorted = [3, 1, 2].toSorted();
+      `;
+
+      const options = { checkForPolyfills: true, ast: parse(code, "module") };
+
+      try {
+        detectFeatures(code, 8, "module", new Set(), options);
+      } catch (error) {
+        assert.fail(
+          "Should not throw when polyfills are detected via bare import",
+        );
+      }
+    });
   });
 
   describe("Module handling", () => {
@@ -231,6 +248,47 @@ describe("detectFeatures", () => {
         Object.values(foundFeatures).some(Boolean),
         "Should detect some features in ES modules",
       );
+    });
+  });
+
+  describe("ignorePolyfillable option (#390)", () => {
+    it("should not throw for polyfillable features when ignorePolyfillable is set", () => {
+      const code = `
+        const sorted = [3, 1, 2].toSorted();
+        const reversed = [1, 2].toReversed();
+      `;
+
+      const options = { ast: parse(code), ignorePolyfillable: true };
+
+      try {
+        detectFeatures(code, 8, "script", new Set(), options);
+      } catch (error) {
+        assert.fail(
+          "Should not throw for polyfillable features with ignorePolyfillable",
+        );
+      }
+    });
+
+    it("should still throw for non-polyfillable features when ignorePolyfillable is set", () => {
+      const code = `const x = 0n;`;
+
+      const options = { ast: parse(code), ignorePolyfillable: true };
+
+      assert.throws(() => {
+        detectFeatures(code, 8, "script", new Set(), options);
+      });
+    });
+
+    it("should filter only core-js polyfillable features with ignorePolyfillable=core-js", () => {
+      const code = `const sorted = [3, 1, 2].toSorted();`;
+
+      const options = { ast: parse(code), ignorePolyfillable: "core-js" };
+
+      try {
+        detectFeatures(code, 8, "script", new Set(), options);
+      } catch (error) {
+        assert.fail("Should not throw for core-js polyfillable features");
+      }
     });
   });
 

@@ -81,6 +81,18 @@ Consider polyfills when checking features (requires --checkFeatures)
 es-check es2022 './dist/**/*.js' --checkFeatures --checkForPolyfills
 ```
 
+### `--ignorePolyfillable [library]`
+
+Ignore features that can be polyfilled. Optionally specify a library to limit scope (e.g., `core-js`).
+
+```bash
+# Ignore all polyfillable features
+es-check es2017 './dist/**/*.js' --checkFeatures --ignorePolyfillable
+
+# Ignore only features polyfillable by core-js
+es-check es2017 './dist/**/*.js' --checkFeatures --ignorePolyfillable=core-js
+```
+
 ### `--ignore <features>`
 
 Comma-separated list of features to ignore

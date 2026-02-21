@@ -80,7 +80,7 @@ Modern JavaScript builds assume proper transpilation via tools like Babel. ES Ch
 
 ## What features does ES Check check for?
 
-ES Check validates syntax by default. Add `--checkFeatures` for ES version-specific feature checking. View supported [features](./lib/helpers/detectFeatures/constants/es-features/).
+ES Check validates syntax by default. Add `--checkFeatures` for ES version-specific feature checking. View supported [features](./lib/constants/es-features/).
 
 ---
 
@@ -118,7 +118,7 @@ Usage: index [options] [ecmaVersion] [files...]
 
 Arguments:
   ecmaVersion                         ecmaVersion to check files against. Can be: es3, es4, es5, es6/es2015, es7/es2016, es8/es2017, es9/es2018, es10/es2019, es11/es2020, es12/es2021,
-                                      es13/es2022, es14/es2023
+                                      es13/es2022, es14/es2023, es15/es2024, es16/es2025
   files                               a glob of files to to test the EcmaScript version against
 
 ```
@@ -142,6 +142,7 @@ Here's a comprehensive list of all available options:
 | `--silent`                    | Silent mode: does not output anything, giving no indication of success or failure other than the exit code (default: false) |
 | `--checkFeatures`             | Check for actual ES version specific features (default: false)                                                              |
 | `--checkForPolyfills`         | Consider polyfills when checking features (only works with --checkFeatures) (default: false)                                |
+| `--ignorePolyfillable [lib]`  | Ignore polyfillable features; optionally specify library (e.g., `core-js`) to limit scope                                   |
 | `--ignore <features>`         | Comma-separated list of features to ignore, e.g., "ErrorCause,TopLevelAwait"                                                |
 | `--ignoreFile <path>`         | Path to JSON file containing features to ignore                                                                             |
 | `--allowList <features>`      | Comma-separated list of features to allow even in lower ES versions, e.g., "const,let"                                      |
@@ -309,6 +310,7 @@ Here's an example of what an `.escheckrc` file will look like:
   "looseGlobMatching": false,
   "checkFeatures": true,
   "checkForPolyfills": true,
+  "ignorePolyfillable": "core-js",
   "ignore": ["ErrorCause", "TopLevelAwait"],
   "allowList": ["ArrayToSorted", "ObjectHasOwn"],
   "checkBrowser": false,
@@ -320,22 +322,23 @@ Here's an example of what an `.escheckrc` file will look like:
 
 ### Configuration Options
 
-| Option              | Type            | Description                                                        |
-| ------------------- | --------------- | ------------------------------------------------------------------ |
-| `ecmaVersion`       | String          | ECMAScript version to check against (e.g., "es5", "es6", "es2020") |
-| `files`             | String or Array | Files or glob patterns to check                                    |
-| `module`            | Boolean         | Whether to parse files as ES modules                               |
-| `not`               | Array           | Files or glob patterns to exclude                                  |
-| `allowHashBang`     | Boolean         | Whether to allow hash bang in files                                |
-| `looseGlobMatching` | Boolean         | Whether to ignore missing files in globs                           |
-| `checkFeatures`     | Boolean         | Whether to check for ES version specific features                  |
-| `checkForPolyfills` | Boolean         | Whether to consider polyfills when checking features               |
-| `ignore`            | Array           | Features to ignore when checking                                   |
-| `allowList`         | Array           | Features to allow even in lower ES versions                        |
-| `checkBrowser`      | Boolean         | Whether to use browserslist configuration to determine ES version  |
-| `browserslistQuery` | String          | Custom browserslist query to use                                   |
-| `browserslistPath`  | String          | Path to custom browserslist configuration                          |
-| `browserslistEnv`   | String          | Browserslist environment to use                                    |
+| Option               | Type            | Description                                                                          |
+| -------------------- | --------------- | ------------------------------------------------------------------------------------ |
+| `ecmaVersion`        | String          | ECMAScript version to check against (e.g., "es5", "es6", "es2020")                   |
+| `files`              | String or Array | Files or glob patterns to check                                                      |
+| `module`             | Boolean         | Whether to parse files as ES modules                                                 |
+| `not`                | Array           | Files or glob patterns to exclude                                                    |
+| `allowHashBang`      | Boolean         | Whether to allow hash bang in files                                                  |
+| `looseGlobMatching`  | Boolean         | Whether to ignore missing files in globs                                             |
+| `checkFeatures`      | Boolean         | Whether to check for ES version specific features                                    |
+| `checkForPolyfills`  | Boolean         | Whether to consider polyfills when checking features                                 |
+| `ignorePolyfillable` | Boolean/String  | Ignore polyfillable features; set to library name (e.g., `"core-js"`) to limit scope |
+| `ignore`             | Array           | Features to ignore when checking                                                     |
+| `allowList`          | Array           | Features to allow even in lower ES versions                                          |
+| `checkBrowser`       | Boolean         | Whether to use browserslist configuration to determine ES version                    |
+| `browserslistQuery`  | String          | Custom browserslist query to use                                                     |
+| `browserslistPath`   | String          | Path to custom browserslist configuration                                            |
+| `browserslistEnv`    | String          | Browserslist environment to use                                                      |
 
 ### Multiple Configurations
 
@@ -443,7 +446,23 @@ ES Check provides three ways to handle polyfilled features:
    es-check es2022 './dist/**/*.js' --checkFeatures --allowList="ArrayToSorted,ObjectHasOwn"
    ```
 
-3. **--ignore**: Completely ignore specific features during checking
+3. **--ignorePolyfillable**: Ignore all features that can be polyfilled (or limit to a specific library)
+
+   ```sh
+   # Ignore all polyfillable features
+   es-check es2017 './dist/**/*.js' --checkFeatures --ignorePolyfillable
+
+   # Ignore only features polyfillable by core-js
+   es-check es2017 './dist/**/*.js' --checkFeatures --ignorePolyfillable=core-js
+   ```
+
+4. **--allowList**: Explicitly specify features to allow regardless of ES version
+
+   ```sh
+   es-check es2022 './dist/**/*.js' --checkFeatures --allowList="ArrayToSorted,ObjectHasOwn"
+   ```
+
+5. **--ignore**: Completely ignore specific features during checking
    ```sh
    es-check es2022 './dist/**/*.js' --checkFeatures --ignore="ArrayToSorted,ObjectHasOwn"
    ```
@@ -451,6 +470,7 @@ ES Check provides three ways to handle polyfilled features:
 #### When to use each option:
 
 - Use `--checkForPolyfills` when you have a standard polyfill setup (like core-js) and want automatic detection
+- Use `--ignorePolyfillable` when you know polyfills are provided externally and don't want to flag polyfillable features
 - Use `--allowList` when you have custom polyfills or want to be explicit about which features are allowed
 - Use `--ignore` as a temporary solution when you're working on fixes
 
@@ -584,7 +604,11 @@ flowchart LR
     E -->|No| F[Success]
     G --> G1{Features<br/>Valid?}
     G1 -->|Pass| H{--checkForPolyfills?}
-    G1 -->|Fail| D
+    G1 -->|Fail| L{--ignorePolyfillable?}
+    L -->|Yes| M{Feature<br/>Polyfillable?}
+    L -->|No| D
+    M -->|Yes| F
+    M -->|No| D
     H -->|Yes| I{Polyfills<br/>Detected?}
     H -->|No| F
     I -->|Yes| F
@@ -693,9 +717,9 @@ To update ES version support:
 
 To update ES feature detection:
 
-- Add features to [version-specific files](./lib/helpers/detectFeatures/constants/es-features/) (e.g., `6.js` for ES6 features)
-- Update [polyfill patterns](./lib/helpers/detectFeatures/constants/polyfills.js) if needed
-- Feature detection uses [acorn walk](https://github.com/acornjs/acorn/blob/master/acorn-walk/README.md)
+- Add features to [version-specific files](./lib/constants/es-features/) (e.g., `6.js` for ES6 features)
+- Update [polyfill patterns](./lib/constants/es-features/polyfills.js) if needed
+- Feature detection uses AST traversal via [Acorn](https://github.com/acornjs/acorn/)
 
 Tests are located in `tests/unit/` and mirror the `lib/` structure. Please add tests for new features!
 

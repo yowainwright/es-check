@@ -394,8 +394,26 @@ describe("helpers/astDetector.js", () => {
       assert.strictEqual(result.ArrayPrototypeAt, true);
     });
 
-    it("should detect ArrayPrototypeAt for identifier .at() call", () => {
+    it("should detect ArrayPrototypeAt for identifier .at() call with numeric arg", () => {
       const ast = parse("const arr = [1]; arr.at(0);");
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.ArrayPrototypeAt, true);
+    });
+
+    it("should not detect ArrayPrototypeAt for custom object .at() with no args (#387)", () => {
+      const ast = parse("const foo = { at() {} }; foo.at();");
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.ArrayPrototypeAt, false);
+    });
+
+    it("should not detect ArrayPrototypeAt for .at() with string arg", () => {
+      const ast = parse("foo.at('key');");
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.ArrayPrototypeAt, false);
+    });
+
+    it("should detect ArrayPrototypeAt for .at() with negative numeric arg", () => {
+      const ast = parse("arr.at(-1);");
       const result = detectFeaturesFromAST(ast);
       assert.strictEqual(result.ArrayPrototypeAt, true);
     });

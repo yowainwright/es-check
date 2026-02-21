@@ -134,3 +134,11 @@ ES Check can detect polyfilled features to avoid false positives:
 ```bash
 es-check es2022 './dist/**/*.js' --checkFeatures --checkForPolyfills
 ```
+
+Or ignore all polyfillable features when polyfills are provided externally:
+
+```bash
+es-check es2017 './dist/**/*.js' --checkFeatures --ignorePolyfillable=core-js
+```
+
+See [Polyfill Detection](./polyfills) for details.
