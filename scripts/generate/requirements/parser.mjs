@@ -1,40 +1,15 @@
 #!/usr/bin/env node
 
-const fs = require("fs");
-const path = require("path");
+import { writeFileSync } from "fs";
+import { join, dirname } from "path";
+import { fileURLToPath } from "url";
+import { createRequire } from "module";
+import { CHROME_TO_ES, FEATURE_MDN_MAPPING } from "../../constants.mjs";
+
+const require = createRequire(import.meta.url);
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
 const bcd = require("@mdn/browser-compat-data");
-const { ES_FEATURES } = require("../lib/constants");
-
-const ES_VERSION_TO_YEAR = {
-  5: 2009,
-  6: 2015,
-  7: 2016,
-  8: 2017,
-  9: 2018,
-  10: 2019,
-  11: 2020,
-  12: 2021,
-  13: 2022,
-  14: 2023,
-  15: 2024,
-  16: 2025,
-  17: 2026,
-};
-
-const CHROME_TO_ES = {
-  46: 6,
-  55: 7,
-  58: 8,
-  60: 9,
-  75: 10,
-  80: 11,
-  85: 12,
-  93: 13,
-  97: 14,
-  117: 15,
-  136: 16,
-  150: 17,
-};
 
 function isValidChromeVersion(chromeVersion) {
   return chromeVersion && chromeVersion !== false;
@@ -60,21 +35,6 @@ function chromeVersionToParserVersion(chromeVersion) {
   return findBestESMatch(version);
 }
 
-const FEATURE_MDN_MAPPING = {
-  ObjectSpread: "javascript.operators.spread.spread_in_object_literals",
-  SpreadInArrays: "javascript.operators.spread.spread_in_arrays",
-  OptionalChaining: "javascript.operators.optional_chaining",
-  NullishCoalescing: "javascript.operators.nullish_coalescing",
-  LogicalAssignment: "javascript.operators.logical_and_assignment",
-  LogicalAssignmentOr: "javascript.operators.logical_or_assignment",
-  LogicalAssignmentNullish:
-    "javascript.operators.nullish_coalescing_assignment",
-  PrivateFields: "javascript.classes.private_class_fields",
-  StaticInitializationBlocks: "javascript.classes.static.initialization_blocks",
-  TopLevelAwait: "javascript.operators.await.top_level",
-  BigInt: "javascript.builtins.BigInt",
-  NumericSeparators: "javascript.grammar.numeric_separators",
-};
 function hasCompatSupport(compatData) {
   return compatData && compatData.__compat && compatData.__compat.support;
 }
@@ -210,11 +170,7 @@ function hasValidRequirements(parserRequirements) {
 }
 
 function getOutputPath() {
-  return path.join(__dirname, "../lib/constants/featureParserMapping.js");
-}
-
-function writeToFile(filePath, content) {
-  fs.writeFileSync(filePath, content);
+  return join(__dirname, "../../../lib/constants/featureParserMapping.js");
 }
 
 function main() {
@@ -227,7 +183,7 @@ function main() {
   const fileContent = generateFileContent(parserRequirements);
   const outputPath = getOutputPath();
 
-  writeToFile(outputPath, fileContent);
+  writeFileSync(outputPath, fileContent);
 }
 
 try {
