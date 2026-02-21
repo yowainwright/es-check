@@ -37,7 +37,8 @@
     "test:e2e:esm": "node tests/e2e/test-esm-import.mjs",
     "test:e2e:package-files": "node tests/e2e/test-package-files.mjs",
     "test:e2e:sourcemap": "node --test tests/e2e/test-sourcemap.js --test-timeout=10000",
-    "update": "codependence --update && pastoralist",
+    "generate-parser-requirements": "node scripts/generate-parser-requirements.js",
+    "update": "codependence --update && pastoralist && pnpm run generate-parser-requirements",
     "benchmark": "./tests/benchmarks/run-benchmarks.sh",
     "site:dev": "pnpm --filter es-check-docs run dev",
     "site:build": "pnpm --filter es-check-docs run build",
@@ -55,6 +56,7 @@
   "homepage": "https://github.com/yowainwright/es-check#readme",
   "website": "https://jeffry.in/es-check",
   "devDependencies": {
+    "@mdn/browser-compat-data": "^7.3.3",
     "browserslist": "^4.28.1",
     "codependence": "0.3.1",
     "oxlint": "^1.49.0",
