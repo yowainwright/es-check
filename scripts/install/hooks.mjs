@@ -1,16 +1,13 @@
 #!/usr/bin/env node
 
 import { writeFileSync, chmodSync, mkdirSync, existsSync } from "fs";
-import { join } from "path";
+import { join, dirname } from "path";
 import { fileURLToPath } from "url";
-import { dirname } from "path";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
-const hooksDir = join(__dirname, "..", ".git", "hooks");
+const hooksDir = join(__dirname, "..", "..", ".git", "hooks");
 
-// Ensure hooks directory exists
 if (!existsSync(hooksDir)) {
   mkdirSync(hooksDir, { recursive: true });
 }
@@ -39,10 +36,8 @@ const { readFileSync } = require('fs');
 const commitMsgFile = process.argv[2];
 const message = readFileSync(commitMsgFile, 'utf8').trim();
 
-// Valid commit types
 const types = ['feat', 'fix', 'docs', 'style', 'refactor', 'perf', 'test', 'build', 'ci', 'chore', 'revert'];
 
-// Pattern: type(optional-scope): lowercase description
 const pattern = /^(\\w+)(\\([\\w-]+\\))?!?: .+$/;
 
 const match = message.match(pattern);
@@ -68,7 +63,6 @@ if (!types.includes(type)) {
   process.exit(1);
 }
 
-// Check that description starts with lowercase
 const colonIndex = message.indexOf(': ');
 if (colonIndex !== -1) {
   const description = message.slice(colonIndex + 2);

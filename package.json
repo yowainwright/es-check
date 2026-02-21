@@ -24,10 +24,13 @@
     "format:check": "prettier --check .",
     "pastoralist": "pastoralist",
     "pre-commit": "pnpm lint && pnpm format && pnpm test",
-    "prepare": "node scripts/install-hooks.mjs",
+    "prepare": "node scripts/install/hooks.mjs",
     "prepublishOnly": "pnpm test",
     "release": "release-it --no-git.requireUpstream",
     "report:coverage": "mkdir -p coverage && node tests/scripts/test-runner.js unit --coverage --reporter=lcov",
+    "scripts:generate": "pnpm run scripts:generate:requirements && pnpm run scripts:generate:polyfills",
+    "scripts:generate:requirements": "node scripts/generate/requirements/parser.mjs",
+    "scripts:generate:polyfills": "node scripts/generate/polyfills/core.mjs",
     "test": "node tests/scripts/test-runner.js unit && npm run test:e2e",
     "test:unit": "node tests/scripts/test-runner.js unit",
     "test:unit:verbose": "node tests/scripts/test-runner.js unit --verbose",
@@ -37,8 +40,7 @@
     "test:e2e:esm": "node tests/e2e/test-esm-import.mjs",
     "test:e2e:package-files": "node tests/e2e/test-package-files.mjs",
     "test:e2e:sourcemap": "node --test tests/e2e/test-sourcemap.js --test-timeout=10000",
-    "generate-parser-requirements": "node scripts/generate-parser-requirements.js",
-    "update": "codependence --update && pastoralist && pnpm run generate-parser-requirements",
+    "update": "codependence --update && pastoralist && pnpm run scripts:generate",
     "benchmark": "./tests/benchmarks/run-benchmarks.sh",
     "site:dev": "pnpm --filter es-check-docs run dev",
     "site:build": "pnpm --filter es-check-docs run build",
@@ -59,6 +61,7 @@
     "@mdn/browser-compat-data": "^7.3.3",
     "browserslist": "^4.28.1",
     "codependence": "0.3.1",
+    "core-js-compat": "^3.48.0",
     "oxlint": "^1.49.0",
     "pastoralist": "1.10.0-1",
     "prettier": "3.8.1",
@@ -208,6 +211,21 @@
           "severity": "low",
           "url": "https://github.com/yowainwright/es-check/security/dependabot/61"
         }
+      },
+      "ajv@8.18.0": {
+        "dependents": {
+          "es-check": "ajv (transitive dependency)"
+        },
+        "ledger": {
+          "addedDate": "2026-02-21T09:31:35.017Z",
+          "reason": "Security fix: ajv has ReDoS when using `$data` option (medium)",
+          "securityChecked": true,
+          "securityCheckDate": "2026-02-21T09:31:35.017Z",
+          "securityProvider": "github",
+          "cve": "CVE-2025-69873",
+          "severity": "medium",
+          "url": "https://github.com/yowainwright/es-check/security/dependabot/67"
+        }
       }
     },
     "depPaths": [
@@ -231,7 +249,8 @@
     "undici": "6.23.0",
     "devalue": "5.6.3",
     "lodash": "4.17.23",
-    "diff": "5.2.2"
+    "diff": "5.2.2",
+    "ajv": "8.18.0"
   },
   "workspaces": [
     "site"

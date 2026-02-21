@@ -55,24 +55,11 @@ test("CORE_JS_POLYFILLABLE should include common Array methods", () => {
   assert.strictEqual(CORE_JS_POLYFILLABLE.has("ArrayWith"), true);
 });
 
-test("CORE_JS_POLYFILLABLE should include ES2023+ Array methods", () => {
-  assert.strictEqual(
-    CORE_JS_POLYFILLABLE.has("Array.prototype.toSorted"),
-    true,
-  );
-  assert.strictEqual(
-    CORE_JS_POLYFILLABLE.has("Array.prototype.toReversed"),
-    true,
-  );
-  assert.strictEqual(CORE_JS_POLYFILLABLE.has("Array.prototype.with"), true);
+test("CORE_JS_POLYFILLABLE should include ES2023+ features", () => {
+  assert.strictEqual(CORE_JS_POLYFILLABLE.has("ArrayFindLast"), true);
+  assert.strictEqual(CORE_JS_POLYFILLABLE.has("ArrayFindLastIndex"), true);
 });
 
-test("POLYFILLABLE_FEATURES should be a superset of CORE_JS_POLYFILLABLE", () => {
-  for (const feature of CORE_JS_POLYFILLABLE) {
-    assert.strictEqual(
-      POLYFILLABLE_FEATURES.has(feature),
-      true,
-      `Missing feature: ${feature}`,
-    );
-  }
+test("POLYFILLABLE_FEATURES and CORE_JS_POLYFILLABLE should be the same set", () => {
+  assert.strictEqual(POLYFILLABLE_FEATURES, CORE_JS_POLYFILLABLE);
 });
