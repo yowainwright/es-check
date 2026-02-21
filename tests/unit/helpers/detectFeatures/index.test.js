@@ -287,9 +287,7 @@ describe("detectFeatures", () => {
       try {
         detectFeatures(code, 8, "script", new Set(), options);
       } catch (error) {
-        assert.fail(
-          "Should not throw for core-js polyfillable features",
-        );
+        assert.fail("Should not throw for core-js polyfillable features");
       }
     });
   });

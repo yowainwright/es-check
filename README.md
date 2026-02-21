@@ -322,23 +322,23 @@ Here's an example of what an `.escheckrc` file will look like:
 
 ### Configuration Options
 
-| Option              | Type            | Description                                                        |
-| ------------------- | --------------- | ------------------------------------------------------------------ |
-| `ecmaVersion`       | String          | ECMAScript version to check against (e.g., "es5", "es6", "es2020") |
-| `files`             | String or Array | Files or glob patterns to check                                    |
-| `module`            | Boolean         | Whether to parse files as ES modules                               |
-| `not`               | Array           | Files or glob patterns to exclude                                  |
-| `allowHashBang`     | Boolean         | Whether to allow hash bang in files                                |
-| `looseGlobMatching` | Boolean         | Whether to ignore missing files in globs                           |
-| `checkFeatures`     | Boolean         | Whether to check for ES version specific features                  |
-| `checkForPolyfills` | Boolean         | Whether to consider polyfills when checking features               |
-| `ignorePolyfillable`| Boolean/String  | Ignore polyfillable features; set to library name (e.g., `"core-js"`) to limit scope |
-| `ignore`            | Array           | Features to ignore when checking                                   |
-| `allowList`         | Array           | Features to allow even in lower ES versions                        |
-| `checkBrowser`      | Boolean         | Whether to use browserslist configuration to determine ES version  |
-| `browserslistQuery` | String          | Custom browserslist query to use                                   |
-| `browserslistPath`  | String          | Path to custom browserslist configuration                          |
-| `browserslistEnv`   | String          | Browserslist environment to use                                    |
+| Option               | Type            | Description                                                                          |
+| -------------------- | --------------- | ------------------------------------------------------------------------------------ |
+| `ecmaVersion`        | String          | ECMAScript version to check against (e.g., "es5", "es6", "es2020")                   |
+| `files`              | String or Array | Files or glob patterns to check                                                      |
+| `module`             | Boolean         | Whether to parse files as ES modules                                                 |
+| `not`                | Array           | Files or glob patterns to exclude                                                    |
+| `allowHashBang`      | Boolean         | Whether to allow hash bang in files                                                  |
+| `looseGlobMatching`  | Boolean         | Whether to ignore missing files in globs                                             |
+| `checkFeatures`      | Boolean         | Whether to check for ES version specific features                                    |
+| `checkForPolyfills`  | Boolean         | Whether to consider polyfills when checking features                                 |
+| `ignorePolyfillable` | Boolean/String  | Ignore polyfillable features; set to library name (e.g., `"core-js"`) to limit scope |
+| `ignore`             | Array           | Features to ignore when checking                                                     |
+| `allowList`          | Array           | Features to allow even in lower ES versions                                          |
+| `checkBrowser`       | Boolean         | Whether to use browserslist configuration to determine ES version                    |
+| `browserslistQuery`  | String          | Custom browserslist query to use                                                     |
+| `browserslistPath`   | String          | Path to custom browserslist configuration                                            |
+| `browserslistEnv`    | String          | Browserslist environment to use                                                      |
 
 ### Multiple Configurations
 
