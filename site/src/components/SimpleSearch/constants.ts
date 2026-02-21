@@ -31,7 +31,7 @@ export const SEARCH_DATA: SearchItem[] = [
     description: "All available ES Check command-line options and flags",
     href: "/docs/options",
     content:
-      "Command options flags module allowHashBang checkFeatures checkForPolyfills ignore allowList verbose quiet silent",
+      "Command options flags module allowHashBang checkFeatures checkForPolyfills ignorePolyfillable ignore allowList verbose quiet silent typescript",
     category: "Usage",
   },
   {
@@ -63,7 +63,7 @@ export const SEARCH_DATA: SearchItem[] = [
     description: "Detecting and handling polyfills",
     href: "/docs/polyfills",
     content:
-      "Polyfill detection checkForPolyfills core-js polyfills false positives",
+      "Polyfill detection checkForPolyfills ignorePolyfillable core-js polyfills false positives",
     category: "Advanced",
   },
   {
