@@ -2,10 +2,10 @@ const { test } = require("node:test");
 const assert = require("assert");
 
 const {
-  getPolyfillableFeatures,
   POLYFILLABLE_FEATURES,
   CORE_JS_POLYFILLABLE,
 } = require("../../../lib/constants/polyfillableFeatures");
+const { getPolyfillableFeatures } = require("../../../lib/detectFeatures");
 
 test("getPolyfillableFeatures should return core-js set when library is 'core-js'", () => {
   const result = getPolyfillableFeatures("core-js");

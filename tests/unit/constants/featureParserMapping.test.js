@@ -3,9 +3,24 @@ const assert = require("assert");
 
 const {
   FEATURE_PARSER_REQUIREMENTS,
-  getMinimumParserVersion,
   getParserVersionForFeature,
 } = require("../../../lib/constants/featureParserMapping");
+
+function getMinimumParserVersion(targetEsVersion, enableFeatureDetection = false) {
+  if (!enableFeatureDetection) {
+    return targetEsVersion;
+  }
+
+  let minParserVersion = targetEsVersion;
+
+  for (const [_feature, requiredParser] of Object.entries(FEATURE_PARSER_REQUIREMENTS)) {
+    if (targetEsVersion >= requiredParser) {
+      minParserVersion = Math.max(minParserVersion, requiredParser);
+    }
+  }
+
+  return minParserVersion;
+}
 
 test("FEATURE_PARSER_REQUIREMENTS should have valid mappings", () => {
   assert.strictEqual(typeof FEATURE_PARSER_REQUIREMENTS, "object");
