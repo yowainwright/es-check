@@ -27,8 +27,10 @@
     "prepare": "node scripts/install-hooks.mjs",
     "prepublishOnly": "pnpm test",
     "release": "release-it --no-git.requireUpstream",
-    "report:coverage": "mkdir -p coverage && node --test --experimental-test-coverage --test-reporter=lcov --test-reporter-destination=coverage/lcov.info tests/unit/*.test.js tests/unit/helpers/*.test.js tests/unit/helpers/**/*.test.js tests/unit/constants/*.test.js tests/unit/cli/*.test.js tests/unit/check-runner/*.test.js --test-timeout=10000",
-    "test": "node --test tests/unit/*.test.js tests/unit/helpers/*.test.js tests/unit/helpers/**/*.test.js tests/unit/constants/*.test.js tests/unit/cli/*.test.js tests/unit/check-runner/*.test.js --test-timeout=10000 && npm run test:e2e",
+    "report:coverage": "mkdir -p coverage && node tests/scripts/test-runner.js unit --coverage --reporter=lcov",
+    "test": "node tests/scripts/test-runner.js unit && npm run test:e2e",
+    "test:unit": "node tests/scripts/test-runner.js unit",
+    "test:unit:verbose": "node tests/scripts/test-runner.js unit --verbose",
     "test:e2e": "npm run test:e2e:cli && npm run test:e2e:esm && npm run test:e2e:package-files && npm run test:e2e:sourcemap",
     "test:e2e:typescript": "tests/e2e/typescript/run-tests.sh",
     "test:e2e:cli": "node tests/e2e/test-cli.js",
@@ -53,15 +55,15 @@
   "homepage": "https://github.com/yowainwright/es-check#readme",
   "website": "https://jeffry.in/es-check",
   "devDependencies": {
+    "browserslist": "^4.28.1",
     "codependence": "0.3.1",
-    "oxlint": "^1.29.0",
+    "oxlint": "^1.49.0",
     "pastoralist": "1.10.0-1",
     "prettier": "3.8.1",
     "release-it": "19.2.4"
   },
   "dependencies": {
-    "acorn": "8.15.0",
-    "browserslist": "^4.28.0",
+    "acorn": "8.16.0",
     "fast-glob": "^3.3.3"
   },
   "engines": {
@@ -160,6 +162,50 @@
           "severity": "low",
           "url": "https://github.com/yowainwright/es-check/security/dependabot/57"
         }
+      },
+      "devalue@5.6.3": {
+        "dependents": {
+          "es-check": "devalue (transitive dependency)"
+        },
+        "ledger": {
+          "addedDate": "2026-02-21T00:23:12.264Z",
+          "reason": "Security fix: devalue `uneval`ed code can create objects with polluted prototypes when `eval`ed (low)",
+          "securityChecked": true,
+          "securityCheckDate": "2026-02-21T00:23:12.264Z",
+          "securityProvider": "github",
+          "severity": "low",
+          "url": "https://github.com/yowainwright/es-check/security/dependabot/66"
+        }
+      },
+      "lodash@4.17.23": {
+        "dependents": {
+          "es-check": "lodash (transitive dependency)"
+        },
+        "ledger": {
+          "addedDate": "2026-02-21T00:23:12.264Z",
+          "reason": "Security fix: Lodash has Prototype Pollution Vulnerability in `_.unset` and `_.omit` functions (medium)",
+          "securityChecked": true,
+          "securityCheckDate": "2026-02-21T00:23:12.264Z",
+          "securityProvider": "github",
+          "cve": "CVE-2025-13465",
+          "severity": "medium",
+          "url": "https://github.com/yowainwright/es-check/security/dependabot/63"
+        }
+      },
+      "diff@5.2.2": {
+        "dependents": {
+          "es-check": "diff (transitive dependency)"
+        },
+        "ledger": {
+          "addedDate": "2026-02-21T00:23:12.264Z",
+          "reason": "Security fix: jsdiff has a Denial of Service vulnerability in parsePatch and applyPatch (low)",
+          "securityChecked": true,
+          "securityCheckDate": "2026-02-21T00:23:12.264Z",
+          "securityProvider": "github",
+          "cve": "CVE-2026-24001",
+          "severity": "low",
+          "url": "https://github.com/yowainwright/es-check/security/dependabot/61"
+        }
       }
     },
     "depPaths": [
@@ -175,13 +221,17 @@
       "hasWorkspaceSecurityChecks": true
     }
   },
-  "pnpm": {
-    "overrides": {
-      "vite": "6.4.1",
-      "tmp": "0.2.4",
-      "js-yaml": "4.1.1",
-      "mdast-util-to-hast": "13.2.1",
-      "undici": "6.23.0"
-    }
-  }
+  "overrides": {
+    "vite": "6.4.1",
+    "tmp": "0.2.4",
+    "js-yaml": "4.1.1",
+    "mdast-util-to-hast": "13.2.1",
+    "undici": "6.23.0",
+    "devalue": "5.6.3",
+    "lodash": "4.17.23",
+    "diff": "5.2.2"
+  },
+  "workspaces": [
+    "site"
+  ]
 }
