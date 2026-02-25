@@ -162,5 +162,77 @@ describe("helpers/ast.js", () => {
       const result = checkMap(node, astInfo);
       assert.strictEqual(result, true);
     });
+
+    it("should require array-like call for ArrayPrototypeAt", () => {
+      const node = {
+        callee: {
+          object: { type: "ArrayExpression" },
+          property: { name: "at" },
+        },
+        arguments: [{ type: "Literal", value: -1 }],
+      };
+      const astInfo = {
+        property: "at",
+        requireNumericArg: true,
+        requireArrayLikeCall: true,
+      };
+
+      const result = checkMap(node, astInfo);
+      assert.strictEqual(result, true);
+    });
+
+    it("should reject custom object at() calls", () => {
+      const node = {
+        callee: {
+          object: { type: "Identifier", name: "foo" },
+          property: { name: "at" },
+        },
+        arguments: [{ type: "Literal", value: -1 }],
+      };
+      const astInfo = {
+        property: "at",
+        requireNumericArg: true,
+        requireArrayLikeCall: true,
+      };
+
+      const result = checkMap(node, astInfo);
+      assert.strictEqual(result, false);
+    });
+
+    it("should accept array-like variable names", () => {
+      const node = {
+        callee: {
+          object: { type: "Identifier", name: "arr" },
+          property: { name: "at" },
+        },
+        arguments: [{ type: "Literal", value: -1 }],
+      };
+      const astInfo = {
+        property: "at",
+        requireNumericArg: true,
+        requireArrayLikeCall: true,
+      };
+
+      const result = checkMap(node, astInfo);
+      assert.strictEqual(result, true);
+    });
+
+    it("should accept arguments object", () => {
+      const node = {
+        callee: {
+          object: { type: "Identifier", name: "arguments" },
+          property: { name: "at" },
+        },
+        arguments: [{ type: "Literal", value: 0 }],
+      };
+      const astInfo = {
+        property: "at",
+        requireNumericArg: true,
+        requireArrayLikeCall: true,
+      };
+
+      const result = checkMap(node, astInfo);
+      assert.strictEqual(result, true);
+    });
   });
 });
