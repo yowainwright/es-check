@@ -418,6 +418,12 @@ describe("helpers/astDetector.js", () => {
       assert.strictEqual(result.ArrayPrototypeAt, true);
     });
 
+    it("should not detect ArrayPrototypeAt for custom object .at() with numeric arg (#387)", () => {
+      const ast = parse("const foo = { at() {} }; foo.at(-1);");
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.ArrayPrototypeAt, false);
+    });
+
     it("should not detect OptionalCatchBinding for catch with param (ES5-valid)", () => {
       const ast = parse("try { fn(); } catch (error) { fallback(); }");
       const result = detectFeaturesFromAST(ast);
