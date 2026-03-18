@@ -234,5 +234,122 @@ describe("helpers/ast.js", () => {
       const result = checkMap(node, astInfo);
       assert.strictEqual(result, true);
     });
+
+    // ── Set-like call detection ──
+
+    it("should detect new Set().union() as Set method", () => {
+      const node = {
+        callee: {
+          object: {
+            type: "NewExpression",
+            callee: { name: "Set" },
+          },
+          property: { name: "union" },
+        },
+      };
+      const astInfo = { property: "union", requireSetLikeCall: true };
+
+      const result = checkMap(node, astInfo);
+      assert.strictEqual(result, true);
+    });
+
+    it("should detect set-like variable names as Set method", () => {
+      const node = {
+        callee: {
+          object: { type: "Identifier", name: "set1" },
+          property: { name: "union" },
+        },
+      };
+      const astInfo = { property: "union", requireSetLikeCall: true };
+
+      const result = checkMap(node, astInfo);
+      assert.strictEqual(result, true);
+    });
+
+    it("should reject non-Set .union() calls (e.g. Zod z.union())", () => {
+      const node = {
+        callee: {
+          object: { type: "Identifier", name: "z" },
+          property: { name: "union" },
+        },
+      };
+      const astInfo = { property: "union", requireSetLikeCall: true };
+
+      const result = checkMap(node, astInfo);
+      assert.strictEqual(result, false);
+    });
+
+    it("should reject non-Set .intersection() calls", () => {
+      const node = {
+        callee: {
+          object: { type: "Identifier", name: "schema" },
+          property: { name: "intersection" },
+        },
+      };
+      const astInfo = { property: "intersection", requireSetLikeCall: true };
+
+      const result = checkMap(node, astInfo);
+      assert.strictEqual(result, false);
+    });
+
+    it("should reject common non-Set object names for Set methods", () => {
+      const nonSetNames = ["obj", "data", "builder", "query", "ctx"];
+      const astInfo = { property: "union", requireSetLikeCall: true };
+
+      for (const name of nonSetNames) {
+        const node = {
+          callee: {
+            object: { type: "Identifier", name },
+            property: { name: "union" },
+          },
+        };
+        const result = checkMap(node, astInfo);
+        assert.strictEqual(
+          result,
+          false,
+          `Expected false for "${name}.union()"`,
+        );
+      }
+    });
+
+    it("should reject .union() without callee object", () => {
+      const node = {
+        callee: {
+          property: { name: "union" },
+        },
+      };
+      const astInfo = { property: "union", requireSetLikeCall: true };
+
+      const result = checkMap(node, astInfo);
+      assert.strictEqual(result, false);
+    });
+
+    // ── PromiseAny with object constraint ──
+
+    it("should detect Promise.any() with object constraint", () => {
+      const node = {
+        callee: {
+          object: { name: "Promise" },
+          property: { name: "any" },
+        },
+      };
+      const astInfo = { object: "Promise", property: "any" };
+
+      const result = checkMap(node, astInfo);
+      assert.strictEqual(result, true);
+    });
+
+    it("should reject non-Promise .any() calls with object constraint", () => {
+      const node = {
+        callee: {
+          object: { name: "z" },
+          property: { name: "any" },
+        },
+      };
+      const astInfo = { object: "Promise", property: "any" };
+
+      const result = checkMap(node, astInfo);
+      assert.strictEqual(result, false);
+    });
   });
 });
