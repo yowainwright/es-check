@@ -304,11 +304,7 @@ describe("helpers/ast.js", () => {
           },
         };
         const result = checkMap(node, astInfo);
-        assert.strictEqual(
-          result,
-          true,
-          `Expected true for "${name}.union()"`,
-        );
+        assert.strictEqual(result, true, `Expected true for "${name}.union()"`);
       }
     });
 

@@ -301,4 +301,18 @@ describe("getESVersionForBrowser", () => {
     const esVersion = getESVersionForBrowser("chrome", "58");
     assert.strictEqual(esVersion, 8, "Chrome 58 should map to ES8");
   });
+
+  it("should return ES6 for ios_saf 9.x versions", () => {
+    assert.strictEqual(getESVersionForBrowser("ios_saf", "9.0-9.2"), 6);
+    assert.strictEqual(getESVersionForBrowser("ios_saf", "9.3"), 6);
+  });
+});
+
+describe("getESVersionFromBrowserslist - ios", () => {
+  it("should return ES6 for ios >= 9 query since iOS Safari 9 supports ES6 object shorthand and arrow functions", () => {
+    const esVersion = getESVersionFromBrowserslist({
+      browserslistQuery: "ios >= 9",
+    });
+    assert.strictEqual(esVersion, 6, "ios >= 9 should return ES6");
+  });
 });

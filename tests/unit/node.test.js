@@ -342,6 +342,56 @@ describe("Node API Tests", () => {
     assert.strictEqual(result.success, true);
     assert.deepStrictEqual(result.errors, []);
   });
+
+  test("runChecks - should pass object method shorthand and property shorthand with ios >= 9 browserslist query", async () => {
+    const file = path.join(testDir, "ios9-object-shorthand.js");
+    fs.writeFileSync(
+      file,
+      `var x = {
+  get() {
+    return 123;
+  },
+};
+
+var i = 123;
+var v = {
+  i,
+};`,
+    );
+
+    const result = await runChecks([
+      {
+        ecmaVersion: "checkBrowser",
+        browserslistQuery: "ios >= 9",
+        files: [file],
+        cache: false,
+      },
+    ]);
+    assert.strictEqual(result.success, true);
+    assert.deepStrictEqual(result.errors, []);
+  });
+
+  test("runChecks - should pass arrow functions and template literals with ios >= 9 browserslist query", async () => {
+    const file = path.join(testDir, "ios9-es6-features.js");
+    fs.writeFileSync(
+      file,
+      `const double = (x) => x * 2;
+const name = "world";
+const greeting = \`hello \${name}\`;
+const [first, ...rest] = [1, 2, 3];`,
+    );
+
+    const result = await runChecks([
+      {
+        ecmaVersion: "checkBrowser",
+        browserslistQuery: "ios >= 9",
+        files: [file],
+        cache: false,
+      },
+    ]);
+    assert.strictEqual(result.success, true);
+    assert.deepStrictEqual(result.errors, []);
+  });
 });
 
 process.on("exit", cleanupTestDir);
