@@ -35,9 +35,6 @@ export const FEATURE_MDN_MAPPING = {
   OptionalChaining: "javascript.operators.optional_chaining",
   NullishCoalescing: "javascript.operators.nullish_coalescing",
   LogicalAssignment: "javascript.operators.logical_and_assignment",
-  LogicalAssignmentOr: "javascript.operators.logical_or_assignment",
-  LogicalAssignmentNullish:
-    "javascript.operators.nullish_coalescing_assignment",
   PrivateFields: "javascript.classes.private_class_fields",
   StaticInitializationBlocks: "javascript.classes.static.initialization_blocks",
   TopLevelAwait: "javascript.operators.await.top_level",
