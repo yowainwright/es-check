@@ -64,8 +64,8 @@
     "core-js-compat": "^3.48.0",
     "oxlint": "^1.49.0",
     "pastoralist": "1.10.0-1",
-    "prettier": "3.8.2",
-    "release-it": "19.2.4"
+    "prettier": "3.8.3",
+    "release-it": "20.0.0"
   },
   "dependencies": {
     "acorn": "8.16.0",
