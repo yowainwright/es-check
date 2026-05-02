@@ -4,6 +4,7 @@ const acorn = require("acorn");
 const {
   normalizeNodeType,
   buildFeatureIndex,
+  createFeatureDetectionContext,
   matchesFeature,
   detectFeaturesFromAST,
 } = require("../../../lib/helpers/astDetector.js");
@@ -156,6 +157,21 @@ describe("helpers/astDetector.js", () => {
   });
 
   describe("detectFeaturesFromAST()", () => {
+    it("should only initialize and scan features from a provided context", () => {
+      const ast = parse("const fn = () => {}");
+      const context = createFeatureDetectionContext({
+        ArrowFunctions: {
+          astInfo: { nodeType: "ArrowFunctionExpression" },
+        },
+      });
+
+      const result = detectFeaturesFromAST(ast, context);
+
+      assert.deepStrictEqual(Object.keys(result), ["ArrowFunctions"]);
+      assert.strictEqual(result.ArrowFunctions, true);
+      assert.strictEqual(result.const, undefined);
+    });
+
     it("should detect arrow functions", () => {
       const ast = parse("const fn = () => {}");
       const result = detectFeaturesFromAST(ast);

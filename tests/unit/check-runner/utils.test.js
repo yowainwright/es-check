@@ -136,6 +136,23 @@ describe("check-runner/utils.js", () => {
       assert.ok(result.files.length >= 2);
     });
 
+    it("should de-dupe files matched by overlapping patterns", () => {
+      const patterns = ["./tests/fixtures/es5.js", "./tests/fixtures/es5.js"];
+      const options = {
+        globOpts: {},
+        looseGlobMatching: false,
+        logger: null,
+        isNodeAPI: true,
+        allErrors: [],
+      };
+
+      const result = findFiles(patterns, options);
+
+      assert.strictEqual(result.hasError, false);
+      assert.strictEqual(result.files.length, 1);
+      assert.match(result.files[0], /es5\.js$/);
+    });
+
     it("should handle no patterns with looseGlobMatching", () => {
       const patterns = [];
       const warnings = [];

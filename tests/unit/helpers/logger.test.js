@@ -12,6 +12,9 @@ describe("helpers/logger.js", () => {
 
     beforeEach(() => {
       originalEnv = { ...process.env };
+      delete process.env.NO_COLOR;
+      delete process.env.NODE_DISABLE_COLORS;
+      delete process.env.FORCE_COLOR;
     });
 
     afterEach(() => {

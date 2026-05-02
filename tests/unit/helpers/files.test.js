@@ -53,7 +53,7 @@ describe("helpers/files.js", () => {
       assert(result.error.stack);
     });
 
-    it("should use cache when useCache is true", () => {
+    it("should reuse cached content within one process", () => {
       const testFile = path.join(testDir, "cached.js");
       fs.writeFileSync(testFile, "var cached = true;");
 
@@ -174,6 +174,17 @@ describe("helpers/files.js", () => {
       assert.strictEqual(results.length, 2);
       assert.strictEqual(results[0], "var a = 1;");
       assert.strictEqual(results[1], "var b = 2;");
+    });
+
+    it("should collect only non-null results when requested", () => {
+      const files = ["pass.js", "fail.js", "pass-again.js"];
+      const processor = (file) => (file.includes("fail") ? { file } : null);
+
+      const results = processBatchedFiles(files, processor, 2, {
+        collectNonNullOnly: true,
+      });
+
+      assert.deepStrictEqual(results, [{ file: "fail.js" }]);
     });
   });
 

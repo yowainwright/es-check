@@ -21,327 +21,129 @@ const execFileAsync = promisify(execFile);
 const iterations = parseInt(process.argv[2], 10) || DEFAULT_ITERATIONS;
 const testDir = process.argv[3] || DEFAULT_TEST_DIR;
 const useRealLibraries = process.argv.includes("--real-libs");
-const esVersion = DEFAULT_ES_VERSION;
-const tools = [
-  {
-    name: "es-check",
+const syntaxEsVersion = DEFAULT_ES_VERSION;
+const featureEsVersion = "es2020";
+const esCheckCli = "./lib/cli/index.js";
+const previousEsCheckCli = "./node_modules/es-check-previous/lib/cli/index.js";
+const previousEsCheckVersion = "9.6.3";
+
+async function runCompatibilityCommand(command, args) {
+  try {
+    await execFileAsync(command, args);
+  } catch (error) {
+    const expectedCompatibilityFailure = error.code === 1;
+    if (!expectedCompatibilityFailure) throw error;
+  }
+}
+
+function createEsCheckTool({
+  name,
+  cliPath,
+  targetEsVersion = syntaxEsVersion,
+  checkFeatures = false,
+}) {
+  return {
+    name,
     run: async (testFiles) => {
       const startTime = performance.now();
-      try {
-        await execFileAsync("node", [
-          "./index.js",
-          esVersion,
-          ...testFiles,
-          "--silent",
-        ]);
-      } catch (error) {
-        // Ignore errors - we're just measuring performance
+      const args = [cliPath, targetEsVersion, ...testFiles, "--silent"];
+
+      if (checkFeatures) {
+        args.push("--checkFeatures");
       }
+
+      await runCompatibilityCommand("node", args);
       return performance.now() - startTime;
     },
-  },
-  {
-    name: "are-you-es5",
-    run: async (testFiles) => {
-      try {
-        fs.accessSync("./node_modules/.bin/are-you-es5");
-      } catch (error) {
-        log.info("are-you-es5 is not installed. Installing temporarily...");
-        await execFileAsync("npm", ["install", "--no-save", "are-you-es5"]);
-      }
+  };
+}
 
-      const startTime = performance.now();
-      try {
-        await execFileAsync("./node_modules/.bin/are-you-es5", [
-          "--files",
-          testFiles.join(","),
-        ]);
-      } catch (error) {}
-      return performance.now() - startTime;
-    },
-  },
-  {
-    name: "es-check-bundled",
-    run: async (testFiles) => {
-      const startTime = performance.now();
-      try {
-        await execFileAsync("node", [
-          "./index.js",
-          esVersion,
-          ...testFiles,
-          "--module",
-          "--silent",
-        ]);
-      } catch (error) {}
-      return performance.now() - startTime;
-    },
-  },
-  {
-    name: "es-check-light",
-    run: async (testFiles) => {
-      const startTime = performance.now();
-      try {
-        await execFileAsync("node", [
-          "./index.js",
-          esVersion,
-          ...testFiles,
-          "--light",
-          "--silent",
-        ]);
-      } catch (error) {}
-      return performance.now() - startTime;
-    },
-  },
-  {
-    name: "es-check-batch-10",
-    run: async (testFiles) => {
-      const startTime = performance.now();
-      try {
-        await execFileAsync("node", [
-          "./index.js",
-          esVersion,
-          ...testFiles,
-          "--batchSize",
-          "10",
-          "--silent",
-        ]);
-      } catch (error) {
-        // Ignore errors - we're just measuring performance
-      }
-      return performance.now() - startTime;
-    },
-  },
-  {
-    name: "es-check-batch-50",
-    run: async (testFiles) => {
-      const startTime = performance.now();
-      try {
-        await execFileAsync("node", [
-          "./index.js",
-          esVersion,
-          ...testFiles,
-          "--batchSize",
-          "50",
-          "--silent",
-        ]);
-      } catch (error) {
-        // Ignore errors - we're just measuring performance
-      }
-      return performance.now() - startTime;
-    },
-  },
-  {
-    name: "swc/core (rustpack)",
-    run: async (testFiles) => {
-      try {
-        fs.accessSync("./node_modules/@swc/core");
-      } catch (error) {
-        log.info("@swc/core is not installed. Installing temporarily...");
-        await execFileAsync("npm", ["install", "--no-save", "@swc/core"]);
-      }
-
-      const swcCheckScript = `
-        const swc = require('@swc/core');
-        const fs = require('fs');
-        const path = require('path');
-
-        async function checkFile(filePath) {
-          try {
-            const code = fs.readFileSync(filePath, 'utf8');
-            await swc.parse(code, {
-              syntax: 'ecmascript',
-              target: '${esVersion === "es5" ? "es5" : "es6"}',
-            });
-            return true;
-          } catch (error) {
-            return false;
-          }
-        }
-
-        async function main() {
-          const files = ${JSON.stringify(testFiles)};
-          for (const file of files) {
-            await checkFile(file);
-          }
-        }
-
-        main();
-      `;
-
-      const tempScriptPath = path.join(__dirname, "temp-swc-check.js");
-      fs.writeFileSync(tempScriptPath, swcCheckScript);
-
-      const startTime = performance.now();
-      try {
-        await execFileAsync("node", [tempScriptPath]);
-      } catch (error) {
-      } finally {
-        fs.unlinkSync(tempScriptPath);
-      }
-      return performance.now() - startTime;
-    },
-  },
-  {
-    name: "babel-parser",
-    run: async (testFiles) => {
-      try {
-        fs.accessSync("./node_modules/@babel/parser");
-      } catch (error) {
-        log.info("@babel/parser is not installed. Installing temporarily...");
-        await execFileAsync("npm", ["install", "--no-save", "@babel/parser"]);
-      }
-
-      const babelCheckScript = `
-        const parser = require('@babel/parser');
-        const fs = require('fs');
-        const path = require('path');
-
-        function checkFile(filePath) {
-          try {
-            const code = fs.readFileSync(filePath, 'utf8');
-            parser.parse(code, {
-              sourceType: 'module',
-              plugins: [],
-            });
-            return true;
-          } catch (error) {
-            return false;
-          }
-        }
-
-        function main() {
-          const files = ${JSON.stringify(testFiles)};
-          for (const file of files) {
-            checkFile(file);
-          }
-        }
-
-        main();
-      `;
-
-      const tempScriptPath = path.join(__dirname, "temp-babel-check.js");
-      fs.writeFileSync(tempScriptPath, babelCheckScript);
-
-      const startTime = performance.now();
-      try {
-        await execFileAsync("node", [tempScriptPath]);
-      } catch (error) {
-        // Ignore errors - we're just measuring performance
-      } finally {
-        // Clean up temp script
-        fs.unlinkSync(tempScriptPath);
-      }
-      return performance.now() - startTime;
-    },
-  },
-  {
-    name: "acorn (direct)",
-    run: async (testFiles) => {
-      const acornCheckScript = `
-        const acorn = require('acorn');
-        const fs = require('fs');
-        const path = require('path');
-
-        function checkFile(filePath) {
-          try {
-            const code = fs.readFileSync(filePath, 'utf8');
-            acorn.parse(code, {
-              ecmaVersion: ${esVersion === "es5" ? 5 : 6},
-              sourceType: 'script',
-            });
-            return true;
-          } catch (error) {
-            return false;
-          }
-        }
-
-        function main() {
-          const files = ${JSON.stringify(testFiles)};
-          for (const file of files) {
-            checkFile(file);
-          }
-        }
-
-        main();
-      `;
-
-      const tempScriptPath = path.join(__dirname, "temp-acorn-check.js");
-      fs.writeFileSync(tempScriptPath, acornCheckScript);
-
-      const startTime = performance.now();
-      try {
-        await execFileAsync("node", [tempScriptPath]);
-      } catch (error) {
-      } finally {
-        fs.unlinkSync(tempScriptPath);
-      }
-      return performance.now() - startTime;
-    },
-  },
-  {
-    name: "eslint",
-    run: async (testFiles) => {
-      try {
-        fs.accessSync("./node_modules/eslint");
-      } catch (error) {
-        log.info("eslint is not installed. Installing temporarily...");
-        await execFileAsync("npm", [
-          "install",
-          "--no-save",
-          "eslint",
-          "eslint-plugin-es5",
-        ]);
-      }
-
-      const eslintConfig = {
-        plugins: ["es5"],
-        extends: "plugin:es5/no-es2015",
-        parserOptions: {
-          ecmaVersion: 5,
-        },
-        rules: {
-          "es5/no-es2015-syntax": "error",
-        },
-      };
-
-      const tempConfigPath = path.join(__dirname, ".eslintrc.json");
-      fs.writeFileSync(tempConfigPath, JSON.stringify(eslintConfig, null, 2));
-
-      const eslintCheckScript = `
-        const { ESLint } = require('eslint');
-        const fs = require('fs');
-        const path = require('path');
-
-        async function main() {
-          const eslint = new ESLint({
-            useEslintrc: true,
-            overrideConfigFile: '${tempConfigPath.replace(/\\/g, "\\\\")}'
-          });
-
-          const files = ${JSON.stringify(testFiles)};
-
-
-          await eslint.lintFiles(files);
-        }
-
-        main();
-      `;
-
-      const tempScriptPath = path.join(__dirname, "temp-eslint-check.js");
-      fs.writeFileSync(tempScriptPath, eslintCheckScript);
-
-      const startTime = performance.now();
-      try {
-        await execFileAsync("node", [tempScriptPath]);
-      } catch (error) {
-      } finally {
-        fs.unlinkSync(tempScriptPath);
-        fs.unlinkSync(tempConfigPath);
-      }
-      return performance.now() - startTime;
-    },
-  },
+const syntaxTools = [
+  createEsCheckTool({ name: "es-check", cliPath: esCheckCli }),
+  createEsCheckTool({
+    name: `es-check@${previousEsCheckVersion}`,
+    cliPath: previousEsCheckCli,
+  }),
 ];
+
+const featureTools = [
+  createEsCheckTool({
+    name: "es-check --checkFeatures",
+    cliPath: esCheckCli,
+    targetEsVersion: featureEsVersion,
+    checkFeatures: true,
+  }),
+  createEsCheckTool({
+    name: `es-check@${previousEsCheckVersion} --checkFeatures`,
+    cliPath: previousEsCheckCli,
+    targetEsVersion: featureEsVersion,
+    checkFeatures: true,
+  }),
+];
+
+function createInProcessTool({
+  name,
+  runChecks,
+  targetEsVersion = syntaxEsVersion,
+  checkFeatures = false,
+}) {
+  const runInProcessCheck = (testFiles) =>
+    Promise.resolve(
+      runChecks(
+        [
+          {
+            ecmaVersion: targetEsVersion,
+            files: testFiles,
+            checkFeatures,
+            cache: false,
+          },
+        ],
+        {},
+      ),
+    );
+
+  return {
+    name,
+    warmup: runInProcessCheck,
+    run: async (testFiles) => {
+      const startTime = performance.now();
+      await runInProcessCheck(testFiles);
+      return performance.now() - startTime;
+    },
+  };
+}
+
+function createInProcessTools() {
+  const current = require("../../lib");
+
+  try {
+    const previous = require("es-check-previous");
+    return [
+      createInProcessTool({
+        name: "es-check Node API --checkFeatures",
+        runChecks: current.runChecks,
+        targetEsVersion: featureEsVersion,
+        checkFeatures: true,
+      }),
+      createInProcessTool({
+        name: `es-check@${previousEsCheckVersion} Node API --checkFeatures`,
+        runChecks: previous.runChecks,
+        targetEsVersion: featureEsVersion,
+        checkFeatures: true,
+      }),
+    ];
+  } catch (error) {
+    log.warn(`Skipping previous-version Node API benchmark: ${error.message}`);
+    return [
+      createInProcessTool({
+        name: "es-check Node API --checkFeatures",
+        runChecks: current.runChecks,
+        targetEsVersion: featureEsVersion,
+        checkFeatures: true,
+      }),
+    ];
+  }
+}
 
 async function findJsFiles(dir) {
   const files = [];
@@ -363,6 +165,9 @@ async function findJsFiles(dir) {
 
 async function getLibraryFiles(libraries) {
   const files = [];
+  const ignorePatterns = IGNORE_PATTERNS.filter(
+    (pattern) => pattern !== "**/node_modules/**",
+  );
   log.info(`\nScanning real-world libraries: ${libraries.join(", ")}...`);
 
   for (const lib of libraries) {
@@ -376,7 +181,7 @@ async function getLibraryFiles(libraries) {
     try {
       const { default: glob } = await import("fast-glob");
       const libFiles = await glob(`${libPath}/**/*.js`, {
-        ignore: IGNORE_PATTERNS,
+        ignore: ignorePatterns,
         absolute: true,
       });
       log.info(`  ${lib}: found ${libFiles.length} files`);
@@ -389,39 +194,17 @@ async function getLibraryFiles(libraries) {
   return files;
 }
 
-async function runBenchmarks() {
-  log.info(`Running benchmarks (${iterations} iterations each)...`);
-
-  let testFiles;
-
-  if (useRealLibraries) {
-    log.info("Using real-world libraries for benchmarking...");
-    testFiles = await getLibraryFiles(POPULAR_LIBRARIES);
-  } else {
-    log.info(`Finding JavaScript files in ${testDir}...`);
-    testFiles = await findJsFiles(testDir);
-  }
-
-  log.info(`Found ${testFiles.length} JavaScript files to test`);
-
-  if (testFiles.length === 0) {
-    log.error(
-      "No JavaScript files found to test. Please specify a directory with JS files.",
-    );
-    process.exit(1);
-  }
-
-  const maxFiles = parseInt(process.env.MAX_FILES, 10) || DEFAULT_MAX_FILES;
-  const filesToTest =
-    testFiles.length > maxFiles ? testFiles.slice(0, maxFiles) : testFiles;
-
-  log.info(`Testing with ${filesToTest.length} files`);
-
+async function benchmarkTools(tools, filesToTest, heading) {
+  log.info(`\n=== ${heading} ===`);
   const results = {};
 
   for (const tool of tools) {
     log.info(`\nBenchmarking ${tool.name}...`);
     const times = [];
+
+    if (tool.warmup) {
+      await tool.warmup(filesToTest);
+    }
 
     for (let i = 0; i < iterations; i++) {
       process.stdout.write(`  Iteration ${i + 1}/${iterations}... `);
@@ -479,6 +262,97 @@ async function runBenchmarks() {
       `| ${toolName} | ${avg.toFixed(2)} | ${min.toFixed(2)} | ${max.toFixed(2)} | ${relativePerf} |`,
     );
   });
+
+  return results;
+}
+
+function logRegressionCheck(results, currentTool, previousTool) {
+  const current = results[currentTool];
+  const previous = results[previousTool];
+  if (current && previous) {
+    const delta = current.avg - previous.avg;
+    const percent = (delta / previous.avg) * 100;
+    const direction = delta > 0 ? "slower" : "faster";
+    log.info("\n=== ES-CHECK REGRESSION CHECK ===");
+    log.info(
+      `es-check current: ${current.avg.toFixed(2)}ms; previous ${previousEsCheckVersion}: ${previous.avg.toFixed(2)}ms`,
+    );
+    log.info(
+      `Current is ${Math.abs(percent).toFixed(2)}% ${direction} than ${previousEsCheckVersion}.`,
+    );
+  }
+}
+
+async function runBenchmarks() {
+  log.info(`Running benchmarks (${iterations} iterations each)...`);
+
+  let testFiles;
+
+  if (useRealLibraries) {
+    log.info("Using real-world libraries for benchmarking...");
+    testFiles = await getLibraryFiles(POPULAR_LIBRARIES);
+  } else {
+    log.info(`Finding JavaScript files in ${testDir}...`);
+    testFiles = await findJsFiles(testDir);
+  }
+
+  log.info(`Found ${testFiles.length} JavaScript files to test`);
+
+  if (testFiles.length === 0) {
+    log.error(
+      "No JavaScript files found to test. Please specify a directory with JS files.",
+    );
+    process.exit(1);
+  }
+
+  const maxFiles = parseInt(process.env.MAX_FILES, 10) || DEFAULT_MAX_FILES;
+  const filesToTest =
+    testFiles.length > maxFiles ? testFiles.slice(0, maxFiles) : testFiles;
+
+  log.info(`Testing with ${filesToTest.length} files`);
+
+  const syntaxResults = await benchmarkTools(
+    syntaxTools,
+    filesToTest,
+    "SYNTAX COMPATIBILITY",
+  );
+  logRegressionCheck(
+    syntaxResults,
+    "es-check",
+    `es-check@${previousEsCheckVersion}`,
+  );
+
+  const featureResults = await benchmarkTools(
+    featureTools,
+    filesToTest,
+    `FEATURE COMPATIBILITY (${featureEsVersion})`,
+  );
+  logRegressionCheck(
+    featureResults,
+    "es-check --checkFeatures",
+    `es-check@${previousEsCheckVersion} --checkFeatures`,
+  );
+
+  const packageFiles = await getLibraryFiles(POPULAR_LIBRARIES);
+  const inProcessFiles =
+    packageFiles.length > maxFiles
+      ? packageFiles.slice(0, maxFiles)
+      : packageFiles;
+  const hasInProcessFiles = inProcessFiles.length > 0;
+
+  if (hasInProcessFiles) {
+    log.info(`\nTesting Node API with ${inProcessFiles.length} package files`);
+    const inProcessResults = await benchmarkTools(
+      createInProcessTools(),
+      inProcessFiles,
+      `IN-PROCESS NODE API (${featureEsVersion})`,
+    );
+    logRegressionCheck(
+      inProcessResults,
+      "es-check Node API --checkFeatures",
+      `es-check@${previousEsCheckVersion} Node API --checkFeatures`,
+    );
+  }
 }
 
 runBenchmarks().catch((error) => {

@@ -1,2 +1,5 @@
 packages:
   - "site"
+allowBuilds:
+  "@swc/core": true
+  esbuild: true

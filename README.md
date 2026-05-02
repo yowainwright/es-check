@@ -60,9 +60,9 @@ npm i es-check -g           # or globally
 
 ```
 
-Check if an array or glob of files matches a specified ES version.
+Check whether files or globs match a specified ES version.
 
-- **Note:** adds quotation around globs. Globs are patterns like so, `<something>/*.js`.
+- **Note:** quote globs so your shell does not expand them before ES Check runs.
 
 ```sh
 
@@ -70,7 +70,7 @@ es-check es5 './vendor/js/*.js' './dist/**/*.js'
 
 ```
 
-- The ES Check script (above) checks `/dist/*.js` files to see if they're ES5. It throws an error and logs files are that do not pass the check.
+- The command above checks matching files to see if they are ES5. It throws an error and logs files that do not pass.
 
 ---
 
@@ -119,7 +119,7 @@ Usage: index [options] [ecmaVersion] [files...]
 Arguments:
   ecmaVersion                         ecmaVersion to check files against. Can be: es3, es4, es5, es6/es2015, es7/es2016, es8/es2017, es9/es2018, es10/es2019, es11/es2020, es12/es2021,
                                       es13/es2022, es14/es2023, es15/es2024, es16/es2025
-  files                               a glob of files to to test the EcmaScript version against
+  files                               globs or files to test against the ECMAScript version
 
 ```
 
@@ -227,13 +227,13 @@ es-check --checkBrowser --browserslistQuery="last 2 versions" ./dist/**/*.js
 es-check --checkBrowser --browserslistQuery=">0.5%, not dead" --checkFeatures ./dist/**/*.js
 ```
 
-**Using browserlist just like an es version**
+**Using browserslist like an ES version**
 
 ```sh
 es-check checkBrowser ./dist/**/*.js --browserslistQuery=">0.5%, not dead"
 ```
 
-**Using browserlist with a pre-defined browserlist**
+**Using browserslist with a predefined browserslist config**
 
 ```sh
 es-check checkBrowser ./dist/**/*.js
@@ -243,9 +243,9 @@ es-check checkBrowser ./dist/**/*.js
 
 ## Usage
 
-ES Check is mainly a shell command CLI. It is run in [shell tool](http://linuxcommand.org/lc3_learning_the_shell.php) like Terminal, ITerm, or Hyper. It takes in two arguments: an [ECMAScript version](https://www.w3schools.com/js/js_versions.asp) (`<ECMAScript version>`) and files (`[files]`) in [globs](http://searchsecurity.techtarget.com/definition/globbing).
+ES Check is primarily a CLI. It takes an [ECMAScript version](https://www.w3schools.com/js/js_versions.asp) and one or more files or [globs](http://searchsecurity.techtarget.com/definition/globbing).
 
-Here are some example of **es check** scripts that could be run:
+Examples:
 
 ```sh
 # globs
@@ -379,7 +379,7 @@ This is useful for projects that need different configurations for different env
 
 ## Debugging
 
-As of ES-Check version **2.0.2**, a better debugging interface is provided. When a file errors, An error object will be logged with:
+When a file errors, ES Check logs:
 
 - the erroring file
 - the error
@@ -456,13 +456,8 @@ ES Check provides three ways to handle polyfilled features:
    es-check es2017 './dist/**/*.js' --checkFeatures --ignorePolyfillable=core-js
    ```
 
-4. **--allowList**: Explicitly specify features to allow regardless of ES version
+4. **--ignore**: Completely ignore specific features during checking
 
-   ```sh
-   es-check es2022 './dist/**/*.js' --checkFeatures --allowList="ArrayToSorted,ObjectHasOwn"
-   ```
-
-5. **--ignore**: Completely ignore specific features during checking
    ```sh
    es-check es2022 './dist/**/*.js' --checkFeatures --ignore="ArrayToSorted,ObjectHasOwn"
    ```
@@ -515,7 +510,7 @@ es-check --checkBrowser --browserslistEnv="production" ./dist/**/*.js
 es-check --checkBrowser --checkFeatures ./dist/**/*.js
 ```
 
-⚠️ **NOTE:** When using `--checkBrowser`, you must also provide a `--browserslistQuery` or have a valid browserslist configuration in your project. You cannot have a files directly after your `--checkBrowser` option; it will read as
+⚠️ **NOTE:** When using `--checkBrowser`, provide a `--browserslistQuery` or have a valid browserslist configuration in your project.
 
 ---
 
@@ -525,7 +520,7 @@ ES Check includes several performance optimizations:
 
 ### File Caching
 
-File caching is **enabled by default** for faster re-checking:
+File caching is **enabled by default** within each CLI invocation. This avoids duplicate disk reads when the same file is matched more than once.
 
 ```sh
 # Cache is enabled by default
@@ -535,18 +530,18 @@ es-check es5 './dist/**/*.js'
 es-check es5 './dist/**/*.js' --noCache
 ```
 
-We observed ~28% performance improvement in our [benchmark tests](./benchmarks/README.md). Your results may vary based on file sizes and system configuration. Try the benchmarks yourself:
+Your results may vary based on file sizes and system configuration. Try the Docker benchmark yourself:
 
 ```sh
-node benchmarks/compare-tools.js 3 ./benchmarks/test-files
+pnpm benchmark
 ```
 
 ### Batch Processing
 
-The `--batchSize` option optimizes memory usage:
+The `--batchSize` option limits how many files are processed per batch:
 
 ```sh
-# Process all files in parallel (default)
+# Process all files in one batch (default)
 es-check es5 './dist/**/*.js' --batchSize 0
 
 # Process 10 files at a time (memory-constrained environments)
@@ -558,20 +553,19 @@ es-check es5 './dist/**/*.js' --batchSize 50
 
 ### Performance Guidelines
 
-| Scenario                         | Recommended `--batchSize` | Reason                                  |
-| -------------------------------- | ------------------------- | --------------------------------------- |
-| Small codebases (< 100 files)    | `0` (unlimited)           | Maximum parallelism for fastest results |
-| Medium codebases (100-500 files) | `0` or `50`               | Balance between speed and memory        |
-| Large codebases (> 500 files)    | `50-100`                  | Prevent memory spikes                   |
-| CI/CD with limited memory        | `10-20`                   | Conservative memory usage               |
-| Local development                | `0` (default)             | Utilize available hardware              |
+| Scenario                         | Recommended `--batchSize` | Reason                           |
+| -------------------------------- | ------------------------- | -------------------------------- |
+| Small codebases (< 100 files)    | `0` (unlimited)           | Lowest batching overhead         |
+| Medium codebases (100-500 files) | `0` or `50`               | Balance between speed and memory |
+| Large codebases (> 500 files)    | `50-100`                  | Prevent memory spikes            |
+| CI/CD with limited memory        | `10-20`                   | Conservative memory usage        |
+| Local development                | `0` (default)             | Utilize available hardware       |
 
 ### Recent Performance Improvements
 
 As of August 2025, ES Check has been optimized with:
 
 - **Single-parse optimization**: Files are parsed once and the AST is reused
-- **Async file processing**: Non-blocking I/O for better performance
 - **Configurable batch processing**: Fine-tune based on your needs
 
 ---
@@ -581,14 +575,12 @@ As of August 2025, ES Check has been optimized with:
 To check node_modules dependencies for ES compatibility:
 
 ```sh
-// Check a specific package
+# Check a specific package
 npx es-check es5 ./node_modules/some-package/dist/index.js
 
-// Check all JS files in node_modules
+# Check all JS files in node_modules
 npx es-check es5 './node_modules/**/*.js'
 ```
-
-A simple example script is available in `examples/check-node-modules.js`.
 
 ---
 
@@ -684,21 +676,22 @@ Once enabled, you can use tab completion for:
 
 ## Performance
 
-ES Check is benchmarked against similar tools using real-world production libraries. Results from 11/02/2025:
+ES Check benchmarks compare the current code against the previous published version to catch regressions.
 
-| Tool                  | Average (ms) | Relative Performance |
-| --------------------- | ------------ | -------------------- |
-| **es-check-batch-50** | **7.20**     | **1x (fastest)**     |
-| es-check-batch-10     | 7.67         | 1.06x slower         |
-| es-check-bundled      | 8.04         | 1.12x slower         |
-| es-check              | 9.17         | 1.27x slower         |
-| are-you-es5           | 15.05        | 2.09x slower         |
-| acorn (direct)        | 47.11        | 6.54x slower         |
-| eslint                | 55.21        | 7.67x slower         |
-| swc/core              | 55.69        | 7.73x slower         |
-| babel-parser          | 65.00        | 9.03x slower         |
+Latest Docker run:
 
-Tested on lodash, axios, react, moment, express, and chalk. See [benchmarks](./tests/benchmarks/README.md) for details.
+| Check                    | Tool                                    | Average  |
+| ------------------------ | --------------------------------------- | -------- |
+| ES5 syntax CLI           | es-check@9.6.3                          | 59.02ms  |
+| ES5 syntax CLI           | es-check                                | 61.27ms  |
+| ES2020 features CLI      | es-check --checkFeatures                | 109.29ms |
+| ES2020 features CLI      | es-check@9.6.3 --checkFeatures          | 134.15ms |
+| ES2020 features Node API | es-check Node API --checkFeatures       | 9.06ms   |
+| ES2020 features Node API | es-check@9.6.3 Node API --checkFeatures | 8.66ms   |
+
+In this run, current ES Check was 3.81% slower than `es-check@9.6.3` for syntax-only ES5 CLI checks, 18.53% faster for ES2020 feature CLI checks, and 4.53% slower for the warmed Node API feature benchmark.
+
+See [benchmarks](./tests/benchmarks/README.md) for the full methodology.
 
 ---
 

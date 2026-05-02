@@ -31,17 +31,17 @@
     "scripts:generate": "pnpm run scripts:generate:requirements && pnpm run scripts:generate:polyfills",
     "scripts:generate:requirements": "node scripts/generate/requirements/parser.mjs",
     "scripts:generate:polyfills": "node scripts/generate/polyfills/core.mjs",
-    "test": "node tests/scripts/test-runner.js unit && npm run test:e2e",
+    "test": "node tests/scripts/test-runner.js unit && pnpm run test:e2e",
     "test:unit": "node tests/scripts/test-runner.js unit",
     "test:unit:verbose": "node tests/scripts/test-runner.js unit --verbose",
-    "test:e2e": "npm run test:e2e:cli && npm run test:e2e:esm && npm run test:e2e:package-files && npm run test:e2e:sourcemap",
+    "test:e2e": "pnpm run test:e2e:cli && pnpm run test:e2e:esm && pnpm run test:e2e:package-files && pnpm run test:e2e:sourcemap",
     "test:e2e:typescript": "tests/e2e/typescript/run-tests.sh",
     "test:e2e:cli": "node tests/e2e/test-cli.js",
     "test:e2e:esm": "node tests/e2e/test-esm-import.mjs",
     "test:e2e:package-files": "node tests/e2e/test-package-files.mjs",
     "test:e2e:sourcemap": "node --test tests/e2e/test-sourcemap.js --test-timeout=10000",
     "update": "codependence --update && pastoralist && pnpm run scripts:generate",
-    "benchmark": "./tests/benchmarks/run-benchmarks.sh",
+    "benchmark": "docker build -t es-check-benchmark -f tests/benchmarks/Dockerfile . && docker run --rm es-check-benchmark",
     "site:dev": "pnpm --filter es-check-docs run dev",
     "site:build": "pnpm --filter es-check-docs run build",
     "site:preview": "pnpm --filter es-check-docs run preview",
@@ -73,7 +73,7 @@
   },
   "engines": {
     "node": ">=18.0.0",
-    "pnpm": ">=9.0.0"
+    "pnpm": ">=11.0.0"
   },
   "keywords": [
     "check for es6",
@@ -117,7 +117,7 @@
       "after:release": "echo Successfully released ${name} v${version} to ${repo.repository}."
     }
   },
-  "packageManager": "pnpm@10.30.0",
+  "packageManager": "pnpm@11.0.3",
   "pastoralist": {
     "appendix": {
       "vite@6.4.1": {

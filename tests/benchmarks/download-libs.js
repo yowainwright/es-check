@@ -93,7 +93,7 @@ async function downloadLibraries() {
 
   log.info("\nDownload complete!");
   log.info(
-    `\nRun benchmarks with: node tests/benchmarks/compare-tools.js 3 tests/benchmarks/real-libs`,
+    `\nRun benchmarks with: node tests/benchmarks/compare-tools.js 10 tests/benchmarks/real-libs`,
   );
 }
 

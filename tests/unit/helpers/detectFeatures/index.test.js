@@ -4,6 +4,7 @@ const acorn = require("acorn");
 const detectFeatures = require("../../../../lib/detectFeatures");
 const detectPolyfills = detectFeatures.detectPolyfills;
 const filterPolyfilled = detectFeatures.filterPolyfilled;
+const createFeatureDetectionPlan = detectFeatures.createFeatureDetectionPlan;
 
 const parse = (code, sourceType = "script") =>
   acorn.parse(code, { ecmaVersion: 2025, sourceType });
@@ -128,6 +129,47 @@ describe("detectFeatures", () => {
       } catch (error) {
         assert.fail("Should not throw when features are in ignoreList");
       }
+    });
+
+    it("should skip supported feature tracking when only unsupported features are requested", () => {
+      const code = `
+        const x = 1;
+        class MyClass {}
+      `;
+
+      const { foundFeatures, unsupportedFeatures } = detectFeatures(
+        code,
+        6,
+        "script",
+        new Set(),
+        { ast: parse(code), onlyUnsupportedFeatures: true },
+      );
+
+      assert.strictEqual(foundFeatures.const, undefined);
+      assert.strictEqual(foundFeatures.class, undefined);
+      assert.strictEqual(unsupportedFeatures.length, 0);
+    });
+
+    it("should use a precomputed feature detection plan", () => {
+      const code = "const value = obj?.nested;";
+      const plan = createFeatureDetectionPlan(11, new Set());
+
+      assert(plan.detectionContext);
+
+      const { foundFeatures, unsupportedFeatures } = detectFeatures(
+        code,
+        11,
+        "script",
+        new Set(),
+        {
+          ast: parse(code),
+          onlyUnsupportedFeatures: true,
+          featureDetectionPlan: plan,
+        },
+      );
+
+      assert.strictEqual(unsupportedFeatures.length, 0);
+      assert.strictEqual(foundFeatures.OptionalChaining, undefined);
     });
   });
 
