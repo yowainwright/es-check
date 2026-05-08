@@ -65,7 +65,7 @@
     "oxlint": "^1.49.0",
     "pastoralist": "1.10.0-1",
     "prettier": "3.8.3",
-    "release-it": "20.0.0"
+    "release-it": "20.0.1"
   },
   "dependencies": {
     "acorn": "8.16.0",
