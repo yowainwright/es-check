@@ -70,5 +70,17 @@
   ],
   "resolutions": {
     "eslint-scope": "3.7.1"
+  },
+  "pastoralist": {
+    "appendix": {
+      "eslint-scope@3.7.1": {
+        "dependents": {
+          "es-check": "eslint-scope (unused override)"
+        },
+        "ledger": {
+          "addedDate": "2020-10-27T16:40:48-07:00"
+        }
+      }
+    }
   }
 }
