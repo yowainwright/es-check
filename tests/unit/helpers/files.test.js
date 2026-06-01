@@ -119,13 +119,7 @@ describe("helpers/files.js", () => {
     });
 
     it("should process files in batches when batchSize is specified", () => {
-      const files = [
-        "file1.js",
-        "file2.js",
-        "file3.js",
-        "file4.js",
-        "file5.js",
-      ];
+      const files = ["file1.js", "file2.js", "file3.js", "file4.js", "file5.js"];
 
       const processor = (file) => {
         return file;

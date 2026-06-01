@@ -322,12 +322,7 @@ describe("check-runner/utils.js", () => {
     });
 
     it("should filter out ignored files", () => {
-      const files = [
-        "src/main.js",
-        "src/test.js",
-        "node_modules/lib.js",
-        "vendor/vendor.js",
-      ];
+      const files = ["src/main.js", "src/test.js", "node_modules/lib.js", "vendor/vendor.js"];
       const pathsToIgnore = ["**/node_modules/**", "**/vendor/**"];
       const globOpts = {};
 
@@ -493,10 +488,7 @@ test("parses nullish coalescing assignment when checkFeatures enabled", () => {
 
 test("does not flag RegExp constructor as RegExpEscape", () => {
   const testFile = path.join(testDir, "regexp.js");
-  fs.writeFileSync(
-    testFile,
-    "function a(v) { return v.replace(RegExp(v, 'g')); }",
-  );
+  fs.writeFileSync(testFile, "function a(v) { return v.replace(RegExp(v, 'g')); }");
 
   const config = { checkFeatures: true };
   const acornOpts = { ecmaVersion: 2025, sourceType: "script" };
@@ -606,9 +598,7 @@ test("re-throws non-ES-Check errors from detectFeatures", () => {
   const utilsPath = require.resolve("../../../lib/check-runner/utils.js");
   delete require.cache[utilsPath];
 
-  const {
-    createFileProcessor: freshProcessor,
-  } = require("../../../lib/check-runner/utils.js");
+  const { createFileProcessor: freshProcessor } = require("../../../lib/check-runner/utils.js");
 
   const config = { checkFeatures: true };
   const acornOpts = { ecmaVersion: 2025, sourceType: "script" };

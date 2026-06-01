@@ -1,9 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import type {
-  AnimatedTerminalProps,
-  TerminalLine,
-  CodeBlockProps,
-} from "./types";
+import type { AnimatedTerminalProps, TerminalLine, CodeBlockProps } from "./types";
 import {
   DEFAULT_TYPING_SPEED,
   DEFAULT_LOOP,
@@ -117,20 +113,12 @@ export function AnimatedTerminal({
           <code dangerouslySetInnerHTML={{ __html: text }} />
         </pre>
       ))}
-      <CodeBlock
-        isTyping={isTyping}
-        currentLine={currentLine}
-        displayedText={displayedText}
-      />
+      <CodeBlock isTyping={isTyping} currentLine={currentLine} displayedText={displayedText} />
     </div>
   );
 }
 
-export const CodeBlock = ({
-  isTyping,
-  currentLine,
-  displayedText,
-}: CodeBlockProps) => {
+export const CodeBlock = ({ isTyping, currentLine, displayedText }: CodeBlockProps) => {
   const isInactive = !isTyping || !currentLine;
   if (isInactive) return;
   const dataPrefix = currentLine.prefix ?? "";
@@ -146,9 +134,4 @@ export const CodeBlock = ({
   );
 };
 
-export type {
-  AnimatedTerminalProps,
-  TerminalDemo,
-  TerminalLine,
-  CodeBlockProps,
-} from "./types";
+export type { AnimatedTerminalProps, TerminalDemo, TerminalLine, CodeBlockProps } from "./types";

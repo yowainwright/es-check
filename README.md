@@ -177,6 +177,8 @@ es-check es5 './src/**/*.{js,ts}' --typescript
 
 This is experimental functionality that strips TypeScript type annotations and tests the resulting JavaScript against the specified ES version.
 
+Runtime support for TypeScript checks is limited to Node.js v22.13.0+ through `module.stripTypeScriptTypes` and Bun v1.0.0+ through `Bun.Transpiler`. JavaScript checks still work on older supported Node.js versions.
+
 **Skipping specific files or directories:**
 
 ```sh

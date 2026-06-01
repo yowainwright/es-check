@@ -172,8 +172,7 @@ function generateTestFiles() {
   const es6Count = Math.floor(numFiles * 0.3); // 30% ES6
   const es2020Count = Math.floor(numFiles * 0.2); // 20% ES2020
   const es2024Count = Math.floor(numFiles * 0.1); // 10% ES2024
-  const es2025Count =
-    numFiles - es5Count - es6Count - es2020Count - es2024Count; // Remaining as ES2025
+  const es2025Count = numFiles - es5Count - es6Count - es2020Count - es2024Count; // Remaining as ES2025
 
   for (let i = 0; i < es5Count; i++) {
     const filePath = path.join(outputDir, `es5-file-${i + 1}.js`);

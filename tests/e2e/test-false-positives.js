@@ -11,17 +11,11 @@ log.info("Testing false positive detection...\n");
 
 const esCheckPath = path.join(__dirname, "..", "..", "lib", "cli", "index.js");
 
-log.info(
-  "Test 1: String with underscore should NOT be flagged as numeric separator",
-);
+log.info("Test 1: String with underscore should NOT be flagged as numeric separator");
 try {
   execFileSync(
     "node",
-    [
-      esCheckPath,
-      "es5",
-      "./tests/fixtures/false-positive-numeric-separator.js",
-    ],
+    [esCheckPath, "es5", "./tests/fixtures/false-positive-numeric-separator.js"],
     { encoding: "utf8" },
   );
   log.info("[PASS] Test 1 passed\n");
@@ -33,11 +27,9 @@ try {
 
 log.info("Test 2: String with ** should NOT be flagged as exponent operator");
 try {
-  execFileSync(
-    "node",
-    [esCheckPath, "es5", "./tests/fixtures/false-positive-exponent.js"],
-    { encoding: "utf8" },
-  );
+  execFileSync("node", [esCheckPath, "es5", "./tests/fixtures/false-positive-exponent.js"], {
+    encoding: "utf8",
+  });
   log.info("[PASS] Test 2 passed\n");
 } catch (error) {
   log.error("[FAIL] Test 2 failed - false positive for exponent operator");
@@ -45,15 +37,11 @@ try {
   process.exit(1);
 }
 
-log.info(
-  "Test 3: Ternary with decimal should NOT be flagged as optional chaining",
-);
+log.info("Test 3: Ternary with decimal should NOT be flagged as optional chaining");
 try {
-  execFileSync(
-    "node",
-    [esCheckPath, "es5", "./tests/fixtures/false-positive-decimal.js"],
-    { encoding: "utf8" },
-  );
+  execFileSync("node", [esCheckPath, "es5", "./tests/fixtures/false-positive-decimal.js"], {
+    encoding: "utf8",
+  });
   log.info("[PASS] Test 3 passed\n");
 } catch (error) {
   log.error("[FAIL] Test 3 failed - false positive for optional chaining");

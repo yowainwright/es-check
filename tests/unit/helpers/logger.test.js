@@ -58,6 +58,8 @@ describe("helpers/logger.js", () => {
     });
 
     it("should return true when FORCE_COLOR is set", () => {
+      delete process.env.NO_COLOR;
+      delete process.env.NODE_DISABLE_COLORS;
       process.env.FORCE_COLOR = "1";
       const mockStream = {
         isTTY: true,

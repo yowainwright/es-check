@@ -1,9 +1,6 @@
 const { describe, it, before, after } = require("node:test");
 const assert = require("node:assert");
-const {
-  getESVersionFromBrowserslist,
-  getESVersionForBrowser,
-} = require("../../lib/browserslist");
+const { getESVersionFromBrowserslist, getESVersionForBrowser } = require("../../lib/browserslist");
 const fs = require("fs");
 const path = require("path");
 
@@ -15,10 +12,7 @@ before(() => {
 
   fs.writeFileSync(path.join(__dirname, ".browserslistrc-legacy"), "IE 11");
 
-  fs.writeFileSync(
-    path.join(__dirname, ".browserslistrc-mixed"),
-    "last 2 Chrome versions\nIE 11",
-  );
+  fs.writeFileSync(path.join(__dirname, ".browserslistrc-mixed"), "last 2 Chrome versions\nIE 11");
 
   fs.writeFileSync(
     path.join(__dirname, ".browserslistrc-env"),
@@ -41,10 +35,7 @@ describe("getESVersionFromBrowserslist", () => {
     const esVersion = getESVersionFromBrowserslist({
       browserslistPath: path.join(__dirname, ".browserslistrc-modern"),
     });
-    assert(
-      esVersion >= 6,
-      "ES version should be 6 or higher for modern browsers",
-    );
+    assert(esVersion >= 6, "ES version should be 6 or higher for modern browsers");
   });
 
   it("should determine ES5 for legacy browsers (IE)", () => {
@@ -58,11 +49,7 @@ describe("getESVersionFromBrowserslist", () => {
     const esVersion = getESVersionFromBrowserslist({
       browserslistPath: path.join(__dirname, ".browserslistrc-mixed"),
     });
-    assert.strictEqual(
-      esVersion,
-      5,
-      "ES version should be 5 when IE 11 is included",
-    );
+    assert.strictEqual(esVersion, 5, "ES version should be 5 when IE 11 is included");
   });
 
   it("should respect the browserslist environment", () => {
@@ -70,31 +57,20 @@ describe("getESVersionFromBrowserslist", () => {
       browserslistPath: path.join(__dirname, ".browserslistrc-env"),
       browserslistEnv: "modern",
     });
-    assert(
-      modernEsVersion >= 6,
-      "ES version should be 6 or higher for modern environment",
-    );
+    assert(modernEsVersion >= 6, "ES version should be 6 or higher for modern environment");
 
     const legacyEsVersion = getESVersionFromBrowserslist({
       browserslistPath: path.join(__dirname, ".browserslistrc-env"),
       browserslistEnv: "legacy",
     });
-    assert.strictEqual(
-      legacyEsVersion,
-      5,
-      "ES version should be 5 for legacy environment",
-    );
+    assert.strictEqual(legacyEsVersion, 5, "ES version should be 5 for legacy environment");
   });
 
   it("should default to ES5 if no browserslist config is found", () => {
     const esVersion = getESVersionFromBrowserslist({
       browserslistPath: path.join(__dirname, "non-existent-file"),
     });
-    assert.strictEqual(
-      esVersion,
-      5,
-      "ES version should default to 5 if no config is found",
-    );
+    assert.strictEqual(esVersion, 5, "ES version should default to 5 if no config is found");
   });
 
   it("should determine ES12+ for Safari 14+", () => {
@@ -108,10 +84,7 @@ describe("getESVersionFromBrowserslist", () => {
     const esVersion = getESVersionFromBrowserslist({
       browserslistQuery: "Chrome >= 100",
     });
-    assert(
-      esVersion >= 11,
-      "ES version should be 11 or higher for Chrome >= 100",
-    );
+    assert(esVersion >= 11, "ES version should be 11 or higher for Chrome >= 100");
   });
 
   it("should determine ES14 for Chrome 111", () => {
@@ -132,11 +105,7 @@ describe("getESVersionFromBrowserslist", () => {
     const esVersion = getESVersionFromBrowserslist({
       browserslistQuery: "> 99.99%",
     });
-    assert.strictEqual(
-      esVersion,
-      5,
-      "ES version should be 5 for no matching browsers",
-    );
+    assert.strictEqual(esVersion, 5, "ES version should be 5 for no matching browsers");
   });
 
   it("should return minimum ES version when browsers have different support levels (issue #382)", () => {
@@ -165,22 +134,14 @@ describe("getESVersionFromBrowserslist", () => {
     const esVersion = getESVersionFromBrowserslist({
       browserslistQuery: "kaios 2.5",
     });
-    assert.strictEqual(
-      esVersion,
-      5,
-      "Should return ES5 when no known browsers are in the query",
-    );
+    assert.strictEqual(esVersion, 5, "Should return ES5 when no known browsers are in the query");
   });
 
   it("should return correct version for single browser query", () => {
     const esVersion = getESVersionFromBrowserslist({
       browserslistQuery: "chrome 97",
     });
-    assert.strictEqual(
-      esVersion,
-      14,
-      "Single browser Chrome 97 should return ES14",
-    );
+    assert.strictEqual(esVersion, 14, "Single browser Chrome 97 should return ES14");
   });
 
   it("should return same version when all browsers have same ES level", () => {
@@ -216,11 +177,7 @@ describe("getESVersionFromBrowserslist", () => {
     const esVersion = getESVersionFromBrowserslist({
       browserslistQuery: "chrome 6",
     });
-    assert.strictEqual(
-      esVersion,
-      6,
-      "Chrome 6 should return ES6 (fallback for very old Chrome)",
-    );
+    assert.strictEqual(esVersion, 6, "Chrome 6 should return ES6 (fallback for very old Chrome)");
   });
 
   it("should return ES13 for firefox 100 alone", () => {
@@ -253,11 +210,7 @@ describe("getESVersionFromBrowserslist", () => {
       const esVersion = getESVersionFromBrowserslist({
         browserslistQuery: query,
       });
-      assert.strictEqual(
-        esVersion,
-        expected,
-        `${description} should return ES${expected}`,
-      );
+      assert.strictEqual(esVersion, expected, `${description} should return ES${expected}`);
     });
   });
 });
@@ -290,11 +243,7 @@ describe("getESVersionForBrowser", () => {
 
   it("should return ES9 for Chrome 60 to support object spread (issue #383)", () => {
     const esVersion = getESVersionForBrowser("chrome", "60");
-    assert.strictEqual(
-      esVersion,
-      9,
-      "Chrome 60 should map to ES9 to support object spread syntax",
-    );
+    assert.strictEqual(esVersion, 9, "Chrome 60 should map to ES9 to support object spread syntax");
   });
 
   it("should return ES8 for Chrome 58", () => {

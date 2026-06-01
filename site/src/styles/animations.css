@@ -106,11 +106,7 @@
 .btn-glow {
   position: relative;
   color: white;
-  background: linear-gradient(
-    135deg,
-    oklch(0.7 0.12 240) 0%,
-    oklch(0.6 0.14 240) 100%
-  );
+  background: linear-gradient(135deg, oklch(0.7 0.12 240) 0%, oklch(0.6 0.14 240) 100%);
   box-shadow: 0 0 20px 2px rgba(106, 163, 212, 0.4);
   border: 2px solid oklch(0.75 0.14 240);
   overflow: hidden;
@@ -123,12 +119,7 @@
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.3),
-    transparent
-  );
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
   animation: shimmer 3s infinite;
 }
 

@@ -1,9 +1,5 @@
 import type { ComponentType } from "react";
-function log(
-  target: any,
-  propertyName: string,
-  descriptor: PropertyDescriptor,
-) {
+function log(target: any, propertyName: string, descriptor: PropertyDescriptor) {
   const method = descriptor.value;
   descriptor.value = function (...args: any[]) {
     console.log(`Calling ${propertyName} with`, args);

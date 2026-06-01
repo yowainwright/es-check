@@ -2,26 +2,56 @@
   "name": "es-check",
   "version": "9.6.4",
   "description": "Checks the ECMAScript version of .js glob against a specified version of ECMAScript with a shell command",
-  "main": "lib/index.js",
+  "keywords": [
+    "check for es6",
+    "check for modules",
+    "ecmascript",
+    "ecmascript check",
+    "ecmascript matching",
+    "ecmascript version",
+    "es",
+    "es check",
+    "es matching",
+    "es version",
+    "js",
+    "js version",
+    "js version check",
+    "js version matching",
+    "test ecmascript version",
+    "test js version"
+  ],
+  "homepage": "https://github.com/yowainwright/es-check#readme",
+  "bugs": {
+    "url": "https://github.com/yowainwright/es-check/issues"
+  },
   "license": "MIT",
+  "author": "Jeff Wainwright <yowainwright@gmail.com> (https://jeffry.in), Brian Gonzalez <me@briangonzalez.org>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yowainwright/es-check.git"
+  },
+  "bin": {
+    "es-check": "lib/cli/index.js"
+  },
+  "workspaces": [
+    "site"
+  ],
+  "files": [
+    "lib"
+  ],
+  "main": "lib/index.js",
   "exports": {
     ".": {
       "import": "./lib/esm-wrapper.mjs",
       "require": "./lib/index.js"
     }
   },
-  "files": [
-    "lib"
-  ],
-  "bin": {
-    "es-check": "lib/cli/index.js"
-  },
   "scripts": {
     "dev": "pnpm site:dev",
-    "lint": "oxlint lib",
-    "lint:ci": "oxlint lib --quiet",
-    "format": "prettier --write .",
-    "format:check": "prettier --check .",
+    "lint": "oxlint -c .oxlintrc.json lib",
+    "lint:ci": "oxlint -c .oxlintrc.json lib --quiet",
+    "format": "oxfmt",
+    "format:check": "oxfmt --check",
     "pastoralist": "pastoralist",
     "pre-commit": "pnpm lint && pnpm format && pnpm test",
     "prepare": "node scripts/install/hooks.mjs",
@@ -47,75 +77,34 @@
     "site:preview": "pnpm --filter es-check-docs run preview",
     "site:install": "pnpm --filter es-check-docs install"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/yowainwright/es-check.git"
+  "dependencies": {
+    "acorn": "8.16.0",
+    "fast-glob": "^3.3.3"
   },
-  "author": "Jeff Wainwright <yowainwright@gmail.com> (https://jeffry.in), Brian Gonzalez <me@briangonzalez.org>",
-  "bugs": {
-    "url": "https://github.com/yowainwright/es-check/issues"
-  },
-  "homepage": "https://github.com/yowainwright/es-check#readme",
-  "website": "https://jeffry.in/es-check",
   "devDependencies": {
     "@mdn/browser-compat-data": "^7.3.3",
     "browserslist": "^4.28.1",
     "codependence": "0.3.1",
     "core-js-compat": "^3.48.0",
+    "oxfmt": "^0.52.0",
     "oxlint": "^1.49.0",
     "pastoralist": "1.10.0-1",
-    "prettier": "3.8.3",
     "release-it": "20.0.1"
   },
-  "dependencies": {
-    "acorn": "8.16.0",
-    "fast-glob": "^3.3.3"
+  "overrides": {
+    "ajv": "8.18.0",
+    "devalue": "5.6.3",
+    "diff": "5.2.2",
+    "js-yaml": "4.1.1",
+    "lodash": "4.17.23",
+    "mdast-util-to-hast": "13.2.1",
+    "tmp": "0.2.4",
+    "undici": "6.23.0",
+    "vite": "6.4.1"
   },
   "engines": {
     "node": ">=18.0.0",
     "pnpm": ">=9.0.0"
-  },
-  "keywords": [
-    "check for es6",
-    "check for modules",
-    "es",
-    "es check",
-    "es matching",
-    "es version",
-    "ecmascript",
-    "ecmascript check",
-    "ecmascript matching",
-    "ecmascript version",
-    "js",
-    "js version",
-    "js version check",
-    "js version matching",
-    "test js version",
-    "test ecmascript version"
-  ],
-  "release-it": {
-    "git": {
-      "commitMessage": "chore: release v${version}",
-      "requireBranch": "main",
-      "requireCleanWorkingDir": true
-    },
-    "github": {
-      "release": true,
-      "web": true
-    },
-    "npm": {
-      "publishConfig": {
-        "registry": "https://registry.npmjs.org/",
-        "access": "public"
-      }
-    },
-    "hooks": {
-      "before:init": [
-        "pnpm run lint",
-        "pnpm test"
-      ],
-      "after:release": "echo Successfully released ${name} v${version} to ${repo.repository}."
-    }
   },
   "packageManager": "pnpm@10.30.0",
   "pastoralist": {
@@ -241,18 +230,29 @@
       "hasWorkspaceSecurityChecks": true
     }
   },
-  "overrides": {
-    "vite": "6.4.1",
-    "tmp": "0.2.4",
-    "js-yaml": "4.1.1",
-    "mdast-util-to-hast": "13.2.1",
-    "undici": "6.23.0",
-    "devalue": "5.6.3",
-    "lodash": "4.17.23",
-    "diff": "5.2.2",
-    "ajv": "8.18.0"
+  "release-it": {
+    "git": {
+      "commitMessage": "chore: release v${version}",
+      "requireBranch": "main",
+      "requireCleanWorkingDir": true
+    },
+    "github": {
+      "release": true,
+      "web": true
+    },
+    "npm": {
+      "publishConfig": {
+        "registry": "https://registry.npmjs.org/",
+        "access": "public"
+      }
+    },
+    "hooks": {
+      "before:init": [
+        "pnpm run lint",
+        "pnpm test"
+      ],
+      "after:release": "echo Successfully released ${name} v${version} to ${repo.repository}."
+    }
   },
-  "workspaces": [
-    "site"
-  ]
+  "website": "https://jeffry.in/es-check"
 }

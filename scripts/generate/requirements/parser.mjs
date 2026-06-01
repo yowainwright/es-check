@@ -112,9 +112,7 @@ function formatEntry(feature, version) {
 function formatEntries(parserRequirements) {
   const entries = Object.entries(parserRequirements);
   const sortedEntries = sortEntriesByVersion(entries);
-  return sortedEntries
-    .map(([feature, version]) => formatEntry(feature, version))
-    .join("\n");
+  return sortedEntries.map(([feature, version]) => formatEntry(feature, version)).join("\n");
 }
 
 function createModuleTemplate(formattedEntries) {
