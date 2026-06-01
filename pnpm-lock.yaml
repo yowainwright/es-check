@@ -37,8 +37,8 @@ importers:
         specifier: 1.10.0-1
         version: 1.10.0-1
       release-it:
-        specifier: 20.0.1
-        version: 20.0.1(@types/node@24.10.1)(magicast@0.5.1)
+        specifier: 20.2.0
+        version: 20.2.0(@types/node@24.10.1)(magicast@0.5.1)
 
   site:
     dependencies:
@@ -2492,8 +2492,8 @@ packages:
   rehype-slug@6.0.0:
     resolution: {integrity: sha512-lWyvf/jwu+oS5+hL5eClVd3hNdmwM1kAC0BUvEGD19pajQMIzcNUd/k9GsfQ+FfECvX+JE+e9/btsKH0EjJT6A==}
 
-  release-it@20.0.1:
-    resolution: {integrity: sha512-3ob1P1aV+3+ZOoR7qgobfYyMlQbpitzOK09iKTtQ145vFi4rWxlRTgHwtVl8kokCvqiF/cJPxRlfcmZmF5aDJA==}
+  release-it@20.2.0:
+    resolution: {integrity: sha512-9ZTk9ripgctC6VTqH+P54KuboK29A5mG/I3tFfS5hnoAnkwtFFAMHRidYz93ylrW995vF50Ny1aOGJiyRmEN7w==}
     engines: {node: ^20.19.0 || ^22.13.0 || >=24.0.0}
     hasBin: true
 
@@ -5292,7 +5292,7 @@ snapshots:
       hast-util-to-string: 3.0.1
       unist-util-visit: 5.0.0
 
-  release-it@20.0.1(@types/node@24.10.1)(magicast@0.5.1):
+  release-it@20.2.0(@types/node@24.10.1)(magicast@0.5.1):
     dependencies:
       '@inquirer/prompts': 8.4.2(@types/node@24.10.1)
       '@octokit/rest': 22.0.1
