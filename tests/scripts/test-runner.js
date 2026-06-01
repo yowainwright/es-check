@@ -30,9 +30,7 @@ function runTests(files, options = {}) {
     "--test",
     ...(options.coverage ? ["--experimental-test-coverage"] : []),
     ...(options.reporter ? [`--test-reporter=${options.reporter}`] : []),
-    ...(options.timeout
-      ? [`--test-timeout=${options.timeout}`]
-      : ["--test-timeout=10000"]),
+    ...(options.timeout ? [`--test-timeout=${options.timeout}`] : ["--test-timeout=10000"]),
     ...files,
   ];
 

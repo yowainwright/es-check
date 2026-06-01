@@ -1,11 +1,4 @@
-const POPULAR_LIBRARIES = [
-  "lodash",
-  "axios",
-  "react",
-  "moment",
-  "express",
-  "chalk",
-];
+const POPULAR_LIBRARIES = ["lodash", "axios", "react", "moment", "express", "chalk"];
 
 const LIBRARY_URLS = {
   lodash: "https://unpkg.com/lodash@4.17.21/lodash.js",

@@ -15,16 +15,8 @@ log.info("Testing ESM import functionality...\n");
 
 // Test 1: Verify imports work
 log.info("Test 1: ESM imports successful");
-assert.strictEqual(
-  typeof runChecks,
-  "function",
-  "runChecks should be a function",
-);
-assert.strictEqual(
-  typeof loadConfig,
-  "function",
-  "loadConfig should be a function",
-);
+assert.strictEqual(typeof runChecks, "function", "runChecks should be a function");
+assert.strictEqual(typeof loadConfig, "function", "loadConfig should be a function");
 log.info("[PASS] Test 1 passed\n");
 
 // Test 2: Test runChecks with ES5 file
@@ -87,11 +79,7 @@ writeFileSync(configPath, JSON.stringify(testConfig, null, 2));
 try {
   const loadedConfig = await loadConfig(configPath);
   assert.ok(Array.isArray(loadedConfig), "loadConfig should return an array");
-  assert.strictEqual(
-    loadedConfig[0].ecmaVersion,
-    "es6",
-    "Should load correct ecmaVersion",
-  );
+  assert.strictEqual(loadedConfig[0].ecmaVersion, "es6", "Should load correct ecmaVersion");
   log.info("[PASS] Test 5 passed\n");
 } finally {
   unlinkSync(configPath);

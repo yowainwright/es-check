@@ -13,9 +13,7 @@ const rootDir = path.join(__dirname, "..", "..");
 const verbose = process.env.VERBOSE === "true" || process.env.DEBUG === "true";
 const log = createLogger({ verbose });
 
-const packageJson = JSON.parse(
-  fs.readFileSync(path.join(rootDir, "package.json"), "utf8"),
-);
+const packageJson = JSON.parse(fs.readFileSync(path.join(rootDir, "package.json"), "utf8"));
 const filesInPackage = packageJson.files || [];
 
 function analyzeFileDependencies(filePath, visited = new Set()) {
@@ -46,14 +44,10 @@ function analyzeFileDependencies(filePath, visited = new Set()) {
         depPath = path.normalize(path.join(path.dirname(filePath), depPath));
         const fullDepPath = path.join(rootDir, depPath);
 
-        const hasJsExtension =
-          depPath.endsWith(".js") || depPath.endsWith(".mjs");
+        const hasJsExtension = depPath.endsWith(".js") || depPath.endsWith(".mjs");
         if (!hasJsExtension) {
-          const isDirectory =
-            fs.existsSync(fullDepPath) &&
-            fs.statSync(fullDepPath).isDirectory();
-          const hasIndexFile =
-            isDirectory && fs.existsSync(path.join(fullDepPath, "index.js"));
+          const isDirectory = fs.existsSync(fullDepPath) && fs.statSync(fullDepPath).isDirectory();
+          const hasIndexFile = isDirectory && fs.existsSync(path.join(fullDepPath, "index.js"));
           const hasJsFile = fs.existsSync(fullDepPath + ".js");
           const hasMjsFile = fs.existsSync(fullDepPath + ".mjs");
 
@@ -67,9 +61,7 @@ function analyzeFileDependencies(filePath, visited = new Set()) {
         }
 
         const resolvedPath = path.join(rootDir, depPath);
-        const isValidFile =
-          fs.existsSync(resolvedPath) &&
-          !fs.statSync(resolvedPath).isDirectory();
+        const isValidFile = fs.existsSync(resolvedPath) && !fs.statSync(resolvedPath).isDirectory();
         if (isValidFile) {
           dependencies.push(depPath);
           dependencies.push(...analyzeFileDependencies(depPath, visited));
@@ -88,18 +80,14 @@ function findAllRequiredFiles() {
 
   if (packageJson.main) {
     requiredFiles.add(packageJson.main);
-    analyzeFileDependencies(packageJson.main).forEach((dep) =>
-      requiredFiles.add(dep),
-    );
+    analyzeFileDependencies(packageJson.main).forEach((dep) => requiredFiles.add(dep));
   }
 
   if (packageJson.bin) {
     for (const binPath of Object.values(packageJson.bin)) {
       const normalizedPath = binPath.replace(/^\.\//, "");
       requiredFiles.add(normalizedPath);
-      analyzeFileDependencies(normalizedPath).forEach((dep) =>
-        requiredFiles.add(dep),
-      );
+      analyzeFileDependencies(normalizedPath).forEach((dep) => requiredFiles.add(dep));
     }
   }
 
@@ -109,9 +97,7 @@ function findAllRequiredFiles() {
         if (typeof value === "string") {
           const normalizedPath = value.replace(/^\.\//, "");
           requiredFiles.add(normalizedPath);
-          analyzeFileDependencies(normalizedPath).forEach((dep) =>
-            requiredFiles.add(dep),
-          );
+          analyzeFileDependencies(normalizedPath).forEach((dep) => requiredFiles.add(dep));
         } else if (typeof value === "object" && value !== null) {
           extractExports(value);
         }
@@ -122,8 +108,7 @@ function findAllRequiredFiles() {
 
   return Array.from(requiredFiles).filter(
     (file) =>
-      fs.existsSync(path.join(rootDir, file)) &&
-      (file.endsWith(".js") || file.endsWith(".mjs")),
+      fs.existsSync(path.join(rootDir, file)) && (file.endsWith(".js") || file.endsWith(".mjs")),
   );
 }
 
@@ -144,9 +129,7 @@ function verifyPackageFiles() {
     });
 
     if (!isCovered) {
-      errors.push(
-        `[FAIL] Required file "${file}" is missing from package.json files array`,
-      );
+      errors.push(`[FAIL] Required file "${file}" is missing from package.json files array`);
       log.info(`[FAIL] ${file}`);
     } else {
       log.info(`[PASS] ${file}`);
@@ -159,9 +142,7 @@ function verifyPackageFiles() {
     if (!fs.existsSync(path.join(rootDir, file))) {
       warnings.push(`[WARN]  File "${file}" in package.json does not exist`);
     } else if (!requiredFiles.includes(file)) {
-      log.info(
-        `[NOTE]  ${file} - in package.json but not detected as dependency`,
-      );
+      log.info(`[NOTE]  ${file} - in package.json but not detected as dependency`);
     }
   }
 
@@ -209,9 +190,7 @@ function testNpmPack(requiredFiles) {
     let hasError = false;
     for (const requiredFile of requiredFiles) {
       if (!packedFiles.includes(requiredFile)) {
-        log.info(
-          `[FAIL] Required file "${requiredFile}" will NOT be included in npm package`,
-        );
+        log.info(`[FAIL] Required file "${requiredFile}" will NOT be included in npm package`);
         hasError = true;
       }
     }

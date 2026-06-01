@@ -11,11 +11,7 @@ const verbose = process.env.VERBOSE === "true" || process.env.DEBUG === "true";
 const defaultLogger = createLogger({ verbose });
 
 function createUniqueConfigFile(config, testName) {
-  const hash = crypto
-    .createHash("md5")
-    .update(testName)
-    .digest("hex")
-    .substring(0, 8);
+  const hash = crypto.createHash("md5").update(testName).digest("hex").substring(0, 8);
   const configFileName = `.escheckrc.${hash}`;
   fs.writeFileSync(configFileName, JSON.stringify(config));
   return configFileName;
@@ -112,8 +108,7 @@ function createMockLogger(options = {}) {
     error: (msg) => logs.push({ level: "error", msg }),
     warn: (msg) => logs.push({ level: "warn", msg }),
     debug: (msg) => logs.push({ level: "debug", msg }),
-    isLevelEnabled: (level) =>
-      options.enabledLevels ? options.enabledLevels[level] : true,
+    isLevelEnabled: (level) => (options.enabledLevels ? options.enabledLevels[level] : true),
     getLogs: () => logs,
     clear: () => (logs.length = 0),
   };

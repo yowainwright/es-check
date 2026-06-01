@@ -104,10 +104,7 @@ class FixtureGenerator {
       .digest("hex")
       .substring(0, 8);
 
-    const configPath = this.createTempFile(
-      `.escheckrc.${hash}`,
-      JSON.stringify(config),
-    );
+    const configPath = this.createTempFile(`.escheckrc.${hash}`, JSON.stringify(config));
     return configPath;
   }
 

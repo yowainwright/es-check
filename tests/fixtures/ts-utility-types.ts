@@ -15,17 +15,10 @@ type FunctionPropertyNames<T> = {
 type FunctionProperties<T> = Pick<T, FunctionPropertyNames<T>>;
 type NonFunctionProperties<T> = Omit<T, FunctionPropertyNames<T>>;
 
-type Head<T extends readonly any[]> = T extends readonly [any, ...any[]]
-  ? T[0]
-  : never;
-type Tail<T extends readonly any[]> = T extends readonly [any, ...infer U]
-  ? U
-  : [];
+type Head<T extends readonly any[]> = T extends readonly [any, ...any[]] ? T[0] : never;
+type Tail<T extends readonly any[]> = T extends readonly [any, ...infer U] ? U : [];
 
-type Join<
-  T extends readonly string[],
-  D extends string = ",",
-> = T extends readonly []
+type Join<T extends readonly string[], D extends string = ","> = T extends readonly []
   ? ""
   : T extends readonly [string]
     ? T[0]

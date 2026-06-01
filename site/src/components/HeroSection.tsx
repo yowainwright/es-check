@@ -17,12 +17,8 @@ export function HeroSection() {
           <Logo className={`animate-on-scroll ${visibleClass}`} />
           <NewBadge className={`animate-on-scroll stagger-1 ${visibleClass}`} />
           <Headline className={`animate-on-scroll stagger-2 ${visibleClass}`} />
-          <Description
-            className={`animate-on-scroll stagger-3 ${visibleClass}`}
-          />
-          <CTAButtons
-            className={`animate-on-scroll stagger-4 ${visibleClass}`}
-          />
+          <Description className={`animate-on-scroll stagger-3 ${visibleClass}`} />
+          <CTAButtons className={`animate-on-scroll stagger-4 ${visibleClass}`} />
         </div>
       </div>
     </div>
@@ -78,8 +74,8 @@ function Description({ className }: { className: string }) {
   return (
     <div className={`flex justify-center items-center ${className}`}>
       <p className="py-7 max-w-4xl text-md md:text-xl lg:text-2xl">
-        Ensure your JavaScript files match the ECMAScript version you need. ES
-        Check helps prevent incompatible code from breaking production.
+        Ensure your JavaScript files match the ECMAScript version you need. ES Check helps prevent
+        incompatible code from breaking production.
       </p>
     </div>
   );
@@ -90,11 +86,7 @@ function CTAButtons({ className }: { className: string }) {
     <div
       className={`flex flex-col md:flex-row justify-center items-center gap-5 mt-8 w-full max-w-2xl mx-auto ${className}`}
     >
-      <Link
-        to="/docs/$slug"
-        params={{ slug: "gettingstarted" }}
-        className="w-full md:w-auto"
-      >
+      <Link to="/docs/$slug" params={{ slug: "gettingstarted" }} className="w-full md:w-auto">
         <button className="btn btn-lg btn-primary btn-glow text-lg w-full md:w-auto whitespace-nowrap">
           Get Started
           <ArrowRight className="size-5" />

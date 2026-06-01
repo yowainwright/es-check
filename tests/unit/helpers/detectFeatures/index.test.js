@@ -5,8 +5,7 @@ const detectFeatures = require("../../../../lib/detectFeatures");
 const detectPolyfills = detectFeatures.detectPolyfills;
 const filterPolyfilled = detectFeatures.filterPolyfilled;
 
-const parse = (code, sourceType = "script") =>
-  acorn.parse(code, { ecmaVersion: 2025, sourceType });
+const parse = (code, sourceType = "script") => acorn.parse(code, { ecmaVersion: 2025, sourceType });
 
 function createSilentLogger() {
   return {
@@ -25,15 +24,8 @@ const testFeatureMap = {
     /\bArray\.prototype\.toSorted\s*=/,
     /['"]core-js\/modules\/es\.array\.to-sorted['"]/,
   ],
-  "Object.hasOwn": [
-    /\bObject\.hasOwn\s*=/,
-    /['"]core-js\/modules\/es\.object\.has-own['"]/,
-  ],
-  Promise: [
-    /\bPromise\s*=/,
-    /['"]core-js\/modules\/es\.promise['"]/,
-    /['"]es6-promise(\/.*)?['"]/,
-  ],
+  "Object.hasOwn": [/\bObject\.hasOwn\s*=/, /['"]core-js\/modules\/es\.object\.has-own['"]/],
+  Promise: [/\bPromise\s*=/, /['"]core-js\/modules\/es\.promise['"]/, /['"]es6-promise(\/.*)?['"]/],
   "Object.assign": [
     /\bObject\.assign\s*=/,
     /['"]core-js\/modules\/es\.object\.assign['"]/,
@@ -67,23 +59,12 @@ describe("detectFeatures", () => {
         () => {};
       `;
 
-      const { foundFeatures, unsupportedFeatures } = detectFeatures(
-        code,
-        6,
-        "script",
-        new Set(),
-        { ast: parse(code) },
-      );
+      const { foundFeatures, unsupportedFeatures } = detectFeatures(code, 6, "script", new Set(), {
+        ast: parse(code),
+      });
 
-      assert(
-        Object.values(foundFeatures).some(Boolean),
-        "Should detect some ES6 features",
-      );
-      assert.strictEqual(
-        unsupportedFeatures.length,
-        0,
-        "No unsupported features for ES6",
-      );
+      assert(Object.values(foundFeatures).some(Boolean), "Should detect some ES6 features");
+      assert.strictEqual(unsupportedFeatures.length, 0, "No unsupported features for ES6");
     });
 
     it("should detect unsupported features for lower versions", () => {
@@ -113,13 +94,9 @@ describe("detectFeatures", () => {
       const ignoreList = new Set(["let", "const"]);
 
       try {
-        const { unsupportedFeatures } = detectFeatures(
-          code,
-          5,
-          "script",
-          ignoreList,
-          { ast: parse(code) },
-        );
+        const { unsupportedFeatures } = detectFeatures(code, 5, "script", ignoreList, {
+          ast: parse(code),
+        });
         assert.strictEqual(
           unsupportedFeatures.length,
           0,
@@ -127,6 +104,33 @@ describe("detectFeatures", () => {
         );
       } catch (error) {
         assert.fail("Should not throw when features are in ignoreList");
+      }
+    });
+
+    it("should not report shadowed global built-ins as unsupported features", () => {
+      const code = `
+        var Promise = function(executor) {
+          executor(function() {});
+        };
+
+        new Promise(function(resolve) {
+          resolve();
+        });
+      `;
+
+      try {
+        const { foundFeatures, unsupportedFeatures } = detectFeatures(
+          code,
+          5,
+          "script",
+          new Set(),
+          { ast: parse(code) },
+        );
+
+        assert.strictEqual(foundFeatures.Promise, false);
+        assert.strictEqual(unsupportedFeatures.length, 0);
+      } catch (error) {
+        assert.fail("Should not throw for a locally declared Promise");
       }
     });
   });
@@ -143,13 +147,7 @@ describe("detectFeatures", () => {
       const options = { checkForPolyfills: true, ast: parse(code, "module") };
 
       try {
-        const { unsupportedFeatures } = detectFeatures(
-          code,
-          2020,
-          "module",
-          new Set(),
-          options,
-        );
+        const { unsupportedFeatures } = detectFeatures(code, 2020, "module", new Set(), options);
         assert.strictEqual(
           unsupportedFeatures.length,
           0,
@@ -175,13 +173,7 @@ describe("detectFeatures", () => {
       const options = { checkForPolyfills: true, ast: parse(code) };
 
       try {
-        const { unsupportedFeatures } = detectFeatures(
-          code,
-          2020,
-          "script",
-          new Set(),
-          options,
-        );
+        const { unsupportedFeatures } = detectFeatures(code, 2020, "script", new Set(), options);
         assert.strictEqual(
           unsupportedFeatures.length,
           0,
@@ -203,13 +195,7 @@ describe("detectFeatures", () => {
       const options = { checkForPolyfills: true, ast: parse(code) };
 
       try {
-        const { unsupportedFeatures } = detectFeatures(
-          code,
-          2020,
-          "script",
-          new Set(),
-          options,
-        );
+        const { unsupportedFeatures } = detectFeatures(code, 2020, "script", new Set(), options);
         assert.strictEqual(unsupportedFeatures.length, 0);
       } catch (error) {
         assert.fail("Should not throw when polyfills are detected via require");
@@ -227,9 +213,7 @@ describe("detectFeatures", () => {
       try {
         detectFeatures(code, 8, "module", new Set(), options);
       } catch (error) {
-        assert.fail(
-          "Should not throw when polyfills are detected via bare import",
-        );
+        assert.fail("Should not throw when polyfills are detected via bare import");
       }
     });
   });
@@ -263,9 +247,7 @@ describe("detectFeatures", () => {
       try {
         detectFeatures(code, 8, "script", new Set(), options);
       } catch (error) {
-        assert.fail(
-          "Should not throw for polyfillable features with ignorePolyfillable",
-        );
+        assert.fail("Should not throw for polyfillable features with ignorePolyfillable");
       }
     });
 
@@ -317,28 +299,20 @@ describe("detectFeatures", () => {
           !foundFeatures.ObjectGroupBy,
           "ObjectGroupBy should not be detected for console.group",
         );
-        assert(
-          !foundFeatures.MapGroupBy,
-          "MapGroupBy should not be detected for console.group",
-        );
+        assert(!foundFeatures.MapGroupBy, "MapGroupBy should not be detected for console.group");
         assert(
           !foundFeatures.ArrayPrototypeGroup,
           "ArrayPrototypeGroup should not be detected for console.group",
         );
       } catch (error) {
-        assert.fail(
-          `Should not throw for console.group in ES2022: ${error.message}`,
-        );
+        assert.fail(`Should not throw for console.group in ES2022: ${error.message}`);
       }
     });
 
     it("should have superseded Array.prototype.group methods in feature list", () => {
       const { ES_FEATURES } = require("../../../../lib/constants");
 
-      assert(
-        ES_FEATURES.ArrayPrototypeGroup,
-        "ArrayPrototypeGroup should exist in ES_FEATURES",
-      );
+      assert(ES_FEATURES.ArrayPrototypeGroup, "ArrayPrototypeGroup should exist in ES_FEATURES");
       assert(
         ES_FEATURES.ArrayPrototypeGroup.superseded === true,
         "ArrayPrototypeGroup should be marked as superseded",
@@ -374,19 +348,10 @@ describe("detectFeatures", () => {
         const value = obj?.prop;
         const nullish = null ?? 'default';
       `;
-      const { foundFeatures } = detectFeatures(
-        code,
-        2020,
-        "script",
-        new Set(),
-        {
-          ast: parse(code),
-        },
-      );
-      assert(
-        Object.values(foundFeatures).some(Boolean),
-        "Should detect some ES2020 features",
-      );
+      const { foundFeatures } = detectFeatures(code, 2020, "script", new Set(), {
+        ast: parse(code),
+      });
+      assert(Object.values(foundFeatures).some(Boolean), "Should detect some ES2020 features");
     });
 
     it("should detect ES2021 features", () => {
@@ -394,19 +359,10 @@ describe("detectFeatures", () => {
         const str = 'hello';
         const replaced = str.replaceAll('l', 'x');
       `;
-      const { foundFeatures } = detectFeatures(
-        code,
-        2021,
-        "script",
-        new Set(),
-        {
-          ast: parse(code),
-        },
-      );
-      assert(
-        Object.values(foundFeatures).some(Boolean),
-        "Should detect some ES2021 features",
-      );
+      const { foundFeatures } = detectFeatures(code, 2021, "script", new Set(), {
+        ast: parse(code),
+      });
+      assert(Object.values(foundFeatures).some(Boolean), "Should detect some ES2021 features");
     });
 
     it("should detect ES2022 features", () => {
@@ -441,19 +397,10 @@ describe("detectFeatures", () => {
         }
       `;
 
-      const { foundFeatures } = detectFeatures(
-        code,
-        2022,
-        "script",
-        new Set(),
-        {
-          ast: parse(code),
-        },
-      );
-      assert(
-        Object.values(foundFeatures).some(Boolean),
-        "Should detect some ES2022 features",
-      );
+      const { foundFeatures } = detectFeatures(code, 2022, "script", new Set(), {
+        ast: parse(code),
+      });
+      assert(Object.values(foundFeatures).some(Boolean), "Should detect some ES2022 features");
     });
 
     it("should detect ES2024 (ES15) features", () => {
@@ -473,19 +420,10 @@ describe("detectFeatures", () => {
         Atomics.waitAsync(int32, 0, 0);
       `;
 
-      const { foundFeatures } = detectFeatures(
-        code,
-        2024,
-        "script",
-        new Set(),
-        {
-          ast: parse(code),
-        },
-      );
-      assert(
-        Object.values(foundFeatures).some(Boolean),
-        "Should detect some ES2024 features",
-      );
+      const { foundFeatures } = detectFeatures(code, 2024, "script", new Set(), {
+        ast: parse(code),
+      });
+      assert(Object.values(foundFeatures).some(Boolean), "Should detect some ES2024 features");
     });
 
     it("should detect ES2025 (ES16) features", () => {
@@ -508,19 +446,10 @@ describe("detectFeatures", () => {
         const escaped = RegExp.escape("test");
       `;
 
-      const { foundFeatures } = detectFeatures(
-        code,
-        2025,
-        "script",
-        new Set(),
-        {
-          ast: parse(code),
-        },
-      );
-      assert(
-        Object.values(foundFeatures).some(Boolean),
-        "Should detect some ES2025 features",
-      );
+      const { foundFeatures } = detectFeatures(code, 2025, "script", new Set(), {
+        ast: parse(code),
+      });
+      assert(Object.values(foundFeatures).some(Boolean), "Should detect some ES2025 features");
     });
   });
 });
@@ -562,11 +491,7 @@ describe("Polyfill Detection", () => {
     it("should not detect any polyfills in regular code", () => {
       const code = "var arr = [3, 1, 2]; var sorted = arr.slice().sort();";
       const polyfills = detectPolyfills(code, mockLogger);
-      assert.strictEqual(
-        polyfills.size,
-        0,
-        "Should not detect any polyfills in regular code",
-      );
+      assert.strictEqual(polyfills.size, 0, "Should not detect any polyfills in regular code");
     });
 
     it("should detect core-js polyfills via require", () => {
@@ -582,11 +507,7 @@ describe("Polyfill Detection", () => {
     it("should detect other polyfill libraries like es6-promise", () => {
       const code = `import 'es6-promise/auto';`;
       const polyfills = detectPolyfills(code, mockLogger, testFeatureMap);
-      assert.strictEqual(
-        polyfills.has("Promise"),
-        true,
-        "Should detect es6-promise library",
-      );
+      assert.strictEqual(polyfills.has("Promise"), true, "Should detect es6-promise library");
     });
 
     it("should handle empty or null code inputs gracefully", () => {
@@ -619,11 +540,7 @@ describe("Polyfill Detection", () => {
     it("should not get a false positive from code comments", () => {
       const code = `// This code needs Object.assign to be polyfilled.`;
       const polyfills = detectPolyfills(code, mockLogger, testFeatureMap);
-      assert.strictEqual(
-        polyfills.size,
-        0,
-        "Should not detect polyfills from comments",
-      );
+      assert.strictEqual(polyfills.size, 0, "Should not detect polyfills from comments");
     });
 
     it("should call the logger with detected polyfills when provided", () => {
@@ -637,10 +554,7 @@ describe("Polyfill Detection", () => {
       };
 
       detectPolyfills(code, spyLogger, testFeatureMap);
-      assert.strictEqual(
-        loggedMessage,
-        "ES-Check: Detected polyfills: Object.hasOwn",
-      );
+      assert.strictEqual(loggedMessage, "ES-Check: Detected polyfills: Object.hasOwn");
     });
 
     it('should call the logger with a "no polyfills" message when none are found', () => {
@@ -668,21 +582,13 @@ describe("Polyfill Detection", () => {
       };
 
       detectPolyfills(code, spyLogger, testFeatureMap);
-      assert.strictEqual(
-        wasCalled,
-        false,
-        "Logger should not be called when debug is disabled",
-      );
+      assert.strictEqual(wasCalled, false, "Logger should not be called when debug is disabled");
     });
   });
 
   describe("filterPolyfilled", () => {
     it("should filter out polyfilled features", () => {
-      const unsupportedFeatures = [
-        "Array.prototype.toSorted",
-        "Object.hasOwn",
-        "Promise",
-      ];
+      const unsupportedFeatures = ["Array.prototype.toSorted", "Object.hasOwn", "Promise"];
       const polyfills = new Set(["Array.prototype.toSorted", "Object.hasOwn"]);
       const filtered = filterPolyfilled(unsupportedFeatures, polyfills);
       assert.deepStrictEqual(filtered, ["Promise"]);
@@ -714,10 +620,7 @@ describe("Polyfill Detection", () => {
       const filteredWithNull = filterPolyfilled(unsupportedFeatures, null);
       assert.deepStrictEqual(filteredWithNull, unsupportedFeatures);
 
-      const filteredWithUndefined = filterPolyfilled(
-        unsupportedFeatures,
-        undefined,
-      );
+      const filteredWithUndefined = filterPolyfilled(unsupportedFeatures, undefined);
       assert.deepStrictEqual(filteredWithUndefined, unsupportedFeatures);
     });
   });
@@ -728,72 +631,48 @@ describe("AST-based feature detection", () => {
     const code = 'var str = "This is a **bold** text";';
     const ast = acorn.parse(code, { ecmaVersion: 5 });
 
-    const { foundFeatures, unsupportedFeatures } = detectFeatures(
-      code,
-      5,
-      "script",
-      new Set(),
-      { ast },
-    );
+    const { foundFeatures, unsupportedFeatures } = detectFeatures(code, 5, "script", new Set(), {
+      ast,
+    });
 
     assert.strictEqual(
       foundFeatures.ExponentOperator,
       false,
       "Should not detect ** in strings as ExponentOperator",
     );
-    assert.strictEqual(
-      unsupportedFeatures.length,
-      0,
-      "Should have no unsupported features",
-    );
+    assert.strictEqual(unsupportedFeatures.length, 0, "Should have no unsupported features");
   });
 
   it("should not detect NumericSeparators for underscores inside string literals", () => {
     const code = 'var str = "image-froth_1426534_7KYhd4UUl";';
     const ast = acorn.parse(code, { ecmaVersion: 5 });
 
-    const { foundFeatures, unsupportedFeatures } = detectFeatures(
-      code,
-      5,
-      "script",
-      new Set(),
-      { ast },
-    );
+    const { foundFeatures, unsupportedFeatures } = detectFeatures(code, 5, "script", new Set(), {
+      ast,
+    });
 
     assert.strictEqual(
       foundFeatures.NumericSeparators,
       false,
       "Should not detect underscores in strings as NumericSeparators",
     );
-    assert.strictEqual(
-      unsupportedFeatures.length,
-      0,
-      "Should have no unsupported features",
-    );
+    assert.strictEqual(unsupportedFeatures.length, 0, "Should have no unsupported features");
   });
 
   it("should not detect OptionalChaining for ternary operators with decimal values", () => {
     const code = "var value = e.isRemovedItem ? 0.35 : 1;";
     const ast = acorn.parse(code, { ecmaVersion: 5 });
 
-    const { foundFeatures, unsupportedFeatures } = detectFeatures(
-      code,
-      5,
-      "script",
-      new Set(),
-      { ast },
-    );
+    const { foundFeatures, unsupportedFeatures } = detectFeatures(code, 5, "script", new Set(), {
+      ast,
+    });
 
     assert.strictEqual(
       foundFeatures.OptionalChaining,
       false,
       "Should not detect ?. in ternary as OptionalChaining",
     );
-    assert.strictEqual(
-      unsupportedFeatures.length,
-      0,
-      "Should have no unsupported features",
-    );
+    assert.strictEqual(unsupportedFeatures.length, 0, "Should have no unsupported features");
   });
 
   it("should correctly ignore feature-like patterns in strings and literals", () => {
@@ -804,21 +683,13 @@ describe("AST-based feature detection", () => {
     `;
     const ast = acorn.parse(code, { ecmaVersion: 5 });
 
-    const { foundFeatures, unsupportedFeatures } = detectFeatures(
-      code,
-      5,
-      "script",
-      new Set(),
-      { ast },
-    );
+    const { foundFeatures, unsupportedFeatures } = detectFeatures(code, 5, "script", new Set(), {
+      ast,
+    });
 
     assert.strictEqual(foundFeatures.ExponentOperator, false);
     assert.strictEqual(foundFeatures.NumericSeparators, false);
     assert.strictEqual(foundFeatures.OptionalChaining, false);
-    assert.strictEqual(
-      unsupportedFeatures.length,
-      0,
-      "Should have no unsupported features",
-    );
+    assert.strictEqual(unsupportedFeatures.length, 0, "Should have no unsupported features");
   });
 });

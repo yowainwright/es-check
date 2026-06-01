@@ -35,9 +35,7 @@ async function checkES5Compatibility() {
   if (result.success) {
     console.log("✅ All files are ES5 compatible!");
   } else {
-    console.error(
-      `❌ ES5 compatibility check failed with ${result.errors.length} errors`,
-    );
+    console.error(`❌ ES5 compatibility check failed with ${result.errors.length} errors`);
     result.errors.forEach((error) => {
       console.error(`  - ${error.file}: ${error.err.message}`);
     });
@@ -319,9 +317,7 @@ async function detailedErrorHandling() {
   const result = await runChecks(configs);
 
   if (!result.success) {
-    console.error(
-      `ES Check found ${result.errors.length} incompatible files:\n`,
-    );
+    console.error(`ES Check found ${result.errors.length} incompatible files:\n`);
 
     result.errors.forEach((error, index) => {
       console.error(`${index + 1}. File: ${error.file}`);

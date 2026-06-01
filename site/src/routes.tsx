@@ -2,18 +2,12 @@ import { lazy, Suspense } from "react";
 import { createRootRoute, createRoute, Outlet } from "@tanstack/react-router";
 import { Loader2 } from "lucide-react";
 
-const AppLayout = lazy(() =>
-  import("./layouts/AppLayout").then((m) => ({ default: m.AppLayout })),
-);
-const HomePage = lazy(() =>
-  import("./pages/HomePage").then((m) => ({ default: m.HomePage })),
-);
+const AppLayout = lazy(() => import("./layouts/AppLayout").then((m) => ({ default: m.AppLayout })));
+const HomePage = lazy(() => import("./pages/HomePage").then((m) => ({ default: m.HomePage })));
 const CommunityPage = lazy(() =>
   import("./pages/CommunityPage").then((m) => ({ default: m.CommunityPage })),
 );
-const DocsPage = lazy(() =>
-  import("./pages/DocsPage").then((m) => ({ default: m.DocsPage })),
-);
+const DocsPage = lazy(() => import("./pages/DocsPage").then((m) => ({ default: m.DocsPage })));
 
 function PageLoader() {
   return (
@@ -63,8 +57,4 @@ const docsRoute = createRoute({
   ),
 });
 
-export const routeTree = rootRoute.addChildren([
-  indexRoute,
-  communityRoute,
-  docsRoute,
-]);
+export const routeTree = rootRoute.addChildren([indexRoute, communityRoute, docsRoute]);

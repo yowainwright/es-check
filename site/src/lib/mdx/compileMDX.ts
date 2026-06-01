@@ -5,17 +5,11 @@ import rehypeSlug from "rehype-slug";
 import rehypeShikiFromHighlighter from "@shikijs/rehype/core";
 import { createHighlighterCore } from "shiki/core";
 import { createJavaScriptRegexEngine } from "shiki/engine/javascript";
-import {
-  transformerNotationDiff,
-  transformerNotationHighlight,
-} from "@shikijs/transformers";
+import { transformerNotationDiff, transformerNotationHighlight } from "@shikijs/transformers";
 import GithubSlugger from "github-slugger";
 
 const highlighterPromise = createHighlighterCore({
-  themes: [
-    import("shiki/themes/github-light.mjs"),
-    import("shiki/themes/github-dark.mjs"),
-  ],
+  themes: [import("shiki/themes/github-light.mjs"), import("shiki/themes/github-dark.mjs")],
   langs: [
     import("shiki/langs/javascript.mjs"),
     import("shiki/langs/typescript.mjs"),
@@ -110,10 +104,7 @@ export async function compileMDX(source: string): Promise<CompiledMDX> {
             dark: "github-dark",
           },
           defaultColor: false,
-          transformers: [
-            transformerNotationDiff(),
-            transformerNotationHighlight(),
-          ],
+          transformers: [transformerNotationDiff(), transformerNotationHighlight()],
         },
       ],
     ],

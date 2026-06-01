@@ -33,10 +33,7 @@ class ESCheckAssertions {
 
   static assertOutputMatches(result, regex, message) {
     const output = result.stdout || result.stderr || "";
-    assert.ok(
-      regex.test(output),
-      message || `Expected output to match ${regex}, got: ${output}`,
-    );
+    assert.ok(regex.test(output), message || `Expected output to match ${regex}, got: ${output}`);
   }
 
   static assertESVersionError(result, esVersion, features = []) {
@@ -45,11 +42,7 @@ class ESCheckAssertions {
 
     if (features.length > 0) {
       features.forEach((feature) => {
-        this.assertOutputContains(
-          result,
-          feature,
-          `Expected error to mention feature: ${feature}`,
-        );
+        this.assertOutputContains(result, feature, `Expected error to mention feature: ${feature}`);
       });
     }
 
@@ -64,9 +57,7 @@ class ESCheckAssertions {
 
   static assertESCheckPassed(result, esVersion) {
     this.assertSuccess(result);
-    const versionLabel = esVersion
-      ? `ES${esVersion}`
-      : "the specified ES version";
+    const versionLabel = esVersion ? `ES${esVersion}` : "the specified ES version";
     this.assertOutputContains(
       result,
       `All files are ${versionLabel} compatible`,
