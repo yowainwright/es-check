@@ -27,7 +27,7 @@
     "prepare": "node scripts/install/hooks.mjs",
     "prepublishOnly": "pnpm test",
     "release": "release-it --no-git.requireUpstream",
-    "report:coverage": "mkdir -p coverage && node tests/scripts/test-runner.js unit --coverage --reporter=lcov",
+    "report:coverage": "mkdir -p coverage && node tests/scripts/test-runner.js unit --coverage --reporter=lcov --reporter-destination=coverage/lcov.info",
     "scripts:generate": "pnpm run scripts:generate:requirements && pnpm run scripts:generate:polyfills",
     "scripts:generate:requirements": "node scripts/generate/requirements/parser.mjs",
     "scripts:generate:polyfills": "node scripts/generate/polyfills/core.mjs",
