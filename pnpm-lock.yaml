@@ -37,8 +37,8 @@ importers:
         specifier: 1.10.0-1
         version: 1.10.0-1
       release-it:
-        specifier: 20.2.0
-        version: 20.2.0(@types/node@24.10.1)(magicast@0.5.1)
+        specifier: 20.2.1
+        version: 20.2.1(@types/node@24.10.1)(magicast@0.5.1)
 
   site:
     dependencies:
@@ -2355,8 +2355,8 @@ packages:
   rehype-slug@6.0.0:
     resolution: {integrity: sha512-lWyvf/jwu+oS5+hL5eClVd3hNdmwM1kAC0BUvEGD19pajQMIzcNUd/k9GsfQ+FfECvX+JE+e9/btsKH0EjJT6A==}
 
-  release-it@20.2.0:
-    resolution: {integrity: sha512-9ZTk9ripgctC6VTqH+P54KuboK29A5mG/I3tFfS5hnoAnkwtFFAMHRidYz93ylrW995vF50Ny1aOGJiyRmEN7w==}
+  release-it@20.2.1:
+    resolution: {integrity: sha512-xd0mqTGduwQlEzVBKOJcoVZxDrRLzjmFv3W8tWwkPIPDYtwYBWYjULiSk6VhfuGKocfz7GmptAqViKMQV4Zzbw==}
     engines: {node: ^20.19.0 || ^22.13.0 || >=24.0.0}
     hasBin: true
 
@@ -2544,8 +2544,8 @@ packages:
   undici-types@7.16.0:
     resolution: {integrity: sha512-Zz+aZWSj8LE6zoxD+xrjh4VfkIG8Ya6LvYkZqtUQGJPZjYl53ypCaUwWqo7eI0x66KBGeRo+mlBEkMSeSZ38Nw==}
 
-  undici@7.24.5:
-    resolution: {integrity: sha512-3IWdCpjgxp15CbJnsi/Y9TCDE7HWVN19j1hmzVhoAkY/+CJx449tVxT5wZc1Gwg8J+P0LWvzlBzxYRnHJ+1i7Q==}
+  undici@7.28.0:
+    resolution: {integrity: sha512-cRZYrTDwWznlnRiPjggAGxZXanty6M8RV1ff8Wm4LWXBp7/IG8v5DnOm74DtUBp9OONpK75YlPnIjQqX0dBDtA==}
     engines: {node: '>=20.18.1'}
 
   unified@11.0.5:
@@ -4967,7 +4967,7 @@ snapshots:
       hast-util-to-string: 3.0.1
       unist-util-visit: 5.0.0
 
-  release-it@20.2.0(@types/node@24.10.1)(magicast@0.5.1):
+  release-it@20.2.1(@types/node@24.10.1)(magicast@0.5.1):
     dependencies:
       '@inquirer/prompts': 8.4.2(@types/node@24.10.1)
       '@octokit/rest': 22.0.1
@@ -4988,7 +4988,7 @@ snapshots:
       proxy-agent: 7.0.0
       semver: 7.7.4
       tinyglobby: 0.2.15
-      undici: 7.24.5
+      undici: 7.28.0
       url-join: 5.0.0
       wildcard-match: 5.1.4
       yargs-parser: 22.0.0
@@ -5209,7 +5209,7 @@ snapshots:
   undici-types@7.16.0:
     optional: true
 
-  undici@7.24.5: {}
+  undici@7.28.0: {}
 
   unified@11.0.5:
     dependencies:
