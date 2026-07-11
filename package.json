@@ -89,7 +89,7 @@
     "oxfmt": "^0.52.0",
     "oxlint": "^1.49.0",
     "pastoralist": "1.10.0-1",
-    "release-it": "20.2.0"
+    "release-it": "20.2.1"
   },
   "overrides": {
     "ajv": "8.18.0",
@@ -254,5 +254,7 @@
       "after:release": "echo Successfully released ${name} v${version} to ${repo.repository}."
     }
   },
-  "website": "https://jeffry.in/es-check"
+  "website": "https://jeffry.in/es-check",
+  "peerDependencies": {},
+  "optionalDependencies": {}
 }
