@@ -1,0 +1,219 @@
+name: Test Published Release
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Published es-check version to test (leave empty for latest on npm)"
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+env:
+  ES_CHECK_TEST_REPOSITORY: ${{ vars.ES_CHECK_TEST_REPOSITORY }}
+  ES_CHECK_TEST_DISPATCH_TOKEN: ${{ secrets.ES_CHECK_TEST_DISPATCH_TOKEN }}
+
+jobs:
+  test-published-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@d7f5e7f509e45cec5c76c4d5afdd7de93d0b3df5 # v4.1.0
+
+      - name: Determine Version to Test
+        id: version
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          if [ -n "$INPUT_VERSION" ]; then
+            VERSION="$INPUT_VERSION"
+          elif [ -n "$RELEASE_TAG" ]; then
+            VERSION="$RELEASE_TAG"
+          else
+            VERSION=$(npm view es-check version)
+          fi
+          VERSION="${VERSION#v}"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "Testing es-check version: $VERSION"
+
+      - name: Wait for NPM Package Availability
+        run: |
+          echo "Waiting for es-check@${{ steps.version.outputs.version }} to be available on npm..."
+          FOUND=0
+          for i in {1..30}; do
+            if npm view es-check@${{ steps.version.outputs.version }} version >/dev/null 2>&1; then
+              echo "Package es-check@${{ steps.version.outputs.version }} is available on npm"
+              FOUND=1
+              break
+            fi
+            echo "Attempt $i/30: Package not yet available, waiting 30 seconds..."
+            sleep 30
+          done
+          if [ "$FOUND" -ne 1 ]; then
+            echo "Package es-check@${{ steps.version.outputs.version }} was not available on npm in time"
+            exit 1
+          fi
+
+      - name: Build Test Docker Image
+        run: |
+          cat > Dockerfile.release-test << 'EOF'
+          FROM node:24-alpine@sha256:d1b3b4da11eefd5941e7f0b9cf17783fc99d9c6fc34884a665f40a06dbdfc94f
+
+          RUN apk add --no-cache bash
+          RUN corepack enable && corepack prepare pnpm@10.30.0 --activate
+
+          WORKDIR /app
+
+          ARG ES_CHECK_VERSION
+          RUN echo "Installing es-check@${ES_CHECK_VERSION}" && \
+              npm install -g es-check@${ES_CHECK_VERSION}
+
+          RUN mkdir -p fixtures && \
+              printf 'var value = 1;\n' > fixtures/es5.js && \
+              printf 'const value = () => 1;\n' > fixtures/es6.js && \
+              printf 'export const value = 1;\n' > fixtures/module.js
+
+          CMD ["/bin/sh"]
+          EOF
+
+          docker build \
+            --build-arg ES_CHECK_VERSION=${{ steps.version.outputs.version }} \
+            -f Dockerfile.release-test \
+            -t es-check-release-test .
+
+      - name: Verify CLI Installation
+        run: |
+          docker run --rm es-check-release-test bash -c "
+            set -euo pipefail
+            es-check --help >/dev/null
+            es-check --version
+            es-check es5 fixtures/es5.js
+            if es-check es5 fixtures/es6.js; then
+              echo 'Expected ES6 fixture to fail an ES5 check'
+              exit 1
+            fi
+            es-check es6 fixtures/es6.js
+            es-check es6 fixtures/module.js --module
+            es-check es5 fixtures/es5.js --light
+          "
+
+      - name: Verify Node API and ESM Exports
+        run: |
+          docker run --rm es-check-release-test bash -c "
+            set -euo pipefail
+            npm init -y >/dev/null
+            npm install es-check@${{ steps.version.outputs.version }}
+            node -e \"const assert = require('node:assert'); const { runChecks, loadConfig, createLogger } = require('es-check'); assert.equal(typeof runChecks, 'function'); assert.equal(typeof loadConfig, 'function'); assert.equal(typeof createLogger, 'function'); (async () => { const result = await runChecks([{ ecmaVersion: 'es5', files: ['fixtures/es5.js'], checkFeatures: true }], { logger: createLogger({ silent: true }) }); assert.equal(result.success, true); })().catch((error) => { console.error(error); process.exit(1); });\"
+            node --input-type=module -e \"import assert from 'node:assert'; import esCheck, { runChecks } from 'es-check'; assert.equal(typeof esCheck.runChecks, 'function'); assert.equal(typeof runChecks, 'function'); const result = await runChecks([{ ecmaVersion: 'es5', files: ['fixtures/es5.js'], checkFeatures: true }]); assert.equal(result.success, true);\"
+          "
+
+      - name: Test with Different Package Managers
+        run: |
+          docker run --rm \
+            -e ES_CHECK_VERSION=${{ steps.version.outputs.version }} \
+            es-check-release-test bash -c '
+              set -euo pipefail
+
+              mkdir -p /tmp/es-check-npm
+              cp -r /app/fixtures /tmp/es-check-npm/fixtures
+              cd /tmp/es-check-npm
+              npm init -y >/dev/null
+              npm install "es-check@${ES_CHECK_VERSION}"
+              ./node_modules/.bin/es-check es5 fixtures/es5.js
+
+              mkdir -p /tmp/es-check-pnpm
+              cp -r /app/fixtures /tmp/es-check-pnpm/fixtures
+              cd /tmp/es-check-pnpm
+              npm init -y >/dev/null
+              pnpm add "es-check@${ES_CHECK_VERSION}"
+              pnpm exec es-check es5 fixtures/es5.js
+
+              mkdir -p /tmp/es-check-yarn
+              cp -r /app/fixtures /tmp/es-check-yarn/fixtures
+              cd /tmp/es-check-yarn
+              corepack prepare yarn@1.22.22 --activate
+              yarn init -y >/dev/null
+              yarn add "es-check@${ES_CHECK_VERSION}"
+              ./node_modules/.bin/es-check es5 fixtures/es5.js
+            '
+
+      - name: Performance and Compatibility Check
+        run: |
+          docker run --rm es-check-release-test bash -c "
+            set -euo pipefail
+            time es-check --help >/dev/null
+            es-check --verbose es6 fixtures/es6.js
+            es-check completion bash >/dev/null
+            es-check completion zsh >/dev/null
+          "
+
+      - name: Report Test Results
+        run: |
+          echo "Test Summary"
+          echo "============"
+          echo "Tested es-check version: ${{ steps.version.outputs.version }}"
+          echo "CLI installation: PASSED"
+          echo "Node API and ESM exports: PASSED"
+          echo "NPM, PNPM, and Yarn installs: PASSED"
+          echo "Performance and compatibility checks: PASSED"
+
+      - name: Trigger External E2E Tests
+        if: success() && env.ES_CHECK_TEST_REPOSITORY != '' && env.ES_CHECK_TEST_DISPATCH_TOKEN != ''
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          github-token: ${{ secrets.ES_CHECK_TEST_DISPATCH_TOKEN }}
+          script: |
+            const [owner, repo] = process.env.ES_CHECK_TEST_REPOSITORY.split('/');
+            if (!owner || !repo) {
+              throw new Error('ES_CHECK_TEST_REPOSITORY must be in owner/repo format');
+            }
+
+            const releaseUrl = '${{ github.event.release.html_url }}' || 'Manual trigger';
+
+            await github.rest.repos.createDispatchEvent({
+              owner,
+              repo,
+              event_type: 'es-check-release',
+              client_payload: {
+                version: '${{ steps.version.outputs.version }}',
+                release_url: releaseUrl,
+                trigger_type: '${{ github.event_name }}'
+              }
+            });
+
+      - name: Create Test Report
+        if: always()
+        run: |
+          cat > test-report.md << EOF
+          # ES Check Release Test Report
+
+          **Version Tested:** ${{ steps.version.outputs.version }}
+          **Test Date:** $(date -u +"%Y-%m-%d %H:%M:%S UTC")
+          **Status:** ${{ job.status }}
+
+          ## Test Coverage
+          - CLI installation
+          - CLI ES version checks
+          - CommonJS API
+          - ESM API
+          - NPM install
+          - PNPM install
+          - Yarn install
+          - Completion generation
+
+          ## Summary
+          Published package release tests completed.
+          EOF
+
+          cat test-report.md

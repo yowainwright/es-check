@@ -1,0 +1,105 @@
+name: publish
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: read
+
+env:
+  SOCKET_API_KEY: ${{ secrets.SOCKET_SECURITY_API_KEY || secrets.SOCKET_API_KEY }}
+  SOCKET_SECURITY_API_KEY: ${{ secrets.SOCKET_SECURITY_API_KEY }}
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: npm-publish
+    permissions:
+      id-token: write
+      contents: write
+      attestations: write
+
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
+
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: 24
+          registry-url: "https://registry.npmjs.org"
+
+      - run: pnpm install --no-frozen-lockfile
+
+      - run: pnpm run lint:ci
+
+      - run: pnpm test
+        env:
+          CI: true
+
+      - name: Resolve npm dist-tag
+        id: dist-tag
+        run: |
+          VERSION="${{ github.ref_name }}"
+          if [[ "$VERSION" =~ -(alpha|beta|rc) ]]; then
+            echo "tag=${BASH_REMATCH[1]}" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag=latest" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Pack npm tarball
+        id: pack
+        run: |
+          npm pack --ignore-scripts --json > npm-pack.json
+          TARBALL="$(node -e "const fs = require('node:fs'); const text = fs.readFileSync('npm-pack.json', 'utf8'); const start = text.indexOf('['); if (start < 0) throw new Error('npm pack JSON output not found'); const [pkg] = JSON.parse(text.slice(start)); console.log(pkg.filename)")"
+          test -n "$TARBALL"
+          echo "tarball=$TARBALL" >> "$GITHUB_OUTPUT"
+
+      - name: Attest npm tarball
+        id: attest
+        uses: actions/attest@59d89421af93a897026c735860bf21b6eb4f7b26 # v4
+        with:
+          subject-path: ${{ steps.pack.outputs.tarball }}
+
+      - name: Prepare release attestation
+        id: release-attestation
+        run: |
+          SIGSTORE_BUNDLE="${{ steps.pack.outputs.tarball }}.sigstore.json"
+          cp "${{ steps.attest.outputs.bundle-path }}" "$SIGSTORE_BUNDLE"
+          echo "sigstore_bundle=$SIGSTORE_BUNDLE" >> "$GITHUB_OUTPUT"
+
+      - name: Publish npm package
+        run: |
+          VERSION="$(node -p "require('./package.json').version")"
+          if npm view "es-check@$VERSION" version > /dev/null 2>&1; then
+            echo "es-check@$VERSION is already published"
+            exit 0
+          fi
+
+          npm publish "${{ steps.pack.outputs.tarball }}" --provenance --access public --tag "${{ steps.dist-tag.outputs.tag }}"
+
+      - name: Publish GitHub release assets
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          SIGSTORE_BUNDLE: ${{ steps.release-attestation.outputs.sigstore_bundle }}
+          TARBALL: ${{ steps.pack.outputs.tarball }}
+          VERSION: ${{ github.ref_name }}
+        run: |
+          RELEASE_ARGS=()
+          if [[ "$VERSION" =~ -(alpha|beta|rc) ]]; then
+            RELEASE_ARGS+=(--prerelease)
+          fi
+
+          if gh release view "$VERSION" > /dev/null 2>&1; then
+            gh release upload "$VERSION" "$TARBALL" "$SIGSTORE_BUNDLE" --clobber
+            exit 0
+          fi
+
+          gh release create "$VERSION" "$TARBALL" "$SIGSTORE_BUNDLE" \
+            --title "$VERSION" \
+            --generate-notes \
+            "${RELEASE_ARGS[@]}"

@@ -1,0 +1,26 @@
+name: es-check trigger release tests
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: read
+
+env:
+  ES_CHECK_TEST_REPOSITORY: ${{ vars.ES_CHECK_TEST_REPOSITORY }}
+  REPO_ACCESS_TOKEN: ${{ secrets.REPO_ACCESS_TOKEN }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Repository Dispatch
+        if: env.ES_CHECK_TEST_REPOSITORY != '' && env.REPO_ACCESS_TOKEN != ''
+        uses: peter-evans/repository-dispatch@28959ce8df70de7be546dd1250a005dd32156697 # v4.0.1
+        with:
+          token: ${{ secrets.REPO_ACCESS_TOKEN }}
+          repository: ${{ vars.ES_CHECK_TEST_REPOSITORY }}
+          event-type: es-check_update

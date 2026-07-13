@@ -4,6 +4,10 @@
   "description": "Checks the ECMAScript version of .js glob against a specified version of ECMAScript with a shell command",
   "main": "lib/index.js",
   "license": "MIT",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
   "exports": {
     ".": {
       "import": "./lib/esm-wrapper.mjs",
@@ -27,6 +31,19 @@
     "prepare": "node scripts/install/hooks.mjs",
     "prepublishOnly": "pnpm test",
     "release": "release-it --no-git.requireUpstream",
+    "release:patch": "release-it --increment=patch --no-git.requireUpstream",
+    "release:patch:dry": "release-it --increment=patch --dry-run --no-git.requireUpstream",
+    "release:minor": "release-it --increment=minor --no-git.requireUpstream",
+    "release:minor:dry": "release-it --increment=minor --dry-run --no-git.requireUpstream",
+    "release:major": "release-it --increment=major --no-git.requireUpstream",
+    "release:major:dry": "release-it --increment=major --dry-run --no-git.requireUpstream",
+    "release:beta": "release-it --preRelease=beta --no-git.requireUpstream",
+    "release:beta:dry": "release-it --preRelease=beta --dry-run --no-git.requireUpstream",
+    "release:alpha": "release-it --preRelease=alpha --no-git.requireUpstream",
+    "release:alpha:dry": "release-it --preRelease=alpha --dry-run --no-git.requireUpstream",
+    "release:tag": "node scripts/release-tag.mjs",
+    "release:tag:dry": "node scripts/release-tag.mjs --dry-run",
+    "release:dry": "release-it --dry-run --no-git.requireUpstream",
     "report:coverage": "mkdir -p coverage && node tests/scripts/test-runner.js unit --coverage --reporter=lcov --reporter-destination=coverage/lcov.info",
     "scripts:generate": "pnpm run scripts:generate:requirements && pnpm run scripts:generate:polyfills",
     "scripts:generate:requirements": "node scripts/generate/requirements/parser.mjs",
@@ -95,19 +112,19 @@
   ],
   "release-it": {
     "git": {
-      "commitMessage": "chore: release v${version}",
+      "commitMessage": "chore(release): ${version}",
+      "commitArgs": [
+        "--no-verify"
+      ],
+      "tagName": "v${version}",
       "requireBranch": "main",
       "requireCleanWorkingDir": true
     },
     "github": {
-      "release": true,
-      "web": true
+      "release": false
     },
     "npm": {
-      "publishConfig": {
-        "registry": "https://registry.npmjs.org/",
-        "access": "public"
-      }
+      "publish": false
     },
     "hooks": {
       "before:init": [
