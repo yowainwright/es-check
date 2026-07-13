@@ -43,21 +43,13 @@ jobs:
 
       - name: Resolve npm dist-tag
         id: dist-tag
-        run: |
-          VERSION="${{ github.ref_name }}"
-          if [[ "$VERSION" =~ -(alpha|beta|rc) ]]; then
-            echo "tag=${BASH_REMATCH[1]}" >> "$GITHUB_OUTPUT"
-          else
-            echo "tag=latest" >> "$GITHUB_OUTPUT"
-          fi
+        env:
+          VERSION: ${{ github.ref_name }}
+        run: node scripts/release/publish.mjs resolve-dist-tag
 
       - name: Pack npm tarball
         id: pack
-        run: |
-          npm pack --ignore-scripts --json > npm-pack.json
-          TARBALL="$(node -e "const fs = require('node:fs'); const text = fs.readFileSync('npm-pack.json', 'utf8'); const start = text.indexOf('['); if (start < 0) throw new Error('npm pack JSON output not found'); const [pkg] = JSON.parse(text.slice(start)); console.log(pkg.filename)")"
-          test -n "$TARBALL"
-          echo "tarball=$TARBALL" >> "$GITHUB_OUTPUT"
+        run: node scripts/release/publish.mjs pack
 
       - name: Attest npm tarball
         id: attest
@@ -67,20 +59,16 @@ jobs:
 
       - name: Prepare release attestation
         id: release-attestation
-        run: |
-          SIGSTORE_BUNDLE="${{ steps.pack.outputs.tarball }}.sigstore.json"
-          cp "${{ steps.attest.outputs.bundle-path }}" "$SIGSTORE_BUNDLE"
-          echo "sigstore_bundle=$SIGSTORE_BUNDLE" >> "$GITHUB_OUTPUT"
+        env:
+          ATTESTATION_BUNDLE: ${{ steps.attest.outputs.bundle-path }}
+          TARBALL: ${{ steps.pack.outputs.tarball }}
+        run: node scripts/release/publish.mjs prepare-attestation
 
       - name: Publish npm package
-        run: |
-          VERSION="$(node -p "require('./package.json').version")"
-          if npm view "es-check@$VERSION" version > /dev/null 2>&1; then
-            echo "es-check@$VERSION is already published"
-            exit 0
-          fi
-
-          npm publish "${{ steps.pack.outputs.tarball }}" --provenance --access public --tag "${{ steps.dist-tag.outputs.tag }}"
+        env:
+          DIST_TAG: ${{ steps.dist-tag.outputs.tag }}
+          TARBALL: ${{ steps.pack.outputs.tarball }}
+        run: node scripts/release/publish.mjs publish-npm
 
       - name: Publish GitHub release assets
         env:
@@ -88,18 +76,4 @@ jobs:
           SIGSTORE_BUNDLE: ${{ steps.release-attestation.outputs.sigstore_bundle }}
           TARBALL: ${{ steps.pack.outputs.tarball }}
           VERSION: ${{ github.ref_name }}
-        run: |
-          RELEASE_ARGS=()
-          if [[ "$VERSION" =~ -(alpha|beta|rc) ]]; then
-            RELEASE_ARGS+=(--prerelease)
-          fi
-
-          if gh release view "$VERSION" > /dev/null 2>&1; then
-            gh release upload "$VERSION" "$TARBALL" "$SIGSTORE_BUNDLE" --clobber
-            exit 0
-          fi
-
-          gh release create "$VERSION" "$TARBALL" "$SIGSTORE_BUNDLE" \
-            --title "$VERSION" \
-            --generate-notes \
-            "${RELEASE_ARGS[@]}"
+        run: node scripts/release/publish.mjs publish-github
