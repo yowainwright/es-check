@@ -55,11 +55,7 @@ function DesktopNav({ pathname }: { pathname: string }) {
       <ul className="menu menu-horizontal text-base font-medium">
         {NAVIGATION.map((item) => (
           <li key={item.href}>
-            <NavLink
-              href={item.href}
-              title={item.title}
-              isActive={pathname === item.href}
-            />
+            <NavLink href={item.href} title={item.title} isActive={pathname === item.href} />
           </li>
         ))}
       </ul>
@@ -67,15 +63,7 @@ function DesktopNav({ pathname }: { pathname: string }) {
   );
 }
 
-function NavLink({
-  href,
-  title,
-  isActive,
-}: {
-  href: string;
-  title: string;
-  isActive: boolean;
-}) {
+function NavLink({ href, title, isActive }: { href: string; title: string; isActive: boolean }) {
   const activeClass = isActive ? "text-primary bg-primary/5" : "";
 
   return (

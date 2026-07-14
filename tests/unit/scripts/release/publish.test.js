@@ -90,11 +90,7 @@ test("packPackage writes the tarball output", async () => {
   const writeOutput = (...args) => outputs.push(args);
   const tarball = packPackage({}, { run: runner.run, writeOutput });
   assert.equal(tarball, "es-check-1.2.3.tgz");
-  assert.deepEqual(runner.calls[0].args, [
-    "pack",
-    "--ignore-scripts",
-    "--json",
-  ]);
+  assert.deepEqual(runner.calls[0].args, ["pack", "--ignore-scripts", "--json"]);
   assert.deepEqual(outputs[0].slice(0, 2), ["tarball", tarball]);
 });
 
@@ -110,10 +106,7 @@ test("prepareAttestation copies and exposes the bundle", async () => {
       { writeOutput: (...args) => outputs.push(args) },
     );
     assert.equal(readFileSync(sigstoreBundle, "utf8"), "bundle");
-    assert.deepEqual(outputs[0].slice(0, 2), [
-      "sigstore_bundle",
-      sigstoreBundle,
-    ]);
+    assert.deepEqual(outputs[0].slice(0, 2), ["sigstore_bundle", sigstoreBundle]);
   });
 });
 

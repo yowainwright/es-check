@@ -49,11 +49,7 @@ async function runEsCheck(useCache) {
     const cacheFlag = useCache ? "" : "--noCache";
     const startTime = performance.now();
 
-    const args = [
-      path.join(__dirname, "../../lib/index.js"),
-      "es5",
-      `${TEST_DIR}/**/*.js`,
-    ];
+    const args = [path.join(__dirname, "../../lib/index.js"), "es5", `${TEST_DIR}/**/*.js`];
     if (cacheFlag) args.push(cacheFlag);
     args.push("--silent");
     execFile("node", args, (err, stdout, stderr) => {
@@ -77,9 +73,7 @@ async function runPerformanceTest() {
     log.info(
       `\nNote: Cache benefits are most visible when checking the same files multiple times.`,
     );
-    log.info(
-      `In real-world usage, cache helps with watch mode, duplicate files, and CI reruns.`,
-    );
+    log.info(`In real-world usage, cache helps with watch mode, duplicate files, and CI reruns.`);
     log.info(`This test shows basic functionality.\n`);
 
     log.info("Testing with cache disabled...");
@@ -98,8 +92,7 @@ async function runPerformanceTest() {
       log.info(`  Run ${i + 1}: ${time.toFixed(2)}ms`);
     }
 
-    const avgNoCache =
-      noCacheTimes.reduce((a, b) => a + b, 0) / noCacheTimes.length;
+    const avgNoCache = noCacheTimes.reduce((a, b) => a + b, 0) / noCacheTimes.length;
     const avgCache = cacheTimes.reduce((a, b) => a + b, 0) / cacheTimes.length;
 
     log.info("\n=== RESULTS ===");
@@ -118,9 +111,7 @@ async function runPerformanceTest() {
 
 async function runDuplicateFilesTest() {
   log.info("\n=== DUPLICATE FILES TEST ===");
-  log.info(
-    "This test checks the same file multiple times to demonstrate cache benefits.",
-  );
+  log.info("This test checks the same file multiple times to demonstrate cache benefits.");
   setupTestFiles();
 
   try {
@@ -136,9 +127,7 @@ async function runDuplicateFilesTest() {
 
     const filesArg = duplicatedFiles.map((f) => `"${f}"`).join(" ");
 
-    log.info(
-      `Testing ${duplicatedFiles.length} files (5 files repeated 5 times each)...`,
-    );
+    log.info(`Testing ${duplicatedFiles.length} files (5 files repeated 5 times each)...`);
 
     log.info("\nWith cache enabled:");
     const startCache = performance.now();
@@ -183,9 +172,7 @@ async function runDuplicateFilesTest() {
     if (improvement > 0) {
       log.info("[PASS] Duplicate files test shows cache benefit!");
     } else {
-      log.info(
-        "[WARN]  Cache showed minimal benefit - this is normal for small files.",
-      );
+      log.info("[WARN]  Cache showed minimal benefit - this is normal for small files.");
     }
   } finally {
     cleanupTestFiles();

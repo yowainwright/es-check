@@ -4,8 +4,7 @@ import { spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
-const VERSION_PATTERN =
-  /^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$/;
+const VERSION_PATTERN = /^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$/;
 
 function git(args, options = {}) {
   const result = spawnSync("git", args, { encoding: "utf8" });
@@ -21,9 +20,7 @@ function git(args, options = {}) {
 }
 
 function readPackageVersion() {
-  const manifest = JSON.parse(
-    readFileSync(join(process.cwd(), "package.json"), "utf8"),
-  );
+  const manifest = JSON.parse(readFileSync(join(process.cwd(), "package.json"), "utf8"));
   if (typeof manifest.version !== "string") {
     throw new Error("package.json version is missing");
   }
@@ -38,39 +35,30 @@ function formatTagName(version) {
 }
 
 function assertMissingTag(tagName, dryRun) {
-  const localTag = git(
-    ["rev-parse", "-q", "--verify", `refs/tags/${tagName}`],
-    {
-      allowFailure: true,
-    },
-  );
-  if (localTag.status === 0)
-    throw new Error(`Local tag already exists: ${tagName}`);
+  const localTag = git(["rev-parse", "-q", "--verify", `refs/tags/${tagName}`], {
+    allowFailure: true,
+  });
+  if (localTag.status === 0) throw new Error(`Local tag already exists: ${tagName}`);
 
   if (dryRun) return;
 
-  const remoteTag = git(
-    ["ls-remote", "--exit-code", "--tags", "origin", `refs/tags/${tagName}`],
-    { allowFailure: true },
-  );
+  const remoteTag = git(["ls-remote", "--exit-code", "--tags", "origin", `refs/tags/${tagName}`], {
+    allowFailure: true,
+  });
   if (remoteTag.status === 0) {
     throw new Error(`Remote tag already exists: ${tagName}`);
   }
   if (remoteTag.status !== 2) {
-    throw new Error(
-      remoteTag.stderr || `Unable to check remote tag: ${tagName}`,
-    );
+    throw new Error(remoteTag.stderr || `Unable to check remote tag: ${tagName}`);
   }
 }
 
 function assertReleaseReady(tagName, dryRun) {
   const branch = git(["branch", "--show-current"]).stdout;
-  if (branch !== "main")
-    throw new Error("Release tags must be created from main");
+  if (branch !== "main") throw new Error("Release tags must be created from main");
 
   const status = git(["status", "--short"]).stdout;
-  if (status)
-    throw new Error("Working tree must be clean before tagging a release");
+  if (status) throw new Error("Working tree must be clean before tagging a release");
 
   assertMissingTag(tagName, dryRun);
   if (dryRun) return;

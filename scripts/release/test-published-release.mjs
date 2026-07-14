@@ -11,12 +11,7 @@ import {
 
 const PACKAGE_NAME = "es-check";
 const IMAGE_NAME = "es-check-release-test";
-const CONTAINER_MODES = new Set([
-  "cli",
-  "api",
-  "package-managers",
-  "compatibility",
-]);
+const CONTAINER_MODES = new Set(["cli", "api", "package-managers", "compatibility"]);
 const REPOSITORY_PATTERN = /^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/;
 const TRAVERSAL_SEGMENTS = new Set([".", ".."]);
 const REPORT_COVERAGE = [
@@ -50,11 +45,7 @@ function getLatestVersion(run) {
 
 export function resolveVersion(inputs, dependencies = {}) {
   const run = getDependency(dependencies, "run", runCommand);
-  const writeOutput = getDependency(
-    dependencies,
-    "writeOutput",
-    appendGithubOutput,
-  );
+  const writeOutput = getDependency(dependencies, "writeOutput", appendGithubOutput);
   const writeLog = getDependency(dependencies, "log", log);
   const requestedVersion = getRequestedVersion(inputs);
   const candidate = requestedVersion || getLatestVersion(run);
@@ -81,11 +72,9 @@ function delay(duration) {
 }
 
 async function checkPackage(version, attempt, retry, dependencies) {
-  const result = dependencies.run(
-    "npm",
-    ["view", `${PACKAGE_NAME}@${version}`, "version"],
-    { capture: true },
-  );
+  const result = dependencies.run("npm", ["view", `${PACKAGE_NAME}@${version}`, "version"], {
+    capture: true,
+  });
   if (result.status === 0) {
     dependencies.log(`${PACKAGE_NAME}@${version} is available on npm`);
     return;
@@ -93,9 +82,7 @@ async function checkPackage(version, attempt, retry, dependencies) {
   if (attempt === retry.attempts) {
     throw new Error(`${PACKAGE_NAME}@${version} was not available in time`);
   }
-  dependencies.log(
-    `Attempt ${attempt}/${retry.attempts}: package not available`,
-  );
+  dependencies.log(`Attempt ${attempt}/${retry.attempts}: package not available`);
   await dependencies.sleep(retry.delayMs);
   return checkPackage(version, attempt + 1, retry, dependencies);
 }
@@ -167,11 +154,7 @@ export function createReport({ version, status, date }) {
     "",
     "## Test Coverage",
   ];
-  const summary = [
-    "",
-    "## Summary",
-    "Published package release tests completed.",
-  ];
+  const summary = ["", "## Summary", "Published package release tests completed."];
   return [...heading, ...REPORT_COVERAGE, ...summary, ""].join("\n");
 }
 
@@ -188,9 +171,7 @@ export function writeReport(inputs, dependencies = {}) {
 export function parseRepository(value) {
   const repository = requireValue("REPOSITORY", value);
   const segments = repository.split("/");
-  const hasTraversal = segments.some((segment) =>
-    TRAVERSAL_SEGMENTS.has(segment),
-  );
+  const hasTraversal = segments.some((segment) => TRAVERSAL_SEGMENTS.has(segment));
   const isInvalid = !REPOSITORY_PATTERN.test(repository) || hasTraversal;
   if (isInvalid) {
     throw new Error("REPOSITORY must use owner/repo format");
@@ -221,8 +202,7 @@ function createDispatchPayload(inputs) {
 
 export async function dispatchExternalTests(inputs, dependencies = {}) {
   const fetchRequest = getDependency(dependencies, "fetch", globalThis.fetch);
-  if (typeof fetchRequest !== "function")
-    throw new Error("fetch is unavailable");
+  if (typeof fetchRequest !== "function") throw new Error("fetch is unavailable");
   const repository = parseRepository(inputs.repository);
   const url = `https://api.github.com/repos/${repository}/dispatches`;
   const headers = createDispatchHeaders(inputs.token);

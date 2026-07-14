@@ -3,12 +3,7 @@ import { cpSync, mkdirSync, mkdtempSync } from "node:fs";
 import { createRequire } from "node:module";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import {
-  assertCommandSuccess,
-  isMain,
-  normalizeVersion,
-  runCommand,
-} from "./utils.mjs";
+import { assertCommandSuccess, isMain, normalizeVersion, runCommand } from "./utils.mjs";
 
 function getDependency(dependencies, name, fallback) {
   return dependencies[name] || fallback;
@@ -65,11 +60,7 @@ export async function verifyApi(version, dependencies = {}) {
     "requirePackage",
     createRequire(import.meta.url),
   );
-  const importPackage = getDependency(
-    dependencies,
-    "importPackage",
-    importModule,
-  );
+  const importPackage = getDependency(dependencies, "importPackage", importModule);
   const normalizedVersion = normalizeVersion(version);
   installLocalPackage(normalizedVersion, run);
   const commonJsApi = requirePackage("es-check");
@@ -116,14 +107,8 @@ export function getPackageManagerPlans(version, rootDirectory) {
   const normalizedVersion = normalizeVersion(version);
   const packageReference = `es-check@${normalizedVersion}`;
   const npmPlan = createNpmPlan(join(rootDirectory, "npm"), packageReference);
-  const pnpmPlan = createPnpmPlan(
-    join(rootDirectory, "pnpm"),
-    packageReference,
-  );
-  const yarnPlan = createYarnPlan(
-    join(rootDirectory, "yarn"),
-    packageReference,
-  );
+  const pnpmPlan = createPnpmPlan(join(rootDirectory, "pnpm"), packageReference);
+  const yarnPlan = createYarnPlan(join(rootDirectory, "yarn"), packageReference);
   return [npmPlan, pnpmPlan, yarnPlan];
 }
 

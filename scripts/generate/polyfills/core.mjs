@@ -4,11 +4,7 @@ import { writeFileSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 import { createRequire } from "module";
-import {
-  CHILD_FEATURES,
-  SPECIAL_CASES,
-  SEGMENT_REPLACEMENTS,
-} from "../../constants.mjs";
+import { CHILD_FEATURES, SPECIAL_CASES, SEGMENT_REPLACEMENTS } from "../../constants.mjs";
 
 const require = createRequire(import.meta.url);
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -56,9 +52,7 @@ function collectFeatures() {
 
     const children = CHILD_FEATURES[mod];
     if (children) {
-      children
-        .filter((c) => ES_FEATURE_KEYS.has(c))
-        .forEach((c) => features.add(c));
+      children.filter((c) => ES_FEATURE_KEYS.has(c)).forEach((c) => features.add(c));
     }
   });
 
@@ -103,10 +97,7 @@ function main() {
   }
 
   const content = generateFileContent(features);
-  const outputPath = join(
-    __dirname,
-    "../../../lib/constants/polyfillableFeatures.js",
-  );
+  const outputPath = join(__dirname, "../../../lib/constants/polyfillableFeatures.js");
 
   writeFileSync(outputPath, content);
 }

@@ -309,15 +309,7 @@ describe("helpers/ast.js", () => {
     });
 
     it("should reject non-Set names that happen to contain set", () => {
-      const nonSetNames = [
-        "settings",
-        "setup",
-        "setter",
-        "offset",
-        "dataset",
-        "reset",
-        "asset",
-      ];
+      const nonSetNames = ["settings", "setup", "setter", "offset", "dataset", "reset", "asset"];
       const astInfo = { property: "union", requireSetLikeCall: true };
 
       for (const name of nonSetNames) {
@@ -328,11 +320,7 @@ describe("helpers/ast.js", () => {
           },
         };
         const result = checkMap(node, astInfo);
-        assert.strictEqual(
-          result,
-          false,
-          `Expected false for "${name}.union()"`,
-        );
+        assert.strictEqual(result, false, `Expected false for "${name}.union()"`);
       }
     });
 
@@ -348,11 +336,7 @@ describe("helpers/ast.js", () => {
           },
         };
         const result = checkMap(node, astInfo);
-        assert.strictEqual(
-          result,
-          false,
-          `Expected false for "${name}.union()"`,
-        );
+        assert.strictEqual(result, false, `Expected false for "${name}.union()"`);
       }
     });
 

@@ -3,8 +3,7 @@
 const assert = require("node:assert/strict");
 const { test } = require("node:test");
 
-const containerModule =
-  import("../../../../scripts/release/release-test-container.mjs");
+const containerModule = import("../../../../scripts/release/release-test-container.mjs");
 
 const CLI_CALLS = [
   ["--help"],
@@ -45,10 +44,7 @@ test("verifyCli runs the release CLI checks", async () => {
 test("verifyCli rejects an ES6 fixture that passes ES5", async () => {
   const { verifyCli } = await containerModule;
   const runner = createRunner();
-  assert.throws(
-    () => verifyCli({ run: runner.run }),
-    /Expected ES6 fixture to fail/,
-  );
+  assert.throws(() => verifyCli({ run: runner.run }), /Expected ES6 fixture to fail/);
 });
 
 test("verifyApiModule checks exports and execution", async () => {
@@ -68,10 +64,7 @@ test("getPackageManagerPlans creates isolated commands", async () => {
     plans.map(({ directory }) => directory),
     ["/tmp/release/npm", "/tmp/release/pnpm", "/tmp/release/yarn"],
   );
-  assert.deepEqual(plans[0].commands[1], [
-    "npm",
-    ["install", "es-check@1.2.3"],
-  ]);
+  assert.deepEqual(plans[0].commands[1], ["npm", ["install", "es-check@1.2.3"]]);
   assert.deepEqual(plans[1].commands[1], ["pnpm", ["add", "es-check@1.2.3"]]);
   assert.deepEqual(plans[2].commands[1], ["yarn", ["add", "es-check@1.2.3"]]);
 });

@@ -37,22 +37,14 @@ log.info("Test 3: No files with --looseGlobMatching should warn");
 try {
   execFileSync(
     "node",
-    [
-      esCheckPath,
-      "es5",
-      "./nonexistent/**/*.js",
-      "--looseGlobMatching",
-      "--quiet",
-    ],
+    [esCheckPath, "es5", "./nonexistent/**/*.js", "--looseGlobMatching", "--quiet"],
     {
       encoding: "utf8",
     },
   );
   log.info("[PASS] Test 3 passed\n");
 } catch (error) {
-  log.error(
-    "[FAIL] Test 3 failed - should not have thrown with loose matching",
-  );
+  log.error("[FAIL] Test 3 failed - should not have thrown with loose matching");
   log.error(error.stderr || error.stdout || error.message);
   process.exit(1);
 }
@@ -93,13 +85,7 @@ log.info("Test 6: Conflicting --files flag and files argument");
 try {
   execFileSync(
     "node",
-    [
-      esCheckPath,
-      "es5",
-      "./tests/fixtures/es5.js",
-      "--files",
-      "./tests/fixtures/es6.js",
-    ],
+    [esCheckPath, "es5", "./tests/fixtures/es5.js", "--files", "./tests/fixtures/es6.js"],
     {
       encoding: "utf8",
     },
@@ -128,13 +114,9 @@ try {
 
 log.info("Test 8: Multiple files with errors");
 try {
-  execFileSync(
-    "node",
-    [esCheckPath, "es5", "./tests/fixtures/es6.js", "./tests/fixtures/es7.js"],
-    {
-      encoding: "utf8",
-    },
-  );
+  execFileSync("node", [esCheckPath, "es5", "./tests/fixtures/es6.js", "./tests/fixtures/es7.js"], {
+    encoding: "utf8",
+  });
   log.error("[FAIL] Test 8 failed - should have thrown an error");
   process.exit(1);
 } catch (error) {

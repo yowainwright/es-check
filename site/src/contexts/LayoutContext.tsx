@@ -8,13 +8,10 @@ interface LayoutContextValue {
 const LayoutContext = createContext<LayoutContextValue | null>(null);
 
 export function LayoutProvider({ children }: { children: ReactNode }) {
-  const [rightSidebarContent, setRightSidebarContent] =
-    useState<ReactNode | null>(null);
+  const [rightSidebarContent, setRightSidebarContent] = useState<ReactNode | null>(null);
 
   return (
-    <LayoutContext.Provider
-      value={{ rightSidebarContent, setRightSidebarContent }}
-    >
+    <LayoutContext.Provider value={{ rightSidebarContent, setRightSidebarContent }}>
       {children}
     </LayoutContext.Provider>
   );

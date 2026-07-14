@@ -1,0 +1,56 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "jsPlugins": [
+    {
+      "name": "pastoralist",
+      "specifier": "./scripts/oxlint-plugin/index.js"
+    }
+  ],
+  "rules": {
+    "pastoralist/hoist-if-operators": [
+      "warn",
+      {
+        "max": 0
+      }
+    ],
+    "pastoralist/max-expression-operators": [
+      "warn",
+      {
+        "max": 4
+      }
+    ],
+    "pastoralist/no-complex-ternaries": [
+      "warn",
+      {
+        "max": 2
+      }
+    ],
+    "pastoralist/no-computed-values": [
+      "warn",
+      {
+        "max": 1
+      }
+    ],
+    "pastoralist/no-hidden-side-effects": "warn",
+    "pastoralist/no-quadratic-patterns": "warn",
+    "pastoralist/no-standalone-array-mutations": "warn",
+    "pastoralist/prefer-concat-object-assign": "warn",
+    "pastoralist/require-executable-shebang": "off",
+    "pastoralist/no-direct-node-bin-smoke": "off"
+  },
+  "overrides": [
+    {
+      "files": ["scripts/**/*.js", "scripts/**/*.ts"],
+      "rules": {
+        "pastoralist/hoist-if-operators": "off",
+        "pastoralist/max-expression-operators": "off",
+        "pastoralist/no-complex-ternaries": "off",
+        "pastoralist/no-computed-values": "off",
+        "pastoralist/no-hidden-side-effects": "off",
+        "pastoralist/no-quadratic-patterns": "off",
+        "pastoralist/no-standalone-array-mutations": "off",
+        "pastoralist/prefer-concat-object-assign": "off"
+      }
+    }
+  ]
+}

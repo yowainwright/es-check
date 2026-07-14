@@ -52,9 +52,7 @@ try {
   );
   log.info("[PASS] Test 2 passed (ignored features work)\n");
 } catch (error) {
-  log.info(
-    "[WARN] Test 2 partial - ignore flag tested but may have other features\n",
-  );
+  log.info("[WARN] Test 2 partial - ignore flag tested but may have other features\n");
 }
 
 log.info("Test 3: Detecting polyfills with --checkForPolyfills");
@@ -69,26 +67,18 @@ fs.writeFileSync(
 );
 
 try {
-  const output = execFileSync(
-    "node",
-    [esCheckPath, "es5", polyfillFile, "--checkForPolyfills"],
-    {
-      encoding: "utf8",
-    },
-  );
-  const hasPolyfillWarning =
-    output.includes("polyfill") || output.includes("includes");
+  const output = execFileSync("node", [esCheckPath, "es5", polyfillFile, "--checkForPolyfills"], {
+    encoding: "utf8",
+  });
+  const hasPolyfillWarning = output.includes("polyfill") || output.includes("includes");
   if (hasPolyfillWarning) {
     log.info("[PASS] Test 3 passed (polyfill detected)\n");
   } else {
-    log.info(
-      "[WARN] Test 3 partial - polyfill check ran but may not detect all patterns\n",
-    );
+    log.info("[WARN] Test 3 partial - polyfill check ran but may not detect all patterns\n");
   }
 } catch (error) {
   const output = error.stderr || error.stdout || "";
-  const hasPolyfillWarning =
-    output.includes("polyfill") || output.includes("includes");
+  const hasPolyfillWarning = output.includes("polyfill") || output.includes("includes");
   if (hasPolyfillWarning) {
     log.info("[PASS] Test 3 passed (polyfill detected in error)\n");
   } else {
@@ -129,14 +119,7 @@ log.info("Test 5: Using --allowList flag");
 try {
   execFileSync(
     "node",
-    [
-      esCheckPath,
-      "es6",
-      "./tests/fixtures/es6.js",
-      "--checkFeatures",
-      "--allowList",
-      "const,let",
-    ],
+    [esCheckPath, "es6", "./tests/fixtures/es6.js", "--checkFeatures", "--allowList", "const,let"],
     {
       encoding: "utf8",
     },
@@ -171,13 +154,9 @@ try {
 
 log.info("Test 7: Using --noCache option");
 try {
-  execFileSync(
-    "node",
-    [esCheckPath, "es5", "./tests/fixtures/es5.js", "--noCache"],
-    {
-      encoding: "utf8",
-    },
-  );
+  execFileSync("node", [esCheckPath, "es5", "./tests/fixtures/es5.js", "--noCache"], {
+    encoding: "utf8",
+  });
   log.info("[PASS] Test 7 passed\n");
 } catch (error) {
   log.error("[FAIL] Test 7 failed");
@@ -189,12 +168,7 @@ log.info("Test 8: Using --files option");
 try {
   execFileSync(
     "node",
-    [
-      esCheckPath,
-      "es5",
-      "--files",
-      "./tests/fixtures/es5.js,./tests/fixtures/es5-2.js",
-    ],
+    [esCheckPath, "es5", "--files", "./tests/fixtures/es5.js,./tests/fixtures/es5-2.js"],
     {
       encoding: "utf8",
     },

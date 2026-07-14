@@ -73,7 +73,25 @@ es-check es5 './dist/problematic-file.js'
 es-check es5 './dist/vendor/*.js'
 ```
 
-### 3. Ignore Specific Files
+### 3. Check Inline Scripts From HTML
+
+ES Check parses JavaScript and TypeScript files, not full HTML documents. To check JavaScript embedded in an HTML `<script>` tag, extract the script contents to a temporary `.js` file and check that file:
+
+```javascript
+let goUrlButton = document.querySelector("#go-url-btn");
+
+goUrlButton?.addEventListener("click", () => {
+  window.location.reload();
+});
+```
+
+```bash
+es-check es2015 './tmp/inline-script.js'
+```
+
+This reports optional chaining because `?.` is newer than ES2015.
+
+### 4. Ignore Specific Files
 
 Exclude known incompatible files:
 
@@ -81,7 +99,7 @@ Exclude known incompatible files:
 es-check es5 './dist/**/*.js' --not './dist/modern/**/*.js'
 ```
 
-### 4. Use Source Maps
+### 5. Use Source Maps
 
 ES Check automatically uses source maps when available to show errors in your original source code:
 

@@ -3,8 +3,7 @@ import { appendFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const VERSION_PATTERN =
-  /^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$/;
+const VERSION_PATTERN = /^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$/;
 const DIST_TAG_PATTERN = /^[a-z][a-z0-9._-]*$/;
 
 export function requireValue(name, value) {

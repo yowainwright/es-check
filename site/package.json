@@ -1,15 +1,15 @@
 {
   "name": "es-check-docs",
-  "type": "module",
   "version": "0.0.1",
+  "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "lint": "oxlint src",
     "lint:ci": "oxlint src && pnpm format:check",
-    "format": "prettier --write .",
-    "format:check": "prettier --check .",
+    "format": "oxfmt",
+    "format:check": "oxfmt --check",
     "test": "node --import tsx --test 'src/**/__tests__/*.test.ts' 'src/**/__tests__/*.test.tsx'"
   },
   "dependencies": {

@@ -1,20 +1,10 @@
 "use strict";
 
-const {
-  describe,
-  it,
-  before,
-  after,
-  beforeEach,
-  afterEach,
-} = require("node:test");
+const { describe, it, before, after, beforeEach, afterEach } = require("node:test");
 const assert = require("node:assert");
 const fs = require("fs");
 const path = require("path");
-const {
-  generateBashCompletion,
-  generateZshCompletion,
-} = require("../../lib/helpers");
+const { generateBashCompletion, generateZshCompletion } = require("../../lib/helpers");
 const {
   FIXTURE_FILES,
   CLI_COMMANDS,
@@ -108,15 +98,11 @@ it("👌  Es Check should fail when checking a glob of es6 files as es5", (done)
 });
 
 it("👌  Es Check should fail when given a glob that matches no files", (done) => {
-  execFileWithGlob(
-    process.execPath,
-    ["lib/index.js", "es5", "foo-bar.js"],
-    (err, stdout) => {
-      if (assertFailure(err, stdout, done)) {
-        done();
-      }
-    },
-  );
+  execFileWithGlob(process.execPath, ["lib/index.js", "es5", "foo-bar.js"], (err, stdout) => {
+    if (assertFailure(err, stdout, done)) {
+      done();
+    }
+  });
 });
 
 it("👌  Es Check should fail when given a glob that matches files and a glob that does not", (done) => {
@@ -146,12 +132,7 @@ it("👌  Es Check should fail when checking a glob of es6 modules as es5 withou
 it("[PASS]  Es Check should pass when checking es5 syntax module with es5 and --module flag", (done) => {
   execFileWithGlob(
     process.execPath,
-    [
-      "lib/index.js",
-      "es5",
-      "./tests/fixtures/modules/es5-syntax-module.js",
-      "--module",
-    ],
+    ["lib/index.js", "es5", "./tests/fixtures/modules/es5-syntax-module.js", "--module"],
     (err, stdout, stderr) => {
       if (assertSuccess(err, stdout, stderr, done)) {
         done();
@@ -198,13 +179,7 @@ it("[PASS]  Es Check should pass when checking a glob of es6 modules using the -
 it("[PASS]  Es Check should pass when checking a glob of es6 modules using the --module flag in another order", (done) => {
   execFileWithGlob(
     process.execPath,
-    [
-      "lib/index.js",
-      "es6",
-      "./tests/fixtures/modules/*.js",
-      "--module",
-      "--no-color",
-    ],
+    ["lib/index.js", "es6", "./tests/fixtures/modules/*.js", "--module", "--no-color"],
     (err, stdout, stderr) => {
       assert(stdout);
       if (err) {
@@ -329,10 +304,7 @@ describe("Es Check skips folders and files included in the not flag", () => {
   it("👌  .escheckrc", (done) => {
     const config = {
       ecmaVersion: "es5",
-      files: [
-        "./tests/fixtures/es5.js",
-        "./tests/fixtures/skipped/es6-skipped.js",
-      ],
+      files: ["./tests/fixtures/es5.js", "./tests/fixtures/skipped/es6-skipped.js"],
       not: ["./tests/fixtures/skipped/*"],
     };
     const configFileName = createUniqueConfigFile(config, "not-flag-escheckrc");
@@ -391,12 +363,7 @@ describe("Es Check supports the --files flag", () => {
   it("👌  Es Check should fail when given both spread files and --files flag", (done) => {
     execFileWithGlob(
       "node",
-      [
-        "lib/index.js",
-        "es6",
-        "./tests/fixtures/es6.js",
-        "--files=./tests/fixtures/es6.js",
-      ],
+      ["lib/index.js", "es6", "./tests/fixtures/es6.js", "--files=./tests/fixtures/es6.js"],
       (err, stdout, stderr) => {
         assert(err);
         log.debug(stdout);
@@ -410,12 +377,7 @@ describe("Es Check supports the es2018 flag", () => {
   it("[PASS]  Es Check should pass when checking a file with es2018 syntax as es2018", (done) => {
     execFileWithGlob(
       "node",
-      [
-        "lib/index.js",
-        "es2018",
-        "./tests/fixtures/es2018.js",
-        "--checkFeatures",
-      ],
+      ["lib/index.js", "es2018", "./tests/fixtures/es2018.js", "--checkFeatures"],
       (err, stdout, stderr) => {
         if (err) {
           log.error(err.stack);
@@ -611,13 +573,7 @@ describe("ES14 / ES2023 Feature Tests", () => {
   it("[PASS]  Es Check should pass when checking an ES14 file as es14", (done) => {
     execFileWithGlob(
       "node",
-      [
-        "lib/index.js",
-        "es14",
-        "./tests/fixtures/es14.js",
-        "--checkFeatures",
-        "--allow-hash-bang",
-      ],
+      ["lib/index.js", "es14", "./tests/fixtures/es14.js", "--checkFeatures", "--allow-hash-bang"],
       (err, stdout, stderr) => {
         if (err) {
           log.error(err.stack);
@@ -655,13 +611,7 @@ describe("ES14 / ES2023 Feature Tests", () => {
   it("👌  Es Check should fail when checking an ES14 file as es6", (done) => {
     execFileWithGlob(
       "node",
-      [
-        "lib/index.js",
-        "es6",
-        "./tests/fixtures/es14.js",
-        "--checkFeatures",
-        "--allow-hash-bang",
-      ],
+      ["lib/index.js", "es6", "./tests/fixtures/es14.js", "--checkFeatures", "--allow-hash-bang"],
       (err, stdout, stderr) => {
         log.debug(stdout);
         assert(err, "Expected an error but command ran successfully");
@@ -797,12 +747,7 @@ describe("ES6 / Promise", () => {
   it("👌  Es Check should fail when checking a file with `new Promise(...)` as es5", (done) => {
     execFileWithGlob(
       "node",
-      [
-        "lib/index.js",
-        "es5",
-        "./tests/fixtures/promise.new.js",
-        "--checkFeatures",
-      ],
+      ["lib/index.js", "es5", "./tests/fixtures/promise.new.js", "--checkFeatures"],
       (err, stdout, stderr) => {
         log.debug(stdout);
         assert(err, "Expected an error but command ran successfully");
@@ -814,12 +759,7 @@ describe("ES6 / Promise", () => {
   it("[PASS]  Es Check should pass when checking a file with `new Promise(...)` as es6", (done) => {
     execFileWithGlob(
       "node",
-      [
-        "lib/index.js",
-        "es6",
-        "./tests/fixtures/promise.new.js",
-        "--checkFeatures",
-      ],
+      ["lib/index.js", "es6", "./tests/fixtures/promise.new.js", "--checkFeatures"],
       (err, stdout, stderr) => {
         if (err) {
           log.error(err.stack);
@@ -835,12 +775,7 @@ describe("ES6 / Promise", () => {
   it("👌  Es Check should fail when checking a file with `Promise.resolve(...)` as es5", (done) => {
     execFileWithGlob(
       "node",
-      [
-        "lib/index.js",
-        "es5",
-        "./tests/fixtures/promise.resolve.js",
-        "--checkFeatures",
-      ],
+      ["lib/index.js", "es5", "./tests/fixtures/promise.resolve.js", "--checkFeatures"],
       (err, stdout, stderr) => {
         log.debug(stdout);
         assert(err, "Expected an error but command ran successfully");
@@ -852,12 +787,7 @@ describe("ES6 / Promise", () => {
   it("[PASS]  Es Check should pass when checking a file with `Promise.resolve(...)` as es6", (done) => {
     execFileWithGlob(
       "node",
-      [
-        "lib/index.js",
-        "es6",
-        "./tests/fixtures/promise.resolve.js",
-        "--checkFeatures",
-      ],
+      ["lib/index.js", "es6", "./tests/fixtures/promise.resolve.js", "--checkFeatures"],
       (err, stdout, stderr) => {
         if (err) {
           log.error(err.stack);
@@ -873,12 +803,7 @@ describe("ES6 / Promise", () => {
   it("👌  Es Check should fail when checking a file with `Promise.reject(...)` as es5", (done) => {
     execFileWithGlob(
       "node",
-      [
-        "lib/index.js",
-        "es5",
-        "./tests/fixtures/promise.reject.js",
-        "--checkFeatures",
-      ],
+      ["lib/index.js", "es5", "./tests/fixtures/promise.reject.js", "--checkFeatures"],
       (err, stdout, stderr) => {
         log.debug(stdout);
         assert(err, "Expected an error but command ran successfully");
@@ -890,12 +815,7 @@ describe("ES6 / Promise", () => {
   it("[PASS]  Es Check should pass when checking a file with `Promise.reject(...)` as es6", (done) => {
     execFileWithGlob(
       "node",
-      [
-        "lib/index.js",
-        "es6",
-        "./tests/fixtures/promise.reject.js",
-        "--checkFeatures",
-      ],
+      ["lib/index.js", "es6", "./tests/fixtures/promise.reject.js", "--checkFeatures"],
       (err, stdout, stderr) => {
         if (err) {
           log.error(err.stack);
@@ -942,10 +862,7 @@ describe("Array Configuration", () => {
         files: "./tests/fixtures/module/valid.js",
       },
     ];
-    const configFileName = createUniqueConfigFile(
-      config,
-      "multiple-configurations",
-    );
+    const configFileName = createUniqueConfigFile(config, "multiple-configurations");
 
     execFileWithGlob(
       "node",
@@ -1158,64 +1075,44 @@ describe("Shell Completion", () => {
   // CLI Integration Tests
   describe("CLI Commands", () => {
     it("should generate bash completion script", (done) => {
-      execFileWithGlob(
-        "node",
-        ["lib/index.js", "completion"],
-        (err, stdout, stderr) => {
-          if (err) {
-            log.error(err.stack);
-            log.error(stdout.toString());
-            log.error(stderr.toString());
-            done(err);
-            return;
-          }
+      execFileWithGlob("node", ["lib/index.js", "completion"], (err, stdout, stderr) => {
+        if (err) {
+          log.error(err.stack);
+          log.error(stdout.toString());
+          log.error(stderr.toString());
+          done(err);
+          return;
+        }
 
-          // Check for key elements in the bash completion script
-          assert(
-            stdout.includes("_es_check_completion()"),
-            "Should include completion function",
-          );
-          assert(stdout.includes("es_versions="), "Should include ES versions");
-          assert(
-            stdout.includes("complete -F _es_check_completion"),
-            "Should include complete command",
-          );
+        // Check for key elements in the bash completion script
+        assert(stdout.includes("_es_check_completion()"), "Should include completion function");
+        assert(stdout.includes("es_versions="), "Should include ES versions");
+        assert(
+          stdout.includes("complete -F _es_check_completion"),
+          "Should include complete command",
+        );
 
-          done();
-        },
-      );
+        done();
+      });
     });
 
     it("should generate zsh completion script", (done) => {
-      execFileWithGlob(
-        "node",
-        ["lib/index.js", "completion", "zsh"],
-        (err, stdout, stderr) => {
-          if (err) {
-            log.error(err.stack);
-            log.error(stdout.toString());
-            log.error(stderr.toString());
-            done(err);
-            return;
-          }
+      execFileWithGlob("node", ["lib/index.js", "completion", "zsh"], (err, stdout, stderr) => {
+        if (err) {
+          log.error(err.stack);
+          log.error(stdout.toString());
+          log.error(stderr.toString());
+          done(err);
+          return;
+        }
 
-          // Check for key elements in the zsh completion script
-          assert(
-            stdout.includes("#compdef es-check"),
-            "Should include compdef directive",
-          );
-          assert(
-            stdout.includes("_es_check()"),
-            "Should include completion function",
-          );
-          assert(
-            stdout.includes("es_versions=("),
-            "Should include ES versions",
-          );
+        // Check for key elements in the zsh completion script
+        assert(stdout.includes("#compdef es-check"), "Should include compdef directive");
+        assert(stdout.includes("_es_check()"), "Should include completion function");
+        assert(stdout.includes("es_versions=("), "Should include ES versions");
 
-          done();
-        },
-      );
+        done();
+      });
     });
 
     it("should show error for unsupported shell", (done) => {
@@ -1250,9 +1147,7 @@ describe("Shell Completion", () => {
         );
         assert(script.includes("es_versions="), "Should include ES versions");
         assert(
-          script.includes(
-            `complete -F _${cmdName.replace(/-/g, "_")}_completion ${cmdName}`,
-          ),
+          script.includes(`complete -F _${cmdName.replace(/-/g, "_")}_completion ${cmdName}`),
           "Should include complete command",
         );
 
@@ -1261,20 +1156,14 @@ describe("Shell Completion", () => {
         });
 
         options.forEach((opt) => {
-          assert(
-            script.includes(`--${opt}`),
-            `Should include option: --${opt}`,
-          );
+          assert(script.includes(`--${opt}`), `Should include option: --${opt}`);
         });
       });
 
       it("should handle empty commands and options arrays", () => {
         const script = generateBashCompletion("test-cmd", [], []);
 
-        assert(
-          script.includes("_test_cmd_completion()"),
-          "Should include completion function",
-        );
+        assert(script.includes("_test_cmd_completion()"), "Should include completion function");
         assert(
           script.includes('cmds=""') || script.includes("cmds=()"),
           "Should handle empty commands",
@@ -1286,11 +1175,7 @@ describe("Shell Completion", () => {
       });
 
       it("should handle command names with hyphens", () => {
-        const script = generateBashCompletion(
-          "test-cmd",
-          ["help"],
-          ["verbose"],
-        );
+        const script = generateBashCompletion("test-cmd", ["help"], ["verbose"]);
 
         assert(
           script.includes("_test_cmd_completion()"),
@@ -1311,10 +1196,7 @@ describe("Shell Completion", () => {
 
         const script = generateZshCompletion(cmdName, commands, options);
 
-        assert(
-          script.includes(`#compdef ${cmdName}`),
-          "Should include compdef directive",
-        );
+        assert(script.includes(`#compdef ${cmdName}`), "Should include compdef directive");
         assert(
           script.includes(`_${cmdName.replace(/-/g, "_")}()`),
           "Should include completion function",
@@ -1326,20 +1208,14 @@ describe("Shell Completion", () => {
         });
 
         options.forEach((opt) => {
-          assert(
-            script.includes(`"--${opt}[`),
-            `Should include option: --${opt}`,
-          );
+          assert(script.includes(`"--${opt}[`), `Should include option: --${opt}`);
         });
       });
 
       it("should handle empty commands and options arrays", () => {
         const script = generateZshCompletion("test-cmd", [], []);
 
-        assert(
-          script.includes("_test_cmd()"),
-          "Should include completion function",
-        );
+        assert(script.includes("_test_cmd()"), "Should include completion function");
         assert(script.includes("commands=("), "Should include commands array");
         assert(script.includes("options=("), "Should include options array");
       });
@@ -1435,10 +1311,7 @@ describe("🧪 Programmatic API Tests", () => {
 
     try {
       await runChecks([testConfig], logger);
-      assert(
-        true,
-        "runChecks should complete without errors for valid ES5 file",
-      );
+      assert(true, "runChecks should complete without errors for valid ES5 file");
     } catch (error) {
       throw new Error("runChecks failed unexpectedly: " + error.message);
     }
@@ -1507,15 +1380,9 @@ describe("🔬 Fixture-Based Tests for Addressed Scenarios", () => {
         version: "1.0.0",
         browserslist: ["IE 11"],
       };
-      fs.writeFileSync(
-        path.join(testDir, "package.json"),
-        JSON.stringify(packageJsonContent),
-      );
+      fs.writeFileSync(path.join(testDir, "package.json"), JSON.stringify(packageJsonContent));
 
-      const pathToIndexJs = path.relative(
-        testDir,
-        path.join(process.cwd(), "index.js"),
-      );
+      const pathToIndexJs = path.relative(testDir, path.join(process.cwd(), "index.js"));
       const targetJsFile = "uses_es6.js";
 
       execFileWithGlob(
@@ -1523,10 +1390,7 @@ describe("🔬 Fixture-Based Tests for Addressed Scenarios", () => {
         [pathToIndexJs, "checkBrowser", targetJsFile],
         { cwd: testDir },
         (err) => {
-          assert(
-            err,
-            "Expected es-check to fail (ES6 file vs IE 11 from generated package.json).",
-          );
+          assert(err, "Expected es-check to fail (ES6 file vs IE 11 from generated package.json).");
           done();
         },
       );
@@ -1536,15 +1400,11 @@ describe("🔬 Fixture-Based Tests for Addressed Scenarios", () => {
   describe("Comma-separated files string from config", () => {
     it("👌 Should process comma-separated files string from a generated .escheckrc and fail if one file is non-compliant", (done) => {
       const scenarioJsFilesDirName = "s3_js_files_fixture";
-      const jsFilesDir = path.join(
-        generatedFixturesRoot,
-        scenarioJsFilesDirName,
-      );
+      const jsFilesDir = path.join(generatedFixturesRoot, scenarioJsFilesDirName);
       fs.mkdirSync(jsFilesDir, { recursive: true });
 
       const es5JsContent = 'var testVar = "ES5 content";';
-      const es6JsContent =
-        'const testConst = "ES6 content"; let testLet = true;';
+      const es6JsContent = 'const testConst = "ES6 content"; let testLet = true;';
       fs.writeFileSync(path.join(jsFilesDir, "actual_es5.js"), es5JsContent);
       fs.writeFileSync(path.join(jsFilesDir, "actual_es6.js"), es6JsContent);
 
@@ -1563,10 +1423,7 @@ describe("🔬 Fixture-Based Tests for Addressed Scenarios", () => {
         ecmaVersion: "es5",
         files: `${es5RelPath}, ${es6RelPath}`,
       };
-      const configFileName = createUniqueConfigFile(
-        configForS3,
-        "s3_comma_files_rc",
-      );
+      const configFileName = createUniqueConfigFile(configForS3, "s3_comma_files_rc");
 
       execFileWithGlob(
         "node",
@@ -1574,10 +1431,7 @@ describe("🔬 Fixture-Based Tests for Addressed Scenarios", () => {
         (err, stdout, stderr) => {
           removeConfigFile(configFileName);
 
-          assert(
-            err,
-            "Expected es-check to fail because actual_es6.js (ES6) was checked as ES5.",
-          );
+          assert(err, "Expected es-check to fail because actual_es6.js (ES6) was checked as ES5.");
           assert(
             stdout.includes("actual_es6.js") &&
               (stdout.includes("ES version matching errors") ||
@@ -1597,18 +1451,11 @@ describe("🔬 Fixture-Based Tests for Addressed Scenarios", () => {
         ecmaVersion: "checkBrowser",
         browserslistQuery: "IE 11",
       };
-      const configFileName = createUniqueConfigFile(
-        config,
-        "s2_cli_merge_rc_fixture",
-      );
+      const configFileName = createUniqueConfigFile(config, "s2_cli_merge_rc_fixture");
 
       execFileWithGlob(
         "node",
-        [
-          "lib/index.js",
-          `--config=${configFileName}`,
-          `--files=${es6TestFile}`,
-        ],
+        ["lib/index.js", `--config=${configFileName}`, `--files=${es6TestFile}`],
         (err) => {
           removeConfigFile(configFileName);
           assert(
@@ -1632,10 +1479,7 @@ describe("🔬 Fixture-Based Tests for Addressed Scenarios", () => {
       ],
       (err, stdout, stderr) => {
         if (assertSuccess(err, stdout, stderr, done)) {
-          assert(
-            stdout.includes("no ES version matching errors"),
-            "Should pass successfully",
-          );
+          assert(stdout.includes("no ES version matching errors"), "Should pass successfully");
           done();
         }
       },
@@ -1645,131 +1489,87 @@ describe("🔬 Fixture-Based Tests for Addressed Scenarios", () => {
   it("[PASS] should PASS when checking a SCRIPT file (es6.js) with --checkBrowser", (done) => {
     const command =
       'node lib/index.js --checkBrowser --browserslistQuery="Chrome >= 100" ./tests/fixtures/checkbrowser/es6.js';
-    execFileWithGlob(
-      "node",
-      command.split(" ").slice(1),
-      (err, stdout, stderr) => {
-        if (err) {
-          log.error("Test for es6.js failed unexpectedly:", stdout, stderr);
-          done(err);
-          return;
-        }
-        assert(
-          stdout.includes("no ES version matching errors"),
-          "Should pass successfully",
-        );
-        done();
-      },
-    );
+    execFileWithGlob("node", command.split(" ").slice(1), (err, stdout, stderr) => {
+      if (err) {
+        log.error("Test for es6.js failed unexpectedly:", stdout, stderr);
+        done(err);
+        return;
+      }
+      assert(stdout.includes("no ES version matching errors"), "Should pass successfully");
+      done();
+    });
   });
 
   it("[PASS] should PASS when checking a MODULE file (es2020.js) by setting the version explicitly", (done) => {
-    const command =
-      "node lib/index.js es2020 --module ./tests/fixtures/checkbrowser/es2020.js";
-    execFileWithGlob(
-      "node",
-      command.split(" ").slice(1),
-      (err, stdout, stderr) => {
-        if (err) {
-          log.error("Test for es2020.js failed unexpectedly:", stdout, stderr);
-          done(err);
-          return;
-        }
-        assert(
-          stdout.includes("no ES version matching errors"),
-          "Should pass successfully",
-        );
-        done();
-      },
-    );
+    const command = "node lib/index.js es2020 --module ./tests/fixtures/checkbrowser/es2020.js";
+    execFileWithGlob("node", command.split(" ").slice(1), (err, stdout, stderr) => {
+      if (err) {
+        log.error("Test for es2020.js failed unexpectedly:", stdout, stderr);
+        done(err);
+        return;
+      }
+      assert(stdout.includes("no ES version matching errors"), "Should pass successfully");
+      done();
+    });
   });
 
   it("[PASS] should PASS when file argument is passed before the --checkBrowser flag", (done) => {
     const command =
       'node lib/index.js ./tests/fixtures/checkbrowser/es6.js --checkBrowser --browserslistQuery="Chrome >= 100"';
 
-    execFileWithGlob(
-      "node",
-      command.split(" ").slice(1),
-      (err, stdout, stderr) => {
-        if (err) {
-          log.error("Test failed unexpectedly:", stdout, stderr);
-          done(err);
-          return;
-        }
-        assert(
-          stdout.includes("no ES version matching errors"),
-          "Should pass successfully",
-        );
-        done();
-      },
-    );
+    execFileWithGlob("node", command.split(" ").slice(1), (err, stdout, stderr) => {
+      if (err) {
+        log.error("Test failed unexpectedly:", stdout, stderr);
+        done(err);
+        return;
+      }
+      assert(stdout.includes("no ES version matching errors"), "Should pass successfully");
+      done();
+    });
   });
 
   it("[PASS] should PASS when file argument is passed before the --checkBrowser flag", (done) => {
     const command =
       'node lib/index.js checkBrowser ./tests/fixtures/checkbrowser/es6.js --browserslistQuery="Chrome >= 100"';
 
-    execFileWithGlob(
-      "node",
-      command.split(" ").slice(1),
-      (err, stdout, stderr) => {
-        if (err) {
-          log.error("Test failed unexpectedly:", stdout, stderr);
-          done(err);
-          return;
-        }
-        assert(
-          stdout.includes("no ES version matching errors"),
-          "Should pass successfully",
-        );
-        done();
-      },
-    );
+    execFileWithGlob("node", command.split(" ").slice(1), (err, stdout, stderr) => {
+      if (err) {
+        log.error("Test failed unexpectedly:", stdout, stderr);
+        done(err);
+        return;
+      }
+      assert(stdout.includes("no ES version matching errors"), "Should pass successfully");
+      done();
+    });
   });
 
   it("[PASS] should PASS when file argument is passed before the --checkBrowser flag", (done) => {
     const command =
       'node lib/index.js --checkBrowser ./tests/fixtures/checkbrowser/es6.js --browserslistQuery="Chrome >= 100"';
 
-    execFileWithGlob(
-      "node",
-      command.split(" ").slice(1),
-      (err, stdout, stderr) => {
-        if (err) {
-          log.error("Test failed unexpectedly:", stdout, stderr);
-          done(err);
-          return;
-        }
-        assert(
-          stdout.includes("no ES version matching errors"),
-          "Should pass successfully",
-        );
-        done();
-      },
-    );
+    execFileWithGlob("node", command.split(" ").slice(1), (err, stdout, stderr) => {
+      if (err) {
+        log.error("Test failed unexpectedly:", stdout, stderr);
+        done(err);
+        return;
+      }
+      assert(stdout.includes("no ES version matching errors"), "Should pass successfully");
+      done();
+    });
   });
 
   it("[PASS] should PASS when file argument is passed before the --checkBrowser flag", (done) => {
-    const command =
-      "node lib/index.js --checkBrowser ./tests/fixtures/checkbrowser/es6.js";
+    const command = "node lib/index.js --checkBrowser ./tests/fixtures/checkbrowser/es6.js";
 
-    execFileWithGlob(
-      "node",
-      command.split(" ").slice(1),
-      (err, stdout, stderr) => {
-        if (err) {
-          log.error("Test failed unexpectedly:", stdout, stderr);
-          done(err);
-          return;
-        }
-        assert(
-          stdout.includes("no ES version matching errors"),
-          "Should pass successfully",
-        );
-        done();
-      },
-    );
+    execFileWithGlob("node", command.split(" ").slice(1), (err, stdout, stderr) => {
+      if (err) {
+        log.error("Test failed unexpectedly:", stdout, stderr);
+        done(err);
+        return;
+      }
+      assert(stdout.includes("no ES version matching errors"), "Should pass successfully");
+      done();
+    });
   });
 });
 
@@ -1857,8 +1657,7 @@ describe("--batchSize option tests", () => {
         assert(err, "Expected an error but command ran successfully");
         const output = stdout + stderr; // Check both stdout and stderr
         assert(
-          output.includes("ES version matching errors") ||
-            output.includes("ES-Check: there were"),
+          output.includes("ES version matching errors") || output.includes("ES-Check: there were"),
           "Output should contain error message",
         );
         done();
@@ -1916,12 +1715,7 @@ describe("Performance optimization integration tests", () => {
     // Test that async file reading works correctly
     execFileWithGlob(
       "node",
-      [
-        "lib/index.js",
-        "es5",
-        "./tests/fixtures/es5.js",
-        "./tests/fixtures/es5-2.js",
-      ],
+      ["lib/index.js", "es5", "./tests/fixtures/es5.js", "./tests/fixtures/es5-2.js"],
       (err, stdout, stderr) => {
         if (err) {
           log.error(err.stack);
@@ -1974,24 +1768,20 @@ describe("Performance optimization integration tests", () => {
 
     fs.writeFileSync(configPath, JSON.stringify(config));
 
-    execFile(
-      "node",
-      ["lib/index.js", "--config", configPath],
-      (err, stdout, stderr) => {
-        // Clean up config file
-        fs.unlinkSync(configPath);
+    execFile("node", ["lib/index.js", "--config", configPath], (err, stdout, stderr) => {
+      // Clean up config file
+      fs.unlinkSync(configPath);
 
-        if (err) {
-          log.error(err.stack);
-          log.error(stdout.toString());
-          log.error(stderr.toString());
-          done(err);
-          return;
-        }
-        assert(stdout.includes("no ES version matching errors"));
-        done();
-      },
-    );
+      if (err) {
+        log.error(err.stack);
+        log.error(stdout.toString());
+        log.error(stderr.toString());
+        done(err);
+        return;
+      }
+      assert(stdout.includes("no ES version matching errors"));
+      done();
+    });
   });
 });
 
@@ -2059,18 +1849,12 @@ describe("--cache option tests", () => {
   it("👌 Es Check should fail correctly with cache when checking ES6 as ES5", (done) => {
     execFileWithGlob(
       "node",
-      [
-        "lib/index.js",
-        "es5",
-        "./tests/fixtures/es6.js",
-        "./tests/fixtures/es6-2.js",
-      ],
+      ["lib/index.js", "es5", "./tests/fixtures/es6.js", "./tests/fixtures/es6-2.js"],
       (err, stdout, stderr) => {
         assert(err, "Expected an error but command ran successfully");
         const output = stdout + stderr;
         assert(
-          output.includes("ES version matching errors") ||
-            output.includes("ES-Check: there were"),
+          output.includes("ES version matching errors") || output.includes("ES-Check: there were"),
           "Output should contain error message",
         );
         done();
@@ -2090,23 +1874,19 @@ describe("--cache option tests", () => {
 
     fs.writeFileSync(configPath, JSON.stringify(config));
 
-    execFile(
-      "node",
-      ["lib/index.js", "--config", configPath],
-      (err, stdout, stderr) => {
-        fs.unlinkSync(configPath);
+    execFile("node", ["lib/index.js", "--config", configPath], (err, stdout, stderr) => {
+      fs.unlinkSync(configPath);
 
-        if (err) {
-          log.error(err.stack);
-          log.error(stdout.toString());
-          log.error(stderr.toString());
-          done(err);
-          return;
-        }
-        assert(stdout.includes("no ES version matching errors"));
-        done();
-      },
-    );
+      if (err) {
+        log.error(err.stack);
+        log.error(stdout.toString());
+        log.error(stderr.toString());
+        done(err);
+        return;
+      }
+      assert(stdout.includes("no ES version matching errors"));
+      done();
+    });
   });
 
   it("[PASS] Es Check should work with cache disabled in config file", (done) => {
@@ -2121,22 +1901,18 @@ describe("--cache option tests", () => {
 
     fs.writeFileSync(configPath, JSON.stringify(config));
 
-    execFile(
-      "node",
-      ["lib/index.js", "--config", configPath],
-      (err, stdout, stderr) => {
-        fs.unlinkSync(configPath);
+    execFile("node", ["lib/index.js", "--config", configPath], (err, stdout, stderr) => {
+      fs.unlinkSync(configPath);
 
-        if (err) {
-          log.error(err.stack);
-          log.error(stdout.toString());
-          log.error(stderr.toString());
-          done(err);
-          return;
-        }
-        assert(stdout.includes("no ES version matching errors"));
-        done();
-      },
-    );
+      if (err) {
+        log.error(err.stack);
+        log.error(stdout.toString());
+        log.error(stderr.toString());
+        done(err);
+        return;
+      }
+      assert(stdout.includes("no ES version matching errors"));
+      done();
+    });
   });
 });

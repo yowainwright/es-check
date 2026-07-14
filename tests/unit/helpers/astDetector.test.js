@@ -8,8 +8,7 @@ const {
   detectFeaturesFromAST,
 } = require("../../../lib/helpers/astDetector.js");
 
-const parse = (code) =>
-  acorn.parse(code, { ecmaVersion: 2025, sourceType: "module" });
+const parse = (code) => acorn.parse(code, { ecmaVersion: 2025, sourceType: "module" });
 
 describe("helpers/astDetector.js", () => {
   describe("normalizeNodeType()", () => {
@@ -236,6 +235,65 @@ describe("helpers/astDetector.js", () => {
       assert.strictEqual(result.globalThis, true);
     });
 
+    it("should not detect globalThis from object literal keys", () => {
+      const ast = parse("const obj = { globalThis: true };");
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.globalThis, false);
+    });
+
+    it("should not detect shadowed globalThis references", () => {
+      const ast = parse("const globalThis = { foo: true }; globalThis.foo;");
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.globalThis, false);
+    });
+
+    it("should not detect locally declared Promise constructors as the built-in Promise", () => {
+      const ast = parse(`
+        var Promise = function(executor) {
+          executor(function() {});
+        };
+        new Promise(function(resolve) {
+          resolve();
+        });
+      `);
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Promise, false);
+    });
+
+    it("should not detect Promise methods when Promise is shadowed in function scope", () => {
+      const ast = parse(`
+        function run(Promise) {
+          return Promise.resolve(1);
+        }
+      `);
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.PromiseResolve, false);
+    });
+
+    it("should detect Promise methods outside a shadowed scope", () => {
+      const ast = parse(`
+        function run(Promise) {
+          return Promise.resolve(1);
+        }
+        Promise.resolve(2);
+      `);
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.PromiseResolve, true);
+    });
+
+    it("should not detect global static methods when the receiver is shadowed", () => {
+      const ast = parse(`
+        const Object = {
+          values(value) {
+            return value;
+          },
+        };
+        Object.values({ a: 1 });
+      `);
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.ObjectValues, false);
+    });
+
     it("should detect ArrayPrototypeGroup", () => {
       const ast = parse("items.group(x => x.type)");
       const result = detectFeaturesFromAST(ast);
@@ -345,9 +403,7 @@ describe("helpers/astDetector.js", () => {
     });
 
     it("should detect ErgonomicBrandChecks for private field 'in' check", () => {
-      const ast = parse(
-        "class Foo { #field; check(obj) { return #field in obj; } }",
-      );
+      const ast = parse("class Foo { #field; check(obj) { return #field in obj; } }");
       const result = detectFeaturesFromAST(ast);
       assert.strictEqual(result.ErgonomicBrandChecks, true);
     });

@@ -27,11 +27,7 @@ export function readPackageVersion(manifestPath) {
 }
 
 export function writeDistTag({ version, outputPath }, dependencies = {}) {
-  const writeOutput = getDependency(
-    dependencies,
-    "writeOutput",
-    appendGithubOutput,
-  );
+  const writeOutput = getDependency(dependencies, "writeOutput", appendGithubOutput);
   const distTag = resolveDistTag(version);
   writeOutput("tag", distTag, outputPath);
   return distTag;
@@ -39,11 +35,7 @@ export function writeDistTag({ version, outputPath }, dependencies = {}) {
 
 export function packPackage({ outputPath }, dependencies = {}) {
   const run = getDependency(dependencies, "run", runCommand);
-  const writeOutput = getDependency(
-    dependencies,
-    "writeOutput",
-    appendGithubOutput,
-  );
+  const writeOutput = getDependency(dependencies, "writeOutput", appendGithubOutput);
   const result = run("npm", ["pack", "--ignore-scripts", "--json"], {
     capture: true,
   });
@@ -55,11 +47,7 @@ export function packPackage({ outputPath }, dependencies = {}) {
 
 export function prepareAttestation(inputs, dependencies = {}) {
   const copyFile = getDependency(dependencies, "copyFile", copyFileSync);
-  const writeOutput = getDependency(
-    dependencies,
-    "writeOutput",
-    appendGithubOutput,
-  );
+  const writeOutput = getDependency(dependencies, "writeOutput", appendGithubOutput);
   const tarball = requireValue("TARBALL", inputs.tarball);
   const bundlePath = requireValue("ATTESTATION_BUNDLE", inputs.bundlePath);
   const sigstoreBundle = `${tarball}.sigstore.json`;
@@ -76,15 +64,7 @@ function packageExists(packageReference, run) {
 }
 
 function createPublishArgs(tarball, distTag) {
-  return [
-    "publish",
-    tarball,
-    "--provenance",
-    "--access",
-    "public",
-    "--tag",
-    distTag,
-  ];
+  return ["publish", tarball, "--provenance", "--access", "public", "--tag", distTag];
 }
 
 export function publishNpm(inputs, dependencies = {}) {

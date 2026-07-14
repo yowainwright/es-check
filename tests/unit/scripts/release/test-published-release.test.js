@@ -3,8 +3,7 @@
 const assert = require("node:assert/strict");
 const { test } = require("node:test");
 
-const releaseModule =
-  import("../../../../scripts/release/test-published-release.mjs");
+const releaseModule = import("../../../../scripts/release/test-published-release.mjs");
 const CREDENTIAL = "fixture-value";
 
 const BUILD_ARGS = [

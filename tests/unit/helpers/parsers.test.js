@@ -11,6 +11,14 @@ const {
   mapPosition,
 } = require("../../../lib/helpers/parsers.js");
 
+const nodeCanStripTypes = typeof require("module").stripTypeScriptTypes === "function";
+const nodeStripOptions = nodeCanStripTypes
+  ? {}
+  : { skip: "requires Node.js v22.13.0+ native TypeScript stripping" };
+const nodeNoStripOptions = nodeCanStripTypes
+  ? { skip: "requires a Node.js runtime without native TypeScript stripping" }
+  : {};
+
 describe("helpers/parsers.js", () => {
   describe("parseCode()", () => {
     it("should parse valid code with acorn", () => {
@@ -70,7 +78,7 @@ describe("helpers/parsers.js", () => {
       assert.strictEqual(result.ast, null);
     });
 
-    it("should handle TypeScript files correctly with typescript flag", () => {
+    it("should handle TypeScript files correctly with typescript flag", nodeStripOptions, () => {
       const acorn = require("acorn");
       const input = "const greet = (name: string): string => `Hello ${name}`;";
       const result = parseCode(input, { ecmaVersion: 6 }, acorn, "test.ts", {
@@ -81,7 +89,7 @@ describe("helpers/parsers.js", () => {
       assert(result.ast);
     });
 
-    it("should handle TypeScript files correctly with ts flag", () => {
+    it("should handle TypeScript files correctly with ts flag", nodeStripOptions, () => {
       const acorn = require("acorn");
       const input = "const greet = (name: string): string => `Hello ${name}`;";
       const result = parseCode(input, { ecmaVersion: 6 }, acorn, "test.ts", {
@@ -92,7 +100,7 @@ describe("helpers/parsers.js", () => {
       assert(result.ast);
     });
 
-    it("should handle TypeScript files with .tsx extension", () => {
+    it("should handle TypeScript files with .tsx extension", nodeStripOptions, () => {
       const acorn = require("acorn");
       const input = "const greet = (name: string): string => `Hello ${name}`;";
       const result = parseCode(input, { ecmaVersion: 6 }, acorn, "test.tsx", {
@@ -102,6 +110,23 @@ describe("helpers/parsers.js", () => {
       assert.strictEqual(result.error, null);
       assert(result.ast);
     });
+
+    it(
+      "should return an unsupported runtime error when Node cannot strip TypeScript",
+      nodeNoStripOptions,
+      () => {
+        const acorn = require("acorn");
+        const input = "const greet = (name: string): string => `Hello ${name}`;";
+        const result = parseCode(input, { ecmaVersion: 6 }, acorn, "test.ts", {
+          typescript: true,
+        });
+
+        assert.strictEqual(result.ast, null);
+        assert(result.error);
+        assert.strictEqual(result.error.file, "test.ts");
+        assert.match(result.error.err.message, /Node\.js v22\.13\.0\+/);
+      },
+    );
 
     it("should handle parsing errors without location info", () => {
       const acorn = require("acorn");
@@ -137,7 +162,7 @@ describe("helpers/parsers.js", () => {
     });
   });
 
-  describe("stripTypeScript()", () => {
+  describe("stripTypeScript()", nodeStripOptions, () => {
     it("should return input unchanged for non-string input", () => {
       assert.deepStrictEqual(stripTypeScript(null), {
         code: null,
@@ -169,10 +194,8 @@ describe("helpers/parsers.js", () => {
     });
 
     it("should remove function parameter type annotations", () => {
-      const input =
-        "function greet(name: string, age: number) { return name; }";
-      const expected =
-        "function greet(name        , age        ) { return name; }";
+      const input = "function greet(name: string, age: number) { return name; }";
+      const expected = "function greet(name        , age        ) { return name; }";
       const result = stripTypeScript(input);
       assert.strictEqual(result.code, expected);
     });
@@ -185,10 +208,8 @@ describe("helpers/parsers.js", () => {
     });
 
     it("should remove 'as' type assertions", () => {
-      const input =
-        "const element = document.getElementById('test') as HTMLElement;";
-      const expected =
-        "const element = document.getElementById('test')               ;";
+      const input = "const element = document.getElementById('test') as HTMLElement;";
+      const expected = "const element = document.getElementById('test')               ;";
       const result = stripTypeScript(input);
       assert.strictEqual(result.code, expected);
     });
@@ -207,8 +228,7 @@ describe("helpers/parsers.js", () => {
     });
 
     it("should preserve comments", () => {
-      const input =
-        "// This is: a comment\\n/* as block: comment */\\nconst x = 5;";
+      const input = "// This is: a comment\\n/* as block: comment */\\nconst x = 5;";
       const result = stripTypeScript(input);
       assert.strictEqual(result.code, input);
     });
@@ -221,10 +241,8 @@ describe("helpers/parsers.js", () => {
     });
 
     it("should handle nested brackets in type annotations", () => {
-      const input =
-        "const obj: { prop: string; nested: { value: number } } = {};";
-      const expected =
-        "const obj                                              = {};";
+      const input = "const obj: { prop: string; nested: { value: number } } = {};";
+      const expected = "const obj                                              = {};";
       const result = stripTypeScript(input);
       assert.strictEqual(result.code, expected);
     });
@@ -263,10 +281,8 @@ describe("helpers/parsers.js", () => {
     });
 
     it("should handle type annotations after destructuring", () => {
-      const input =
-        "const { name, age }: { name: string; age: number } = user;";
-      const expected =
-        "const { name, age }                                = user;";
+      const input = "const { name, age }: { name: string; age: number } = user;";
+      const expected = "const { name, age }                                = user;";
       const result = stripTypeScript(input);
       assert.strictEqual(result.code, expected);
     });
@@ -310,7 +326,7 @@ describe("helpers/parsers.js", () => {
   });
 
   describe("stripTypesInNode()", () => {
-    it("should strip TypeScript types using Node.js API", () => {
+    it("should strip TypeScript types using Node.js API", nodeStripOptions, () => {
       const code = "const x: string = 'test';";
       const result = stripTypesInNode(code);
       assert(typeof result === "string");
@@ -319,22 +335,13 @@ describe("helpers/parsers.js", () => {
     });
 
     it("should throw error for unsupported Node.js version", () => {
-      const originalModule = require.cache[require.resolve("module")];
-      require.cache[require.resolve("module")] = {
-        exports: {},
-      };
-
-      try {
-        const code = "const x: string = 'test';";
-        assert.throws(() => stripTypesInNode(code), /Node\.js v22\.13\.0\+/);
-      } finally {
-        require.cache[require.resolve("module")] = originalModule;
-      }
+      const code = "const x: string = 'test';";
+      assert.throws(() => stripTypesInNode(code, {}), /Node\.js v22\.13\.0\+/);
     });
   });
 
   describe("stripTypeScript() - runtime integration", () => {
-    it("should use stripTypesInNode for node runtime", () => {
+    it("should use stripTypesInNode for node runtime", nodeStripOptions, () => {
       const code = "const x: string = 'test';";
       const result = stripTypeScript(code);
       assert(typeof result.code === "string");

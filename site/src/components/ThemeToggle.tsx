@@ -6,11 +6,7 @@ export function ThemeToggle() {
   const isDark = theme === "dark";
 
   return (
-    <button
-      aria-label="Toggle theme"
-      onClick={toggle}
-      className="btn btn-sm btn-ghost btn-square"
-    >
+    <button aria-label="Toggle theme" onClick={toggle} className="btn btn-sm btn-ghost btn-square">
       {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
     </button>
   );

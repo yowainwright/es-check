@@ -3,8 +3,7 @@ import type { SearchItem } from "./types";
 export const SEARCH_DATA: SearchItem[] = [
   {
     title: "Getting Started",
-    description:
-      "Get started with ES Check - Check JavaScript files ES version",
+    description: "Get started with ES Check - Check JavaScript files ES version",
     href: "/docs/gettingstarted",
     content:
       "ES Check checks JavaScript files against ECMAScript version. Installation quick start guide npm install",
@@ -70,24 +69,21 @@ export const SEARCH_DATA: SearchItem[] = [
     title: "CI/CD Integration",
     description: "Integrate ES Check with CI/CD pipelines",
     href: "/docs/ci-integration",
-    content:
-      "CI/CD integration GitHub Actions Jenkins CircleCI Travis build pipeline automation",
+    content: "CI/CD integration GitHub Actions Jenkins CircleCI Travis build pipeline automation",
     category: "Advanced",
   },
   {
     title: "Debugging",
     description: "Debug ES version issues effectively",
     href: "/docs/debugging",
-    content:
-      "Debugging error messages line numbers acorn parser verbose mode troubleshooting",
+    content: "Debugging error messages line numbers acorn parser verbose mode troubleshooting",
     category: "Advanced",
   },
   {
     title: "How to Contribute",
     description: "Contributing to ES Check development",
     href: "/docs/how-to-contribute",
-    content:
-      "Contributing pull requests issues fork clone development setup guidelines",
+    content: "Contributing pull requests issues fork clone development setup guidelines",
     category: "Contribute",
   },
   {
@@ -102,8 +98,7 @@ export const SEARCH_DATA: SearchItem[] = [
     title: "Report Issues",
     description: "How to report bugs and issues",
     href: "/docs/having-an-issue",
-    content:
-      "Report issues bugs GitHub issues template reproduction steps error messages",
+    content: "Report issues bugs GitHub issues template reproduction steps error messages",
     category: "Contribute",
   },
 ];

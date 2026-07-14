@@ -1,9 +1,6 @@
 const { describe, it } = require("node:test");
 const assert = require("node:assert");
-const {
-  buildConfig,
-  warnAboutIgnoreFile,
-} = require("../../../lib/cli/handler.js");
+const { buildConfig, warnAboutIgnoreFile } = require("../../../lib/cli/handler.js");
 
 describe("cli/handler.js", () => {
   describe("buildConfig()", () => {
@@ -18,12 +15,7 @@ describe("cli/handler.js", () => {
     it("should build config with files from argument", () => {
       const baseConfig = {};
       const options = {};
-      const result = buildConfig(
-        "es5",
-        ["file1.js", "file2.js"],
-        options,
-        baseConfig,
-      );
+      const result = buildConfig("es5", ["file1.js", "file2.js"], options, baseConfig);
 
       assert.deepStrictEqual(result.files, ["file1.js", "file2.js"]);
     });
@@ -39,12 +31,7 @@ describe("cli/handler.js", () => {
     it("should prefer files argument over option", () => {
       const baseConfig = {};
       const options = { files: "file3.js" };
-      const result = buildConfig(
-        "es5",
-        ["file1.js", "file2.js"],
-        options,
-        baseConfig,
-      );
+      const result = buildConfig("es5", ["file1.js", "file2.js"], options, baseConfig);
 
       assert.deepStrictEqual(result.files, ["file1.js", "file2.js"]);
     });
@@ -103,12 +90,7 @@ describe("cli/handler.js", () => {
     });
 
     it("should handle ignore-file kebab-case option", () => {
-      const result = buildConfig(
-        "es5",
-        [],
-        { "ignore-file": ".ignore.json" },
-        {},
-      );
+      const result = buildConfig("es5", [], { "ignore-file": ".ignore.json" }, {});
 
       assert.strictEqual(result.ignoreFile, ".ignore.json");
     });

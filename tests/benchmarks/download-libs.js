@@ -21,17 +21,13 @@ function handleResponse(response, file, destPath, url, resolve, reject) {
   if (isRedirect) {
     file.close();
     fs.unlinkSync(destPath);
-    return downloadFile(response.headers.location, destPath)
-      .then(resolve)
-      .catch(reject);
+    return downloadFile(response.headers.location, destPath).then(resolve).catch(reject);
   }
 
   const isSuccess = response.statusCode === 200;
 
   if (!isSuccess) {
-    reject(
-      new Error(`Failed to download ${url}: Status ${response.statusCode}`),
-    );
+    reject(new Error(`Failed to download ${url}: Status ${response.statusCode}`));
     return;
   }
 
@@ -48,9 +44,7 @@ function downloadFile(url, destPath) {
     const file = fs.createWriteStream(destPath);
 
     https
-      .get(url, (response) =>
-        handleResponse(response, file, destPath, url, resolve, reject),
-      )
+      .get(url, (response) => handleResponse(response, file, destPath, url, resolve, reject))
       .on("error", (err) => {
         fs.unlinkSync(destPath);
         reject(err);

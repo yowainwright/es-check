@@ -34,14 +34,8 @@ describe("Source Map E2E Tests", () => {
     }
 
     assert.strictEqual(exitCode, 1, "Should exit with error code 1");
-    assert.ok(
-      output.includes("transpiled.js"),
-      "Should reference the transpiled file",
-    );
-    assert.ok(
-      output.includes("ES-Check Error"),
-      "Should show ES-Check error message",
-    );
+    assert.ok(output.includes("transpiled.js"), "Should reference the transpiled file");
+    assert.ok(output.includes("ES-Check Error"), "Should show ES-Check error message");
   });
 
   test("should check transpiled file passes when checking for correct version", () => {
@@ -83,14 +77,8 @@ describe("Source Map E2E Tests", () => {
     }
 
     assert.strictEqual(exitCode, 1, "Should exit with error code 1");
-    assert.ok(
-      output.includes("no-map.js"),
-      "Should reference the file without map",
-    );
-    assert.ok(
-      output.includes("ES-Check Error"),
-      "Should show ES-Check error message",
-    );
+    assert.ok(output.includes("no-map.js"), "Should reference the file without map");
+    assert.ok(output.includes("ES-Check Error"), "Should show ES-Check error message");
   });
 
   test("should verify original source is ES6+", () => {
@@ -108,11 +96,7 @@ describe("Source Map E2E Tests", () => {
       exitCode = error.status;
     }
 
-    assert.strictEqual(
-      exitCode,
-      1,
-      "Should exit with error code 1 for ES5 check",
-    );
+    assert.strictEqual(exitCode, 1, "Should exit with error code 1 for ES5 check");
     assert.ok(output.includes("original.js"), "Should reference original file");
   });
 });

@@ -28,12 +28,7 @@ const tools = [
     run: async (testFiles) => {
       const startTime = performance.now();
       try {
-        await execFileAsync("node", [
-          "./index.js",
-          esVersion,
-          ...testFiles,
-          "--silent",
-        ]);
+        await execFileAsync("node", ["./index.js", esVersion, ...testFiles, "--silent"]);
       } catch (error) {
         // Ignore errors - we're just measuring performance
       }
@@ -52,10 +47,7 @@ const tools = [
 
       const startTime = performance.now();
       try {
-        await execFileAsync("./node_modules/.bin/are-you-es5", [
-          "--files",
-          testFiles.join(","),
-        ]);
+        await execFileAsync("./node_modules/.bin/are-you-es5", ["--files", testFiles.join(",")]);
       } catch (error) {}
       return performance.now() - startTime;
     },
@@ -81,13 +73,7 @@ const tools = [
     run: async (testFiles) => {
       const startTime = performance.now();
       try {
-        await execFileAsync("node", [
-          "./index.js",
-          esVersion,
-          ...testFiles,
-          "--light",
-          "--silent",
-        ]);
+        await execFileAsync("node", ["./index.js", esVersion, ...testFiles, "--light", "--silent"]);
       } catch (error) {}
       return performance.now() - startTime;
     },
@@ -285,12 +271,7 @@ const tools = [
         fs.accessSync("./node_modules/eslint");
       } catch (error) {
         log.info("eslint is not installed. Installing temporarily...");
-        await execFileAsync("npm", [
-          "install",
-          "--no-save",
-          "eslint",
-          "eslint-plugin-es5",
-        ]);
+        await execFileAsync("npm", ["install", "--no-save", "eslint", "eslint-plugin-es5"]);
       }
 
       const eslintConfig = {
@@ -348,9 +329,7 @@ async function findJsFiles(dir) {
 
   try {
     const { default: glob } = await import("fast-glob");
-    const ignorePatterns = IGNORE_PATTERNS.filter(
-      (p) => p !== "**/test/**" && p !== "**/tests/**",
-    );
+    const ignorePatterns = IGNORE_PATTERNS.filter((p) => p !== "**/test/**" && p !== "**/tests/**");
     return await glob(`${dir}/**/*.js`, {
       ignore: ignorePatterns,
       absolute: true,
@@ -405,15 +384,12 @@ async function runBenchmarks() {
   log.info(`Found ${testFiles.length} JavaScript files to test`);
 
   if (testFiles.length === 0) {
-    log.error(
-      "No JavaScript files found to test. Please specify a directory with JS files.",
-    );
+    log.error("No JavaScript files found to test. Please specify a directory with JS files.");
     process.exit(1);
   }
 
   const maxFiles = parseInt(process.env.MAX_FILES, 10) || DEFAULT_MAX_FILES;
-  const filesToTest =
-    testFiles.length > maxFiles ? testFiles.slice(0, maxFiles) : testFiles;
+  const filesToTest = testFiles.length > maxFiles ? testFiles.slice(0, maxFiles) : testFiles;
 
   log.info(`Testing with ${filesToTest.length} files`);
 
@@ -443,16 +419,13 @@ async function runBenchmarks() {
   }
 
   log.info("\n=== COMPARISON ===");
-  const sortedTools = Object.keys(results).sort(
-    (a, b) => results[a].avg - results[b].avg,
-  );
+  const sortedTools = Object.keys(results).sort((a, b) => results[a].avg - results[b].avg);
 
   log.info("Tools ranked by average execution time (fastest first):");
   sortedTools.forEach((toolName, index) => {
     const { avg } = results[toolName];
     const fastestAvg = results[sortedTools[0]].avg;
-    const percentSlower =
-      index === 0 ? 0 : ((avg - fastestAvg) / fastestAvg) * 100;
+    const percentSlower = index === 0 ? 0 : ((avg - fastestAvg) / fastestAvg) * 100;
 
     log.info(
       `${index + 1}. ${toolName}: ${avg.toFixed(2)}ms ${index === 0 ? "(fastest)" : `(${percentSlower.toFixed(2)}% slower)`}`,
@@ -460,20 +433,14 @@ async function runBenchmarks() {
   });
 
   log.info("\n=== MARKDOWN TABLE ===");
-  log.info(
-    "| Tool | Average (ms) | Min (ms) | Max (ms) | Relative Performance |",
-  );
-  log.info(
-    "|------|-------------|----------|----------|----------------------|",
-  );
+  log.info("| Tool | Average (ms) | Min (ms) | Max (ms) | Relative Performance |");
+  log.info("|------|-------------|----------|----------|----------------------|");
 
   sortedTools.forEach((toolName) => {
     const { avg, min, max } = results[toolName];
     const fastestAvg = results[sortedTools[0]].avg;
     const relativePerf =
-      toolName === sortedTools[0]
-        ? "1x (fastest)"
-        : `${(avg / fastestAvg).toFixed(2)}x slower`;
+      toolName === sortedTools[0] ? "1x (fastest)" : `${(avg / fastestAvg).toFixed(2)}x slower`;
 
     log.info(
       `| ${toolName} | ${avg.toFixed(2)} | ${min.toFixed(2)} | ${max.toFixed(2)} | ${relativePerf} |`,

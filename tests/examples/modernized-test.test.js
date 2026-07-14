@@ -29,11 +29,7 @@ describe("Modern ES-Check Testing Example", () => {
   });
 
   test("should ignore polyfillable features when requested", async () => {
-    await testSuite.testIgnorePolyfillable(
-      8,
-      ["Array.prototype.at"],
-      "core-js",
-    );
+    await testSuite.testIgnorePolyfillable(8, ["Array.prototype.at"], "core-js");
   });
 
   test("cleanup", () => {

@@ -22,15 +22,7 @@ const bunVersion = process.env.BUN_VERSION;
 const denoVersion = process.env.DENO_VERSION;
 
 // Paths
-const esCheckPath = path.join(
-  __dirname,
-  "..",
-  "..",
-  "..",
-  "lib",
-  "cli",
-  "index.js",
-);
+const esCheckPath = path.join(__dirname, "..", "..", "..", "lib", "cli", "index.js");
 const fixturesPath = path.join(__dirname, "..", "..", "fixtures");
 
 // Test fixtures to use
@@ -43,10 +35,7 @@ const testFiles = [
 // Logger
 function log(level, message, ...args) {
   const timestamp = new Date().toISOString();
-  console[level](
-    `[${timestamp}] [${runtime.toUpperCase()}] ${message}`,
-    ...args,
-  );
+  console[level](`[${timestamp}] [${runtime.toUpperCase()}] ${message}`, ...args);
 }
 
 function logInfo(message, ...args) {
@@ -130,14 +119,10 @@ async function testNode20() {
   const filePath = path.join(fixturesPath, "simple-ts.ts");
 
   try {
-    const result = execFileSync(
-      "node",
-      [esCheckPath, "es6", filePath, "--typescript"],
-      {
-        encoding: "utf8",
-        timeout: 10000,
-      },
-    );
+    const result = execFileSync("node", [esCheckPath, "es6", filePath, "--typescript"], {
+      encoding: "utf8",
+      timeout: 10000,
+    });
 
     throw new Error("Expected failure but test passed");
   } catch (error) {
@@ -145,10 +130,7 @@ async function testNode20() {
     if (error.stderr && error.stderr.includes("requires Node.js v22.13.0+")) {
       logInfo("✓ Correctly failed with expected Node.js version error");
       return;
-    } else if (
-      error.stdout &&
-      error.stdout.includes("requires Node.js v22.13.0+")
-    ) {
+    } else if (error.stdout && error.stdout.includes("requires Node.js v22.13.0+")) {
       logInfo("✓ Correctly failed with expected Node.js version error");
       return;
     }
@@ -187,30 +169,19 @@ async function testDeno() {
 
   try {
     // Use node to run es-check within deno environment (Node.js 20 in Deno container)
-    const result = execFileSync(
-      "node",
-      [esCheckPath, "es6", filePath, "--typescript"],
-      {
-        encoding: "utf8",
-        timeout: 10000,
-      },
-    );
+    const result = execFileSync("node", [esCheckPath, "es6", filePath, "--typescript"], {
+      encoding: "utf8",
+      timeout: 10000,
+    });
 
     throw new Error("Expected failure but test passed");
   } catch (error) {
     // Check if it's the expected Node.js version error (since we're running under Node.js 20 in Deno container)
     if (error.stderr && error.stderr.includes("requires Node.js v22.13.0+")) {
-      logInfo(
-        "✓ Correctly failed with expected Node.js version error in Deno environment",
-      );
+      logInfo("✓ Correctly failed with expected Node.js version error in Deno environment");
       return;
-    } else if (
-      error.stdout &&
-      error.stdout.includes("requires Node.js v22.13.0+")
-    ) {
-      logInfo(
-        "✓ Correctly failed with expected Node.js version error in Deno environment",
-      );
+    } else if (error.stdout && error.stdout.includes("requires Node.js v22.13.0+")) {
+      logInfo("✓ Correctly failed with expected Node.js version error in Deno environment");
       return;
     }
 
@@ -221,9 +192,7 @@ async function testDeno() {
 // Main execution
 async function main() {
   logInfo(`Starting TypeScript runtime tests for: ${runtime}`);
-  logInfo(
-    `Runtime details: Node=${nodeVersion}, Bun=${bunVersion}, Deno=${denoVersion}`,
-  );
+  logInfo(`Runtime details: Node=${nodeVersion}, Bun=${bunVersion}, Deno=${denoVersion}`);
 
   let testsPassed = 0;
   let totalTests = 0;
