@@ -26,6 +26,13 @@ export function readPackageVersion(manifestPath) {
   return normalizeVersion(manifest.version);
 }
 
+export function assertReleaseVersion(tagVersion, manifestPath) {
+  const releaseVersion = normalizeVersion(tagVersion);
+  const packageVersion = readPackageVersion(manifestPath);
+  if (releaseVersion === packageVersion) return packageVersion;
+  throw new Error(`Release tag ${tagVersion} does not match package version ${packageVersion}`);
+}
+
 export function writeDistTag({ version, outputPath }, dependencies = {}) {
   const writeOutput = getDependency(dependencies, "writeOutput", appendGithubOutput);
   const distTag = resolveDistTag(version);
@@ -72,7 +79,7 @@ export function publishNpm(inputs, dependencies = {}) {
   const writeLog = getDependency(dependencies, "log", log);
   const tarball = requireValue("TARBALL", inputs.tarball);
   const distTag = validateDistTag(inputs.distTag);
-  const version = readPackageVersion(inputs.manifestPath);
+  const version = assertReleaseVersion(inputs.version, inputs.manifestPath);
   const packageReference = `${PACKAGE_NAME}@${version}`;
   if (packageExists(packageReference, run)) {
     writeLog(`${packageReference} is already published`);
@@ -149,7 +156,11 @@ export function main([command], env = process.env) {
   if (command === "pack") return packPackage({ outputPath });
   if (command === "prepare-attestation") return prepareAttestationFromEnv(env);
   if (command === "publish-npm") {
-    return publishNpm({ tarball: env.TARBALL, distTag: env.DIST_TAG });
+    return publishNpm({
+      version: env.VERSION,
+      tarball: env.TARBALL,
+      distTag: env.DIST_TAG,
+    });
   }
   if (command === "publish-github") return publishGithubFromEnv(env);
   throw new Error(`Unknown publish command: ${command || "missing"}`);

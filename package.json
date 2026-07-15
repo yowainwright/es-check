@@ -86,7 +86,7 @@
     "test:e2e:cli": "node tests/e2e/test-cli.js",
     "test:e2e:esm": "node tests/e2e/test-esm-import.mjs",
     "test:e2e:package-files": "node tests/e2e/test-package-files.mjs",
-    "test:e2e:sourcemap": "node --test tests/e2e/test-sourcemap.js --test-timeout=10000",
+    "test:e2e:sourcemap": "node --test --test-timeout=10000 tests/e2e/test-sourcemap.js",
     "update": "codependence --update && pastoralist && pnpm run scripts:generate",
     "benchmark": "./tests/benchmarks/run-benchmarks.sh",
     "site:dev": "pnpm --filter es-check-docs run dev",

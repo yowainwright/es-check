@@ -23,8 +23,11 @@ export function normalizeVersion(value) {
 
 export function resolveDistTag(version) {
   const normalizedVersion = normalizeVersion(version);
-  const prerelease = normalizedVersion.match(/-(alpha|beta|rc)(?:[.-]|$)/);
-  return prerelease?.[1] || "latest";
+  const prerelease = normalizedVersion.match(/-([0-9A-Za-z-]+)(?:[.+]|$)/)?.[1];
+  if (!prerelease) return "latest";
+  const distTag = prerelease.toLowerCase();
+  if (!DIST_TAG_PATTERN.test(distTag)) return "next";
+  return distTag;
 }
 
 export function validateDistTag(value) {

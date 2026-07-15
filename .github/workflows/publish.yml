@@ -68,6 +68,7 @@ jobs:
         env:
           DIST_TAG: ${{ steps.dist-tag.outputs.tag }}
           TARBALL: ${{ steps.pack.outputs.tarball }}
+          VERSION: ${{ github.ref_name }}
         run: node scripts/release/publish.mjs publish-npm
 
       - name: Publish GitHub release assets

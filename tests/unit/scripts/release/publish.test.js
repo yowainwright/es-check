@@ -65,6 +65,9 @@ test("resolveDistTag returns stable and prerelease tags", async () => {
   assert.equal(resolveDistTag("1.2.3-alpha.1"), "alpha");
   assert.equal(resolveDistTag("1.2.3-beta.2"), "beta");
   assert.equal(resolveDistTag("1.2.3-rc.3"), "rc");
+  assert.equal(resolveDistTag("1.2.3-canary.1"), "canary");
+  assert.equal(resolveDistTag("1.2.3-rc2"), "rc2");
+  assert.equal(resolveDistTag("1.2.3-1"), "next");
 });
 
 test("resolveDistTag rejects invalid versions", async () => {
@@ -115,7 +118,12 @@ test("publishNpm skips versions already on npm", async () => {
   withManifest("1.2.3", (manifestPath) => {
     const runner = createRunner([{ status: 0, stdout: "1.2.3", stderr: "" }]);
     const messages = [];
-    const inputs = { tarball: "package.tgz", distTag: "latest", manifestPath };
+    const inputs = {
+      version: "v1.2.3",
+      tarball: "package.tgz",
+      distTag: "latest",
+      manifestPath,
+    };
     const dependencies = {
       run: runner.run,
       log: (value) => messages.push(value),
@@ -132,9 +140,32 @@ test("publishNpm publishes missing versions", async () => {
     const missing = { status: 1, stdout: "", stderr: "missing" };
     const published = { status: 0, stdout: "", stderr: "" };
     const runner = createRunner([missing, published]);
-    const inputs = { tarball: "package.tgz", distTag: "beta", manifestPath };
+    const inputs = {
+      version: "v1.2.3",
+      tarball: "package.tgz",
+      distTag: "beta",
+      manifestPath,
+    };
     assert.equal(publishNpm(inputs, { run: runner.run }), true);
     assert.deepEqual(runner.calls[1].args, NPM_PUBLISH_ARGS);
+  });
+});
+
+test("publishNpm rejects a tag that differs from the package version", async () => {
+  const { publishNpm } = await publishModule;
+  withManifest("1.2.3", (manifestPath) => {
+    const runner = createRunner([]);
+    const inputs = {
+      version: "v1.2.4",
+      tarball: "package.tgz",
+      distTag: "latest",
+      manifestPath,
+    };
+    assert.throws(
+      () => publishNpm(inputs, { run: runner.run }),
+      /Release tag v1\.2\.4 does not match package version 1\.2\.3/,
+    );
+    assert.equal(runner.calls.length, 0);
   });
 });
 
