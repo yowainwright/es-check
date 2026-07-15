@@ -30,6 +30,9 @@ function runTests(files, options = {}) {
     "--test",
     ...(options.coverage ? ["--experimental-test-coverage"] : []),
     ...(options.reporter ? [`--test-reporter=${options.reporter}`] : []),
+    ...(options.reporterDestination
+      ? [`--test-reporter-destination=${options.reporterDestination}`]
+      : []),
     ...(options.timeout ? [`--test-timeout=${options.timeout}`] : ["--test-timeout=10000"]),
     ...files,
   ];
@@ -60,6 +63,7 @@ async function main() {
     coverage: flags.includes("--coverage"),
     verbose: flags.includes("--verbose"),
     reporter: flags.find((f) => f.startsWith("--reporter="))?.split("=")[1],
+    reporterDestination: flags.find((f) => f.startsWith("--reporter-destination="))?.split("=")[1],
     timeout: flags.find((f) => f.startsWith("--timeout="))?.split("=")[1],
   };
 

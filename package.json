@@ -46,6 +46,10 @@
       "require": "./lib/index.js"
     }
   },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "scripts": {
     "dev": "pnpm site:dev",
     "lint": "oxlint -c .oxlintrc.json lib",
@@ -57,7 +61,20 @@
     "prepare": "node scripts/install/hooks.mjs",
     "prepublishOnly": "pnpm test",
     "release": "release-it --no-git.requireUpstream",
-    "report:coverage": "mkdir -p coverage && node tests/scripts/test-runner.js unit --coverage --reporter=lcov",
+    "release:patch": "release-it --increment=patch --no-git.requireUpstream",
+    "release:patch:dry": "release-it --increment=patch --dry-run --no-git.requireUpstream",
+    "release:minor": "release-it --increment=minor --no-git.requireUpstream",
+    "release:minor:dry": "release-it --increment=minor --dry-run --no-git.requireUpstream",
+    "release:major": "release-it --increment=major --no-git.requireUpstream",
+    "release:major:dry": "release-it --increment=major --dry-run --no-git.requireUpstream",
+    "release:beta": "release-it --preRelease=beta --no-git.requireUpstream",
+    "release:beta:dry": "release-it --preRelease=beta --dry-run --no-git.requireUpstream",
+    "release:alpha": "release-it --preRelease=alpha --no-git.requireUpstream",
+    "release:alpha:dry": "release-it --preRelease=alpha --dry-run --no-git.requireUpstream",
+    "release:tag": "node scripts/release-tag.mjs",
+    "release:tag:dry": "node scripts/release-tag.mjs --dry-run",
+    "release:dry": "release-it --dry-run --no-git.requireUpstream",
+    "report:coverage": "mkdir -p coverage && node tests/scripts/test-runner.js unit --coverage --reporter=lcov --reporter-destination=coverage/lcov.info",
     "scripts:generate": "pnpm run scripts:generate:requirements && pnpm run scripts:generate:polyfills",
     "scripts:generate:requirements": "node scripts/generate/requirements/parser.mjs",
     "scripts:generate:polyfills": "node scripts/generate/polyfills/core.mjs",
@@ -69,7 +86,7 @@
     "test:e2e:cli": "node tests/e2e/test-cli.js",
     "test:e2e:esm": "node tests/e2e/test-esm-import.mjs",
     "test:e2e:package-files": "node tests/e2e/test-package-files.mjs",
-    "test:e2e:sourcemap": "node --test tests/e2e/test-sourcemap.js --test-timeout=10000",
+    "test:e2e:sourcemap": "node --test --test-timeout=10000 tests/e2e/test-sourcemap.js",
     "update": "codependence --update && pastoralist && pnpm run scripts:generate",
     "benchmark": "./tests/benchmarks/run-benchmarks.sh",
     "site:dev": "pnpm --filter es-check-docs run dev",
@@ -91,6 +108,8 @@
     "pastoralist": "1.10.0-1",
     "release-it": "20.2.1"
   },
+  "peerDependencies": {},
+  "optionalDependencies": {},
   "overrides": {
     "ajv": "8.18.0",
     "devalue": "5.6.3",
@@ -232,19 +251,19 @@
   },
   "release-it": {
     "git": {
-      "commitMessage": "chore: release v${version}",
+      "commitMessage": "chore(release): ${version}",
+      "commitArgs": [
+        "--no-verify"
+      ],
+      "tagName": "v${version}",
       "requireBranch": "main",
       "requireCleanWorkingDir": true
     },
     "github": {
-      "release": true,
-      "web": true
+      "release": false
     },
     "npm": {
-      "publishConfig": {
-        "registry": "https://registry.npmjs.org/",
-        "access": "public"
-      }
+      "publish": false
     },
     "hooks": {
       "before:init": [
@@ -254,7 +273,5 @@
       "after:release": "echo Successfully released ${name} v${version} to ${repo.repository}."
     }
   },
-  "website": "https://jeffry.in/es-check",
-  "peerDependencies": {},
-  "optionalDependencies": {}
+  "website": "https://jeffry.in/es-check"
 }

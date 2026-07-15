@@ -1,0 +1,86 @@
+name: Test Published Release
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Published es-check version to test (leave empty for latest on npm)"
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  test-published-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@d7f5e7f509e45cec5c76c4d5afdd7de93d0b3df5 # v4.1.0
+
+      - name: Determine Version to Test
+        id: version
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: node scripts/release/test-published-release.mjs resolve-version
+
+      - name: Wait for NPM Package Availability
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: node scripts/release/test-published-release.mjs wait-for-package
+
+      - name: Build Test Docker Image
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: node scripts/release/test-published-release.mjs build-image
+
+      - name: Verify CLI Installation
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: node scripts/release/test-published-release.mjs run-container cli
+
+      - name: Verify Node API and ESM Exports
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: node scripts/release/test-published-release.mjs run-container api
+
+      - name: Test with Different Package Managers
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: node scripts/release/test-published-release.mjs run-container package-managers
+
+      - name: Performance and Compatibility Check
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: node scripts/release/test-published-release.mjs run-container compatibility
+
+      - name: Report Test Results
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: node scripts/release/test-published-release.mjs summary
+
+      - name: Trigger External E2E Tests
+        if: success() && env.REPOSITORY != '' && env.TOKEN != ''
+        env:
+          RELEASE_URL: ${{ github.event.release.html_url }}
+          REPOSITORY: ${{ vars.ES_CHECK_TEST_REPOSITORY }}
+          TOKEN: ${{ secrets.ES_CHECK_TEST_DISPATCH_TOKEN }}
+          TRIGGER_TYPE: ${{ github.event_name }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: node scripts/release/test-published-release.mjs dispatch
+
+      - name: Create Test Report
+        if: always()
+        env:
+          STATUS: ${{ job.status }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: node scripts/release/test-published-release.mjs report
