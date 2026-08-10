@@ -101,12 +101,12 @@
   "devDependencies": {
     "@mdn/browser-compat-data": "^7.3.3",
     "browserslist": "^4.28.1",
-    "codependence": "1.0.7",
+    "codependence": "1.0.8",
     "core-js-compat": "^3.48.0",
     "oxfmt": "^0.52.0",
     "oxlint": "^1.49.0",
     "pastoralist": "1.10.0-1",
-    "release-it": "21.0.1"
+    "release-it": "21.0.2"
   },
   "peerDependencies": {},
   "optionalDependencies": {},
