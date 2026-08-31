@@ -22,8 +22,8 @@ importers:
         specifier: ^4.28.1
         version: 4.28.1
       codependence:
-        specifier: 1.0.8
-        version: 1.0.8
+        specifier: 1.0.15
+        version: 1.0.15
       core-js-compat:
         specifier: ^3.48.0
         version: 3.48.0
@@ -1471,8 +1471,8 @@ packages:
     resolution: {integrity: sha512-ouuZd4/dm2Sw5Gmqy6bGyNNNe1qt9RpmxveLSO7KcgsTnU7RXfsw+/bukWGo1abgBiMAic068rclZsO4IWmmxQ==}
     engines: {node: '>= 12'}
 
-  codependence@1.0.8:
-    resolution: {integrity: sha512-84txLfRSlyObi7MZDoJaUxjbHLdd19FblKxVtsinzOPpDLKUEvkZfiINCskE0iF2uOmsgAwKV6VLl00//XaU2w==}
+  codependence@1.0.15:
+    resolution: {integrity: sha512-VkFWAuNPResEc6vR4eMokCvCKhLF5ATVDG5SgiYQtCsDoEgHbzoCg+HplGEQzc/PvIOkqEQ1W5PAFjMkcUDsVw==}
     engines: {node: '>=20'}
     hasBin: true
 
@@ -3705,7 +3705,7 @@ snapshots:
 
   cli-width@4.1.0: {}
 
-  codependence@1.0.8: {}
+  codependence@1.0.15: {}
 
   collapse-white-space@2.1.0: {}
 
