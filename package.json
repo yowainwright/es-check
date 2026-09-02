@@ -129,11 +129,32 @@
     "vite": "6.4.1",
     "yaml": "2.9.0"
   },
+  "devEngines": {
+    "packageManager": [
+      {
+        "name": "pnpm",
+        "version": "12.3.0",
+        "onFail": "download"
+      },
+      {
+        "name": "npm",
+        "onFail": "ignore"
+      }
+    ]
+  },
   "engines": {
-    "node": ">=18.0.0",
-    "pnpm": ">=12.0.0"
+    "node": ">=18.0.0"
   },
   "packageManager": "pnpm@12.3.0",
+  "codependence": {
+    "mode": "precise",
+    "codependencies": [
+      "codependence",
+      "release-it",
+      "acorn",
+      "fast-glob"
+    ]
+  },
   "pastoralist": {
     "appendix": {
       "vite@6.4.1": {
@@ -375,15 +396,6 @@
       "severityThreshold": "low",
       "hasWorkspaceSecurityChecks": true
     }
-  },
-  "codependence": {
-    "mode": "precise",
-    "codependencies": [
-      "codependence",
-      "release-it",
-      "acorn",
-      "fast-glob"
-    ]
   },
   "release-it": {
     "git": {
