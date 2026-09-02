@@ -259,6 +259,14 @@ describe("helpers/astDetector.js", () => {
       assert.strictEqual(result.Proxy, false);
     });
 
+    it("should detect globals when assignments are nested in function scopes", () => {
+      const ast = parse(
+        "function polyfill() { Proxy = function() {}; } new Proxy(target, handler);",
+      );
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Proxy, true);
+    });
+
     it("should not detect imported names as global references", () => {
       const ast = parse("import { Proxy } from './proxy-shim.js'; Proxy.create(target);");
       const result = detectFeaturesFromAST(ast);
