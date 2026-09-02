@@ -133,6 +133,39 @@ describe("detectFeatures", () => {
         assert.fail("Should not throw for a locally declared Promise");
       }
     });
+
+    it("should report unsupported global references", () => {
+      const code = "new Proxy(target, handler);";
+
+      assert.throws(
+        () => detectFeatures(code, 5, "script", new Set(), { ast: parse(code) }),
+        (error) => error.features.includes("Proxy"),
+      );
+    });
+
+    it("should allow assigned global references", () => {
+      const code = `
+        Proxy = function(target) {
+          return target;
+        };
+        new Proxy(target, handler);
+      `;
+
+      try {
+        const { foundFeatures, unsupportedFeatures } = detectFeatures(
+          code,
+          5,
+          "script",
+          new Set(),
+          { ast: parse(code) },
+        );
+
+        assert.strictEqual(foundFeatures.Proxy, false);
+        assert.strictEqual(unsupportedFeatures.length, 0);
+      } catch (error) {
+        assert.fail("Should not throw for an assigned global polyfill");
+      }
+    });
   });
 
   describe("detectPolyfills", () => {
@@ -426,6 +459,25 @@ describe("detectFeatures", () => {
       assert(Object.values(foundFeatures).some(Boolean), "Should detect some ES2024 features");
     });
 
+    it("should allow ArrayBuffer transfer in ES2024", () => {
+      const code = "buffer.transfer(8); buffer.transferToFixedLength(8);";
+
+      try {
+        detectFeatures(code, 15, "script", new Set(), { ast: parse(code) });
+      } catch (error) {
+        assert.fail("Should not throw for ArrayBuffer transfer in ES2024");
+      }
+    });
+
+    it("should reject ArrayBuffer transfer before ES2024", () => {
+      const code = "buffer.transfer(8);";
+
+      assert.throws(
+        () => detectFeatures(code, 14, "script", new Set(), { ast: parse(code) }),
+        (error) => error.features.includes("ArrayBufferTransfer"),
+      );
+    });
+
     it("should detect ES2025 (ES16) features", () => {
       const code = `
         Promise.try(() => Math.random());
@@ -450,6 +502,41 @@ describe("detectFeatures", () => {
         ast: parse(code),
       });
       assert(Object.values(foundFeatures).some(Boolean), "Should detect some ES2025 features");
+    });
+
+    it("should detect ES2026 (ES17) features", () => {
+      const code = `
+        map.getOrInsert(key, value);
+        map.getOrInsertComputed(key, () => value);
+        new Intl.DurationFormat("en");
+        Iterator.concat(first, second);
+        JSON.rawJSON("1");
+        JSON.isRawJSON(value);
+        Math.sumPrecise(values);
+        Uint8Array.fromBase64(text);
+        Uint8Array.fromHex(text);
+        bytes.toBase64();
+        bytes.toHex();
+        bytes.setFromBase64(text);
+        bytes.setFromHex(text);
+      `;
+
+      const { foundFeatures } = detectFeatures(code, 17, "script", new Set(), {
+        ast: parse(code),
+      });
+      assert.strictEqual(foundFeatures.MapGetOrInsert, true);
+      assert.strictEqual(foundFeatures.MapGetOrInsertComputed, true);
+      assert.strictEqual(foundFeatures.IntlDurationFormat, true);
+      assert.strictEqual(foundFeatures.IteratorConcat, true);
+      assert.strictEqual(foundFeatures.JSONRawJSON, true);
+      assert.strictEqual(foundFeatures.JSONIsRawJSON, true);
+      assert.strictEqual(foundFeatures.MathSumPrecise, true);
+      assert.strictEqual(foundFeatures.Uint8ArrayFromBase64, true);
+      assert.strictEqual(foundFeatures.Uint8ArrayFromHex, true);
+      assert.strictEqual(foundFeatures.Uint8ArrayToBase64, true);
+      assert.strictEqual(foundFeatures.Uint8ArrayToHex, true);
+      assert.strictEqual(foundFeatures.Uint8ArraySetFromBase64, true);
+      assert.strictEqual(foundFeatures.Uint8ArraySetFromHex, true);
     });
   });
 });

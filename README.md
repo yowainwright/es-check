@@ -118,7 +118,7 @@ Usage: index [options] [ecmaVersion] [files...]
 
 Arguments:
   ecmaVersion                         ecmaVersion to check files against. Can be: es3, es4, es5, es6/es2015, es7/es2016, es8/es2017, es9/es2018, es10/es2019, es11/es2020, es12/es2021,
-                                      es13/es2022, es14/es2023, es15/es2024, es16/es2025
+                                      es13/es2022, es14/es2023, es15/es2024, es16/es2025, es17/es2026
   files                               a glob of files to to test the EcmaScript version against
 
 ```
@@ -720,6 +720,7 @@ To update ES version support:
 To update ES feature detection:
 
 - Add features to [version-specific files](./lib/constants/es-features/) (e.g., `6.js` for ES6 features)
+- Update [ES globals](./lib/constants/es-features/globals.js) from [sindresorhus/globals](https://github.com/sindresorhus/globals/blob/main/globals.json) when global availability changes
 - Update [polyfill patterns](./lib/constants/es-features/polyfills.js) if needed
 - Feature detection uses AST traversal via [Acorn](https://github.com/acornjs/acorn/)
 

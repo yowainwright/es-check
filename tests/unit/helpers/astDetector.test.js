@@ -235,6 +235,12 @@ describe("helpers/astDetector.js", () => {
       assert.strictEqual(result.globalThis, true);
     });
 
+    it("should detect globals that are not hand-written ES features", () => {
+      const ast = parse("new Proxy(target, handler);");
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Proxy, true);
+    });
+
     it("should not detect globalThis from object literal keys", () => {
       const ast = parse("const obj = { globalThis: true };");
       const result = detectFeaturesFromAST(ast);
@@ -245,6 +251,18 @@ describe("helpers/astDetector.js", () => {
       const ast = parse("const globalThis = { foo: true }; globalThis.foo;");
       const result = detectFeaturesFromAST(ast);
       assert.strictEqual(result.globalThis, false);
+    });
+
+    it("should not detect assigned globals as unsupported global references", () => {
+      const ast = parse("Proxy = function(target) { return target; }; new Proxy(target, handler);");
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Proxy, false);
+    });
+
+    it("should not detect imported names as global references", () => {
+      const ast = parse("import { Proxy } from './proxy-shim.js'; Proxy.create(target);");
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Proxy, false);
     });
 
     it("should not detect locally declared Promise constructors as the built-in Promise", () => {
@@ -430,6 +448,22 @@ describe("helpers/astDetector.js", () => {
       const ast = parse("const escaped = RegExp.escape(str);");
       const result = detectFeaturesFromAST(ast);
       assert.strictEqual(result.RegExpEscape, true);
+    });
+
+    it("should detect ES2026 Stage 4 API methods", () => {
+      const ast = parse(`
+        map.getOrInsert(key, value);
+        Iterator.concat(first, second);
+        JSON.rawJSON("1");
+        Math.sumPrecise(values);
+        Uint8Array.fromBase64(text);
+      `);
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.MapGetOrInsert, true);
+      assert.strictEqual(result.IteratorConcat, true);
+      assert.strictEqual(result.JSONRawJSON, true);
+      assert.strictEqual(result.MathSumPrecise, true);
+      assert.strictEqual(result.Uint8ArrayFromBase64, true);
     });
 
     it("should detect features in comma-separated expressions (#388)", () => {

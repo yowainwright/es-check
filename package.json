@@ -119,7 +119,15 @@
     "mdast-util-to-hast": "13.2.1",
     "tmp": "0.2.4",
     "undici": "6.23.0",
-    "vite": "6.4.1"
+    "vite": "6.4.1",
+    "browserslist": "4.28.8",
+    "nanoid": "3.3.18",
+    "ip-address": "10.7.0",
+    "postcss": "8.5.26",
+    "seroval": "1.6.4",
+    "@babel/core": "7.29.7",
+    "esbuild": "0.28.2",
+    "yaml": "2.9.0"
   },
   "engines": {
     "node": ">=18.0.0",
@@ -233,6 +241,125 @@
           "cve": "CVE-2025-69873",
           "severity": "medium",
           "url": "https://github.com/yowainwright/es-check/security/dependabot/67"
+        }
+      },
+      "browserslist@4.28.8": {
+        "dependents": {
+          "es-check": "browserslist@^4.28.1"
+        },
+        "ledger": {
+          "addedDate": "2026-09-02T16:11:52.248Z",
+          "reason": "Security fix: Browserslist: Uncaught crash / prototype write via untrusted browserslist-stats.json custom stats (normalizeStats) (high)",
+          "securityChecked": true,
+          "securityCheckDate": "2026-09-02T16:11:52.248Z",
+          "securityProvider": "github",
+          "cve": "CVE-2026-73088",
+          "severity": "high",
+          "url": "https://github.com/yowainwright/es-check/security/dependabot/135"
+        }
+      },
+      "nanoid@3.3.18": {
+        "dependents": {
+          "es-check": "nanoid (transitive dependency)"
+        },
+        "ledger": {
+          "addedDate": "2026-09-02T16:11:52.248Z",
+          "reason": "Security fix: nanoid: custom generators can loop indefinitely when size is zero (high)",
+          "securityChecked": true,
+          "securityCheckDate": "2026-09-02T16:11:52.248Z",
+          "securityProvider": "github",
+          "cve": "CVE-2026-67213",
+          "severity": "high",
+          "url": "https://github.com/yowainwright/es-check/security/dependabot/134"
+        }
+      },
+      "ip-address@10.7.0": {
+        "dependents": {
+          "es-check": "ip-address (transitive dependency)"
+        },
+        "ledger": {
+          "addedDate": "2026-09-02T16:11:52.248Z",
+          "reason": "Security fix: ip-address: Address4 decodes leading-zero octets as decimal while resolvers decode them as octal, allowing SSRF and trust-boundary bypass (high)",
+          "securityChecked": true,
+          "securityCheckDate": "2026-09-02T16:11:52.248Z",
+          "securityProvider": "github",
+          "cve": "CVE-2026-69192",
+          "severity": "high",
+          "url": "https://github.com/yowainwright/es-check/security/dependabot/131"
+        }
+      },
+      "postcss@8.5.26": {
+        "dependents": {
+          "es-check": "postcss (transitive dependency)"
+        },
+        "ledger": {
+          "addedDate": "2026-09-02T16:11:52.248Z",
+          "reason": "Security fix: PostCSS: incomplete fix of GHSA-6g55-p6wh-862q — attacker-controlled sourceMappingURL reads arbitrary .map files when `from` is unset (medium)",
+          "securityChecked": true,
+          "securityCheckDate": "2026-09-02T16:11:52.248Z",
+          "securityProvider": "github",
+          "cve": "CVE-2026-69153",
+          "severity": "medium",
+          "url": "https://github.com/yowainwright/es-check/security/dependabot/130"
+        }
+      },
+      "seroval@1.6.4": {
+        "dependents": {
+          "es-check": "seroval (transitive dependency)"
+        },
+        "ledger": {
+          "addedDate": "2026-09-02T16:11:52.248Z",
+          "reason": "Security fix: seroval: `seroval.fromJSON()` Promise resolver type confusion invokes attacker-controlled methods during deserialization (critical)",
+          "securityChecked": true,
+          "securityCheckDate": "2026-09-02T16:11:52.248Z",
+          "securityProvider": "github",
+          "cve": "CVE-2026-59940",
+          "severity": "critical",
+          "url": "https://github.com/yowainwright/es-check/security/dependabot/128"
+        }
+      },
+      "@babel/core@7.29.7": {
+        "dependents": {
+          "es-check": "@babel/core (transitive dependency)"
+        },
+        "ledger": {
+          "addedDate": "2026-09-02T16:11:52.248Z",
+          "reason": "Security fix: @babel/core: Arbitrary File Read via sourceMappingURL Comment (low)",
+          "securityChecked": true,
+          "securityCheckDate": "2026-09-02T16:11:52.248Z",
+          "securityProvider": "github",
+          "cve": "CVE-2026-49356",
+          "severity": "low",
+          "url": "https://github.com/yowainwright/es-check/security/dependabot/122"
+        }
+      },
+      "esbuild@0.28.2": {
+        "dependents": {
+          "es-check": "esbuild (transitive dependency)"
+        },
+        "ledger": {
+          "addedDate": "2026-09-02T16:11:52.248Z",
+          "reason": "Security fix: esbuild allows arbitrary file read when running the development server on Windows (low)",
+          "securityChecked": true,
+          "securityCheckDate": "2026-09-02T16:11:52.248Z",
+          "securityProvider": "github",
+          "severity": "low",
+          "url": "https://github.com/yowainwright/es-check/security/dependabot/116"
+        }
+      },
+      "yaml@2.9.0": {
+        "dependents": {
+          "es-check": "yaml (transitive dependency)"
+        },
+        "ledger": {
+          "addedDate": "2026-09-02T16:11:52.248Z",
+          "reason": "Security fix: yaml is vulnerable to Stack Overflow via deeply nested YAML collections (medium)",
+          "securityChecked": true,
+          "securityCheckDate": "2026-09-02T16:11:52.248Z",
+          "securityProvider": "github",
+          "cve": "CVE-2026-33532",
+          "severity": "medium",
+          "url": "https://github.com/yowainwright/es-check/security/dependabot/93"
         }
       }
     },
