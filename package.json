@@ -376,6 +376,15 @@
       "hasWorkspaceSecurityChecks": true
     }
   },
+  "codependence": {
+    "mode": "precise",
+    "codependencies": [
+      "codependence",
+      "release-it",
+      "acorn",
+      "fast-glob"
+    ]
+  },
   "release-it": {
     "git": {
       "commitMessage": "chore(release): ${version}",
