@@ -237,6 +237,34 @@ describe("detectFeatures", () => {
       );
     });
 
+    it("should report unsupported globals before later assignments in the same sequence", () => {
+      const code = "(new Proxy(target, handler), Proxy = function() {});";
+
+      assert.throws(
+        () => detectFeatures(code, 5, "script", new Set(), { ast: parse(code) }),
+        (error) => error.features.includes("Proxy"),
+      );
+    });
+
+    it("should allow try-assigned global references", () => {
+      const code = "try { Proxy = function() {}; } finally {} new Proxy(target, handler);";
+
+      try {
+        const { foundFeatures, unsupportedFeatures } = detectFeatures(
+          code,
+          5,
+          "script",
+          new Set(),
+          { ast: parse(code) },
+        );
+
+        assert.strictEqual(foundFeatures.Proxy, false);
+        assert.strictEqual(unsupportedFeatures.length, 0);
+      } catch (error) {
+        assert.fail("Should not throw for a try-assigned global polyfill");
+      }
+    });
+
     it("should report unsupported globals with conditional assignments", () => {
       const code = "if (false) { Proxy = function() {}; } new Proxy(target, handler);";
 
@@ -348,6 +376,15 @@ describe("detectFeatures", () => {
       } catch (error) {
         assert.fail("Should not throw for if-statement typeof global guards");
       }
+    });
+
+    it("should report globals in disjunctive typeof guards", () => {
+      const code = 'if (fallback || typeof Reflect !== "undefined") { Reflect.get(a, b); }';
+
+      assert.throws(
+        () => detectFeatures(code, 5, "script", new Set(), { ast: parse(code) }),
+        (error) => error.features.includes("Reflect"),
+      );
     });
   });
 

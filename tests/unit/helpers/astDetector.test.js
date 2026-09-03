@@ -289,6 +289,46 @@ describe("helpers/astDetector.js", () => {
       assert.strictEqual(result.Proxy, true);
     });
 
+    it("should detect globals before later assignments in the same sequence", () => {
+      const ast = parse("(new Proxy(target, handler), Proxy = function() {});");
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Proxy, true);
+    });
+
+    it("should not detect try-assigned globals as unsupported global references", () => {
+      const ast = parse("try { Proxy = function() {}; } finally {} new Proxy(target, handler);");
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Proxy, false);
+    });
+
+    it("should not detect for-init-assigned globals as unsupported global references", () => {
+      const ast = parse("for (Proxy = function() {}; false;) {} new Proxy(target, handler);");
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Proxy, false);
+    });
+
+    it("should not detect switch-assigned globals as unsupported global references", () => {
+      const ast = parse(
+        "switch (kind) { default: Proxy = function() {}; } new Proxy(target, handler);",
+      );
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Proxy, false);
+    });
+
+    it("should detect globals when assignments are in non-default switch cases", () => {
+      const ast = parse(
+        "switch (kind) { case 1: Proxy = function() {}; } new Proxy(target, handler);",
+      );
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Proxy, true);
+    });
+
+    it("should detect globals when assignments are in conditional loops", () => {
+      const ast = parse("while (false) { Proxy = function() {}; } new Proxy(target, handler);");
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Proxy, true);
+    });
+
     it("should detect globals when assignments are nested in function scopes", () => {
       const ast = parse(
         "function polyfill() { Proxy = function() {}; } new Proxy(target, handler);",
@@ -347,6 +387,12 @@ describe("helpers/astDetector.js", () => {
       const ast = parse('if (typeof Reflect !== "undefined") { Reflect.get(a, b); }');
       const result = detectFeaturesFromAST(ast);
       assert.strictEqual(result.Reflect, false);
+    });
+
+    it("should detect globals in disjunctive typeof guards", () => {
+      const ast = parse('if (fallback || typeof Reflect !== "undefined") { Reflect.get(a, b); }');
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Reflect, true);
     });
 
     it("should not detect imported names as global references", () => {
