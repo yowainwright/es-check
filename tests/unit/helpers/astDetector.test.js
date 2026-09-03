@@ -267,6 +267,28 @@ describe("helpers/astDetector.js", () => {
       assert.strictEqual(result.Proxy, true);
     });
 
+    it("should not detect typeof global guards as global references", () => {
+      const ast = parse('typeof Promise !== "undefined";');
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Promise, false);
+    });
+
+    it("should not detect Babel typeof helper guards as global references", () => {
+      const ast = parse(`
+        function _typeof(obj) {
+          "@babel/helpers - typeof";
+          return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator
+            ? function(obj) { return typeof obj; }
+            : function(obj) {
+              return obj && "function" == typeof Symbol && obj.constructor === Symbol
+                && obj !== Symbol.prototype ? "symbol" : typeof obj;
+            }, _typeof(obj);
+        }
+      `);
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Symbol, false);
+    });
+
     it("should not detect imported names as global references", () => {
       const ast = parse("import { Proxy } from './proxy-shim.js'; Proxy.create(target);");
       const result = detectFeaturesFromAST(ast);

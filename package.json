@@ -100,7 +100,7 @@
   },
   "devDependencies": {
     "@mdn/browser-compat-data": "^7.3.3",
-    "browserslist": "^4.28.1",
+    "browserslist": "4.28.8",
     "codependence": "1.0.15",
     "core-js-compat": "^3.48.0",
     "oxfmt": "^0.52.0",

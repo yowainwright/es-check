@@ -166,6 +166,54 @@ describe("detectFeatures", () => {
         assert.fail("Should not throw for an assigned global polyfill");
       }
     });
+
+    it("should allow typeof global guards", () => {
+      const code = 'typeof Promise !== "undefined";';
+
+      try {
+        const { foundFeatures, unsupportedFeatures } = detectFeatures(
+          code,
+          5,
+          "script",
+          new Set(),
+          { ast: parse(code) },
+        );
+
+        assert.strictEqual(foundFeatures.Promise, false);
+        assert.strictEqual(unsupportedFeatures.length, 0);
+      } catch (error) {
+        assert.fail("Should not throw for typeof global guards");
+      }
+    });
+
+    it("should allow Babel typeof helper guards", () => {
+      const code = `
+        function _typeof(obj) {
+          "@babel/helpers - typeof";
+          return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator
+            ? function(obj) { return typeof obj; }
+            : function(obj) {
+              return obj && "function" == typeof Symbol && obj.constructor === Symbol
+                && obj !== Symbol.prototype ? "symbol" : typeof obj;
+            }, _typeof(obj);
+        }
+      `;
+
+      try {
+        const { foundFeatures, unsupportedFeatures } = detectFeatures(
+          code,
+          5,
+          "script",
+          new Set(),
+          { ast: parse(code) },
+        );
+
+        assert.strictEqual(foundFeatures.Symbol, false);
+        assert.strictEqual(unsupportedFeatures.length, 0);
+      } catch (error) {
+        assert.fail("Should not throw for Babel typeof helper guards");
+      }
+    });
   });
 
   describe("detectPolyfills", () => {
