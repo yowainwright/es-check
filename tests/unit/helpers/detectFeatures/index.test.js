@@ -265,6 +265,25 @@ describe("detectFeatures", () => {
       }
     });
 
+    it("should allow for-init-assigned globals in loop bodies", () => {
+      const code = "for (Proxy = function() {}; ready; tick()) { new Proxy(target, handler); }";
+
+      try {
+        const { foundFeatures, unsupportedFeatures } = detectFeatures(
+          code,
+          5,
+          "script",
+          new Set(),
+          { ast: parse(code) },
+        );
+
+        assert.strictEqual(foundFeatures.Proxy, false);
+        assert.strictEqual(unsupportedFeatures.length, 0);
+      } catch (error) {
+        assert.fail("Should not throw for a for-init-assigned global polyfill");
+      }
+    });
+
     it("should report unsupported globals with conditional assignments", () => {
       const code = "if (false) { Proxy = function() {}; } new Proxy(target, handler);";
 
@@ -385,6 +404,25 @@ describe("detectFeatures", () => {
         () => detectFeatures(code, 5, "script", new Set(), { ast: parse(code) }),
         (error) => error.features.includes("Reflect"),
       );
+    });
+
+    it("should allow nested ternary typeof guards", () => {
+      const code = 'if (condition ? typeof Reflect !== "undefined" : false) { Reflect.get(a, b); }';
+
+      try {
+        const { foundFeatures, unsupportedFeatures } = detectFeatures(
+          code,
+          5,
+          "script",
+          new Set(),
+          { ast: parse(code) },
+        );
+
+        assert.strictEqual(foundFeatures.Reflect, false);
+        assert.strictEqual(unsupportedFeatures.length, 0);
+      } catch (error) {
+        assert.fail("Should not throw for nested ternary typeof guards");
+      }
     });
   });
 

@@ -307,6 +307,14 @@ describe("helpers/astDetector.js", () => {
       assert.strictEqual(result.Proxy, false);
     });
 
+    it("should not detect for-init-assigned globals in loop bodies", () => {
+      const ast = parse(
+        "for (Proxy = function() {}; ready; tick()) { new Proxy(target, handler); }",
+      );
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Proxy, false);
+    });
+
     it("should not detect switch-assigned globals as unsupported global references", () => {
       const ast = parse(
         "switch (kind) { default: Proxy = function() {}; } new Proxy(target, handler);",
@@ -393,6 +401,14 @@ describe("helpers/astDetector.js", () => {
       const ast = parse('if (fallback || typeof Reflect !== "undefined") { Reflect.get(a, b); }');
       const result = detectFeaturesFromAST(ast);
       assert.strictEqual(result.Reflect, true);
+    });
+
+    it("should not detect globals in nested ternary typeof guards", () => {
+      const ast = parse(
+        'if (condition ? typeof Reflect !== "undefined" : false) { Reflect.get(a, b); }',
+      );
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Reflect, false);
     });
 
     it("should not detect imported names as global references", () => {
