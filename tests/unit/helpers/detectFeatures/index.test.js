@@ -214,6 +214,44 @@ describe("detectFeatures", () => {
         assert.fail("Should not throw for Babel typeof helper guards");
       }
     });
+
+    it("should allow regenerator typeof ternary guards", () => {
+      const code = 'var $Symbol = typeof Symbol === "function" ? Symbol : {};';
+
+      try {
+        const { foundFeatures, unsupportedFeatures } = detectFeatures(
+          code,
+          5,
+          "script",
+          new Set(),
+          { ast: parse(code) },
+        );
+
+        assert.strictEqual(foundFeatures.Symbol, false);
+        assert.strictEqual(unsupportedFeatures.length, 0);
+      } catch (error) {
+        assert.fail("Should not throw for regenerator typeof ternary guards");
+      }
+    });
+
+    it("should allow if-statement typeof global guards", () => {
+      const code = 'if (typeof Reflect !== "undefined") { Reflect.get(a, b); }';
+
+      try {
+        const { foundFeatures, unsupportedFeatures } = detectFeatures(
+          code,
+          5,
+          "script",
+          new Set(),
+          { ast: parse(code) },
+        );
+
+        assert.strictEqual(foundFeatures.Reflect, false);
+        assert.strictEqual(unsupportedFeatures.length, 0);
+      } catch (error) {
+        assert.fail("Should not throw for if-statement typeof global guards");
+      }
+    });
   });
 
   describe("detectPolyfills", () => {

@@ -289,6 +289,18 @@ describe("helpers/astDetector.js", () => {
       assert.strictEqual(result.Symbol, false);
     });
 
+    it("should not detect regenerator typeof ternary guards as global references", () => {
+      const ast = parse('var $Symbol = typeof Symbol === "function" ? Symbol : {};');
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Symbol, false);
+    });
+
+    it("should not detect if-statement typeof guards as global references", () => {
+      const ast = parse('if (typeof Reflect !== "undefined") { Reflect.get(a, b); }');
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Reflect, false);
+    });
+
     it("should not detect imported names as global references", () => {
       const ast = parse("import { Proxy } from './proxy-shim.js'; Proxy.create(target);");
       const result = detectFeaturesFromAST(ast);
