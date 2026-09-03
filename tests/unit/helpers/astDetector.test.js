@@ -271,6 +271,18 @@ describe("helpers/astDetector.js", () => {
       assert.strictEqual(result.Proxy, false);
     });
 
+    it("should not detect array-destructured globals as unsupported global references", () => {
+      const ast = parse("[Proxy] = shims; new Proxy(target, handler);");
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Proxy, false);
+    });
+
+    it("should not detect object-destructured globals as unsupported global references", () => {
+      const ast = parse("({ Proxy } = shims); new Proxy(target, handler);");
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Proxy, false);
+    });
+
     it("should detect globals when assignments are nested in function scopes", () => {
       const ast = parse(
         "function polyfill() { Proxy = function() {}; } new Proxy(target, handler);",

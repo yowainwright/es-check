@@ -205,6 +205,29 @@ describe("detectFeatures", () => {
       }
     });
 
+    it("should not report array-destructured global references", () => {
+      const code = "[Proxy] = shims; new Proxy(target, handler);";
+
+      const { foundFeatures, unsupportedFeatures } = detectFeatures(code, 5, "script", new Set(), {
+        ast: parse(code),
+      });
+
+      assert.strictEqual(foundFeatures.Proxy, false);
+      assert.strictEqual(unsupportedFeatures.includes("Proxy"), false);
+    });
+
+    it("should not report object-destructured global references", () => {
+      const code = "({ Proxy } = shims); new Proxy(target, handler);";
+
+      assert.throws(
+        () => detectFeatures(code, 5, "script", new Set(), { ast: parse(code) }),
+        (error) => {
+          assert.strictEqual(error.features.includes("Proxy"), false);
+          return error.features.includes("Destructuring");
+        },
+      );
+    });
+
     it("should report unsupported globals with conditional assignments", () => {
       const code = "if (false) { Proxy = function() {}; } new Proxy(target, handler);";
 
