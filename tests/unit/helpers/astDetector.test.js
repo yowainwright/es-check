@@ -411,6 +411,26 @@ describe("helpers/astDetector.js", () => {
       assert.strictEqual(result.Reflect, false);
     });
 
+    it("should not detect globals in negative typeof else guards", () => {
+      const ast = parse(
+        'if (typeof Reflect === "undefined") { installShim(); } else { Reflect.get(a, b); }',
+      );
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Reflect, false);
+    });
+
+    it("should not detect globals in negative typeof ternary alternates", () => {
+      const ast = parse('typeof Reflect === "undefined" ? installShim() : Reflect.get(a, b);');
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Reflect, false);
+    });
+
+    it("should detect globals in negative typeof consequents", () => {
+      const ast = parse('if (typeof Reflect === "undefined") { Reflect.get(a, b); }');
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Reflect, true);
+    });
+
     it("should not detect imported names as global references", () => {
       const ast = parse("import { Proxy } from './proxy-shim.js'; Proxy.create(target);");
       const result = detectFeaturesFromAST(ast);

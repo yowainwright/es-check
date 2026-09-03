@@ -424,6 +424,54 @@ describe("detectFeatures", () => {
         assert.fail("Should not throw for nested ternary typeof guards");
       }
     });
+
+    it("should allow negative typeof else guards", () => {
+      const code =
+        'if (typeof Reflect === "undefined") { installShim(); } else { Reflect.get(a, b); }';
+
+      try {
+        const { foundFeatures, unsupportedFeatures } = detectFeatures(
+          code,
+          5,
+          "script",
+          new Set(),
+          { ast: parse(code) },
+        );
+
+        assert.strictEqual(foundFeatures.Reflect, false);
+        assert.strictEqual(unsupportedFeatures.length, 0);
+      } catch (error) {
+        assert.fail("Should not throw for a negative typeof else guard");
+      }
+    });
+
+    it("should allow negative typeof ternary alternates", () => {
+      const code = 'typeof Reflect === "undefined" ? installShim() : Reflect.get(a, b);';
+
+      try {
+        const { foundFeatures, unsupportedFeatures } = detectFeatures(
+          code,
+          5,
+          "script",
+          new Set(),
+          { ast: parse(code) },
+        );
+
+        assert.strictEqual(foundFeatures.Reflect, false);
+        assert.strictEqual(unsupportedFeatures.length, 0);
+      } catch (error) {
+        assert.fail("Should not throw for a negative typeof ternary alternate");
+      }
+    });
+
+    it("should report globals in negative typeof consequents", () => {
+      const code = 'if (typeof Reflect === "undefined") { Reflect.get(a, b); }';
+
+      assert.throws(
+        () => detectFeatures(code, 5, "script", new Set(), { ast: parse(code) }),
+        (error) => error.features.includes("Reflect"),
+      );
+    });
   });
 
   describe("detectPolyfills", () => {
