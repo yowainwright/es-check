@@ -403,6 +403,36 @@ describe("helpers/astDetector.js", () => {
       assert.strictEqual(result.Reflect, true);
     });
 
+    it("should not detect globals in negative typeof or guards", () => {
+      const ast = parse('typeof Reflect === "undefined" || Reflect.get(a, b);');
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Reflect, false);
+    });
+
+    it("should detect globals in member typeof or guards", () => {
+      const ast = parse('typeof Reflect.get === "undefined" || Reflect.get(a, b);');
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Reflect, true);
+    });
+
+    it("should detect globals in positive typeof or guards", () => {
+      const ast = parse('typeof Reflect !== "undefined" || Reflect.get(a, b);');
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Reflect, true);
+    });
+
+    it("should detect globals in compound false typeof or guards", () => {
+      const ast = parse('(typeof Reflect === "undefined" && condition) || Reflect.get(a, b);');
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Reflect, true);
+    });
+
+    it("should not detect globals in compound true typeof and guards", () => {
+      const ast = parse('(typeof Reflect !== "undefined" && condition) && Reflect.get(a, b);');
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Reflect, false);
+    });
+
     it("should not detect globals in nested ternary typeof guards", () => {
       const ast = parse(
         'if (condition ? typeof Reflect !== "undefined" : false) { Reflect.get(a, b); }',

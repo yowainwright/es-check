@@ -52,8 +52,8 @@
   },
   "scripts": {
     "dev": "pnpm site:dev",
-    "lint": "oxlint -c .oxlintrc.json lib",
-    "lint:ci": "oxlint -c .oxlintrc.json lib --quiet",
+    "lint": "oxlint -c .oxlintrc.json lib --deny-warnings",
+    "lint:ci": "oxlint -c .oxlintrc.json lib --deny-warnings",
     "format": "oxfmt",
     "format:check": "oxfmt --check",
     "pastoralist": "pastoralist",
