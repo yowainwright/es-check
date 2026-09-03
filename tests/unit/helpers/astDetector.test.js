@@ -285,6 +285,18 @@ describe("helpers/astDetector.js", () => {
       assert.strictEqual(result.Proxy, true);
     });
 
+    it("should detect globals when assignments are compound", () => {
+      const ast = parse("Proxy += value; new Proxy(target, handler);");
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Proxy, true);
+    });
+
+    it("should detect globals when assignments are logical", () => {
+      const ast = parse("Proxy &&= function() {}; new Proxy(target, handler);");
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Proxy, true);
+    });
+
     it("should not detect typeof global guards as global references", () => {
       const ast = parse('typeof Promise !== "undefined";');
       const result = detectFeaturesFromAST(ast);

@@ -214,6 +214,24 @@ describe("detectFeatures", () => {
       );
     });
 
+    it("should report unsupported globals with compound assignments", () => {
+      const code = "Proxy += value; new Proxy(target, handler);";
+
+      assert.throws(
+        () => detectFeatures(code, 5, "script", new Set(), { ast: parse(code) }),
+        (error) => error.features.includes("Proxy"),
+      );
+    });
+
+    it("should report unsupported globals with logical assignments", () => {
+      const code = "Proxy &&= function() {}; new Proxy(target, handler);";
+
+      assert.throws(
+        () => detectFeatures(code, 5, "script", new Set(), { ast: parse(code) }),
+        (error) => error.features.includes("Proxy"),
+      );
+    });
+
     it("should allow typeof global guards", () => {
       const code = 'typeof Promise !== "undefined";';
 
