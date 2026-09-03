@@ -267,6 +267,12 @@ describe("helpers/astDetector.js", () => {
       assert.strictEqual(result.Proxy, true);
     });
 
+    it("should detect globals when assignments are conditional", () => {
+      const ast = parse("if (false) { Proxy = function() {}; } new Proxy(target, handler);");
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Proxy, true);
+    });
+
     it("should not detect typeof global guards as global references", () => {
       const ast = parse('typeof Promise !== "undefined";');
       const result = detectFeaturesFromAST(ast);
