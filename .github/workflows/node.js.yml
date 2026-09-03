@@ -22,11 +22,15 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+      - name: Setup pnpm
+        uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
+        with:
+          version: 12.3.0
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-      - run: npm install -g pnpm
+          cache: "pnpm"
       - run: pnpm install --no-frozen-lockfile
       - run: pnpm run lint:ci
       - run: pnpm run report:coverage

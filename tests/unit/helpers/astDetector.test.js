@@ -235,6 +235,12 @@ describe("helpers/astDetector.js", () => {
       assert.strictEqual(result.globalThis, true);
     });
 
+    it("should detect globals that are not hand-written ES features", () => {
+      const ast = parse("new Proxy(target, handler);");
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Proxy, true);
+    });
+
     it("should not detect globalThis from object literal keys", () => {
       const ast = parse("const obj = { globalThis: true };");
       const result = detectFeaturesFromAST(ast);
@@ -245,6 +251,190 @@ describe("helpers/astDetector.js", () => {
       const ast = parse("const globalThis = { foo: true }; globalThis.foo;");
       const result = detectFeaturesFromAST(ast);
       assert.strictEqual(result.globalThis, false);
+    });
+
+    it("should not detect assigned globals as unsupported global references", () => {
+      const ast = parse("Proxy = function(target) { return target; }; new Proxy(target, handler);");
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Proxy, false);
+    });
+
+    it("should not detect sequence-assigned globals as unsupported global references", () => {
+      const ast = parse("(Proxy = function() {}), new Proxy(target, handler);");
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Proxy, false);
+    });
+
+    it("should not detect block-assigned globals as unsupported global references", () => {
+      const ast = parse("{ Proxy = function() {}; } new Proxy(target, handler);");
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Proxy, false);
+    });
+
+    it("should not detect array-destructured globals as unsupported global references", () => {
+      const ast = parse("[Proxy] = shims; new Proxy(target, handler);");
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Proxy, false);
+    });
+
+    it("should not detect object-destructured globals as unsupported global references", () => {
+      const ast = parse("({ Proxy } = shims); new Proxy(target, handler);");
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Proxy, false);
+    });
+
+    it("should detect globals before later assignments", () => {
+      const ast = parse("new Proxy(target, handler); Proxy = function() {};");
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Proxy, true);
+    });
+
+    it("should detect globals before later assignments in the same sequence", () => {
+      const ast = parse("(new Proxy(target, handler), Proxy = function() {});");
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Proxy, true);
+    });
+
+    it("should not detect try-assigned globals as unsupported global references", () => {
+      const ast = parse("try { Proxy = function() {}; } finally {} new Proxy(target, handler);");
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Proxy, false);
+    });
+
+    it("should not detect for-init-assigned globals as unsupported global references", () => {
+      const ast = parse("for (Proxy = function() {}; false;) {} new Proxy(target, handler);");
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Proxy, false);
+    });
+
+    it("should not detect for-init-assigned globals in loop bodies", () => {
+      const ast = parse(
+        "for (Proxy = function() {}; ready; tick()) { new Proxy(target, handler); }",
+      );
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Proxy, false);
+    });
+
+    it("should not detect switch-assigned globals as unsupported global references", () => {
+      const ast = parse(
+        "switch (kind) { default: Proxy = function() {}; } new Proxy(target, handler);",
+      );
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Proxy, false);
+    });
+
+    it("should detect globals when assignments are in non-default switch cases", () => {
+      const ast = parse(
+        "switch (kind) { case 1: Proxy = function() {}; } new Proxy(target, handler);",
+      );
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Proxy, true);
+    });
+
+    it("should detect globals when assignments are in conditional loops", () => {
+      const ast = parse("while (false) { Proxy = function() {}; } new Proxy(target, handler);");
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Proxy, true);
+    });
+
+    it("should detect globals when assignments are nested in function scopes", () => {
+      const ast = parse(
+        "function polyfill() { Proxy = function() {}; } new Proxy(target, handler);",
+      );
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Proxy, true);
+    });
+
+    it("should detect globals when assignments are conditional", () => {
+      const ast = parse("if (false) { Proxy = function() {}; } new Proxy(target, handler);");
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Proxy, true);
+    });
+
+    it("should detect globals when assignments are compound", () => {
+      const ast = parse("Proxy += value; new Proxy(target, handler);");
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Proxy, true);
+    });
+
+    it("should detect globals when assignments are logical", () => {
+      const ast = parse("Proxy &&= function() {}; new Proxy(target, handler);");
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Proxy, true);
+    });
+
+    it("should not detect typeof global guards as global references", () => {
+      const ast = parse('typeof Promise !== "undefined";');
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Promise, false);
+    });
+
+    it("should not detect Babel typeof helper guards as global references", () => {
+      const ast = parse(`
+        function _typeof(obj) {
+          "@babel/helpers - typeof";
+          return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator
+            ? function(obj) { return typeof obj; }
+            : function(obj) {
+              return obj && "function" == typeof Symbol && obj.constructor === Symbol
+                && obj !== Symbol.prototype ? "symbol" : typeof obj;
+            }, _typeof(obj);
+        }
+      `);
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Symbol, false);
+    });
+
+    it("should not detect regenerator typeof ternary guards as global references", () => {
+      const ast = parse('var $Symbol = typeof Symbol === "function" ? Symbol : {};');
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Symbol, false);
+    });
+
+    it("should not detect if-statement typeof guards as global references", () => {
+      const ast = parse('if (typeof Reflect !== "undefined") { Reflect.get(a, b); }');
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Reflect, false);
+    });
+
+    it("should detect globals in disjunctive typeof guards", () => {
+      const ast = parse('if (fallback || typeof Reflect !== "undefined") { Reflect.get(a, b); }');
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Reflect, true);
+    });
+
+    it("should not detect globals in nested ternary typeof guards", () => {
+      const ast = parse(
+        'if (condition ? typeof Reflect !== "undefined" : false) { Reflect.get(a, b); }',
+      );
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Reflect, false);
+    });
+
+    it("should not detect globals in negative typeof else guards", () => {
+      const ast = parse(
+        'if (typeof Reflect === "undefined") { installShim(); } else { Reflect.get(a, b); }',
+      );
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Reflect, false);
+    });
+
+    it("should not detect globals in negative typeof ternary alternates", () => {
+      const ast = parse('typeof Reflect === "undefined" ? installShim() : Reflect.get(a, b);');
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Reflect, false);
+    });
+
+    it("should detect globals in negative typeof consequents", () => {
+      const ast = parse('if (typeof Reflect === "undefined") { Reflect.get(a, b); }');
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Reflect, true);
+    });
+
+    it("should not detect imported names as global references", () => {
+      const ast = parse("import { Proxy } from './proxy-shim.js'; Proxy.create(target);");
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Proxy, false);
     });
 
     it("should not detect locally declared Promise constructors as the built-in Promise", () => {
@@ -430,6 +620,22 @@ describe("helpers/astDetector.js", () => {
       const ast = parse("const escaped = RegExp.escape(str);");
       const result = detectFeaturesFromAST(ast);
       assert.strictEqual(result.RegExpEscape, true);
+    });
+
+    it("should detect ES2026 Stage 4 API methods", () => {
+      const ast = parse(`
+        map.getOrInsert(key, value);
+        Iterator.concat(first, second);
+        JSON.rawJSON("1");
+        Math.sumPrecise(values);
+        Uint8Array.fromBase64(text);
+      `);
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.MapGetOrInsert, true);
+      assert.strictEqual(result.IteratorConcat, true);
+      assert.strictEqual(result.JSONRawJSON, true);
+      assert.strictEqual(result.MathSumPrecise, true);
+      assert.strictEqual(result.Uint8ArrayFromBase64, true);
     });
 
     it("should detect features in comma-separated expressions (#388)", () => {
