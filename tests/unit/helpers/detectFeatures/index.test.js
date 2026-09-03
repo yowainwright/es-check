@@ -167,6 +167,25 @@ describe("detectFeatures", () => {
       }
     });
 
+    it("should allow sequence-assigned global references", () => {
+      const code = "(Proxy = function() {}), new Proxy(target, handler);";
+
+      try {
+        const { foundFeatures, unsupportedFeatures } = detectFeatures(
+          code,
+          5,
+          "script",
+          new Set(),
+          { ast: parse(code) },
+        );
+
+        assert.strictEqual(foundFeatures.Proxy, false);
+        assert.strictEqual(unsupportedFeatures.length, 0);
+      } catch (error) {
+        assert.fail("Should not throw for a sequence-assigned global polyfill");
+      }
+    });
+
     it("should report unsupported globals with conditional assignments", () => {
       const code = "if (false) { Proxy = function() {}; } new Proxy(target, handler);";
 
