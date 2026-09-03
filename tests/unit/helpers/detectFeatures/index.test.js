@@ -425,6 +425,15 @@ describe("detectFeatures", () => {
       }
     });
 
+    it("should report globals in member typeof or guards", () => {
+      const code = 'typeof Reflect.get === "undefined" || Reflect.get(a, b);';
+
+      assert.throws(
+        () => detectFeatures(code, 5, "script", new Set(), { ast: parse(code) }),
+        (error) => error.features.includes("Reflect"),
+      );
+    });
+
     it("should report globals in positive typeof or guards", () => {
       const code = 'typeof Reflect !== "undefined" || Reflect.get(a, b);';
 
@@ -432,6 +441,34 @@ describe("detectFeatures", () => {
         () => detectFeatures(code, 5, "script", new Set(), { ast: parse(code) }),
         (error) => error.features.includes("Reflect"),
       );
+    });
+
+    it("should report globals in compound false typeof or guards", () => {
+      const code = '(typeof Reflect === "undefined" && condition) || Reflect.get(a, b);';
+
+      assert.throws(
+        () => detectFeatures(code, 5, "script", new Set(), { ast: parse(code) }),
+        (error) => error.features.includes("Reflect"),
+      );
+    });
+
+    it("should allow compound true typeof and guards", () => {
+      const code = '(typeof Reflect !== "undefined" && condition) && Reflect.get(a, b);';
+
+      try {
+        const { foundFeatures, unsupportedFeatures } = detectFeatures(
+          code,
+          5,
+          "script",
+          new Set(),
+          { ast: parse(code) },
+        );
+
+        assert.strictEqual(foundFeatures.Reflect, false);
+        assert.strictEqual(unsupportedFeatures.length, 0);
+      } catch (error) {
+        assert.fail("Should not throw for a compound true typeof and guard");
+      }
     });
 
     it("should allow nested ternary typeof guards", () => {
