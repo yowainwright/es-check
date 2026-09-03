@@ -228,6 +228,15 @@ describe("detectFeatures", () => {
       );
     });
 
+    it("should report unsupported globals before later assignments", () => {
+      const code = "new Proxy(target, handler); Proxy = function() {};";
+
+      assert.throws(
+        () => detectFeatures(code, 5, "script", new Set(), { ast: parse(code) }),
+        (error) => error.features.includes("Proxy"),
+      );
+    });
+
     it("should report unsupported globals with conditional assignments", () => {
       const code = "if (false) { Proxy = function() {}; } new Proxy(target, handler);";
 
