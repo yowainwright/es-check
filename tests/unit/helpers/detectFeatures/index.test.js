@@ -877,8 +877,10 @@ describe("detectFeatures", () => {
 
     it("should detect ES2026 (ES17) features", () => {
       const code = `
-        map.getOrInsert(key, value);
-        weakMap.getOrInsertComputed(key, () => value);
+        const cache = new Map();
+        const registry = new WeakMap();
+        cache.getOrInsert(key, value);
+        registry.getOrInsertComputed(key, () => value);
         new Intl.DurationFormat("en");
         Iterator.concat(first, second);
         JSON.rawJSON("1");

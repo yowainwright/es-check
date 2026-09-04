@@ -654,8 +654,10 @@ describe("helpers/astDetector.js", () => {
 
     it("should detect ES2026 Stage 4 API methods", () => {
       const ast = parse(`
-        map.getOrInsert(key, value);
-        weakMap.getOrInsertComputed(key, () => value);
+        const cache = new Map();
+        const registry = new WeakMap();
+        cache.getOrInsert(key, value);
+        registry.getOrInsertComputed(key, () => value);
         Iterator.concat(first, second);
         JSON.rawJSON("1");
         Math.sumPrecise(values);
@@ -670,10 +672,51 @@ describe("helpers/astDetector.js", () => {
       assert.strictEqual(result.Uint8ArrayFromBase64, true);
     });
 
+    it("should detect Map upsert methods on direct constructed receivers", () => {
+      const ast = parse(`
+        new Map().getOrInsert(key, value);
+        new WeakMap().getOrInsertComputed(key, () => value);
+      `);
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.MapGetOrInsert, true);
+      assert.strictEqual(result.MapGetOrInsertComputed, true);
+    });
+
+    it("should detect Map upsert methods on assigned member receivers", () => {
+      const ast = parse(`
+        class Cache {
+          constructor() {
+            this.items = new Map();
+          }
+
+          get(key, value) {
+            return this.items.getOrInsert(key, value);
+          }
+        }
+
+        const holder = {};
+        holder.registry = new WeakMap();
+        holder.registry.getOrInsertComputed(key, () => value);
+      `);
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.MapGetOrInsert, true);
+      assert.strictEqual(result.MapGetOrInsertComputed, true);
+    });
+
     it("should not detect Map upsert methods on generic receivers", () => {
       const ast = parse(`
         cache.getOrInsert(key, value);
         store.getOrInsertComputed(key, () => value);
+      `);
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.MapGetOrInsert, false);
+      assert.strictEqual(result.MapGetOrInsertComputed, false);
+    });
+
+    it("should not detect Map upsert methods from receiver names alone", () => {
+      const ast = parse(`
+        map.getOrInsert(key, value);
+        weakMap.getOrInsertComputed(key, () => value);
       `);
       const result = detectFeaturesFromAST(ast);
       assert.strictEqual(result.MapGetOrInsert, false);
