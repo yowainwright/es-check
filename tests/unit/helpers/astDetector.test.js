@@ -685,11 +685,8 @@ describe("helpers/astDetector.js", () => {
     it("should detect Map upsert methods on assigned member receivers", () => {
       const ast = parse(`
         class Cache {
-          constructor() {
-            this.items = new Map();
-          }
-
           get(key, value) {
+            this.items = new Map();
             return this.items.getOrInsert(key, value);
           }
         }
@@ -703,6 +700,20 @@ describe("helpers/astDetector.js", () => {
       assert.strictEqual(result.MapGetOrInsertComputed, true);
     });
 
+    it("should detect Map upsert methods on class field receivers", () => {
+      const ast = parse(`
+        class Cache {
+          items = new Map();
+
+          get(key, value) {
+            return this.items.getOrInsert(key, value);
+          }
+        }
+      `);
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.MapGetOrInsert, true);
+    });
+
     it("should not detect Map upsert methods on generic receivers", () => {
       const ast = parse(`
         cache.getOrInsert(key, value);
@@ -711,6 +722,56 @@ describe("helpers/astDetector.js", () => {
       const result = detectFeaturesFromAST(ast);
       assert.strictEqual(result.MapGetOrInsert, false);
       assert.strictEqual(result.MapGetOrInsertComputed, false);
+    });
+
+    it("should not share this receiver facts across classes", () => {
+      const ast = parse(`
+        class MapOwner {
+          items = new Map();
+        }
+
+        class PlainOwner {
+          get(key, value) {
+            return this.items.getOrInsert(key, value);
+          }
+        }
+      `);
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.MapGetOrInsert, false);
+    });
+
+    it("should expire Map receiver facts after reassignment", () => {
+      const ast = parse(`
+        let cache = new Map();
+        cache = customCache;
+        cache.getOrInsert(key, value);
+      `);
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.MapGetOrInsert, false);
+    });
+
+    it("should not keep conditional Map receiver assignments after the branch", () => {
+      const ast = parse(`
+        let cache;
+        if (enabled) {
+          cache = new Map();
+        }
+        cache.getOrInsert(key, value);
+      `);
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.MapGetOrInsert, false);
+    });
+
+    it("should not treat loop lexical Map bindings as global constructors", () => {
+      const ast = parse(`
+        for (const Map of constructors) {
+          const cache = new Map();
+          cache.getOrInsert(key, value);
+        }
+      `);
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Map, false);
+      assert.strictEqual(result.MapGetOrInsert, false);
     });
 
     it("should not detect Map upsert methods from receiver names alone", () => {
