@@ -878,7 +878,7 @@ describe("detectFeatures", () => {
     it("should detect ES2026 (ES17) features", () => {
       const code = `
         map.getOrInsert(key, value);
-        map.getOrInsertComputed(key, () => value);
+        weakMap.getOrInsertComputed(key, () => value);
         new Intl.DurationFormat("en");
         Iterator.concat(first, second);
         JSON.rawJSON("1");
