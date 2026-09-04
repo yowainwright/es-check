@@ -655,6 +655,7 @@ describe("helpers/astDetector.js", () => {
     it("should detect ES2026 Stage 4 API methods", () => {
       const ast = parse(`
         map.getOrInsert(key, value);
+        weakMap.getOrInsertComputed(key, () => value);
         Iterator.concat(first, second);
         JSON.rawJSON("1");
         Math.sumPrecise(values);
@@ -662,10 +663,21 @@ describe("helpers/astDetector.js", () => {
       `);
       const result = detectFeaturesFromAST(ast);
       assert.strictEqual(result.MapGetOrInsert, true);
+      assert.strictEqual(result.MapGetOrInsertComputed, true);
       assert.strictEqual(result.IteratorConcat, true);
       assert.strictEqual(result.JSONRawJSON, true);
       assert.strictEqual(result.MathSumPrecise, true);
       assert.strictEqual(result.Uint8ArrayFromBase64, true);
+    });
+
+    it("should not detect Map upsert methods on generic receivers", () => {
+      const ast = parse(`
+        cache.getOrInsert(key, value);
+        store.getOrInsertComputed(key, () => value);
+      `);
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.MapGetOrInsert, false);
+      assert.strictEqual(result.MapGetOrInsertComputed, false);
     });
 
     it("should detect features in comma-separated expressions (#388)", () => {

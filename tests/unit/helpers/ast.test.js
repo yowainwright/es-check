@@ -352,6 +352,51 @@ describe("helpers/ast.js", () => {
       assert.strictEqual(result, false);
     });
 
+    it("should detect new Map().getOrInsert() as Map method", () => {
+      const node = {
+        callee: {
+          object: {
+            type: "NewExpression",
+            callee: { name: "Map" },
+          },
+          property: { name: "getOrInsert" },
+        },
+      };
+      const astInfo = { property: "getOrInsert", requireMapLikeCall: true };
+
+      const result = checkMap(node, astInfo);
+      assert.strictEqual(result, true);
+    });
+
+    it("should detect weakMap.getOrInsertComputed() as WeakMap method", () => {
+      const node = {
+        callee: {
+          object: { type: "Identifier", name: "weakMap" },
+          property: { name: "getOrInsertComputed" },
+        },
+      };
+      const astInfo = { property: "getOrInsertComputed", requireMapLikeCall: true };
+
+      const result = checkMap(node, astInfo);
+      assert.strictEqual(result, true);
+    });
+
+    it("should reject generic getOrInsert() receivers", () => {
+      const nonMapNames = ["cache", "store", "registry", "collection"];
+      const astInfo = { property: "getOrInsert", requireMapLikeCall: true };
+
+      for (const name of nonMapNames) {
+        const node = {
+          callee: {
+            object: { type: "Identifier", name },
+            property: { name: "getOrInsert" },
+          },
+        };
+        const result = checkMap(node, astInfo);
+        assert.strictEqual(result, false, `Expected false for "${name}.getOrInsert()"`);
+      }
+    });
+
     // ── PromiseAny with object constraint ──
 
     it("should detect Promise.any() with object constraint", () => {
