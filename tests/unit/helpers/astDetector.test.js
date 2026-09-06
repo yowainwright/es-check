@@ -714,6 +714,36 @@ describe("helpers/astDetector.js", () => {
       assert.strictEqual(result.MapGetOrInsert, true);
     });
 
+    it("should detect Map upsert methods on constructor receiver assignments", () => {
+      const ast = parse(`
+        class Cache {
+          constructor() {
+            this.items = new Map();
+          }
+
+          get(key, value) {
+            return this.items.getOrInsert(key, value);
+          }
+        }
+      `);
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.MapGetOrInsert, true);
+    });
+
+    it("should detect class field Map receivers before their declaration", () => {
+      const ast = parse(`
+        class Cache {
+          get(key, value) {
+            return this.items.getOrInsert(key, value);
+          }
+
+          items = new Map();
+        }
+      `);
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.MapGetOrInsert, true);
+    });
+
     it("should not detect Map upsert methods on generic receivers", () => {
       const ast = parse(`
         cache.getOrInsert(key, value);
@@ -732,6 +762,50 @@ describe("helpers/astDetector.js", () => {
 
         class PlainOwner {
           get(key, value) {
+            return this.items.getOrInsert(key, value);
+          }
+        }
+      `);
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.MapGetOrInsert, false);
+    });
+
+    it("should not treat static Map fields as instance receivers", () => {
+      const ast = parse(`
+        class Cache {
+          static items = new Map();
+
+          get(key, value) {
+            return this.items.getOrInsert(key, value);
+          }
+        }
+      `);
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.MapGetOrInsert, false);
+    });
+
+    it("should let later class fields override earlier Map fields", () => {
+      const ast = parse(`
+        class Cache {
+          items = new Map();
+          items = customCache;
+
+          get(key, value) {
+            return this.items.getOrInsert(key, value);
+          }
+        }
+      `);
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.MapGetOrInsert, false);
+    });
+
+    it("should let method receiver reassignment override class Map fields", () => {
+      const ast = parse(`
+        class Cache {
+          items = new Map();
+
+          get(key, value) {
+            this.items = customCache;
             return this.items.getOrInsert(key, value);
           }
         }
@@ -760,6 +834,30 @@ describe("helpers/astDetector.js", () => {
       `);
       const result = detectFeaturesFromAST(ast);
       assert.strictEqual(result.MapGetOrInsert, false);
+    });
+
+    it("should keep outer Map receivers when branches shadow the same name", () => {
+      const ast = parse(`
+        const cache = new Map();
+        if (enabled) {
+          const cache = new Map();
+        }
+        cache.getOrInsert(key, value);
+      `);
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.MapGetOrInsert, true);
+    });
+
+    it("should keep outer Map receivers when loops shadow the same name", () => {
+      const ast = parse(`
+        const cache = new Map();
+        for (const cache of caches) {
+          cache.size;
+        }
+        cache.getOrInsert(key, value);
+      `);
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.MapGetOrInsert, true);
     });
 
     it("should not treat loop lexical Map bindings as global constructors", () => {

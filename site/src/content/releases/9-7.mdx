@@ -1,0 +1,204 @@
+---
+title: ES Check 9.7
+description: Initial ES2026 support and more accurate compatibility checks for modern JavaScript bundles.
+---
+
+ES Check 9.7 adds initial support for ES2026 and backfills compatibility checks for earlier ECMAScript versions. There are no CLI changes, and performance remains largely unchanged.
+
+## Initial ES2026 Support
+
+ES Check now accepts [`es2026`](https://tc39.es/ecma262/), `es17`, `2026`, and `17` as target versions. This lets projects check bundles against the next ECMAScript version using the same command format they already use for older targets.
+
+## How To Use
+
+Use `es2026` the same way you use older ES Check targets.
+
+```bash
+es-check es2026 './dist/**/*.js' --checkFeatures
+```
+
+For example, a bundled data layer can now be checked when it turns an async stream into an array and initializes a cache with ES2026 APIs.
+
+```js
+async function loadProductCache(productStream) {
+  const products = await Array.fromAsync(productStream);
+  const cache = new Map();
+
+  products.forEach((product) => {
+    cache.getOrInsert(product.id, product);
+  });
+
+  return cache;
+}
+```
+
+## ES2026 API Examples
+
+ES Check 9.7 detects ES2026 APIs as AST shapes, then applies extra receiver checks where a method name alone would be too broad.
+
+### Array.fromAsync
+
+```js
+async function collectSearchResults(resultStream) {
+  const results = await Array.fromAsync(resultStream);
+  return results.filter((result) => result.score > 0.8);
+}
+```
+
+```bash
+es-check es2026 './dist/**/*.js' --checkFeatures
+```
+
+```js
+{
+  nodeType: "CallExpression",
+  object: "Array",
+  property: "fromAsync",
+}
+```
+
+```text
+CallExpression
+  callee: MemberExpression
+    object: Identifier(Array)
+    property: Identifier(fromAsync)
+```
+
+### Map.prototype.getOrInsert
+
+`Map.prototype.getOrInsert` avoids the common "check, create, then read again" pattern when initializing grouped values.
+
+```js
+function collectSessions(sessions) {
+  const sessionBuckets = new Map();
+
+  sessions.forEach((session) => {
+    const bucket = sessionBuckets.getOrInsert(session.accountId, []);
+    bucket.push(session);
+  });
+
+  return sessionBuckets;
+}
+```
+
+```bash
+es-check es2026 './dist/**/*.js' --checkFeatures
+```
+
+ES Check does not flag every `.getOrInsert()` call. It first checks for the method name, then verifies that the receiver is known to be a `Map` or `WeakMap`.
+
+```js
+{
+  nodeType: "CallExpression",
+  property: "getOrInsert",
+  requireMapReceiver: true,
+}
+```
+
+```text
+VariableDeclarator
+  id: Identifier(sessionBuckets)
+  init: NewExpression(Map)
+
+CallExpression
+  callee: MemberExpression
+    object: Identifier(sessionBuckets)
+    property: Identifier(getOrInsert)
+```
+
+### Iterator.concat
+
+```js
+function combineQueuedJobs(priorityJobs, regularJobs) {
+  return Iterator.concat(priorityJobs, regularJobs).toArray();
+}
+```
+
+```bash
+es-check es2026 './dist/**/*.js' --checkFeatures
+```
+
+```js
+{
+  nodeType: "CallExpression",
+  object: "Iterator",
+  property: "concat",
+}
+```
+
+```text
+CallExpression
+  callee: MemberExpression
+    object: Identifier(Iterator)
+    property: Identifier(concat)
+```
+
+### Math.sumPrecise
+
+```js
+function totalInvoiceLines(lines) {
+  const totals = lines.map((line) => line.quantity * line.unitPrice);
+  return Math.sumPrecise(totals);
+}
+```
+
+```bash
+es-check es2026 './dist/**/*.js' --checkFeatures
+```
+
+```js
+{
+  nodeType: "CallExpression",
+  object: "Math",
+  property: "sumPrecise",
+}
+```
+
+```text
+CallExpression
+  callee: MemberExpression
+    object: Identifier(Math)
+    property: Identifier(sumPrecise)
+```
+
+### Uint8Array Hex Helpers
+
+```js
+function readColor(hexColor) {
+  const bytes = Uint8Array.fromHex(hexColor.replace("#", ""));
+  return bytes.toHex();
+}
+```
+
+```bash
+es-check es2026 './dist/**/*.js' --checkFeatures
+```
+
+```js
+{
+  nodeType: "CallExpression",
+  object: "Uint8Array",
+  property: "fromHex",
+}
+```
+
+```text
+CallExpression
+  callee: MemberExpression
+    object: Identifier(Uint8Array)
+    property: Identifier(fromHex)
+```
+
+### Also Supported
+
+| API | Feature key |
+| --- | --- |
+| `Error.isError(value)` | `ErrorIsError` |
+| `new Intl.DurationFormat("en")` | `IntlDurationFormat` |
+| `JSON.rawJSON(text)` | `JSONRawJSON` |
+| `JSON.isRawJSON(value)` | `JSONIsRawJSON` |
+| `map.getOrInsertComputed(key, fn)` | `MapGetOrInsertComputed` |
+| `Uint8Array.fromBase64(text)` | `Uint8ArrayFromBase64` |
+| `bytes.toBase64()` | `Uint8ArrayToBase64` |
+| `bytes.setFromBase64(text)` | `Uint8ArraySetFromBase64` |
+| `bytes.setFromHex(text)` | `Uint8ArraySetFromHex` |
