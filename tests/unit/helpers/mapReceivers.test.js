@@ -481,6 +481,199 @@ const cases = [
   `,
   ],
   [
+    "returning branches do not erase continuing receiver initialization",
+    true,
+    (Map, call) => `
+    function get(stop) {
+      let cache; if (stop) return; else cache = new ${Map}();
+      return cache.${call}(key, value);
+    }
+  `,
+  ],
+  [
+    "throwing branches do not erase continuing receiver initialization",
+    true,
+    (Map, call) => `
+    function get(stop) {
+      let cache; if (stop) throw new Error(); else cache = new ${Map}();
+      return cache.${call}(key, value);
+    }
+  `,
+  ],
+  [
+    "returning alternate branches do not erase continuing receiver initialization",
+    true,
+    (Map, call) => `
+    function get(enabled) {
+      let cache; if (enabled) cache = new ${Map}(); else return;
+      return cache.${call}(key, value);
+    }
+  `,
+  ],
+  [
+    "throwing alternate branches do not erase continuing receiver initialization",
+    true,
+    (Map, call) => `
+    function get(enabled) {
+      let cache; if (enabled) cache = new ${Map}(); else throw new Error();
+      return cache.${call}(key, value);
+    }
+  `,
+  ],
+  [
+    "returning writes do not invalidate the implicit continuing branch",
+    true,
+    (Map, call) => `
+    function get(stop) {
+      let cache = new ${Map}(); if (stop) { cache = custom; return; }
+      return cache.${call}(key, value);
+    }
+  `,
+  ],
+  [
+    "nested unconditional exits do not erase the continuing branch",
+    true,
+    (Map, call) => `
+    function get(stop, fail) {
+      let cache;
+      if (stop) { if (fail) throw new Error(); else { return; } }
+      else { cache = new ${Map}(); }
+      return cache.${call}(key, value);
+    }
+  `,
+  ],
+  [
+    "conditional returns retain reachable non-Map branches",
+    false,
+    (Map, call) => `
+    function get(enabled, stop) {
+      let cache;
+      if (enabled) { cache = custom; if (stop) return; }
+      else cache = new ${Map}();
+      return cache.${call}(key, value);
+    }
+  `,
+  ],
+  [
+    "nested function returns do not terminate the containing branch",
+    false,
+    (Map, call) => `
+    function get(enabled) {
+      let cache;
+      if (enabled) { cache = custom; function deferred() { return; } }
+      else cache = new ${Map}();
+      return cache.${call}(key, value);
+    }
+  `,
+  ],
+  [
+    "upserts in returning branches are still detected",
+    true,
+    (Map, call) => `
+    function get(enabled) {
+      if (enabled) { const cache = new ${Map}(); return cache.${call}(key, value); }
+    }
+  `,
+  ],
+  [
+    "upserts in throwing branches are still detected",
+    true,
+    (Map, call) => `
+    function get(enabled) {
+      if (enabled) { const cache = new ${Map}(); throw cache.${call}(key, value); }
+    }
+  `,
+  ],
+  [
+    "two exiting branches preserve receiver facts for syntactic checks",
+    true,
+    (Map, call) => `
+    function get(stop) {
+      const cache = new ${Map}(); if (stop) return; else throw new Error();
+      cache.${call}(key, value);
+    }
+  `,
+  ],
+  [
+    "caught throws retain paths that reach code after the catch",
+    false,
+    (Map, call) => `
+    let cache;
+    try { if (stop) throw new Error(); else cache = new ${Map}(); } catch {}
+    cache.${call}(key, value);
+  `,
+  ],
+  [
+    "break branches retain paths that reach code after the loop",
+    false,
+    (Map, call) => `
+    let cache;
+    do { if (stop) break; else cache = new ${Map}(); } while (false);
+    cache.${call}(key, value);
+  `,
+  ],
+  [
+    "finalizers retain receiver states from returning branches",
+    false,
+    (Map, call) => `
+    function get(stop) {
+      let cache;
+      try { if (stop) return; else cache = new ${Map}(); }
+      finally { cache.${call}(key, value); }
+    }
+  `,
+  ],
+  [
+    "switch breaks retain paths that reach code after the switch",
+    false,
+    (Map, call) => `
+    let cache;
+    switch (value) { default: if (stop) break; else cache = new ${Map}(); }
+    cache.${call}(key, value);
+  `,
+  ],
+  [
+    "labeled breaks retain paths that reach code after the label",
+    false,
+    (Map, call) => `
+    let cache;
+    done: { if (stop) break done; else cache = new ${Map}(); }
+    cache.${call}(key, value);
+  `,
+  ],
+  [
+    "nested functions analyze their own exits inside enclosing try blocks",
+    true,
+    (Map, call) => `
+    try {
+      function get(stop) {
+        let cache; if (stop) return; else cache = new ${Map}();
+        return cache.${call}(key, value);
+      }
+    } catch {}
+  `,
+  ],
+  [
+    "exit joins do not affect subsequent branches outside their body",
+    true,
+    (Map, call) => `
+    function get(stop) {
+      try {} finally {}
+      let cache; if (stop) return; else cache = new ${Map}();
+      return cache.${call}(key, value);
+    }
+  `,
+  ],
+  [
+    "continue branches retain paths that reach code after the loop",
+    false,
+    (Map, call) => `
+    let cache;
+    do { if (stop) continue; else cache = new ${Map}(); } while (false);
+    cache.${call}(key, value);
+  `,
+  ],
+  [
     "for updates execute after continue",
     false,
     (Map, call) => `
@@ -521,6 +714,22 @@ describe("Map receiver flow regressions", () => {
     const ast = acorn.parse(code, { ecmaVersion: "latest" });
     assert.throws(() => detectFeatures(code, 16, "script", new Set(), { ast }), {
       features: ["MapGetOrInsert"],
+    });
+  });
+
+  ["return;", "throw new Error();"].forEach((exit) => {
+    it(`rejects an upsert after ${exit} against ES2025 and accepts ES2026`, () => {
+      const code = `function get(stop) {
+        let cache; if (stop) { ${exit} } else cache = new Map();
+        return cache.getOrInsert(key, value);
+      }`;
+      const ast = acorn.parse(code, { ecmaVersion: "latest" });
+      assert.throws(() => detectFeatures(code, 16, "script", new Set(), { ast }), {
+        features: ["MapGetOrInsert"],
+      });
+      const result = detectFeatures(code, 17, "script", new Set(), { ast });
+      assert.deepEqual(result.unsupportedFeatures, []);
+      assert.equal(result.foundFeatures.MapGetOrInsert, true);
     });
   });
 });

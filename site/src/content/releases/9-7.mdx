@@ -3,7 +3,7 @@ title: ES Check, 9.7.*; es17 support and configuration updates
 description: ES Check 9.7.* adds ES2026 support, more accurate compatibility checks for modern JavaScript bundles, and configuration updates such as using nub and pnpm 12.
 ---
 
-ES Check v9.7.* is getting released with [ES17 (ES2026)]() checks,
+ES Check v9.7.\* is getting released with [ES17 (ES2026)]() checks,
 a backfilling of compatibility checks for earlier ECMAScript versions, globals support, and config updates.
 
 ## ES2026 Support
@@ -66,8 +66,8 @@ ES Check matches the `Array.fromAsync` call in the parsed AST and checks its min
   "astInfo": {
     "nodeType": "CallExpression",
     "object": "Array",
-    "property": "fromAsync"
-  }
+    "property": "fromAsync",
+  },
 }
 ```
 
@@ -99,9 +99,9 @@ ES Check does not flag every `.getOrInsert()` call. It first checks for the meth
 
 ```jsonc
 {
-  nodeType: "CallExpression",
-  property: "getOrInsert",
-  requireMapReceiver: true,
+  "nodeType": "CallExpression",
+  "property": "getOrInsert",
+  "requireMapReceiver": true,
 }
 ```
 
@@ -212,4 +212,3 @@ function formatDeliveryWindow(duration) {
   return formatter.format(duration);
 }
 ```
-
