@@ -12,7 +12,6 @@ export default defineConfig({
     },
   },
   build: {
-    // Preserve Vite 7's browser targets during the bundler migration.
     target: ["chrome107", "edge107", "firefox104", "safari16"],
     rolldownOptions: {
       output: {
