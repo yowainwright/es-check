@@ -852,6 +852,7 @@ describe("detectFeatures", () => {
     it("should detect ES2025 (ES16) features", () => {
       const code = `
         Promise.try(() => Math.random());
+        new Intl.DurationFormat("en");
 
         const regex = /(?<year>\\d{4})-\\d{2}|(?<year>\\d{4})\\/\\d{2}/;
 
@@ -875,13 +876,32 @@ describe("detectFeatures", () => {
       assert(Object.values(foundFeatures).some(Boolean), "Should detect some ES2025 features");
     });
 
+    it("should allow Intl.DurationFormat in ES2025", () => {
+      const code = 'new Intl.DurationFormat("en");';
+      const ast = parse(code);
+      const { foundFeatures, unsupportedFeatures } = detectFeatures(code, 16, "script", new Set(), {
+        ast,
+      });
+
+      assert.strictEqual(foundFeatures.IntlDurationFormat, true);
+      assert.deepStrictEqual(unsupportedFeatures, []);
+    });
+
+    it("should reject Intl.DurationFormat before ES2025", () => {
+      const code = 'new Intl.DurationFormat("en");';
+      const ast = parse(code);
+
+      assert.throws(() => detectFeatures(code, 15, "script", new Set(), { ast }), {
+        features: ["IntlDurationFormat"],
+      });
+    });
+
     it("should detect ES2026 (ES17) features", () => {
       const code = `
         const cache = new Map();
         const registry = new WeakMap();
         cache.getOrInsert(key, value);
         registry.getOrInsertComputed(key, () => value);
-        new Intl.DurationFormat("en");
         Iterator.concat(first, second);
         JSON.rawJSON("1");
         JSON.isRawJSON(value);
@@ -899,7 +919,6 @@ describe("detectFeatures", () => {
       });
       assert.strictEqual(foundFeatures.MapGetOrInsert, true);
       assert.strictEqual(foundFeatures.MapGetOrInsertComputed, true);
-      assert.strictEqual(foundFeatures.IntlDurationFormat, true);
       assert.strictEqual(foundFeatures.IteratorConcat, true);
       assert.strictEqual(foundFeatures.JSONRawJSON, true);
       assert.strictEqual(foundFeatures.JSONIsRawJSON, true);

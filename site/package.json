@@ -10,15 +10,15 @@
     "lint:ci": "oxlint src && pnpm format:check",
     "format": "oxfmt",
     "format:check": "oxfmt --check",
-    "test": "node --import tsx --test 'src/**/__tests__/*.test.ts' 'src/**/__tests__/*.test.tsx'"
+    "test": "node --import tsx --test 'src/**/__tests__/*.test.ts' 'src/**/__tests__/*.test.tsx' 'vite.config.test.ts'"
   },
   "dependencies": {
     "@mdx-js/mdx": "^3.1.0",
     "@shikijs/rehype": "^3.2.1",
     "@shikijs/transformers": "^3.2.1",
-    "@tailwindcss/vite": "^4.1.18",
+    "@tailwindcss/vite": "^4.3.3",
     "@tanstack/react-router": "^1.121.0",
-    "@vitejs/plugin-react": "^4.5.2",
+    "@vitejs/plugin-react": "^6.1.1",
     "fuse.js": "^7.1.0",
     "github-slugger": "^2.0.0",
     "lucide-react": "^0.469.0",
@@ -34,9 +34,9 @@
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "daisyui": "^5.5.14",
-    "tailwindcss": "^4.1.18",
+    "tailwindcss": "^4.3.3",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
-    "vite": "^7.3.0"
+    "vite": "^8.2.2"
   }
 }

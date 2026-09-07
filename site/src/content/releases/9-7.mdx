@@ -1,59 +1,73 @@
 ---
-title: ES Check 9.7
-description: Initial ES2026 support and more accurate compatibility checks for modern JavaScript bundles.
+title: ES Check, 9.7.*; es17 support and configuration updates
+description: ES Check 9.7.* adds ES2026 support, more accurate compatibility checks for modern JavaScript bundles, and configuration updates such as using nub and pnpm 12.
 ---
 
-ES Check 9.7 adds initial support for ES2026 and backfills compatibility checks for earlier ECMAScript versions. There are no CLI changes, and performance remains largely unchanged.
+ES Check v9.7.* is getting released with [ES17 (ES2026)]() checks,
+a backfilling of compatibility checks for earlier ECMAScript versions, globals support, and config updates.
 
-## Initial ES2026 Support
+## ES2026 Support
 
-ES Check now accepts [`es2026`](https://tc39.es/ecma262/), `es17`, `2026`, and `17` as target versions. This lets projects check bundles against the next ECMAScript version using the same command format they already use for older targets.
+ES Check now accepts [`es2026`](https://tc39.es/ecma262/2026/multipage/).
+You can use `es17`, `2026`, and `17` as target versions.
+This lets projects check bundles against ECMAScript 2026 using the same cli or node format you use for older targets.
 
 ## How To Use
 
-Use `es2026` the same way you use older ES Check targets.
+Here's an example cli command for context.
 
 ```bash
 es-check es2026 './dist/**/*.js' --checkFeatures
 ```
 
-For example, a bundled data layer can now be checked when it turns an async stream into an array and initializes a cache with ES2026 APIs.
-
-```js
-async function loadProductCache(productStream) {
-  const products = await Array.fromAsync(productStream);
-  const cache = new Map();
-
-  products.forEach((product) => {
-    cache.getOrInsert(product.id, product);
-  });
-
-  return cache;
-}
-```
+Next up, we'll go into some of the api updates; just to connect the dots a little more so you can know what you should be able to depend on ES Check for.
 
 ## ES2026 API Examples
 
-ES Check 9.7 detects ES2026 APIs as AST shapes, then applies extra receiver checks where a method name alone would be too broad.
+ES Check 9.7 detects ES2026 APIs. It applies extra checks where a method names alone are too be too broad.
+This for the last few years are where nuanced bugs come out so please let me know!
 
 ### Array.fromAsync
 
-```js
+[`Array.fromAsync`](https://tc39.es/ecma262/2026/multipage/indexed-collections.html#sec-array.fromasync), added in ES2026, collects an async iterable into an array; here it gathers streamed search results and keeps those scoring above 0.8.
+ES Check added detection so `--checkFeatures` reports this API when a bundle targets an earlier edition.
+
+Both versions consume results in order and wait for the stream to finish:
+
+```diff
+ async function collectSearchResults(resultStream) {
+-  const results = [];
+-  for await (const result of resultStream) {
+-    results.push(result);
+-  }
++  const results = await Array.fromAsync(resultStream);
+   return results.filter((result) => result.score > 0.8);
+ }
+```
+
+```js example
 async function collectSearchResults(resultStream) {
   const results = await Array.fromAsync(resultStream);
   return results.filter((result) => result.score > 0.8);
 }
 ```
 
+Check the bundle against ES2026:
+
 ```bash
 es-check es2026 './dist/**/*.js' --checkFeatures
 ```
 
-```js
+ES Check matches the `Array.fromAsync` call in the parsed AST and checks its minimum version. Targeting `es2025` instead reports `ArrayFromAsync` as unsupported.
+
+```jsonc
 {
-  nodeType: "CallExpression",
-  object: "Array",
-  property: "fromAsync",
+  "minVersion": 17, // ES2026; async/await alone does not require this edition.
+  "astInfo": {
+    "nodeType": "CallExpression",
+    "object": "Array",
+    "property": "fromAsync"
+  }
 }
 ```
 
@@ -68,7 +82,7 @@ CallExpression
 
 `Map.prototype.getOrInsert` avoids the common "check, create, then read again" pattern when initializing grouped values.
 
-```js
+```js example
 function collectSessions(sessions) {
   const sessionBuckets = new Map();
 
@@ -81,13 +95,9 @@ function collectSessions(sessions) {
 }
 ```
 
-```bash
-es-check es2026 './dist/**/*.js' --checkFeatures
-```
-
 ES Check does not flag every `.getOrInsert()` call. It first checks for the method name, then verifies that the receiver is known to be a `Map` or `WeakMap`.
 
-```js
+```jsonc
 {
   nodeType: "CallExpression",
   property: "getOrInsert",
@@ -108,14 +118,10 @@ CallExpression
 
 ### Iterator.concat
 
-```js
+```js example
 function combineQueuedJobs(priorityJobs, regularJobs) {
   return Iterator.concat(priorityJobs, regularJobs).toArray();
 }
-```
-
-```bash
-es-check es2026 './dist/**/*.js' --checkFeatures
 ```
 
 ```js
@@ -135,15 +141,11 @@ CallExpression
 
 ### Math.sumPrecise
 
-```js
+```js example
 function totalInvoiceLines(lines) {
   const totals = lines.map((line) => line.quantity * line.unitPrice);
   return Math.sumPrecise(totals);
 }
-```
-
-```bash
-es-check es2026 './dist/**/*.js' --checkFeatures
 ```
 
 ```js
@@ -163,15 +165,11 @@ CallExpression
 
 ### Uint8Array Hex Helpers
 
-```js
+```js example
 function readColor(hexColor) {
   const bytes = Uint8Array.fromHex(hexColor.replace("#", ""));
   return bytes.toHex();
 }
-```
-
-```bash
-es-check es2026 './dist/**/*.js' --checkFeatures
 ```
 
 ```js
@@ -191,14 +189,27 @@ CallExpression
 
 ### Also Supported
 
-| API | Feature key |
-| --- | --- |
-| `Error.isError(value)` | `ErrorIsError` |
-| `new Intl.DurationFormat("en")` | `IntlDurationFormat` |
-| `JSON.rawJSON(text)` | `JSONRawJSON` |
-| `JSON.isRawJSON(value)` | `JSONIsRawJSON` |
-| `map.getOrInsertComputed(key, fn)` | `MapGetOrInsertComputed` |
-| `Uint8Array.fromBase64(text)` | `Uint8ArrayFromBase64` |
-| `bytes.toBase64()` | `Uint8ArrayToBase64` |
-| `bytes.setFromBase64(text)` | `Uint8ArraySetFromBase64` |
-| `bytes.setFromHex(text)` | `Uint8ArraySetFromHex` |
+| API                                | Feature key               |
+| ---------------------------------- | ------------------------- |
+| `Error.isError(value)`             | `ErrorIsError`            |
+| `JSON.rawJSON(text)`               | `JSONRawJSON`             |
+| `JSON.isRawJSON(value)`            | `JSONIsRawJSON`           |
+| `map.getOrInsertComputed(key, fn)` | `MapGetOrInsertComputed`  |
+| `Uint8Array.fromBase64(text)`      | `Uint8ArrayFromBase64`    |
+| `bytes.toBase64()`                 | `Uint8ArrayToBase64`      |
+| `bytes.setFromBase64(text)`        | `Uint8ArraySetFromBase64` |
+| `bytes.setFromHex(text)`           | `Uint8ArraySetFromHex`    |
+
+## Earlier ECMAScript Backfills
+
+### Intl.DurationFormat (ES2025)
+
+[`Intl.DurationFormat`](https://402.ecma-international.org/12.0/#sec-intl-durationformat-constructor) is part of the 2025 Intl standard, not ES2026. ES Check now accepts it for `es2025` and reports it as unsupported for `es2024` and earlier.
+
+```js example
+function formatDeliveryWindow(duration) {
+  const formatter = new Intl.DurationFormat("en", { style: "long" });
+  return formatter.format(duration);
+}
+```
+
