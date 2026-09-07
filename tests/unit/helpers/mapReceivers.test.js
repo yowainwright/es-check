@@ -691,9 +691,264 @@ const cases = [
     cache.${call}(key, value);
   `,
   ],
+  [
+    "returning switch cases do not erase the default receiver",
+    true,
+    (Map, call) => `
+    function get(stop) {
+      let cache;
+      switch (stop) { case true: return; default: cache = new ${Map}(); }
+      return cache.${call}(key, value);
+    }
+  `,
+  ],
+  [
+    "caught throws can establish the continuing receiver",
+    true,
+    (Map, call) => `
+    let cache;
+    try { if (stop) throw 1; else cache = new ${Map}(); }
+    catch { cache = new ${Map}(); }
+    cache.${call}(key, value);
+  `,
+  ],
+  [
+    "returning catches do not erase successful try receivers",
+    true,
+    (Map, call) => `
+    function get() {
+      let cache;
+      try { cache = new ${Map}(); } catch { return; }
+      return cache.${call}(key, value);
+    }
+  `,
+  ],
+  [
+    "catch receivers include failures before initialization completes",
+    false,
+    (Map, call) => `
+    let cache;
+    try { cache = new ${Map}(); } catch {}
+    cache.${call}(key, value);
+  `,
+  ],
+  [
+    "finalizers preserve continuing initialization after early return",
+    true,
+    (Map, call) => `
+    function get(stop) {
+      let cache;
+      try { if (stop) return; else cache = new ${Map}(); } finally {}
+      return cache.${call}(key, value);
+    }
+  `,
+  ],
+  [
+    "conditional finalizer writes preserve an already initialized continuing receiver",
+    true,
+    (Map, call) => `
+    function get(stop, reset) {
+      let cache;
+      try { if (stop) return; else cache = new ${Map}(); }
+      finally { if (reset) cache = new ${Map}(); }
+      return cache.${call}(key, value);
+    }
+  `,
+  ],
+  [
+    "finalizer writes invalidate continuing receivers",
+    false,
+    (Map, call) => `
+    function get(stop) {
+      let cache;
+      try { if (stop) return; else cache = new ${Map}(); }
+      finally { cache = custom; }
+      return cache.${call}(key, value);
+    }
+  `,
+  ],
+  [
+    "finalizer breaks override returns and reach the enclosing label exit",
+    false,
+    (Map, call) => `
+    function get(stop) {
+      let cache;
+      done: {
+        try { if (stop) return; else cache = new ${Map}(); }
+        finally { break done; }
+      }
+      return cache.${call}(key, value);
+    }
+  `,
+  ],
+  [
+    "nested finalizers retain thrown receiver states for an outer catch",
+    true,
+    (Map, call) => `
+    let cache;
+    try { try { throw 1; } finally { cache = new ${Map}(); } }
+    catch { cache = new ${Map}(); }
+    cache.${call}(key, value);
+  `,
+  ],
+  [
+    "constructor finalizer writes apply to early returns",
+    true,
+    (Map, call) => `
+    class Cache {
+      constructor(stop) { try { if (stop) return; } finally { this.items = new ${Map}(); } }
+      get() { return this.items.${call}(key, value); }
+    }
+  `,
+  ],
+  [
+    "break state is not overwritten by later loop statements",
+    false,
+    (Map, call) => `
+    let cache;
+    do { if (stop) break; cache = new ${Map}(); } while (false);
+    cache.${call}(key, value);
+  `,
+  ],
+  [
+    "labeled continues still run loop updates",
+    false,
+    (Map, call) => `
+    let cache = new ${Map}();
+    outer: for (let i = 0; i < 1; i++, cache = custom) { continue outer; }
+    cache.${call}(key, value);
+  `,
+  ],
+  [
+    "returning inner labels do not erase a continuing outer branch",
+    true,
+    (Map, call) => `
+    function get(stop) {
+      let cache;
+      if (stop) { done: { return; } } else cache = new ${Map}();
+      return cache.${call}(key, value);
+    }
+  `,
+  ],
+  [
+    "return expressions can throw before returning",
+    false,
+    (Map, call) => `
+    function get() {
+      let cache = new ${Map}();
+      try { return 1n + 1; } catch { cache = custom; }
+      return cache.${call}(key, value);
+    }
+  `,
+  ],
+  [
+    "unresolved return values can reach a catch",
+    false,
+    (Map, call) => `
+    function get() {
+      let cache = new ${Map}();
+      try { return missingValue; } catch { cache = custom; }
+      return cache.${call}(key, value);
+    }
+  `,
+  ],
+  [
+    "do/while initializes a previously unknown continuing receiver",
+    true,
+    (Map, call) => `
+    function get(stop) {
+      let cache;
+      do { if (stop) return; else cache = new ${Map}(); } while (false);
+      return cache.${call}(key, value);
+    }
+  `,
+  ],
+  [
+    "labels initialize a previously unknown continuing receiver",
+    true,
+    (Map, call) => `
+    function get(stop) {
+      let cache;
+      done: { if (stop) throw 1; else cache = new ${Map}(); }
+      return cache.${call}(key, value);
+    }
+  `,
+  ],
+  [
+    "finalizer returns do not erase the continuing receiver",
+    true,
+    (Map, call) => `
+    function get(stop) {
+      let cache = new ${Map}();
+      try {} finally { if (stop) { cache = custom; return; } }
+      return cache.${call}(key, value);
+    }
+  `,
+  ],
+  [
+    "multiple labels route continues to the loop update",
+    false,
+    (Map, call) => `
+    let cache = new ${Map}();
+    outer: inner: for (let i = 0; i < 1; i++, cache = custom) { continue outer; }
+    cache.${call}(key, value);
+  `,
+  ],
+];
+
+const exitContainers = [
+  ["do/while", (body) => `do { ${body} } while (false);`],
+  ["while", (body) => `while (enabled) { ${body} enabled = false; }`],
+  ["for", (body) => `for (let i = 0; i < count; i++) { ${body} }`],
+  ["for/in", (body) => `for (const name in values) { ${body} }`],
+  ["for/of", (body) => `for (const item of values) { ${body} }`],
+  ["switch", (body) => `switch (value) { default: ${body} }`],
+  ["label", (body) => `done: { ${body} }`],
+  ["try/finally", (body) => `try { ${body} } finally {}`],
+  ["try/catch", (body) => `try { ${body} } catch (error) { throw error; }`],
 ];
 
 describe("Map receiver flow regressions", () => {
+  it("does not replay nested finalizers for identical receiver states", () => {
+    const depth = 10;
+    const body = Array.from({ length: depth }).reduce(
+      (inner) => `try { if (stop) return; } finally { ${inner} }`,
+      "cache = new Map();",
+    );
+    const ast = acorn.parse(`function get(stop) { let cache; ${body} }`, { ecmaVersion: "latest" });
+    let leaf = ast.body[0].body.body[1];
+    while (leaf.type === "TryStatement") leaf = leaf.finalizer.body[0];
+    let visits = 0;
+    Object.defineProperty(leaf, "type", {
+      get() {
+        visits += 1;
+        return "ExpressionStatement";
+      },
+    });
+    detectFeaturesFromAST(ast);
+    assert.ok(visits < 100, `Visited the innermost finalizer ${visits} times`);
+  });
+
+  it("reuses receiver analysis across distinct finalizer completion paths", () => {
+    const body = Array.from({ length: 10 }).reduce(
+      (inner) => `try { if (stop) { cache = custom; return; } else cache = new Map(); }
+        finally { ${inner} }`,
+      "cache = new Map();",
+    );
+    const ast = acorn.parse(`function get(stop) { let cache; ${body} }`, { ecmaVersion: "latest" });
+    let leaf = ast.body[0].body.body[1];
+    while (leaf.type === "TryStatement") leaf = leaf.finalizer.body[0];
+    let visits = 0;
+    Object.defineProperty(leaf, "type", {
+      get() {
+        visits += 1;
+        return "ExpressionStatement";
+      },
+    });
+    detectFeaturesFromAST(ast);
+    assert.ok(visits < 300, `Visited the innermost finalizer ${visits} times`);
+  });
+
   ["Map", "WeakMap"].forEach((constructor) => {
     ["getOrInsert", "getOrInsertComputed"].forEach((method) => {
       const feature = method === "getOrInsert" ? "MapGetOrInsert" : "MapGetOrInsertComputed";
@@ -703,6 +958,32 @@ describe("Map receiver flow regressions", () => {
             const code = source(constructor, method);
             const ast = acorn.parse(code, { ecmaVersion: "latest", sourceType: "module" });
             assert.equal(detectFeaturesFromAST(ast)[feature], expected, code);
+          });
+        });
+        exitContainers.forEach(([name, wrap]) => {
+          ["return;", "throw 1;"].forEach((exit) => {
+            [true, false].forEach((exitFirst) => {
+              it(`${name} preserves receivers after ${exit} in branch ${exitFirst}`, () => {
+                const exiting = `{ cache = custom; ${exit} }`;
+                const continuing = `cache = new ${constructor}();`;
+                const consequent = exitFirst ? exiting : continuing;
+                const alternate = exitFirst ? continuing : exiting;
+                const body = wrap(`if (stop) ${consequent} else ${alternate}`);
+                const code = `function get(stop) {
+                  let cache = new ${constructor}(); ${body}
+                  return cache.${method}(key, value);
+                }`;
+                const ast = acorn.parse(code, { ecmaVersion: "latest" });
+                assert.equal(detectFeaturesFromAST(ast)[feature], true, code);
+                assert.throws(() => detectFeatures(code, 16, "script", new Set(), { ast }), {
+                  features: [feature],
+                });
+                assert.deepEqual(
+                  detectFeatures(code, 17, "script", new Set(), { ast }).unsupportedFeatures,
+                  [],
+                );
+              });
+            });
           });
         });
       });

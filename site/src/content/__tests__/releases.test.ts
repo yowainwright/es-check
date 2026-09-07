@@ -24,6 +24,22 @@ const expectedExamples = [
   [16, ["IntlDurationFormat"]],
 ] as const;
 
+const specificationUrl = new URL("https://tc39.es/ecma262/2026/multipage/");
+
+function hasSpecificationLink(markdown: string): boolean {
+  const parsed = createProcessor().parse(markdown);
+  return collectLinkUrls(parsed).some((href) => {
+    if (!URL.canParse(href)) return false;
+    return new URL(href).href === specificationUrl.href;
+  });
+}
+
+function collectLinkUrls(node: typeof tree | (typeof tree.children)[number]): string[] {
+  if (node.type === "link") return [node.url];
+  if (!("children" in node)) return [];
+  return node.children.flatMap(collectLinkUrls);
+}
+
 describe("ES Check 9.7 release notes", () => {
   it("compiles and renders the article, code blocks, and API table", async () => {
     const compiled = await compileMDX(source);
@@ -35,7 +51,30 @@ describe("ES Check 9.7 release notes", () => {
     assert.ok(headings.includes("Earlier ECMAScript Backfills"));
     assert.match(html, /<pre\b/);
     assert.match(html, /<table\b/);
-    assert.ok(html.includes("https://tc39.es/ecma262/2026/multipage/"));
+    assert.ok(hasSpecificationLink(source));
+  });
+
+  it("recognizes the specification link target", () => {
+    assert.ok(hasSpecificationLink(`[ES2026](${specificationUrl.href})`));
+  });
+
+  const incorrectLinks = [
+    `[${specificationUrl.href}](https://example.invalid/)`,
+    `[ES2026](https://example.invalid/?next=${specificationUrl.href})`,
+    `[ES2026](https://example.invalid/${specificationUrl.href})`,
+    "[ES2026](https://tc39.es.example.invalid/ecma262/2026/multipage/)",
+    "[ES2026](https://tc39.es@example.invalid/ecma262/2026/multipage/)",
+    "[ES2026](http://tc39.es/ecma262/2026/multipage/)",
+    "[ES2026](https://tc39.es/ecma262/2025/multipage/)",
+    "[ES2026](https://tc39.es/ecma262/2026/multipage/?redirect=elsewhere)",
+    `\`${specificationUrl.href}\``,
+    "[ES2026](not-a-url)",
+  ];
+
+  incorrectLinks.forEach((markdown) => {
+    it(`rejects an incorrect specification reference: ${markdown}`, () => {
+      assert.equal(hasSpecificationLink(markdown), false);
+    });
   });
 
   it("covers every runnable release example", () => {
