@@ -8,6 +8,9 @@ const CommunityPage = lazy(() =>
   import("./pages/CommunityPage").then((m) => ({ default: m.CommunityPage })),
 );
 const DocsPage = lazy(() => import("./pages/DocsPage").then((m) => ({ default: m.DocsPage })));
+const ReleasePage = lazy(() =>
+  import("./pages/ReleasePage").then((m) => ({ default: m.ReleasePage })),
+);
 
 function PageLoader() {
   return (
@@ -57,4 +60,21 @@ const docsRoute = createRoute({
   ),
 });
 
-export const routeTree = rootRoute.addChildren([indexRoute, communityRoute, docsRoute]);
+const releaseRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/release/$version",
+  component: () => (
+    <Suspense fallback={<PageLoader />}>
+      <AppLayout>
+        <ReleasePage />
+      </AppLayout>
+    </Suspense>
+  ),
+});
+
+export const routeTree = rootRoute.addChildren([
+  indexRoute,
+  communityRoute,
+  docsRoute,
+  releaseRoute,
+]);

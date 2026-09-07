@@ -1,26 +1,34 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
-import path from "path";
+import path from "node:path";
 
 export default defineConfig({
   base: "/es-check",
-  builder: "rolldown",
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./src"),
+      "@": path.resolve(import.meta.dirname, "./src"),
     },
   },
   build: {
-    rollupOptions: {
+    target: ["chrome107", "edge107", "firefox104", "safari16"],
+    rolldownOptions: {
       output: {
-        manualChunks: {
-          "react-vendor": ["react", "react-dom"],
-          router: ["@tanstack/react-router"],
-          fuse: ["fuse.js"],
-          mdx: ["@mdx-js/mdx", "remark-gfm", "rehype-slug"],
-          shiki: ["shiki", "@shikijs/rehype", "@shikijs/transformers"],
+        codeSplitting: {
+          groups: [
+            { name: "react-vendor", test: /node_modules[\\/](react|react-dom)[\\/]/ },
+            { name: "router", test: /node_modules[\\/]@tanstack[\\/]react-router[\\/]/ },
+            { name: "fuse", test: /node_modules[\\/]fuse\.js[\\/]/ },
+            {
+              name: "mdx",
+              test: /node_modules[\\/](@mdx-js[\\/]mdx|remark-gfm|rehype-slug)[\\/]/,
+            },
+            {
+              name: "shiki",
+              test: /node_modules[\\/](shiki|@shikijs[\\/](rehype|transformers))[\\/]/,
+            },
+          ],
         },
       },
     },

@@ -6,6 +6,7 @@ import { SimpleSearch } from "./SimpleSearch";
 const NAVIGATION = [
   { title: "Home", href: "/" },
   { title: "Docs", href: "/docs/gettingstarted" },
+  { title: "Releases", href: "/release/9-7" },
 ];
 
 export function Header() {
@@ -55,12 +56,18 @@ function DesktopNav({ pathname }: { pathname: string }) {
       <ul className="menu menu-horizontal text-base font-medium">
         {NAVIGATION.map((item) => (
           <li key={item.href}>
-            <NavLink href={item.href} title={item.title} isActive={pathname === item.href} />
+            <NavLink href={item.href} title={item.title} isActive={isNavActive(pathname, item)} />
           </li>
         ))}
       </ul>
     </div>
   );
+}
+
+function isNavActive(pathname: string, item: { href: string; title: string }) {
+  if (item.href.startsWith("/release")) return pathname.startsWith("/release");
+  if (item.href.startsWith("/docs")) return pathname.startsWith("/docs");
+  return pathname === item.href;
 }
 
 function NavLink({ href, title, isActive }: { href: string; title: string; isActive: boolean }) {

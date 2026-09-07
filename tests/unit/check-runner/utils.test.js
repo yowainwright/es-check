@@ -321,28 +321,26 @@ describe("check-runner/utils.js", () => {
       assert.deepStrictEqual(result, files);
     });
 
-    it("should filter out ignored files", () => {
+    it("should filter out ignored files", (t) => {
       const files = ["src/main.js", "src/test.js", "node_modules/lib.js", "vendor/vendor.js"];
       const pathsToIgnore = ["**/node_modules/**", "**/vendor/**"];
-      const globOpts = {};
+      const cwd = createGlobFixture(t, files);
+      const globOpts = { cwd };
 
       const result = filterIgnoredFiles(files, pathsToIgnore, globOpts);
 
-      assert.ok(result.length <= 4);
-      assert.ok(result.includes("src/main.js"));
-      assert.ok(result.includes("src/test.js"));
+      assert.deepStrictEqual(result, ["src/main.js", "src/test.js"]);
     });
 
-    it("should handle specific file patterns", () => {
+    it("should handle specific file patterns", (t) => {
       const files = ["src/main.js", "src/test.js", "src/config.js"];
       const pathsToIgnore = ["**/test.js"];
-      const globOpts = {};
+      const cwd = createGlobFixture(t, files);
+      const globOpts = { cwd };
 
       const result = filterIgnoredFiles(files, pathsToIgnore, globOpts);
 
-      assert.ok(result.length <= 3);
-      assert.ok(result.includes("src/main.js"));
-      assert.ok(result.includes("src/config.js"));
+      assert.deepStrictEqual(result, ["src/main.js", "src/config.js"]);
     });
   });
 
@@ -399,6 +397,18 @@ const testDir = path.join(__dirname, "test-files-utils");
 
 if (!fs.existsSync(testDir)) {
   fs.mkdirSync(testDir, { recursive: true });
+}
+
+function createGlobFixture(t, files) {
+  const cwd = fs.mkdtempSync(path.join(testDir, "glob-"));
+  t.after(() => fs.rmSync(cwd, { recursive: true, force: true }));
+  files.forEach((file) => {
+    const filePath = path.join(cwd, file);
+    const directory = path.dirname(filePath);
+    if (!fs.existsSync(directory)) fs.mkdirSync(directory, { recursive: true });
+    fs.writeFileSync(filePath, "");
+  });
+  return cwd;
 }
 
 function cleanupTestDir() {

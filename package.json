@@ -126,7 +126,6 @@
     "seroval": "1.6.4",
     "tmp": "0.2.4",
     "undici": "6.23.0",
-    "vite": "6.4.1",
     "yaml": "2.9.0"
   },
   "devEngines": {
@@ -157,15 +156,6 @@
   },
   "pastoralist": {
     "appendix": {
-      "vite@6.4.1": {
-        "dependents": {
-          "es-check": "vite (transitive dependency)",
-          "es-check-docs": "vite@^7.3.0"
-        },
-        "ledger": {
-          "addedDate": "2026-01-12T05:15:47.989Z"
-        }
-      },
       "tmp@0.2.4": {
         "dependents": {
           "es-check": "tmp (transitive dependency)"
