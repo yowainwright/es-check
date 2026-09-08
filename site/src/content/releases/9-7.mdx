@@ -3,6 +3,9 @@ title: ES Check, 9.7.*; es17 support and configuration updates
 description: ES Check 9.7.* adds ES2026 support, compatibility fixes, global built-in checks, and contributor tooling updates.
 ---
 
+ES Check 9.7.* adds ES2026 support, and some fixed to make the previous api work better
+as well as dev enhancements which give back to you via better documentation and faster implementations.
+
 **TL;DR**
 
 - Check [ES2026](https://tc39.es/ecma262/2026/multipage/) with the existing CLI. Add `--checkFeatures` to check built-in APIs as well as syntax.
@@ -16,7 +19,8 @@ description: ES Check 9.7.* adds ES2026 support, compatibility fixes, global bui
 
 **ES2026 Support**
 
-Target ES2026 and add `--checkFeatures` to check newer built-in APIs as well as syntax. Examples cover async collection, Map initialization, iterators, precise summation, and byte conversions.
+Target ES2026 with `es2026` and the `--checkFeatures` flag to check newer built-in APIs as well as syntax.
+Examples cover async collection, Map initialization, iterators, precise summation, and byte conversions.
 
 [ECMAScript specification](https://tc39.es/ecma262/2026/multipage/)
 
@@ -203,16 +207,16 @@ CallExpression
 
 #### Also Supported
 
-| API                                | Feature key               |
-| ---------------------------------- | ------------------------- |
-| [`Error.isError(value)`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error/isError) | `ErrorIsError` |
-| [`JSON.rawJSON(text)`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/rawJSON) | `JSONRawJSON` |
-| [`JSON.isRawJSON(value)`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/isRawJSON) | `JSONIsRawJSON` |
-| [`map.getOrInsertComputed(key, fn)`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map/getOrInsertComputed) | `MapGetOrInsertComputed` |
-| [`Uint8Array.fromBase64(text)`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array/fromBase64) | `Uint8ArrayFromBase64` |
-| [`bytes.toBase64()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array/toBase64) | `Uint8ArrayToBase64` |
-| [`bytes.setFromBase64(text)`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array/setFromBase64) | `Uint8ArraySetFromBase64` |
-| [`bytes.setFromHex(text)`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array/setFromHex) | `Uint8ArraySetFromHex` |
+| API                                                                                                                                            | Feature key               |
+| ---------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------- |
+| [`Error.isError(value)`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error/isError)                       | `ErrorIsError`            |
+| [`JSON.rawJSON(text)`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/rawJSON)                          | `JSONRawJSON`             |
+| [`JSON.isRawJSON(value)`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/isRawJSON)                     | `JSONIsRawJSON`           |
+| [`map.getOrInsertComputed(key, fn)`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map/getOrInsertComputed) | `MapGetOrInsertComputed`  |
+| [`Uint8Array.fromBase64(text)`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array/fromBase64)        | `Uint8ArrayFromBase64`    |
+| [`bytes.toBase64()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array/toBase64)                     | `Uint8ArrayToBase64`      |
+| [`bytes.setFromBase64(text)`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array/setFromBase64)       | `Uint8ArraySetFromBase64` |
+| [`bytes.setFromHex(text)`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array/setFromHex)             | `Uint8ArraySetFromHex`    |
 
 ## Bug Fixes
 
@@ -220,7 +224,8 @@ CallExpression
 
 **Earlier ECMAScript Backfills**
 
-Earlier targets now accept APIs that were assigned to the wrong edition. Missing float16 checks and AST matching fixes also reduce missed features and false reports.
+Earlier ES targets accept APIs that were assigned to different ES Version.
+Missing float16 checks and AST matching fixes also reduce missed features and false reports.
 
 [Intl specification](https://402.ecma-international.org/12.0/#sec-intl-durationformat-constructor)
 
@@ -256,7 +261,7 @@ The AST check matches a `NewExpression` whose constructor is `Intl.DurationForma
 
 [`transfer`](https://tc39.es/ecma262/2024/multipage/structured-data.html#sec-arraybuffer.prototype.transfer) and [`transferToFixedLength`](https://tc39.es/ecma262/2024/multipage/structured-data.html#sec-arraybuffer.prototype.transfertofixedlength) move bytes into a new buffer and detach the original. The fixed-length variant also removes resizability, useful when handing a completed binary payload to another part of an application.
 
-Both methods were incorrectly assigned to ES2026. They now pass an `es2024` feature check and fail for `es2023` and earlier:
+Both methods were assigned to ES2026. They now pass an `es2024` feature check and fail for `es2023` and earlier:
 
 ```diff
  ArrayBufferTransfer: {
@@ -329,7 +334,8 @@ Set operations and `RegExp.escape` remain ES2025 checks; they were already suppo
 
 **Global Built-ins**
 
-A bundle can use old syntax and still require a newer runtime global. Feature detection now checks those names while accounting for local bindings and supported availability guards.
+A bundle can use old syntax and still require a newer runtime global.
+Feature detection now checks those names while accounting for local bindings and supported availability guards.
 
 </ReleaseSummary>
 
@@ -347,7 +353,8 @@ function observeSettings(settings, handler) {
 es-check es2015 './dist/**/*.js' --checkFeatures
 ```
 
-That example passes at `es2015` and reports `Proxy` at `es5`. No new flag is needed. The detector checks whether an identifier refers to a built-in rather than a local variable, import, parameter, or property name.
+That example passes at `es2015` and reports `Proxy` at `es5`.
+No new flag is needed. The detector checks whether an identifier refers to a built-in rather than a local variable, import, parameter, or property name.
 
 Examples from the global-version data:
 
@@ -426,6 +433,11 @@ These numbers describe the whole saved repository snapshots, not pnpm alone or t
 
 ## Summary
 
-ES Check 9.7.\* adds initial ES2026 support while improving checks for existing targets. The update covers newer APIs, corrects earlier edition assignments, and distinguishes native globals and known Map receivers from local bindings and unrelated methods.
+ES Check 9.7.\* adds initial ES2026 support while improving checks for existing targets.
+The update covers newer APIs, corrects earlier edition assignments, and distinguishes native globals and known Map receivers from local bindings and unrelated methods.
 
-Keep your existing CLI workflow and target version when upgrading. Use `--checkFeatures` when you also need API and global checks, and review any newly reported runtime requirements. The pnpm update affects contributors; installing and running ES Check does not require adopting pnpm or Nub.
+Keep your existing CLI workflow and target version when upgrading.
+Use `--checkFeatures` when you also need API and global checks, and review any newly reported runtime requirements.
+The pnpm update affects contributors; installing and running ES Check does not require adopting pnpm or Nub.
+
+~[Jeff Wainwright](http://jeffry.in) using [codex](https://openai.com/codex/).
