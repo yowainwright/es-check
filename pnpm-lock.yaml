@@ -112,6 +112,9 @@ importers:
       acorn:
         specifier: 8.18.0
         version: 8.18.0
+      browserslist:
+        specifier: 4.28.8
+        version: 4.28.8
       fast-glob:
         specifier: ^3.3.3
         version: 3.3.3
@@ -119,9 +122,6 @@ importers:
       '@mdn/browser-compat-data':
         specifier: ^7.3.3
         version: 7.3.3
-      browserslist:
-        specifier: 4.28.8
-        version: 4.28.8
       codependence:
         specifier: 1.0.15
         version: 1.0.15

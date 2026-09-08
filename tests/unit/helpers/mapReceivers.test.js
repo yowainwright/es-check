@@ -6,6 +6,125 @@ const detectFeatures = require("../../../lib/detectFeatures");
 
 const cases = [
   [
+    "callees initialize receivers before arguments",
+    true,
+    (Map, call) => `let cache; (cache = new ${Map}(), use)(cache.${call}(key, value));`,
+  ],
+  [
+    "callees invalidate receivers before arguments",
+    false,
+    (Map, call) => `let cache = new ${Map}(); (cache = custom, use)(cache.${call}(key, value));`,
+  ],
+  [
+    "constructors evaluate callees before arguments",
+    true,
+    (Map, call) => `let cache; new (cache = new ${Map}(), Wrapper)(cache.${call}(key, value));`,
+  ],
+  [
+    "arguments cannot initialize a receiver used by the callee",
+    false,
+    (Map, call) => `let cache; use[cache.${call}(key, value)](cache = new ${Map}());`,
+  ],
+  [
+    "tags initialize receivers before substitutions",
+    true,
+    (Map, call) => `let cache; (cache = new ${Map}(), tag)\`\${cache.${call}(key, value)}\`;`,
+  ],
+  [
+    "for conditions restore receivers after body writes",
+    true,
+    (Map, call) => `let cache; for (; (cache = new ${Map}(), running);) { cache = custom; }
+      cache.${call}(key, value);`,
+  ],
+  [
+    "for conditions restore receivers after updates and continues",
+    true,
+    (Map, call) => `let cache; outer: for (; (cache = new ${Map}(), running); cache = custom) {
+      continue outer;
+    } cache.${call}(key, value);`,
+  ],
+  [
+    "for conditions invalidate receivers after updates",
+    false,
+    (
+      Map,
+      call,
+    ) => `let cache = new ${Map}(); for (; (cache = custom, running); cache = new ${Map}()) {}
+      cache.${call}(key, value);`,
+  ],
+  [
+    "breaks bypass the next for condition",
+    false,
+    (Map, call) => `let cache; for (; (cache = new ${Map}(), running);) { cache = custom; break; }
+      cache.${call}(key, value);`,
+  ],
+  [
+    "literal computed methods match Map receivers",
+    true,
+    (Map, call) => `const cache = new ${Map}(); cache["${call}"](key, value);`,
+  ],
+  [
+    "computed identifiers are not method names",
+    false,
+    (Map, call) => `const cache = new ${Map}(); const ${call} = "get"; cache[${call}](key);`,
+  ],
+  [
+    "dynamic writes invalidate member receivers",
+    false,
+    (Map, call) => `const holder = {}; holder.items = new ${Map}(); holder[key] = custom;
+      holder.items.${call}(key, value);`,
+  ],
+  [
+    "dynamic deletes invalidate member receivers",
+    false,
+    (Map, call) => `const holder = {}; holder.items = new ${Map}(); delete holder[key];
+      holder.items.${call}(key, value);`,
+  ],
+  [
+    "nested dynamic writes invalidate descendant receivers",
+    false,
+    (Map, call) => `const holder = {}; holder.branch = {}; holder.branch.items = new ${Map}();
+      holder[key].items = custom; holder.branch.items.${call}(key, value);`,
+  ],
+  [
+    "dynamic writes do not change the object itself into a non-Map",
+    true,
+    (Map, call) => `const cache = new ${Map}(); cache[key] = custom; cache.${call}(key, value);`,
+  ],
+  [
+    "dynamic writes preserve unrelated roots",
+    true,
+    (Map, call) => `const holder = {}; holder.items = new ${Map}(); const other = {};
+      other[key] = custom; holder.items.${call}(key, value);`,
+  ],
+  [
+    "static sibling writes preserve receivers",
+    true,
+    (Map, call) => `const holder = {}; holder.items = new ${Map}(); holder["other"] = custom;
+      holder.items.${call}(key, value);`,
+  ],
+  [
+    "shadowed dynamic writes preserve outer receivers",
+    true,
+    (Map, call) => `const holder = {}; holder.items = new ${Map}();
+      { const holder = {}; holder[key] = custom; } holder.items.${call}(key, value);`,
+  ],
+  [
+    "catch defaults cannot definitely initialize receivers",
+    false,
+    (Map, call) => `let cache; try { throw input; } catch ({item = (cache = new ${Map}())}) {}
+      cache.${call}(key, value);`,
+  ],
+  [
+    "catch defaults can invalidate receivers",
+    false,
+    (
+      Map,
+      call,
+    ) => `let cache = new ${Map}(); try { throw input; } catch ({item = (cache = custom)}) {}
+      cache.${call}(key, value);`,
+  ],
+  [
     "assignment RHS runs before the write",
     true,
     (Map, call) => `
