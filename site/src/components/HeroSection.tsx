@@ -86,11 +86,13 @@ function CTAButtons({ className }: { className: string }) {
     <div
       className={`flex flex-col md:flex-row justify-center items-center gap-5 mt-8 w-full max-w-2xl mx-auto ${className}`}
     >
-      <Link to="/docs/$slug" params={{ slug: "gettingstarted" }} className="w-full md:w-auto">
-        <button className="btn btn-lg btn-primary btn-glow text-lg w-full md:w-auto whitespace-nowrap">
-          Get Started
-          <ArrowRight className="size-5" />
-        </button>
+      <Link
+        to="/docs/$slug"
+        params={{ slug: "gettingstarted" }}
+        className="btn btn-lg btn-primary btn-glow text-lg w-full md:w-auto whitespace-nowrap"
+      >
+        Get Started
+        <ArrowRight className="size-5" aria-hidden="true" />
       </Link>
 
       <InstallCodeBlock className="w-full md:w-fit" />

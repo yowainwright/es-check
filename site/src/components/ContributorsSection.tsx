@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Github } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { contributors, type Contributor } from "@/constants/contributors";
 import { useScrollAnimation } from "@/hooks";
 
@@ -19,15 +19,18 @@ export function ContributorsSection() {
 
 function SectionHeader() {
   return (
-    <div className="lg:max-w-sm lg:text-right">
+    <div className="lg:max-w-md lg:text-right">
       <h2 className="text-4xl lg:text-5xl font-black">
-        <span className="text-primary">Contributors</span>
+        Thanks to our <span className="text-primary">contributors</span>
       </h2>
-      <p className="mt-4 text-lg">ES Check has been built by a lot of great contributors.</p>
+      <p className="mt-4 text-lg">ES Check has been built by great contribution from these fine folks.</p>
       <div className="mt-6 flex lg:justify-end">
-        <Link to="/community" className="btn btn-primary">
+        <Link
+          to="/community"
+          className="btn btn-lg btn-primary btn-glow text-lg w-full md:w-auto whitespace-nowrap"
+        >
           Contribute
-          <Github className="h-4 w-4" />
+          <ArrowRight className="size-5" aria-hidden="true" />
         </Link>
       </div>
     </div>
