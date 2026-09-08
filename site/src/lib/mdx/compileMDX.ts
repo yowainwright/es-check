@@ -6,6 +6,7 @@ import rehypeShikiFromHighlighter from "@shikijs/rehype/core";
 import { createHighlighterCore } from "shiki/core";
 import { createJavaScriptRegexEngine } from "shiki/engine/javascript";
 import { transformerNotationDiff, transformerNotationHighlight } from "@shikijs/transformers";
+import { extractFrontmatter } from "../../content/frontmatter.ts";
 
 const highlighterPromise = createHighlighterCore({
   themes: [import("shiki/themes/github-light.mjs"), import("shiki/themes/github-dark.mjs")],
@@ -56,7 +57,9 @@ function collectHeadings(node: HtmlNode): Heading[] {
 }
 
 function htmlElement(tagName: string, className: string, children: HtmlNode[]): HtmlElement {
-  return { type: "element", tagName, properties: { className }, children };
+  const classes = className.split(" ");
+  const properties = { className: classes };
+  return { type: "element", tagName, properties, children };
 }
 
 function releaseSection(nodes: HtmlNode[]): HtmlElement {
@@ -94,31 +97,20 @@ function groupReleaseSections(nodes: HtmlNode[]): HtmlNode[] {
   return [intro].concat(sections);
 }
 
-function extractFrontmatter(source: string): {
-  frontmatter: Record<string, unknown>;
-  content: string;
-} {
-  const frontmatterRegex = /^---\n([\s\S]*?)\n---\n/;
-  const match = source.match(frontmatterRegex);
-
-  if (!match) {
-    return { frontmatter: {}, content: source };
-  }
-
-  const frontmatterStr = match[1];
-  const content = source.slice(match[0].length);
-  const frontmatter: Record<string, unknown> = {};
-
-  frontmatterStr.split("\n").forEach((line) => {
-    const colonIndex = line.indexOf(":");
-    if (colonIndex > 0) {
-      const key = line.slice(0, colonIndex).trim();
-      const value = line.slice(colonIndex + 1).trim();
-      frontmatter[key] = value;
-    }
+async function compileMarkdown(content: string, collectContent: () => (tree: HtmlRoot) => void) {
+  const highlighter = await highlighterPromise;
+  const themes = { light: "github-light", dark: "github-dark" };
+  const transformers = [transformerNotationDiff(), transformerNotationHighlight()];
+  const highlighting = { themes, defaultColor: false as const, transformers };
+  return compile(content, {
+    outputFormat: "function-body",
+    remarkPlugins: [remarkGfm],
+    rehypePlugins: [
+      rehypeSlug,
+      collectContent,
+      [rehypeShikiFromHighlighter, highlighter, highlighting],
+    ],
   });
-
-  return { frontmatter, content };
 }
 
 export async function compileMDX(source: string, layout?: "release"): Promise<CompiledMDX> {
@@ -129,36 +121,8 @@ export async function compileMDX(source: string, layout?: "release"): Promise<Co
     headings = nodes.flatMap(collectHeadings);
     if (layout === "release") tree.children = groupReleaseSections(nodes);
   };
-
-  const highlighter = await highlighterPromise;
-
-  const compiled = await compile(mdxContent, {
-    outputFormat: "function-body",
-    remarkPlugins: [remarkGfm],
-    rehypePlugins: [
-      rehypeSlug,
-      collectContent,
-      [
-        rehypeShikiFromHighlighter,
-        highlighter,
-        {
-          themes: {
-            light: "github-light",
-            dark: "github-dark",
-          },
-          defaultColor: false,
-          transformers: [transformerNotationDiff(), transformerNotationHighlight()],
-        },
-      ],
-    ],
-  });
-
+  const compiled = await compileMarkdown(mdxContent, collectContent);
   const runtimeOptions = Object.assign({}, runtime, { baseUrl: import.meta.url });
   const { default: Content } = await run(String(compiled), runtimeOptions);
-
-  return {
-    content: Content as CompiledMDX["content"],
-    frontmatter,
-    headings,
-  };
+  return { content: Content as CompiledMDX["content"], frontmatter, headings };
 }

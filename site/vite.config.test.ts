@@ -10,6 +10,39 @@ function assertRolldown(this: Rolldown.PluginContext) {
   assert.match(this.meta.rolldownVersion, /^\d+\.\d+\.\d+/);
 }
 
+function collectStaticImports(
+  chunk: Rolldown.OutputChunk,
+  chunks: Map<string, Rolldown.OutputChunk>,
+  seen = new Set<string>(),
+): Rolldown.OutputChunk[] {
+  if (seen.has(chunk.fileName)) return [];
+  seen.add(chunk.fileName);
+  const imports = chunk.imports.flatMap((fileName) => {
+    const dependency = chunks.get(fileName);
+    if (!dependency) return [];
+    return collectStaticImports(dependency, chunks, seen);
+  });
+  return [chunk].concat(imports);
+}
+
+function hasModule(chunk: Rolldown.OutputChunk, suffix: string): boolean {
+  return Object.keys(chunk.modules).some((id) => id.endsWith(suffix));
+}
+
+function assertSearchLoadsOnDemand(chunks: Rolldown.OutputChunk[]) {
+  const chunksByName = new Map(chunks.map((chunk) => [chunk.fileName, chunk]));
+  const header = chunks.find((chunk) => hasModule(chunk, "/components/Header.tsx"));
+  assert.ok(header);
+  const initialChunks = collectStaticImports(header, chunksByName);
+  const modules = initialChunks.flatMap((chunk) => Object.keys(chunk.modules));
+  const hasDocuments = modules.some((id) => /\/content\/(docs|releases)\//.test(id));
+  const hasFuse = modules.some((id) => id.includes("/node_modules/fuse.js/"));
+  assert.equal(hasDocuments, false, "Header must not load the document corpus");
+  assert.equal(hasFuse, false, "Header must not load Fuse before search opens");
+  const search = chunks.find((chunk) => hasModule(chunk, "/SimpleSearch/SearchContent.tsx"));
+  assert.ok(search?.isDynamicEntry, "Search content must have a dynamic import boundary");
+}
+
 it("uses Oxc without narrowing browser support", async () => {
   const config = await resolveConfig({ root }, "build");
   const pluginNames = config.plugins.map((plugin) => plugin.name);
@@ -28,6 +61,7 @@ it("builds the site with Rolldown, vendor chunks, and deployment asset paths", a
   assert.equal(buildStart.mock.callCount(), 1);
   assert.ok("output" in result);
   const chunks = result.output.filter((output) => output.type === "chunk");
+  assertSearchLoadsOnDemand(chunks);
   const chunkNames = chunks.map((chunk) => chunk.name);
   vendorNames.forEach((name) => assert.ok(chunkNames.includes(name), `Missing ${name} chunk`));
   const html = result.output.find((output) => output.fileName === "index.html");

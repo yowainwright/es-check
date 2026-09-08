@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { BookOpen } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Terminal } from "../Terminal";
 import { AnimatedTerminal } from "../AnimatedTerminal";
 import { ES_CHECK_DEMO } from "../AnimatedTerminal/constants";
@@ -41,11 +41,13 @@ function ContentBlock({ className }: { className: string }) {
 function LearnMoreButton() {
   return (
     <div className="mt-8 flex justify-end">
-      <Link to="/docs/$slug" params={{ slug: "features" }}>
-        <button className="btn btn-lg btn-primary btn-glow text-lg">
-          <BookOpen className="size-5" />
-          Learn More
-        </button>
+      <Link
+        to="/docs/$slug"
+        params={{ slug: "features" }}
+        className="btn btn-lg btn-primary btn-glow text-lg w-full md:w-auto whitespace-nowrap"
+      >
+        Learn More
+        <ArrowRight className="size-5" aria-hidden="true" />
       </Link>
     </div>
   );

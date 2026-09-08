@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Rocket } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { InstallCodeBlock } from "./InstallCodeBlock";
 import { useScrollAnimation } from "@/hooks";
 
@@ -40,11 +40,13 @@ function InstallCommand() {
 function InstallationGuideLink() {
   return (
     <div className="mt-10">
-      <Link to="/docs/$slug" params={{ slug: "installation" }}>
-        <button className="btn btn-lg btn-primary btn-glow text-lg w-full md:w-auto">
-          Installation Guide
-          <Rocket className="size-5" />
-        </button>
+      <Link
+        to="/docs/$slug"
+        params={{ slug: "installation" }}
+        className="btn btn-lg btn-primary btn-glow text-lg w-full md:w-auto whitespace-nowrap"
+      >
+        Installation Guide
+        <ArrowRight className="size-5" aria-hidden="true" />
       </Link>
     </div>
   );
