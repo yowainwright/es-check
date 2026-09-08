@@ -6,6 +6,161 @@ const detectFeatures = require("../../../lib/detectFeatures");
 
 const cases = [
   [
+    "loop-condition closures observe receivers initialized by updates",
+    true,
+    (Map, call) =>
+      `let cache; for (; inspect(() => cache.${call}(key, value)); cache = new ${Map}()) {}`,
+  ],
+  [
+    "loop-condition closures retain features before receiver invalidation",
+    true,
+    (Map, call) =>
+      `let cache = new ${Map}(); for (; inspect(() => cache.${call}(key, value)); cache = custom) {}`,
+  ],
+  [
+    "loop-condition closures do not infer custom receivers",
+    false,
+    (Map, call) =>
+      `let cache = custom; for (; inspect(() => cache.${call}(key, value)); cache = other) {}`,
+  ],
+  [
+    "cached loop conditions replay static-block initialization",
+    true,
+    (
+      Map,
+      call,
+    ) => `let cache; for (; class { static { cache = new ${Map}(); } };) { cache = custom; }
+      cache.${call}(key, value);`,
+  ],
+  [
+    "cached loop conditions replay static-block invalidation",
+    false,
+    (
+      Map,
+      call,
+    ) => `let cache = new ${Map}(); for (; class { static { cache = custom; } };) { cache = new ${Map}(); }
+      cache.${call}(key, value);`,
+  ],
+  [
+    "callees initialize receivers before arguments",
+    true,
+    (Map, call) => `let cache; (cache = new ${Map}(), use)(cache.${call}(key, value));`,
+  ],
+  [
+    "callees invalidate receivers before arguments",
+    false,
+    (Map, call) => `let cache = new ${Map}(); (cache = custom, use)(cache.${call}(key, value));`,
+  ],
+  [
+    "constructors evaluate callees before arguments",
+    true,
+    (Map, call) => `let cache; new (cache = new ${Map}(), Wrapper)(cache.${call}(key, value));`,
+  ],
+  [
+    "arguments cannot initialize a receiver used by the callee",
+    false,
+    (Map, call) => `let cache; use[cache.${call}(key, value)](cache = new ${Map}());`,
+  ],
+  [
+    "tags initialize receivers before substitutions",
+    true,
+    (Map, call) => `let cache; (cache = new ${Map}(), tag)\`\${cache.${call}(key, value)}\`;`,
+  ],
+  [
+    "for conditions restore receivers after body writes",
+    true,
+    (Map, call) => `let cache; for (; (cache = new ${Map}(), running);) { cache = custom; }
+      cache.${call}(key, value);`,
+  ],
+  [
+    "for conditions restore receivers after updates and continues",
+    true,
+    (Map, call) => `let cache; outer: for (; (cache = new ${Map}(), running); cache = custom) {
+      continue outer;
+    } cache.${call}(key, value);`,
+  ],
+  [
+    "for conditions invalidate receivers after updates",
+    false,
+    (
+      Map,
+      call,
+    ) => `let cache = new ${Map}(); for (; (cache = custom, running); cache = new ${Map}()) {}
+      cache.${call}(key, value);`,
+  ],
+  [
+    "breaks bypass the next for condition",
+    false,
+    (Map, call) => `let cache; for (; (cache = new ${Map}(), running);) { cache = custom; break; }
+      cache.${call}(key, value);`,
+  ],
+  [
+    "literal computed methods match Map receivers",
+    true,
+    (Map, call) => `const cache = new ${Map}(); cache["${call}"](key, value);`,
+  ],
+  [
+    "computed identifiers are not method names",
+    false,
+    (Map, call) => `const cache = new ${Map}(); const ${call} = "get"; cache[${call}](key);`,
+  ],
+  [
+    "dynamic writes invalidate member receivers",
+    false,
+    (Map, call) => `const holder = {}; holder.items = new ${Map}(); holder[key] = custom;
+      holder.items.${call}(key, value);`,
+  ],
+  [
+    "dynamic deletes invalidate member receivers",
+    false,
+    (Map, call) => `const holder = {}; holder.items = new ${Map}(); delete holder[key];
+      holder.items.${call}(key, value);`,
+  ],
+  [
+    "nested dynamic writes invalidate descendant receivers",
+    false,
+    (Map, call) => `const holder = {}; holder.branch = {}; holder.branch.items = new ${Map}();
+      holder[key].items = custom; holder.branch.items.${call}(key, value);`,
+  ],
+  [
+    "dynamic writes do not change the object itself into a non-Map",
+    true,
+    (Map, call) => `const cache = new ${Map}(); cache[key] = custom; cache.${call}(key, value);`,
+  ],
+  [
+    "dynamic writes preserve unrelated roots",
+    true,
+    (Map, call) => `const holder = {}; holder.items = new ${Map}(); const other = {};
+      other[key] = custom; holder.items.${call}(key, value);`,
+  ],
+  [
+    "static sibling writes preserve receivers",
+    true,
+    (Map, call) => `const holder = {}; holder.items = new ${Map}(); holder["other"] = custom;
+      holder.items.${call}(key, value);`,
+  ],
+  [
+    "shadowed dynamic writes preserve outer receivers",
+    true,
+    (Map, call) => `const holder = {}; holder.items = new ${Map}();
+      { const holder = {}; holder[key] = custom; } holder.items.${call}(key, value);`,
+  ],
+  [
+    "catch defaults cannot definitely initialize receivers",
+    false,
+    (Map, call) => `let cache; try { throw input; } catch ({item = (cache = new ${Map}())}) {}
+      cache.${call}(key, value);`,
+  ],
+  [
+    "catch defaults can invalidate receivers",
+    false,
+    (
+      Map,
+      call,
+    ) => `let cache = new ${Map}(); try { throw input; } catch ({item = (cache = custom)}) {}
+      cache.${call}(key, value);`,
+  ],
+  [
     "assignment RHS runs before the write",
     true,
     (Map, call) => `
@@ -908,7 +1063,56 @@ const exitContainers = [
   ["try/catch", (body) => `try { ${body} } catch (error) { throw error; }`],
 ];
 
+const loopConditions = [
+  ["arrow", (body) => `(() => { ${body} return running; })()`, (node) => node.callee.body.body[0]],
+  [
+    "function",
+    (body) => `(function () { ${body} return running; })()`,
+    (node) => node.callee.body.body[0],
+  ],
+  ["class", (body) => `class { static { ${body} } }`, (node) => node.body.body[0].body[0]],
+];
+
+const conditionalLoops = [
+  ["for", (condition) => `for (; ${condition};) {}`],
+  ["while", (condition) => `while (${condition}) {}`],
+  ["do/while", (condition) => `do {} while (${condition});`],
+];
+
+function checkLoopTestVisits(code, depth, descend) {
+  const ast = acorn.parse(code, { ecmaVersion: "latest" });
+  let leaf = ast.body[0];
+  Array.from({ length: depth }).forEach(() => {
+    leaf = descend(leaf.test);
+  });
+  let visits = 0;
+  Object.defineProperty(leaf, "type", {
+    get() {
+      visits += 1;
+      assert.ok(visits < 1000, `Read the innermost condition node ${visits} times`);
+      return "ExpressionStatement";
+    },
+  });
+  const features = detectFeaturesFromAST(ast);
+  assert.equal(features.ArrayFromAsync, true);
+  assert.ok(visits > 0);
+}
+
 describe("Map receiver flow regressions", () => {
+  conditionalLoops.forEach(([loopName, wrapLoop]) => {
+    loopConditions.forEach(([conditionName, wrapCondition, descend]) => {
+      [4, 8, 12].forEach((depth) => {
+        it(`bounds ${depth} nested ${loopName} conditions containing ${conditionName} bodies`, () => {
+          const code = Array.from({ length: depth }).reduce(
+            (body) => wrapLoop(wrapCondition(body)),
+            "Array.fromAsync([]);",
+          );
+          checkLoopTestVisits(code, depth, descend);
+        });
+      });
+    });
+  });
+
   it("does not replay nested finalizers for identical receiver states", () => {
     const depth = 10;
     const body = Array.from({ length: depth }).reduce(

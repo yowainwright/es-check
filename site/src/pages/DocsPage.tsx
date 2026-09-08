@@ -1,5 +1,5 @@
 import { useParams, Link, Navigate } from "@tanstack/react-router";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Loader2 } from "lucide-react";
 import { getDocBySlug } from "@/content";
 import { compileMDX, type CompiledMDX } from "@/lib/mdx/compileMDX";
@@ -12,6 +12,7 @@ export function DocsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { setRightSidebarContent } = useLayout();
+  const articleRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -42,12 +43,14 @@ export function DocsPage() {
     };
   }, [slug]);
 
-  const headings = compiled?.headings || [];
-
   useEffect(() => {
-    setRightSidebarContent(<TableOfContents headings={headings} />);
+    const ready = compiled !== null && !loading;
+    const contents = ready ? (
+      <TableOfContents headings={compiled.headings} articleRef={articleRef} />
+    ) : null;
+    setRightSidebarContent(contents);
     return () => setRightSidebarContent(null);
-  }, [headings, setRightSidebarContent]);
+  }, [compiled, loading, setRightSidebarContent]);
 
   if (error) {
     return <Navigate to="/docs/$slug" params={{ slug: "gettingstarted" }} />;
@@ -59,11 +62,11 @@ export function DocsPage() {
   const currentPath = `/docs/${slug}`;
 
   return (
-    <section className="p-4 sm:p-6 md:p-10 md:pt-10 font-sans">
-      <article className="flex flex-col w-full max-w-[620px]">
+    <section className="py-4 sm:py-6 md:py-10 font-sans">
+      <article className="flex w-full min-w-0 flex-col">
         <Breadcrumbs title={title} />
 
-        <section className="prose prose-sm sm:prose-base md:prose-md mb-10 max-w-none prose-pre:max-w-[90vw] prose-pre:overflow-x-auto">
+        <section className="prose prose-sm sm:prose-base md:prose-md mb-10 min-w-0 max-w-none prose-pre:max-w-full prose-pre:overflow-x-auto">
           <header>
             <h1>{title}</h1>
             <p>{description}</p>
@@ -71,7 +74,9 @@ export function DocsPage() {
 
           <div className="divider my-5" />
 
-          <ContentRenderer loading={loading} Content={Content} />
+          <div ref={articleRef} id="docs-content">
+            <ContentRenderer loading={loading} Content={Content} />
+          </div>
         </section>
 
         <div className="divider" />
@@ -99,9 +104,7 @@ function Breadcrumbs({ title }: { title: string }) {
   );
 }
 
-type MDXContent = React.ComponentType<{
-  components?: Record<string, React.ComponentType>;
-}>;
+type MDXContent = CompiledMDX["content"];
 
 interface ContentRendererProps {
   loading: boolean;

@@ -96,11 +96,11 @@
   },
   "dependencies": {
     "acorn": "8.18.0",
+    "browserslist": "4.28.8",
     "fast-glob": "^3.3.3"
   },
   "devDependencies": {
     "@mdn/browser-compat-data": "^7.3.3",
-    "browserslist": "4.28.8",
     "codependence": "1.0.15",
     "core-js-compat": "^3.48.0",
     "oxfmt": "^0.52.0",

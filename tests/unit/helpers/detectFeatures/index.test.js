@@ -1106,6 +1106,45 @@ describe("Polyfill Detection", () => {
 });
 
 describe("AST-based feature detection", () => {
+  const cases = [
+    ["ObjectSpread", 9, "var copy = {...source};", true],
+    ["ObjectSpread", 9, "var copy = {value: source};", false],
+    ["ObjectSpread", 9, "var copy = [...source];", false],
+    ["AsyncIteration", 9, "async function f(xs) { for await (var x of xs) {} }", true],
+    ["AsyncIteration", 9, "async function f(xs) { for (var x of xs) {} }", false],
+    ["RegExpUnicodeSetFlag", 15, "/[a-z]/v;", true],
+    ["RegExpUnicodeSetFlag", 15, "/[a-z]/u;", false],
+    ["RegExpUnicodeSetFlag", 15, '"/[a-z]/v";', false],
+    ["ArrayFromAsync", 17, 'Array["fromAsync"]([]);', true],
+    ["ArrayFromAsync", 17, 'Array?.["fromAsync"]([]);', true],
+    ["ArrayFromAsync", 17, 'const fromAsync = "from"; Array[fromAsync]([]);', false],
+    ["ArrayFromAsync", 17, 'function f(Array) { Array["fromAsync"]([]); }', false],
+    ["ArrayFromAsync", 17, "try { throw {}; } catch ({value = Array.fromAsync([])}) {}", true],
+    ["ArrayFromAsync", 17, "try { throw {}; } catch ({[Array.fromAsync([])]: value}) {}", true],
+    ["ArrayFromAsync", 17, "try { throw {}; } catch ({Array}) { Array.fromAsync([]); }", false],
+    ["ArrayFromAsync", 17, "tag`${Array.fromAsync([])}`;", true],
+    ["ArrayFromAsync", 17, "Array.fromAsync([])``;", true],
+    ["ArrayFromAsync", 17, "tag`Array.fromAsync([])`;", false],
+    ["MathSumPrecise", 17, 'Math["sumPrecise"]([]);', true],
+    ["MathSumPrecise", 17, 'const sumPrecise = "max"; Math[sumPrecise](1, 2);', false],
+    ["IntlDurationFormat", 16, 'new Intl["DurationFormat"]("en");', true],
+    ["IntlDurationFormat", 16, 'function f(Intl) { new Intl["DurationFormat"]("en"); }', false],
+  ];
+
+  cases.forEach(([feature, minVersion, code, expected]) => {
+    it(`${feature}: ${code}`, () => {
+      const ast = parse(code);
+      const options = { ast };
+      const result = detectFeatures(code, minVersion, "script", new Set(), options);
+      assert.strictEqual(result.foundFeatures[feature], expected);
+      const checkEarlier = () => detectFeatures(code, minVersion - 1, "script", new Set(), options);
+      if (expected) assert.throws(checkEarlier, { features: [feature] });
+      else assert.deepStrictEqual(checkEarlier().unsupportedFeatures, []);
+      const ignored = detectFeatures(code, minVersion - 1, "script", new Set([feature]), options);
+      assert.deepStrictEqual(ignored.unsupportedFeatures, []);
+    });
+  });
+
   it("should not detect ExponentOperator for ** inside string literals", () => {
     const code = 'var str = "This is a **bold** text";';
     const ast = acorn.parse(code, { ecmaVersion: 5 });

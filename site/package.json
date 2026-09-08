@@ -19,6 +19,7 @@
     "@tailwindcss/vite": "^4.3.3",
     "@tanstack/react-router": "^1.121.0",
     "@vitejs/plugin-react": "^6.1.1",
+    "effect": "^3.22.1",
     "fuse.js": "^7.1.0",
     "github-slugger": "^2.0.0",
     "lucide-react": "^0.469.0",

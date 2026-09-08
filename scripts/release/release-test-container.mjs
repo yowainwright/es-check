@@ -30,6 +30,11 @@ export function verifyCli(dependencies = {}) {
   runChecked(run, "es-check", ["es6", "fixtures/es6.js"]);
   runChecked(run, "es-check", ["es6", "fixtures/module.js", "--module"]);
   runChecked(run, "es-check", ["es5", "fixtures/es5.js", "--light"]);
+  runChecked(run, "es-check", [
+    "checkBrowser",
+    "fixtures/es5.js",
+    "--browserslistQuery=chrome 120",
+  ]);
 }
 
 function installLocalPackage(version, run) {
