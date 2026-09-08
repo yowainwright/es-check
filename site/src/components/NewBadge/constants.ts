@@ -1,4 +1,4 @@
-export const BADGE_TEXT = "ES Check v9.4.7 • Now with ES2025 support";
+export const BADGE_TEXT = "ES Check v9.7.* • Now with ES2026 support";
 export const BADGE_HREF = "https://github.com/yowainwright/es-check/releases";
 
 export const RAINBOW_GRADIENT =
