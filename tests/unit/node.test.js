@@ -17,6 +17,49 @@ function cleanupTestDir() {
 }
 
 describe("Node API Tests", () => {
+  const featureCases = [
+    ["ObjectSpread", 9, "const copy = {...source};"],
+    ["AsyncIteration", 9, "async function consume() { for await (const item of source) {} }"],
+    ["RegExpUnicodeSetFlag", 15, "/[a&&b]/v;"],
+    ["ArrayFromAsync", 17, "try {} catch ({items = Array.fromAsync([])}) {}"],
+    ["ArrayFromAsync", 17, "tag`${Array.fromAsync([])}`;"],
+    ["ArrayFromAsync", 17, 'Array["fromAsync"]([]);'],
+    ["MapGetOrInsert", 17, "let cache; (cache = new Map(), use)(cache.getOrInsert(key, value));"],
+    [
+      "MapGetOrInsert",
+      17,
+      "let cache; for (; (cache = new Map(), running); cache = custom) {} cache.getOrInsert(key, value);",
+    ],
+  ];
+
+  featureCases.forEach(([feature, minVersion, code], index) => {
+    test(`runChecks - enforces the version of ${feature} (case ${index})`, async () => {
+      const file = path.join(testDir, `feature-regression-${index}.js`);
+      fs.writeFileSync(file, code);
+      const config = { files: [file], checkFeatures: true, cache: false };
+      const rejected = await runChecks([{ ...config, ecmaVersion: `es${minVersion - 1}` }]);
+      assert.strictEqual(rejected.success, false);
+      assert.strictEqual(rejected.errors.length, 1);
+      assert.deepStrictEqual(rejected.errors[0].err.features, [feature]);
+      const accepted = await runChecks([{ ...config, ecmaVersion: `es${minVersion}` }]);
+      assert.strictEqual(accepted.success, true);
+      assert.deepStrictEqual(accepted.errors, []);
+    });
+  });
+
+  test("runChecks - accepts custom computed methods and invalidated member receivers", async () => {
+    const file = path.join(testDir, "custom-receiver-regression.js");
+    fs.writeFileSync(
+      file,
+      'const fromAsync = "from"; Array[fromAsync]([]); const holder = {}; ' +
+        "holder.items = new Map(); holder[key] = custom; holder.items.getOrInsert(key, value);",
+    );
+    const config = { ecmaVersion: "es2025", files: [file], checkFeatures: true, cache: false };
+    const result = await runChecks([config]);
+    assert.strictEqual(result.success, true);
+    assert.deepStrictEqual(result.errors, []);
+  });
+
   test("runChecks - should handle missing files gracefully", async () => {
     const config = [
       {

@@ -1,7 +1,6 @@
 export interface SidebarItem {
   title: string;
   href: string;
-  label?: string;
 }
 
 export interface SidebarSection {
@@ -31,7 +30,7 @@ export const SIDEBAR: SidebarSection[] = [
     title: "Advanced",
     items: [
       { title: "Programmatic API", href: "/docs/programmatic-api" },
-      { title: "Performance", href: "/docs/performance", label: "Improved" },
+      { title: "Performance", href: "/docs/performance" },
       { title: "Polyfill Detection", href: "/docs/polyfills" },
       { title: "CI/CD Integration", href: "/docs/ci-integration" },
       { title: "Debugging", href: "/docs/debugging" },
@@ -49,4 +48,10 @@ export const SIDEBAR: SidebarSection[] = [
       { title: "Report Issues", href: "/docs/having-an-issue" },
     ],
   },
+];
+
+export const SITE_NAVIGATION = [
+  { title: "Home", href: "/" },
+  { title: "Docs", href: "/docs/gettingstarted" },
+  { title: "Releases", href: "/release" },
 ];

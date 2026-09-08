@@ -133,6 +133,410 @@ describe("detectFeatures", () => {
         assert.fail("Should not throw for a locally declared Promise");
       }
     });
+
+    it("should report unsupported global references", () => {
+      const code = "new Proxy(target, handler);";
+
+      assert.throws(
+        () => detectFeatures(code, 5, "script", new Set(), { ast: parse(code) }),
+        (error) => error.features.includes("Proxy"),
+      );
+    });
+
+    it("should allow assigned global references", () => {
+      const code = `
+        Proxy = function(target) {
+          return target;
+        };
+        new Proxy(target, handler);
+      `;
+
+      try {
+        const { foundFeatures, unsupportedFeatures } = detectFeatures(
+          code,
+          5,
+          "script",
+          new Set(),
+          { ast: parse(code) },
+        );
+
+        assert.strictEqual(foundFeatures.Proxy, false);
+        assert.strictEqual(unsupportedFeatures.length, 0);
+      } catch (error) {
+        assert.fail("Should not throw for an assigned global polyfill");
+      }
+    });
+
+    it("should allow sequence-assigned global references", () => {
+      const code = "(Proxy = function() {}), new Proxy(target, handler);";
+
+      try {
+        const { foundFeatures, unsupportedFeatures } = detectFeatures(
+          code,
+          5,
+          "script",
+          new Set(),
+          { ast: parse(code) },
+        );
+
+        assert.strictEqual(foundFeatures.Proxy, false);
+        assert.strictEqual(unsupportedFeatures.length, 0);
+      } catch (error) {
+        assert.fail("Should not throw for a sequence-assigned global polyfill");
+      }
+    });
+
+    it("should allow block-assigned global references", () => {
+      const code = "{ Proxy = function() {}; } new Proxy(target, handler);";
+
+      try {
+        const { foundFeatures, unsupportedFeatures } = detectFeatures(
+          code,
+          5,
+          "script",
+          new Set(),
+          { ast: parse(code) },
+        );
+
+        assert.strictEqual(foundFeatures.Proxy, false);
+        assert.strictEqual(unsupportedFeatures.length, 0);
+      } catch (error) {
+        assert.fail("Should not throw for a block-assigned global polyfill");
+      }
+    });
+
+    it("should not report array-destructured global references", () => {
+      const code = "[Proxy] = shims; new Proxy(target, handler);";
+
+      const { foundFeatures, unsupportedFeatures } = detectFeatures(code, 5, "script", new Set(), {
+        ast: parse(code),
+      });
+
+      assert.strictEqual(foundFeatures.Proxy, false);
+      assert.strictEqual(unsupportedFeatures.includes("Proxy"), false);
+    });
+
+    it("should not report object-destructured global references", () => {
+      const code = "({ Proxy } = shims); new Proxy(target, handler);";
+
+      assert.throws(
+        () => detectFeatures(code, 5, "script", new Set(), { ast: parse(code) }),
+        (error) => {
+          assert.strictEqual(error.features.includes("Proxy"), false);
+          return error.features.includes("Destructuring");
+        },
+      );
+    });
+
+    it("should report unsupported globals before later assignments", () => {
+      const code = "new Proxy(target, handler); Proxy = function() {};";
+
+      assert.throws(
+        () => detectFeatures(code, 5, "script", new Set(), { ast: parse(code) }),
+        (error) => error.features.includes("Proxy"),
+      );
+    });
+
+    it("should report unsupported globals before later assignments in the same sequence", () => {
+      const code = "(new Proxy(target, handler), Proxy = function() {});";
+
+      assert.throws(
+        () => detectFeatures(code, 5, "script", new Set(), { ast: parse(code) }),
+        (error) => error.features.includes("Proxy"),
+      );
+    });
+
+    it("should allow try-assigned global references", () => {
+      const code = "try { Proxy = function() {}; } finally {} new Proxy(target, handler);";
+
+      try {
+        const { foundFeatures, unsupportedFeatures } = detectFeatures(
+          code,
+          5,
+          "script",
+          new Set(),
+          { ast: parse(code) },
+        );
+
+        assert.strictEqual(foundFeatures.Proxy, false);
+        assert.strictEqual(unsupportedFeatures.length, 0);
+      } catch (error) {
+        assert.fail("Should not throw for a try-assigned global polyfill");
+      }
+    });
+
+    it("should allow for-init-assigned globals in loop bodies", () => {
+      const code = "for (Proxy = function() {}; ready; tick()) { new Proxy(target, handler); }";
+
+      try {
+        const { foundFeatures, unsupportedFeatures } = detectFeatures(
+          code,
+          5,
+          "script",
+          new Set(),
+          { ast: parse(code) },
+        );
+
+        assert.strictEqual(foundFeatures.Proxy, false);
+        assert.strictEqual(unsupportedFeatures.length, 0);
+      } catch (error) {
+        assert.fail("Should not throw for a for-init-assigned global polyfill");
+      }
+    });
+
+    it("should report unsupported globals with conditional assignments", () => {
+      const code = "if (false) { Proxy = function() {}; } new Proxy(target, handler);";
+
+      assert.throws(
+        () => detectFeatures(code, 5, "script", new Set(), { ast: parse(code) }),
+        (error) => error.features.includes("Proxy"),
+      );
+    });
+
+    it("should report unsupported globals with compound assignments", () => {
+      const code = "Proxy += value; new Proxy(target, handler);";
+
+      assert.throws(
+        () => detectFeatures(code, 5, "script", new Set(), { ast: parse(code) }),
+        (error) => error.features.includes("Proxy"),
+      );
+    });
+
+    it("should report unsupported globals with logical assignments", () => {
+      const code = "Proxy &&= function() {}; new Proxy(target, handler);";
+
+      assert.throws(
+        () => detectFeatures(code, 5, "script", new Set(), { ast: parse(code) }),
+        (error) => error.features.includes("Proxy"),
+      );
+    });
+
+    it("should allow typeof global guards", () => {
+      const code = 'typeof Promise !== "undefined";';
+
+      try {
+        const { foundFeatures, unsupportedFeatures } = detectFeatures(
+          code,
+          5,
+          "script",
+          new Set(),
+          { ast: parse(code) },
+        );
+
+        assert.strictEqual(foundFeatures.Promise, false);
+        assert.strictEqual(unsupportedFeatures.length, 0);
+      } catch (error) {
+        assert.fail("Should not throw for typeof global guards");
+      }
+    });
+
+    it("should allow Babel typeof helper guards", () => {
+      const code = `
+        function _typeof(obj) {
+          "@babel/helpers - typeof";
+          return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator
+            ? function(obj) { return typeof obj; }
+            : function(obj) {
+              return obj && "function" == typeof Symbol && obj.constructor === Symbol
+                && obj !== Symbol.prototype ? "symbol" : typeof obj;
+            }, _typeof(obj);
+        }
+      `;
+
+      try {
+        const { foundFeatures, unsupportedFeatures } = detectFeatures(
+          code,
+          5,
+          "script",
+          new Set(),
+          { ast: parse(code) },
+        );
+
+        assert.strictEqual(foundFeatures.Symbol, false);
+        assert.strictEqual(unsupportedFeatures.length, 0);
+      } catch (error) {
+        assert.fail("Should not throw for Babel typeof helper guards");
+      }
+    });
+
+    it("should allow regenerator typeof ternary guards", () => {
+      const code = 'var $Symbol = typeof Symbol === "function" ? Symbol : {};';
+
+      try {
+        const { foundFeatures, unsupportedFeatures } = detectFeatures(
+          code,
+          5,
+          "script",
+          new Set(),
+          { ast: parse(code) },
+        );
+
+        assert.strictEqual(foundFeatures.Symbol, false);
+        assert.strictEqual(unsupportedFeatures.length, 0);
+      } catch (error) {
+        assert.fail("Should not throw for regenerator typeof ternary guards");
+      }
+    });
+
+    it("should allow if-statement typeof global guards", () => {
+      const code = 'if (typeof Reflect !== "undefined") { Reflect.get(a, b); }';
+
+      try {
+        const { foundFeatures, unsupportedFeatures } = detectFeatures(
+          code,
+          5,
+          "script",
+          new Set(),
+          { ast: parse(code) },
+        );
+
+        assert.strictEqual(foundFeatures.Reflect, false);
+        assert.strictEqual(unsupportedFeatures.length, 0);
+      } catch (error) {
+        assert.fail("Should not throw for if-statement typeof global guards");
+      }
+    });
+
+    it("should report globals in disjunctive typeof guards", () => {
+      const code = 'if (fallback || typeof Reflect !== "undefined") { Reflect.get(a, b); }';
+
+      assert.throws(
+        () => detectFeatures(code, 5, "script", new Set(), { ast: parse(code) }),
+        (error) => error.features.includes("Reflect"),
+      );
+    });
+
+    it("should allow negative typeof or guards", () => {
+      const code = 'typeof Reflect === "undefined" || Reflect.get(a, b);';
+
+      try {
+        const { foundFeatures, unsupportedFeatures } = detectFeatures(
+          code,
+          5,
+          "script",
+          new Set(),
+          { ast: parse(code) },
+        );
+
+        assert.strictEqual(foundFeatures.Reflect, false);
+        assert.strictEqual(unsupportedFeatures.length, 0);
+      } catch (error) {
+        assert.fail("Should not throw for a negative typeof or guard");
+      }
+    });
+
+    it("should report globals in member typeof or guards", () => {
+      const code = 'typeof Reflect.get === "undefined" || Reflect.get(a, b);';
+
+      assert.throws(
+        () => detectFeatures(code, 5, "script", new Set(), { ast: parse(code) }),
+        (error) => error.features.includes("Reflect"),
+      );
+    });
+
+    it("should report globals in positive typeof or guards", () => {
+      const code = 'typeof Reflect !== "undefined" || Reflect.get(a, b);';
+
+      assert.throws(
+        () => detectFeatures(code, 5, "script", new Set(), { ast: parse(code) }),
+        (error) => error.features.includes("Reflect"),
+      );
+    });
+
+    it("should report globals in compound false typeof or guards", () => {
+      const code = '(typeof Reflect === "undefined" && condition) || Reflect.get(a, b);';
+
+      assert.throws(
+        () => detectFeatures(code, 5, "script", new Set(), { ast: parse(code) }),
+        (error) => error.features.includes("Reflect"),
+      );
+    });
+
+    it("should allow compound true typeof and guards", () => {
+      const code = '(typeof Reflect !== "undefined" && condition) && Reflect.get(a, b);';
+
+      try {
+        const { foundFeatures, unsupportedFeatures } = detectFeatures(
+          code,
+          5,
+          "script",
+          new Set(),
+          { ast: parse(code) },
+        );
+
+        assert.strictEqual(foundFeatures.Reflect, false);
+        assert.strictEqual(unsupportedFeatures.length, 0);
+      } catch (error) {
+        assert.fail("Should not throw for a compound true typeof and guard");
+      }
+    });
+
+    it("should allow nested ternary typeof guards", () => {
+      const code = 'if (condition ? typeof Reflect !== "undefined" : false) { Reflect.get(a, b); }';
+
+      try {
+        const { foundFeatures, unsupportedFeatures } = detectFeatures(
+          code,
+          5,
+          "script",
+          new Set(),
+          { ast: parse(code) },
+        );
+
+        assert.strictEqual(foundFeatures.Reflect, false);
+        assert.strictEqual(unsupportedFeatures.length, 0);
+      } catch (error) {
+        assert.fail("Should not throw for nested ternary typeof guards");
+      }
+    });
+
+    it("should allow negative typeof else guards", () => {
+      const code =
+        'if (typeof Reflect === "undefined") { installShim(); } else { Reflect.get(a, b); }';
+
+      try {
+        const { foundFeatures, unsupportedFeatures } = detectFeatures(
+          code,
+          5,
+          "script",
+          new Set(),
+          { ast: parse(code) },
+        );
+
+        assert.strictEqual(foundFeatures.Reflect, false);
+        assert.strictEqual(unsupportedFeatures.length, 0);
+      } catch (error) {
+        assert.fail("Should not throw for a negative typeof else guard");
+      }
+    });
+
+    it("should allow negative typeof ternary alternates", () => {
+      const code = 'typeof Reflect === "undefined" ? installShim() : Reflect.get(a, b);';
+
+      try {
+        const { foundFeatures, unsupportedFeatures } = detectFeatures(
+          code,
+          5,
+          "script",
+          new Set(),
+          { ast: parse(code) },
+        );
+
+        assert.strictEqual(foundFeatures.Reflect, false);
+        assert.strictEqual(unsupportedFeatures.length, 0);
+      } catch (error) {
+        assert.fail("Should not throw for a negative typeof ternary alternate");
+      }
+    });
+
+    it("should report globals in negative typeof consequents", () => {
+      const code = 'if (typeof Reflect === "undefined") { Reflect.get(a, b); }';
+
+      assert.throws(
+        () => detectFeatures(code, 5, "script", new Set(), { ast: parse(code) }),
+        (error) => error.features.includes("Reflect"),
+      );
+    });
   });
 
   describe("detectPolyfills", () => {
@@ -426,9 +830,29 @@ describe("detectFeatures", () => {
       assert(Object.values(foundFeatures).some(Boolean), "Should detect some ES2024 features");
     });
 
+    it("should allow ArrayBuffer transfer in ES2024", () => {
+      const code = "buffer.transfer(8); buffer.transferToFixedLength(8);";
+
+      try {
+        detectFeatures(code, 15, "script", new Set(), { ast: parse(code) });
+      } catch (error) {
+        assert.fail("Should not throw for ArrayBuffer transfer in ES2024");
+      }
+    });
+
+    it("should reject ArrayBuffer transfer before ES2024", () => {
+      const code = "buffer.transfer(8);";
+
+      assert.throws(
+        () => detectFeatures(code, 14, "script", new Set(), { ast: parse(code) }),
+        (error) => error.features.includes("ArrayBufferTransfer"),
+      );
+    });
+
     it("should detect ES2025 (ES16) features", () => {
       const code = `
         Promise.try(() => Math.random());
+        new Intl.DurationFormat("en");
 
         const regex = /(?<year>\\d{4})-\\d{2}|(?<year>\\d{4})\\/\\d{2}/;
 
@@ -450,6 +874,61 @@ describe("detectFeatures", () => {
         ast: parse(code),
       });
       assert(Object.values(foundFeatures).some(Boolean), "Should detect some ES2025 features");
+    });
+
+    it("should allow Intl.DurationFormat in ES2025", () => {
+      const code = 'new Intl.DurationFormat("en");';
+      const ast = parse(code);
+      const { foundFeatures, unsupportedFeatures } = detectFeatures(code, 16, "script", new Set(), {
+        ast,
+      });
+
+      assert.strictEqual(foundFeatures.IntlDurationFormat, true);
+      assert.deepStrictEqual(unsupportedFeatures, []);
+    });
+
+    it("should reject Intl.DurationFormat before ES2025", () => {
+      const code = 'new Intl.DurationFormat("en");';
+      const ast = parse(code);
+
+      assert.throws(() => detectFeatures(code, 15, "script", new Set(), { ast }), {
+        features: ["IntlDurationFormat"],
+      });
+    });
+
+    it("should detect ES2026 (ES17) features", () => {
+      const code = `
+        const cache = new Map();
+        const registry = new WeakMap();
+        cache.getOrInsert(key, value);
+        registry.getOrInsertComputed(key, () => value);
+        Iterator.concat(first, second);
+        JSON.rawJSON("1");
+        JSON.isRawJSON(value);
+        Math.sumPrecise(values);
+        Uint8Array.fromBase64(text);
+        Uint8Array.fromHex(text);
+        bytes.toBase64();
+        bytes.toHex();
+        bytes.setFromBase64(text);
+        bytes.setFromHex(text);
+      `;
+
+      const { foundFeatures } = detectFeatures(code, 17, "script", new Set(), {
+        ast: parse(code),
+      });
+      assert.strictEqual(foundFeatures.MapGetOrInsert, true);
+      assert.strictEqual(foundFeatures.MapGetOrInsertComputed, true);
+      assert.strictEqual(foundFeatures.IteratorConcat, true);
+      assert.strictEqual(foundFeatures.JSONRawJSON, true);
+      assert.strictEqual(foundFeatures.JSONIsRawJSON, true);
+      assert.strictEqual(foundFeatures.MathSumPrecise, true);
+      assert.strictEqual(foundFeatures.Uint8ArrayFromBase64, true);
+      assert.strictEqual(foundFeatures.Uint8ArrayFromHex, true);
+      assert.strictEqual(foundFeatures.Uint8ArrayToBase64, true);
+      assert.strictEqual(foundFeatures.Uint8ArrayToHex, true);
+      assert.strictEqual(foundFeatures.Uint8ArraySetFromBase64, true);
+      assert.strictEqual(foundFeatures.Uint8ArraySetFromHex, true);
     });
   });
 });
@@ -627,6 +1106,45 @@ describe("Polyfill Detection", () => {
 });
 
 describe("AST-based feature detection", () => {
+  const cases = [
+    ["ObjectSpread", 9, "var copy = {...source};", true],
+    ["ObjectSpread", 9, "var copy = {value: source};", false],
+    ["ObjectSpread", 9, "var copy = [...source];", false],
+    ["AsyncIteration", 9, "async function f(xs) { for await (var x of xs) {} }", true],
+    ["AsyncIteration", 9, "async function f(xs) { for (var x of xs) {} }", false],
+    ["RegExpUnicodeSetFlag", 15, "/[a-z]/v;", true],
+    ["RegExpUnicodeSetFlag", 15, "/[a-z]/u;", false],
+    ["RegExpUnicodeSetFlag", 15, '"/[a-z]/v";', false],
+    ["ArrayFromAsync", 17, 'Array["fromAsync"]([]);', true],
+    ["ArrayFromAsync", 17, 'Array?.["fromAsync"]([]);', true],
+    ["ArrayFromAsync", 17, 'const fromAsync = "from"; Array[fromAsync]([]);', false],
+    ["ArrayFromAsync", 17, 'function f(Array) { Array["fromAsync"]([]); }', false],
+    ["ArrayFromAsync", 17, "try { throw {}; } catch ({value = Array.fromAsync([])}) {}", true],
+    ["ArrayFromAsync", 17, "try { throw {}; } catch ({[Array.fromAsync([])]: value}) {}", true],
+    ["ArrayFromAsync", 17, "try { throw {}; } catch ({Array}) { Array.fromAsync([]); }", false],
+    ["ArrayFromAsync", 17, "tag`${Array.fromAsync([])}`;", true],
+    ["ArrayFromAsync", 17, "Array.fromAsync([])``;", true],
+    ["ArrayFromAsync", 17, "tag`Array.fromAsync([])`;", false],
+    ["MathSumPrecise", 17, 'Math["sumPrecise"]([]);', true],
+    ["MathSumPrecise", 17, 'const sumPrecise = "max"; Math[sumPrecise](1, 2);', false],
+    ["IntlDurationFormat", 16, 'new Intl["DurationFormat"]("en");', true],
+    ["IntlDurationFormat", 16, 'function f(Intl) { new Intl["DurationFormat"]("en"); }', false],
+  ];
+
+  cases.forEach(([feature, minVersion, code, expected]) => {
+    it(`${feature}: ${code}`, () => {
+      const ast = parse(code);
+      const options = { ast };
+      const result = detectFeatures(code, minVersion, "script", new Set(), options);
+      assert.strictEqual(result.foundFeatures[feature], expected);
+      const checkEarlier = () => detectFeatures(code, minVersion - 1, "script", new Set(), options);
+      if (expected) assert.throws(checkEarlier, { features: [feature] });
+      else assert.deepStrictEqual(checkEarlier().unsupportedFeatures, []);
+      const ignored = detectFeatures(code, minVersion - 1, "script", new Set([feature]), options);
+      assert.deepStrictEqual(ignored.unsupportedFeatures, []);
+    });
+  });
+
   it("should not detect ExponentOperator for ** inside string literals", () => {
     const code = 'var str = "This is a **bold** text";';
     const ast = acorn.parse(code, { ecmaVersion: 5 });

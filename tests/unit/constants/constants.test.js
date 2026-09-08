@@ -10,6 +10,7 @@ describe("constants/", () => {
       assert(constants.BROWSER_TO_ES_VERSION);
       assert(constants.JS_VERSIONS);
       assert(constants.VERSION_ORDER);
+      assert(constants.ES_GLOBAL_MIN_VERSION);
     });
   });
 
@@ -61,6 +62,15 @@ describe("constants/", () => {
       assert(es5Index < es2015Index);
       assert(es2015Index < es2016Index);
       assert(es2024Index < es2025Index);
+    });
+  });
+
+  describe("es-features/globals.js", () => {
+    it("should include globals from maintained ES global data", () => {
+      assert.strictEqual(versions.ECMA_VERSION_TO_NUMBER.es2025, 16);
+      assert.strictEqual(constants.ES_GLOBAL_MIN_VERSION.Proxy, 6);
+      assert.strictEqual(constants.ES_GLOBAL_MIN_VERSION.AggregateError, 12);
+      assert.strictEqual(constants.ES_GLOBAL_MIN_VERSION.Iterator, 16);
     });
   });
 });

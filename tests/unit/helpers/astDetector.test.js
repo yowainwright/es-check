@@ -235,6 +235,12 @@ describe("helpers/astDetector.js", () => {
       assert.strictEqual(result.globalThis, true);
     });
 
+    it("should detect globals that are not hand-written ES features", () => {
+      const ast = parse("new Proxy(target, handler);");
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Proxy, true);
+    });
+
     it("should not detect globalThis from object literal keys", () => {
       const ast = parse("const obj = { globalThis: true };");
       const result = detectFeaturesFromAST(ast);
@@ -245,6 +251,220 @@ describe("helpers/astDetector.js", () => {
       const ast = parse("const globalThis = { foo: true }; globalThis.foo;");
       const result = detectFeaturesFromAST(ast);
       assert.strictEqual(result.globalThis, false);
+    });
+
+    it("should not detect assigned globals as unsupported global references", () => {
+      const ast = parse("Proxy = function(target) { return target; }; new Proxy(target, handler);");
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Proxy, false);
+    });
+
+    it("should not detect sequence-assigned globals as unsupported global references", () => {
+      const ast = parse("(Proxy = function() {}), new Proxy(target, handler);");
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Proxy, false);
+    });
+
+    it("should not detect block-assigned globals as unsupported global references", () => {
+      const ast = parse("{ Proxy = function() {}; } new Proxy(target, handler);");
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Proxy, false);
+    });
+
+    it("should not detect array-destructured globals as unsupported global references", () => {
+      const ast = parse("[Proxy] = shims; new Proxy(target, handler);");
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Proxy, false);
+    });
+
+    it("should not detect object-destructured globals as unsupported global references", () => {
+      const ast = parse("({ Proxy } = shims); new Proxy(target, handler);");
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Proxy, false);
+    });
+
+    it("should detect globals before later assignments", () => {
+      const ast = parse("new Proxy(target, handler); Proxy = function() {};");
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Proxy, true);
+    });
+
+    it("should detect globals before later assignments in the same sequence", () => {
+      const ast = parse("(new Proxy(target, handler), Proxy = function() {});");
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Proxy, true);
+    });
+
+    it("should not detect try-assigned globals as unsupported global references", () => {
+      const ast = parse("try { Proxy = function() {}; } finally {} new Proxy(target, handler);");
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Proxy, false);
+    });
+
+    it("should not detect for-init-assigned globals as unsupported global references", () => {
+      const ast = parse("for (Proxy = function() {}; false;) {} new Proxy(target, handler);");
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Proxy, false);
+    });
+
+    it("should not detect for-init-assigned globals in loop bodies", () => {
+      const ast = parse(
+        "for (Proxy = function() {}; ready; tick()) { new Proxy(target, handler); }",
+      );
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Proxy, false);
+    });
+
+    it("should not detect switch-assigned globals as unsupported global references", () => {
+      const ast = parse(
+        "switch (kind) { default: Proxy = function() {}; } new Proxy(target, handler);",
+      );
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Proxy, false);
+    });
+
+    it("should detect globals when assignments are in non-default switch cases", () => {
+      const ast = parse(
+        "switch (kind) { case 1: Proxy = function() {}; } new Proxy(target, handler);",
+      );
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Proxy, true);
+    });
+
+    it("should detect globals when assignments are in conditional loops", () => {
+      const ast = parse("while (false) { Proxy = function() {}; } new Proxy(target, handler);");
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Proxy, true);
+    });
+
+    it("should detect globals when assignments are nested in function scopes", () => {
+      const ast = parse(
+        "function polyfill() { Proxy = function() {}; } new Proxy(target, handler);",
+      );
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Proxy, true);
+    });
+
+    it("should detect globals when assignments are conditional", () => {
+      const ast = parse("if (false) { Proxy = function() {}; } new Proxy(target, handler);");
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Proxy, true);
+    });
+
+    it("should detect globals when assignments are compound", () => {
+      const ast = parse("Proxy += value; new Proxy(target, handler);");
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Proxy, true);
+    });
+
+    it("should detect globals when assignments are logical", () => {
+      const ast = parse("Proxy &&= function() {}; new Proxy(target, handler);");
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Proxy, true);
+    });
+
+    it("should not detect typeof global guards as global references", () => {
+      const ast = parse('typeof Promise !== "undefined";');
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Promise, false);
+    });
+
+    it("should not detect Babel typeof helper guards as global references", () => {
+      const ast = parse(`
+        function _typeof(obj) {
+          "@babel/helpers - typeof";
+          return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator
+            ? function(obj) { return typeof obj; }
+            : function(obj) {
+              return obj && "function" == typeof Symbol && obj.constructor === Symbol
+                && obj !== Symbol.prototype ? "symbol" : typeof obj;
+            }, _typeof(obj);
+        }
+      `);
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Symbol, false);
+    });
+
+    it("should not detect regenerator typeof ternary guards as global references", () => {
+      const ast = parse('var $Symbol = typeof Symbol === "function" ? Symbol : {};');
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Symbol, false);
+    });
+
+    it("should not detect if-statement typeof guards as global references", () => {
+      const ast = parse('if (typeof Reflect !== "undefined") { Reflect.get(a, b); }');
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Reflect, false);
+    });
+
+    it("should detect globals in disjunctive typeof guards", () => {
+      const ast = parse('if (fallback || typeof Reflect !== "undefined") { Reflect.get(a, b); }');
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Reflect, true);
+    });
+
+    it("should not detect globals in negative typeof or guards", () => {
+      const ast = parse('typeof Reflect === "undefined" || Reflect.get(a, b);');
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Reflect, false);
+    });
+
+    it("should detect globals in member typeof or guards", () => {
+      const ast = parse('typeof Reflect.get === "undefined" || Reflect.get(a, b);');
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Reflect, true);
+    });
+
+    it("should detect globals in positive typeof or guards", () => {
+      const ast = parse('typeof Reflect !== "undefined" || Reflect.get(a, b);');
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Reflect, true);
+    });
+
+    it("should detect globals in compound false typeof or guards", () => {
+      const ast = parse('(typeof Reflect === "undefined" && condition) || Reflect.get(a, b);');
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Reflect, true);
+    });
+
+    it("should not detect globals in compound true typeof and guards", () => {
+      const ast = parse('(typeof Reflect !== "undefined" && condition) && Reflect.get(a, b);');
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Reflect, false);
+    });
+
+    it("should not detect globals in nested ternary typeof guards", () => {
+      const ast = parse(
+        'if (condition ? typeof Reflect !== "undefined" : false) { Reflect.get(a, b); }',
+      );
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Reflect, false);
+    });
+
+    it("should not detect globals in negative typeof else guards", () => {
+      const ast = parse(
+        'if (typeof Reflect === "undefined") { installShim(); } else { Reflect.get(a, b); }',
+      );
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Reflect, false);
+    });
+
+    it("should not detect globals in negative typeof ternary alternates", () => {
+      const ast = parse('typeof Reflect === "undefined" ? installShim() : Reflect.get(a, b);');
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Reflect, false);
+    });
+
+    it("should detect globals in negative typeof consequents", () => {
+      const ast = parse('if (typeof Reflect === "undefined") { Reflect.get(a, b); }');
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Reflect, true);
+    });
+
+    it("should not detect imported names as global references", () => {
+      const ast = parse("import { Proxy } from './proxy-shim.js'; Proxy.create(target);");
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Proxy, false);
     });
 
     it("should not detect locally declared Promise constructors as the built-in Promise", () => {
@@ -430,6 +650,236 @@ describe("helpers/astDetector.js", () => {
       const ast = parse("const escaped = RegExp.escape(str);");
       const result = detectFeaturesFromAST(ast);
       assert.strictEqual(result.RegExpEscape, true);
+    });
+
+    it("should detect ES2026 Stage 4 API methods", () => {
+      const ast = parse(`
+        const cache = new Map();
+        const registry = new WeakMap();
+        cache.getOrInsert(key, value);
+        registry.getOrInsertComputed(key, () => value);
+        Iterator.concat(first, second);
+        JSON.rawJSON("1");
+        Math.sumPrecise(values);
+        Uint8Array.fromBase64(text);
+      `);
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.MapGetOrInsert, true);
+      assert.strictEqual(result.MapGetOrInsertComputed, true);
+      assert.strictEqual(result.IteratorConcat, true);
+      assert.strictEqual(result.JSONRawJSON, true);
+      assert.strictEqual(result.MathSumPrecise, true);
+      assert.strictEqual(result.Uint8ArrayFromBase64, true);
+    });
+
+    it("should detect Map upsert methods on direct constructed receivers", () => {
+      const ast = parse(`
+        new Map().getOrInsert(key, value);
+        new WeakMap().getOrInsertComputed(key, () => value);
+      `);
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.MapGetOrInsert, true);
+      assert.strictEqual(result.MapGetOrInsertComputed, true);
+    });
+
+    it("should detect Map upsert methods on assigned member receivers", () => {
+      const ast = parse(`
+        class Cache {
+          get(key, value) {
+            this.items = new Map();
+            return this.items.getOrInsert(key, value);
+          }
+        }
+
+        const holder = {};
+        holder.registry = new WeakMap();
+        holder.registry.getOrInsertComputed(key, () => value);
+      `);
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.MapGetOrInsert, true);
+      assert.strictEqual(result.MapGetOrInsertComputed, true);
+    });
+
+    it("should detect Map upsert methods on class field receivers", () => {
+      const ast = parse(`
+        class Cache {
+          items = new Map();
+
+          get(key, value) {
+            return this.items.getOrInsert(key, value);
+          }
+        }
+      `);
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.MapGetOrInsert, true);
+    });
+
+    it("should detect Map upsert methods on constructor receiver assignments", () => {
+      const ast = parse(`
+        class Cache {
+          constructor() {
+            this.items = new Map();
+          }
+
+          get(key, value) {
+            return this.items.getOrInsert(key, value);
+          }
+        }
+      `);
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.MapGetOrInsert, true);
+    });
+
+    it("should detect class field Map receivers before their declaration", () => {
+      const ast = parse(`
+        class Cache {
+          get(key, value) {
+            return this.items.getOrInsert(key, value);
+          }
+
+          items = new Map();
+        }
+      `);
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.MapGetOrInsert, true);
+    });
+
+    it("should not detect Map upsert methods on generic receivers", () => {
+      const ast = parse(`
+        cache.getOrInsert(key, value);
+        store.getOrInsertComputed(key, () => value);
+      `);
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.MapGetOrInsert, false);
+      assert.strictEqual(result.MapGetOrInsertComputed, false);
+    });
+
+    it("should not share this receiver facts across classes", () => {
+      const ast = parse(`
+        class MapOwner {
+          items = new Map();
+        }
+
+        class PlainOwner {
+          get(key, value) {
+            return this.items.getOrInsert(key, value);
+          }
+        }
+      `);
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.MapGetOrInsert, false);
+    });
+
+    it("should not treat static Map fields as instance receivers", () => {
+      const ast = parse(`
+        class Cache {
+          static items = new Map();
+
+          get(key, value) {
+            return this.items.getOrInsert(key, value);
+          }
+        }
+      `);
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.MapGetOrInsert, false);
+    });
+
+    it("should let later class fields override earlier Map fields", () => {
+      const ast = parse(`
+        class Cache {
+          items = new Map();
+          items = customCache;
+
+          get(key, value) {
+            return this.items.getOrInsert(key, value);
+          }
+        }
+      `);
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.MapGetOrInsert, false);
+    });
+
+    it("should let method receiver reassignment override class Map fields", () => {
+      const ast = parse(`
+        class Cache {
+          items = new Map();
+
+          get(key, value) {
+            this.items = customCache;
+            return this.items.getOrInsert(key, value);
+          }
+        }
+      `);
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.MapGetOrInsert, false);
+    });
+
+    it("should expire Map receiver facts after reassignment", () => {
+      const ast = parse(`
+        let cache = new Map();
+        cache = customCache;
+        cache.getOrInsert(key, value);
+      `);
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.MapGetOrInsert, false);
+    });
+
+    it("should not keep conditional Map receiver assignments after the branch", () => {
+      const ast = parse(`
+        let cache;
+        if (enabled) {
+          cache = new Map();
+        }
+        cache.getOrInsert(key, value);
+      `);
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.MapGetOrInsert, false);
+    });
+
+    it("should keep outer Map receivers when branches shadow the same name", () => {
+      const ast = parse(`
+        const cache = new Map();
+        if (enabled) {
+          const cache = new Map();
+        }
+        cache.getOrInsert(key, value);
+      `);
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.MapGetOrInsert, true);
+    });
+
+    it("should keep outer Map receivers when loops shadow the same name", () => {
+      const ast = parse(`
+        const cache = new Map();
+        for (const cache of caches) {
+          cache.size;
+        }
+        cache.getOrInsert(key, value);
+      `);
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.MapGetOrInsert, true);
+    });
+
+    it("should not treat loop lexical Map bindings as global constructors", () => {
+      const ast = parse(`
+        for (const Map of constructors) {
+          const cache = new Map();
+          cache.getOrInsert(key, value);
+        }
+      `);
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Map, false);
+      assert.strictEqual(result.MapGetOrInsert, false);
+    });
+
+    it("should not detect Map upsert methods from receiver names alone", () => {
+      const ast = parse(`
+        map.getOrInsert(key, value);
+        weakMap.getOrInsertComputed(key, () => value);
+      `);
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.MapGetOrInsert, false);
+      assert.strictEqual(result.MapGetOrInsertComputed, false);
     });
 
     it("should detect features in comma-separated expressions (#388)", () => {

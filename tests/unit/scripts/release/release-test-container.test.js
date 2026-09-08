@@ -13,6 +13,7 @@ const CLI_CALLS = [
   ["es6", "fixtures/es6.js"],
   ["es6", "fixtures/module.js", "--module"],
   ["es5", "fixtures/es5.js", "--light"],
+  ["checkBrowser", "fixtures/es5.js", "--browserslistQuery=chrome 120"],
 ];
 const COMPATIBILITY_CALLS = [
   ["--help"],
@@ -45,6 +46,12 @@ test("verifyCli rejects an ES6 fixture that passes ES5", async () => {
   const { verifyCli } = await containerModule;
   const runner = createRunner();
   assert.throws(() => verifyCli({ run: runner.run }), /Expected ES6 fixture to fail/);
+});
+
+test("verifyCli rejects a failing browser check", async () => {
+  const { verifyCli } = await containerModule;
+  const runner = createRunner([0, 0, 0, 1, 0, 0, 0, 1]);
+  assert.throws(() => verifyCli({ run: runner.run }), /checkBrowser/);
 });
 
 test("verifyApiModule checks exports and execution", async () => {

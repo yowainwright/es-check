@@ -76,6 +76,7 @@ benchmarks/test-files-*/
 tests/benchmarks/test-files/
 tests/benchmarks/test-files-*/
 tests/benchmarks/results/
+tests/benchmarks/version-compare/
 
 # Test temp directories and files (created by tests)
 tests/unit/test-files-node-api/

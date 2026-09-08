@@ -236,6 +236,7 @@ describe("helpers/cli.js", () => {
 
       assert(result.includes("es3 es5 es6 es2015"));
       assert(result.includes("es2025"));
+      assert(result.includes("es2026"));
     });
   });
 
@@ -267,6 +268,7 @@ describe("helpers/cli.js", () => {
       assert(result.includes('"es3:ECMAScript 3"'));
       assert(result.includes('"es5:ECMAScript 5"'));
       assert(result.includes('"es2025:ECMAScript 2025"'));
+      assert(result.includes('"es2026:ECMAScript 2026"'));
     });
   });
 

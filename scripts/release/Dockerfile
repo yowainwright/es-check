@@ -3,7 +3,7 @@ ARG NODE_DIGEST=sha256:d1b3b4da11eefd5941e7f0b9cf17783fc99d9c6fc34884a665f40a06d
 FROM node:${NODE_VERSION}@${NODE_DIGEST}
 
 RUN corepack enable
-RUN corepack install --global pnpm@10.30.0 yarn@1.22.22
+RUN corepack install --global pnpm@12.3.0 yarn@1.22.22
 
 WORKDIR /app
 

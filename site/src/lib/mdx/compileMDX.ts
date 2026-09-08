@@ -6,7 +6,6 @@ import rehypeShikiFromHighlighter from "@shikijs/rehype/core";
 import { createHighlighterCore } from "shiki/core";
 import { createJavaScriptRegexEngine } from "shiki/engine/javascript";
 import { transformerNotationDiff, transformerNotationHighlight } from "@shikijs/transformers";
-import GithubSlugger from "github-slugger";
 
 const highlighterPromise = createHighlighterCore({
   themes: [import("shiki/themes/github-light.mjs"), import("shiki/themes/github-dark.mjs")],
@@ -14,7 +13,9 @@ const highlighterPromise = createHighlighterCore({
     import("shiki/langs/javascript.mjs"),
     import("shiki/langs/typescript.mjs"),
     import("shiki/langs/bash.mjs"),
+    import("shiki/langs/diff.mjs"),
     import("shiki/langs/json.mjs"),
+    import("shiki/langs/jsonc.mjs"),
     import("shiki/langs/yaml.mjs"),
     import("shiki/langs/groovy.mjs"),
   ],
@@ -29,32 +30,68 @@ export interface Heading {
 }
 
 export interface CompiledMDX {
-  content: React.ComponentType;
+  content: React.ComponentType<{ components?: Record<string, React.ElementType> }>;
   frontmatter: Record<string, unknown>;
   headings: Heading[];
 }
 
-function extractHeadings(source: string): Heading[] {
-  const slugger = new GithubSlugger();
-  const headingRegex = /^(#{2,4})\s+(.+)$/gm;
-  const headings: Heading[] = [];
-  let match;
+type HtmlRoot = Parameters<ReturnType<typeof rehypeSlug>>[0];
+type HtmlElement = Extract<HtmlRoot["children"][number], { type: "element" }>;
+type HtmlNode = HtmlElement["children"][number];
 
-  while ((match = headingRegex.exec(source)) !== null) {
-    const depth = match[1].length;
-    const text = match[2].trim();
-    const slug = slugger.slug(text);
+function headingText(node: HtmlNode): string {
+  if (node.type === "text") return node.value;
+  if (!("children" in node)) return "";
+  return node.children.map(headingText).join("");
+}
 
-    if (depth === 2) {
-      headings.push({ depth, slug, text, subheadings: [] });
-    } else if (depth === 3 && headings.length > 0) {
-      const parent = headings[headings.length - 1];
-      parent.subheadings = parent.subheadings || [];
-      parent.subheadings.push({ depth, slug, text });
-    }
-  }
+function collectHeadings(node: HtmlNode): Heading[] {
+  if (!("children" in node)) return [];
+  const isHeading = node.type === "element" && /^h[2-4]$/.test(node.tagName);
+  if (!isHeading) return node.children.flatMap(collectHeadings);
+  const depth = Number(node.tagName[1]);
+  const slug = String(node.properties.id);
+  const text = headingText(node);
+  return [{ depth, slug, text }];
+}
 
-  return headings;
+function htmlElement(tagName: string, className: string, children: HtmlNode[]): HtmlElement {
+  return { type: "element", tagName, properties: { className }, children };
+}
+
+function releaseSection(nodes: HtmlNode[]): HtmlElement {
+  const isSummary = (node: HtmlNode) =>
+    node.type === "mdxJsxFlowElement" && node.name === "ReleaseSummary";
+  const summary = nodes.filter(isSummary);
+  const body = nodes.filter((node) => !isSummary(node));
+  const notes = htmlElement(
+    "div",
+    "hidden lg:block min-w-0 lg:self-start lg:sticky lg:top-24",
+    summary,
+  );
+  const content = htmlElement(
+    "div",
+    "min-w-0 max-w-[720px] [&>:first-child]:mt-0 [&_pre]:max-w-full [&_table]:block [&_table]:overflow-x-auto",
+    body,
+  );
+  return htmlElement(
+    "section",
+    "grid min-w-0 grid-cols-1 gap-6 border-t border-base-content/10 py-10 lg:grid-cols-[14rem_minmax(0,1fr)] lg:gap-10",
+    [notes, content],
+  );
+}
+
+function groupReleaseSections(nodes: HtmlNode[]): HtmlNode[] {
+  const starts = nodes.flatMap((node, index) => {
+    const isMainHeading = node.type === "element" && node.tagName === "h2";
+    return isMainHeading ? [index] : [];
+  });
+  if (starts.length === 0) return nodes;
+  const sections = starts.map((start, index) =>
+    releaseSection(nodes.slice(start, starts[index + 1])),
+  );
+  const intro = htmlElement("div", "max-w-[720px] lg:ml-66", nodes.slice(0, starts[0]));
+  return [intro].concat(sections);
 }
 
 function extractFrontmatter(source: string): {
@@ -84,9 +121,14 @@ function extractFrontmatter(source: string): {
   return { frontmatter, content };
 }
 
-export async function compileMDX(source: string): Promise<CompiledMDX> {
+export async function compileMDX(source: string, layout?: "release"): Promise<CompiledMDX> {
   const { frontmatter, content: mdxContent } = extractFrontmatter(source);
-  const headings = extractHeadings(mdxContent);
+  let headings: Heading[] = [];
+  const collectContent = () => (tree: HtmlRoot) => {
+    const nodes = tree.children.filter((node): node is HtmlNode => node.type !== "doctype");
+    headings = nodes.flatMap(collectHeadings);
+    if (layout === "release") tree.children = groupReleaseSections(nodes);
+  };
 
   const highlighter = await highlighterPromise;
 
@@ -95,6 +137,7 @@ export async function compileMDX(source: string): Promise<CompiledMDX> {
     remarkPlugins: [remarkGfm],
     rehypePlugins: [
       rehypeSlug,
+      collectContent,
       [
         rehypeShikiFromHighlighter,
         highlighter,
@@ -110,13 +153,11 @@ export async function compileMDX(source: string): Promise<CompiledMDX> {
     ],
   });
 
-  const { default: Content } = await run(String(compiled), {
-    ...runtime,
-    baseUrl: import.meta.url,
-  });
+  const runtimeOptions = Object.assign({}, runtime, { baseUrl: import.meta.url });
+  const { default: Content } = await run(String(compiled), runtimeOptions);
 
   return {
-    content: Content as React.ComponentType,
+    content: Content as CompiledMDX["content"],
     frontmatter,
     headings,
   };
