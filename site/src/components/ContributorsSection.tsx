@@ -23,7 +23,9 @@ function SectionHeader() {
       <h2 className="text-4xl lg:text-5xl font-black">
         Thanks to our <span className="text-primary">contributors</span>
       </h2>
-      <p className="mt-4 text-lg">ES Check has been built by great contribution from these fine folks.</p>
+      <p className="mt-4 text-lg">
+        ES Check has been built by great contribution from these fine folks.
+      </p>
       <div className="mt-6 flex lg:justify-end">
         <Link
           to="/community"
