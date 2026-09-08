@@ -65,7 +65,7 @@ function Headline({ className }: { className: string }) {
     <h1 className={`text-4xl md:text-5xl lg:text-7xl ${className}`}>
       Check JavaScript files
       <br />
-      <span className="text-primary font-bold">ES version compatibility</span>
+      <span className="text-primary font-bold">for ES version compatibility</span>
     </h1>
   );
 }

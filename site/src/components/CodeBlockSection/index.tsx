@@ -29,10 +29,9 @@ function ContentBlock({ className }: { className: string }) {
         Simple <span className="text-primary">ES Version </span>Checking for Production
       </h2>
       <p className="mt-8 text-lg">
-        ES Check ensures your JavaScript code is compatible with your target ECMAScript version so
-        you can run your code where you want: catch compatibility issues before they reach
-        production, integrate seamlessly with your CI/CD pipeline, and maintain confidence in your
-        browser support!
+        ES Check checks JavaScript syntax against your target ECMAScript version. Add{" "}
+        <code>--checkFeatures</code> to check built-in APIs, and run ES Check in your CI/CD pipeline
+        to catch compatibility issues before production.
       </p>
       <LearnMoreButton />
     </div>
