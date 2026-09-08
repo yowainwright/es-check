@@ -2,23 +2,20 @@ import { Link, useLocation } from "@tanstack/react-router";
 import { Github, Menu } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
 import { SimpleSearch } from "./SimpleSearch";
+import { SITE_NAVIGATION } from "@/constants/sidebar";
+import { useLayout } from "@/contexts";
 
-const NAVIGATION = [
-  { title: "Home", href: "/" },
-  { title: "Docs", href: "/docs/gettingstarted" },
-  { title: "Releases", href: "/release/9-7" },
-];
+const DESKTOP_NAVIGATION = SITE_NAVIGATION.filter((item) => item.href !== "/");
 
 export function Header() {
   const location = useLocation();
   const pathname = location.pathname;
-  const isDocsPage = pathname.startsWith("/docs");
 
   return (
     <header className="sticky top-0 z-30">
-      <nav className="navbar bg-base-100/80 border-b border-base-content/10 backdrop-blur-3xl justify-between items-center py-2 px-4 md:px-20 font-sans">
-        <div className="flex items-center gap-2">
-          {isDocsPage && <MobileMenuButton />}
+      <nav className="navbar bg-base-100/80 border-b border-base-content/10 backdrop-blur-3xl justify-between items-center py-2 px-2 sm:px-4 md:px-20 font-sans">
+        <div className="flex shrink-0 items-center gap-2">
+          <MobileMenuButton />
           <Logo />
         </div>
         <DesktopNav pathname={pathname} />
@@ -29,21 +26,26 @@ export function Header() {
 }
 
 function MobileMenuButton() {
+  const { menuOpen, setMenuOpen } = useLayout();
+
   return (
-    <label
-      htmlFor="app-drawer"
+    <button
+      type="button"
       className="btn btn-ghost btn-square lg:hidden"
       aria-label="Open menu"
+      aria-controls="mobile-menu"
+      aria-expanded={menuOpen}
+      onClick={() => setMenuOpen(true)}
     >
       <Menu className="h-5 w-5" />
-    </label>
+    </button>
   );
 }
 
 function Logo() {
   return (
-    <Link to="/" className="btn btn-ghost px-2">
-      <span className="text-xl md:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/50">
+    <Link to="/" className="btn btn-ghost px-2" aria-label="ES Check home">
+      <span className="whitespace-nowrap text-xl md:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/50">
         ES Check
       </span>
     </Link>
@@ -54,7 +56,7 @@ function DesktopNav({ pathname }: { pathname: string }) {
   return (
     <div className="hidden lg:flex">
       <ul className="menu menu-horizontal text-base font-medium">
-        {NAVIGATION.map((item) => (
+        {DESKTOP_NAVIGATION.map((item) => (
           <li key={item.href}>
             <NavLink href={item.href} title={item.title} isActive={isNavActive(pathname, item)} />
           </li>
@@ -76,6 +78,7 @@ function NavLink({ href, title, isActive }: { href: string; title: string; isAct
   return (
     <Link
       to={href}
+      aria-current={isActive ? "page" : undefined}
       className={`hover:text-primary hover:bg-primary/5 transition flex ${activeClass}`}
     >
       {title}
@@ -86,7 +89,9 @@ function NavLink({ href, title, isActive }: { href: string; title: string; isAct
 function NavActions() {
   return (
     <div className="flex items-center gap-1">
-      <SimpleSearch variant="compact" />
+      <div className="[&_kbd]:hidden sm:[&_kbd]:inline [&_button]:px-2 sm:[&_button]:px-3">
+        <SimpleSearch variant="compact" />
+      </div>
       <a
         className="btn btn-sm btn-ghost btn-square"
         href="https://github.com/yowainwright/es-check"

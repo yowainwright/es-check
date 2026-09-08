@@ -6,6 +6,42 @@ const detectFeatures = require("../../../lib/detectFeatures");
 
 const cases = [
   [
+    "loop-condition closures observe receivers initialized by updates",
+    true,
+    (Map, call) =>
+      `let cache; for (; inspect(() => cache.${call}(key, value)); cache = new ${Map}()) {}`,
+  ],
+  [
+    "loop-condition closures retain features before receiver invalidation",
+    true,
+    (Map, call) =>
+      `let cache = new ${Map}(); for (; inspect(() => cache.${call}(key, value)); cache = custom) {}`,
+  ],
+  [
+    "loop-condition closures do not infer custom receivers",
+    false,
+    (Map, call) =>
+      `let cache = custom; for (; inspect(() => cache.${call}(key, value)); cache = other) {}`,
+  ],
+  [
+    "cached loop conditions replay static-block initialization",
+    true,
+    (
+      Map,
+      call,
+    ) => `let cache; for (; class { static { cache = new ${Map}(); } };) { cache = custom; }
+      cache.${call}(key, value);`,
+  ],
+  [
+    "cached loop conditions replay static-block invalidation",
+    false,
+    (
+      Map,
+      call,
+    ) => `let cache = new ${Map}(); for (; class { static { cache = custom; } };) { cache = new ${Map}(); }
+      cache.${call}(key, value);`,
+  ],
+  [
     "callees initialize receivers before arguments",
     true,
     (Map, call) => `let cache; (cache = new ${Map}(), use)(cache.${call}(key, value));`,
@@ -1027,7 +1063,56 @@ const exitContainers = [
   ["try/catch", (body) => `try { ${body} } catch (error) { throw error; }`],
 ];
 
+const loopConditions = [
+  ["arrow", (body) => `(() => { ${body} return running; })()`, (node) => node.callee.body.body[0]],
+  [
+    "function",
+    (body) => `(function () { ${body} return running; })()`,
+    (node) => node.callee.body.body[0],
+  ],
+  ["class", (body) => `class { static { ${body} } }`, (node) => node.body.body[0].body[0]],
+];
+
+const conditionalLoops = [
+  ["for", (condition) => `for (; ${condition};) {}`],
+  ["while", (condition) => `while (${condition}) {}`],
+  ["do/while", (condition) => `do {} while (${condition});`],
+];
+
+function checkLoopTestVisits(code, depth, descend) {
+  const ast = acorn.parse(code, { ecmaVersion: "latest" });
+  let leaf = ast.body[0];
+  Array.from({ length: depth }).forEach(() => {
+    leaf = descend(leaf.test);
+  });
+  let visits = 0;
+  Object.defineProperty(leaf, "type", {
+    get() {
+      visits += 1;
+      assert.ok(visits < 1000, `Read the innermost condition node ${visits} times`);
+      return "ExpressionStatement";
+    },
+  });
+  const features = detectFeaturesFromAST(ast);
+  assert.equal(features.ArrayFromAsync, true);
+  assert.ok(visits > 0);
+}
+
 describe("Map receiver flow regressions", () => {
+  conditionalLoops.forEach(([loopName, wrapLoop]) => {
+    loopConditions.forEach(([conditionName, wrapCondition, descend]) => {
+      [4, 8, 12].forEach((depth) => {
+        it(`bounds ${depth} nested ${loopName} conditions containing ${conditionName} bodies`, () => {
+          const code = Array.from({ length: depth }).reduce(
+            (body) => wrapLoop(wrapCondition(body)),
+            "Array.fromAsync([]);",
+          );
+          checkLoopTestVisits(code, depth, descend);
+        });
+      });
+    });
+  });
+
   it("does not replay nested finalizers for identical receiver states", () => {
     const depth = 10;
     const body = Array.from({ length: depth }).reduce(

@@ -1,18 +1,32 @@
 ---
 title: ES Check, 9.7.*; es17 support and configuration updates
-description: ES Check 9.7.* adds ES2026 support, more accurate compatibility checks for modern JavaScript bundles, and configuration updates such as using nub and pnpm 12.
+description: ES Check 9.7.* adds ES2026 support, compatibility fixes, global built-in checks, and contributor tooling updates.
 ---
 
-ES Check v9.7.\* is getting released with [ES17 (ES2026)]() checks,
-a backfilling of compatibility checks for earlier ECMAScript versions, globals support, and config updates.
+**TL;DR**
+
+- Check [ES2026](https://tc39.es/ecma262/2026/multipage/) with the existing CLI. Add `--checkFeatures` to check built-in APIs as well as syntax.
+- Earlier targets get corrected API versions, missing float16 checks, and more accurate handling of receivers and local bindings.
+- Global built-ins such as `Proxy` are now checked even when the surrounding syntax is older.
+- Contributor tooling uses pnpm 12.3.0. The Docker timings below compare repository workflows, not CLI or Nub performance.
 
 ## ES2026 Support
+
+<ReleaseSummary>
+
+**ES2026 Support**
+
+Target ES2026 and add `--checkFeatures` to check newer built-in APIs as well as syntax. Examples cover async collection, Map initialization, iterators, precise summation, and byte conversions.
+
+[ECMAScript specification](https://tc39.es/ecma262/2026/multipage/)
+
+</ReleaseSummary>
 
 ES Check now accepts [`es2026`](https://tc39.es/ecma262/2026/multipage/).
 You can use `es17`, `2026`, and `17` as target versions.
 This lets projects check bundles against ECMAScript 2026 using the same cli or node format you use for older targets.
 
-## How To Use
+### How To Use
 
 Here's an example cli command for context.
 
@@ -22,12 +36,12 @@ es-check es2026 './dist/**/*.js' --checkFeatures
 
 Next up, we'll go into some of the api updates; just to connect the dots a little more so you can know what you should be able to depend on ES Check for.
 
-## ES2026 API Examples
+### ES2026 API Examples
 
 ES Check 9.7 detects ES2026 APIs. It applies extra checks where a method names alone are too be too broad.
 This for the last few years are where nuanced bugs come out so please let me know!
 
-### Array.fromAsync
+#### Array.fromAsync
 
 [`Array.fromAsync`](https://tc39.es/ecma262/2026/multipage/indexed-collections.html#sec-array.fromasync), added in ES2026, collects an async iterable into an array; here it gathers streamed search results and keeps those scoring above 0.8.
 ES Check added detection so `--checkFeatures` reports this API when a bundle targets an earlier edition.
@@ -78,7 +92,7 @@ CallExpression
     property: Identifier(fromAsync)
 ```
 
-### Map.prototype.getOrInsert
+#### Map.prototype.getOrInsert
 
 `Map.prototype.getOrInsert` avoids the common "check, create, then read again" pattern when initializing grouped values.
 
@@ -116,7 +130,7 @@ CallExpression
     property: Identifier(getOrInsert)
 ```
 
-### Iterator.concat
+#### Iterator.concat
 
 ```js example
 function combineQueuedJobs(priorityJobs, regularJobs) {
@@ -139,7 +153,7 @@ CallExpression
     property: Identifier(concat)
 ```
 
-### Math.sumPrecise
+#### Math.sumPrecise
 
 ```js example
 function totalInvoiceLines(lines) {
@@ -163,7 +177,7 @@ CallExpression
     property: Identifier(sumPrecise)
 ```
 
-### Uint8Array Hex Helpers
+#### Uint8Array Hex Helpers
 
 ```js example
 function readColor(hexColor) {
@@ -187,24 +201,43 @@ CallExpression
     property: Identifier(fromHex)
 ```
 
-### Also Supported
+#### Also Supported
 
 | API                                | Feature key               |
 | ---------------------------------- | ------------------------- |
-| `Error.isError(value)`             | `ErrorIsError`            |
-| `JSON.rawJSON(text)`               | `JSONRawJSON`             |
-| `JSON.isRawJSON(value)`            | `JSONIsRawJSON`           |
-| `map.getOrInsertComputed(key, fn)` | `MapGetOrInsertComputed`  |
-| `Uint8Array.fromBase64(text)`      | `Uint8ArrayFromBase64`    |
-| `bytes.toBase64()`                 | `Uint8ArrayToBase64`      |
-| `bytes.setFromBase64(text)`        | `Uint8ArraySetFromBase64` |
-| `bytes.setFromHex(text)`           | `Uint8ArraySetFromHex`    |
+| [`Error.isError(value)`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error/isError) | `ErrorIsError` |
+| [`JSON.rawJSON(text)`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/rawJSON) | `JSONRawJSON` |
+| [`JSON.isRawJSON(value)`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/isRawJSON) | `JSONIsRawJSON` |
+| [`map.getOrInsertComputed(key, fn)`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map/getOrInsertComputed) | `MapGetOrInsertComputed` |
+| [`Uint8Array.fromBase64(text)`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array/fromBase64) | `Uint8ArrayFromBase64` |
+| [`bytes.toBase64()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array/toBase64) | `Uint8ArrayToBase64` |
+| [`bytes.setFromBase64(text)`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array/setFromBase64) | `Uint8ArraySetFromBase64` |
+| [`bytes.setFromHex(text)`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array/setFromHex) | `Uint8ArraySetFromHex` |
 
-## Earlier ECMAScript Backfills
+## Bug Fixes
+
+<ReleaseSummary>
+
+**Earlier ECMAScript Backfills**
+
+Earlier targets now accept APIs that were assigned to the wrong edition. Missing float16 checks and AST matching fixes also reduce missed features and false reports.
+
+[Intl specification](https://402.ecma-international.org/12.0/#sec-intl-durationformat-constructor)
+
+</ReleaseSummary>
 
 ### Intl.DurationFormat (ES2025)
 
 [`Intl.DurationFormat`](https://402.ecma-international.org/12.0/#sec-intl-durationformat-constructor) is part of the 2025 Intl standard, not ES2026. ES Check now accepts it for `es2025` and reports it as unsupported for `es2024` and earlier.
+
+It formats a duration using locale-specific unit names; this example turns a delivery window into text such as "2 hours, 30 minutes". The correction changes ES Check's minimum-version data, not your JavaScript:
+
+```diff
+ IntlDurationFormat: {
+-  minVersion: 17,
++  minVersion: 16,
+ }
+```
 
 ```js example
 function formatDeliveryWindow(duration) {
@@ -212,3 +245,187 @@ function formatDeliveryWindow(duration) {
   return formatter.format(duration);
 }
 ```
+
+```bash
+es-check es2025 './dist/**/*.js' --checkFeatures
+```
+
+The AST check matches a `NewExpression` whose constructor is `Intl.DurationFormat`, including literal bracket notation such as `new Intl["DurationFormat"]("en")`. A local binding named `Intl` is not treated as the runtime built-in.
+
+### ArrayBuffer Transfer (ES2024)
+
+[`transfer`](https://tc39.es/ecma262/2024/multipage/structured-data.html#sec-arraybuffer.prototype.transfer) and [`transferToFixedLength`](https://tc39.es/ecma262/2024/multipage/structured-data.html#sec-arraybuffer.prototype.transfertofixedlength) move bytes into a new buffer and detach the original. The fixed-length variant also removes resizability, useful when handing a completed binary payload to another part of an application.
+
+Both methods were incorrectly assigned to ES2026. They now pass an `es2024` feature check and fail for `es2023` and earlier:
+
+```diff
+ ArrayBufferTransfer: {
+-  minVersion: 17,
++  minVersion: 15,
+ }
+ ArrayBufferTransferToFixedLength: {
+-  minVersion: 17,
++  minVersion: 15,
+ }
+```
+
+```js example
+function finishPayload(buffer, usedBytes) {
+  return buffer.transferToFixedLength(usedBytes);
+}
+```
+
+```bash
+es-check es2024 './dist/**/*.js' --checkFeatures
+```
+
+These checks match method names in call expressions. Unlike Map upsert detection, they do not establish the receiver's type.
+
+### Float16 Methods (ES2025)
+
+[`Math.f16round`](https://tc39.es/ecma262/2025/multipage/numbers-and-dates.html#sec-math.f16round) rounds a number to half precision; [`DataView#getFloat16`](https://tc39.es/ecma262/2025/multipage/structured-data.html#sec-dataview.prototype.getfloat16) and [`setFloat16`](https://tc39.es/ecma262/2025/multipage/structured-data.html#sec-dataview.prototype.setfloat16) read and write that binary format. ES Check already recognized `Float16Array`, but these related methods were missing from its ES2025 feature data.
+
+```diff
+ Float16Array: { minVersion: 16, ... },
++MathF16Round: { minVersion: 16, ... },
++DataViewGetFloat16: { minVersion: 16, ... },
++DataViewSetFloat16: { minVersion: 16, ... },
+```
+
+This writes a sensor reading as a two-byte, little-endian value and reads it back:
+
+```js example
+function roundTripReading(reading) {
+  const view = new DataView(new ArrayBuffer(2));
+  view.setFloat16(0, Math.f16round(reading), true);
+  return view.getFloat16(0, true);
+}
+```
+
+```bash
+es-check es2025 './dist/**/*.js' --checkFeatures
+```
+
+`Math.f16round` matches the global receiver and method name. The DataView checks match `getFloat16` and `setFloat16` call names; they do not infer the receiver's type. These three checks now report unsupported APIs for `es2024` and earlier.
+
+### Other Detection and Packaging Fixes
+
+| Area                         | What changed                                                                                                                                                                                                                                                 |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| ES2018 syntax                | Object spread is distinguished from array spread. Async iteration matches Acorn's `ForOfStatement` with `await: true`, so `for await...of` is not missed.                                                                                                    |
+| ES2024 regular expressions   | The Unicode sets `v` flag is read from Acorn's regex literal data. Text inside strings is not treated as a regex literal.                                                                                                                                    |
+| Built-in calls               | Literal bracket access, such as `Array["fromAsync"]()`, is checked alongside dot access and optional calls. Dynamic property names are not guessed.                                                                                                          |
+| Scope and nested expressions | Shadowed built-ins are not reported as native APIs. Calls inside template substitutions and catch-binding defaults are visited; ordinary template text is not code.                                                                                          |
+| Map and WeakMap upserts      | Detection follows known receivers through assignments, class fields, branches, loops, and exception paths. Reassignment or a shadowed constructor can invalidate that knowledge. An unrelated object's `getOrInsert` method is not enough to require ES2026. |
+| Global guards                | Guarded fallback code is distinguished from unguarded references. A conditional or later assignment no longer automatically hides an earlier native-global use.                                                                                              |
+| Polyfillable features        | The core-js allowlist now includes Map upserts, `Iterator.concat`, `Math.sumPrecise`, DataView float16 methods, and Uint8Array hex/Base64 methods. This affects the existing `--ignorePolyfillable core-js` option; it does not install polyfills.           |
+| Browserslist packaging       | `browserslist` is now a runtime dependency, so installed copies of ES Check can resolve browser targets without depending on this repository's development dependencies.                                                                                     |
+
+Set operations and `RegExp.escape` remain ES2025 checks; they were already supported before this update. The fixes above do not move those APIs to ES2026.
+
+## Global Built-ins
+
+<ReleaseSummary>
+
+**Global Built-ins**
+
+A bundle can use old syntax and still require a newer runtime global. Feature detection now checks those names while accounting for local bindings and supported availability guards.
+
+</ReleaseSummary>
+
+Global built-ins are runtime values, not necessarily new syntax. For example, [`Proxy`](https://262.ecma-international.org/6.0/#sec-proxy-objects) can be called from code that parses as ES5, even though the built-in requires ES2015. ES Check now keeps minimum-version data for global names and includes unsupported references in `--checkFeatures` results.
+
+This wrapper intercepts access to an application's settings through the supplied handler:
+
+```js example
+function observeSettings(settings, handler) {
+  return new Proxy(settings, handler);
+}
+```
+
+```bash
+es-check es2015 './dist/**/*.js' --checkFeatures
+```
+
+That example passes at `es2015` and reports `Proxy` at `es5`. No new flag is needed. The detector checks whether an identifier refers to a built-in rather than a local variable, import, parameter, or property name.
+
+Examples from the global-version data:
+
+```jsonc
+{
+  "Proxy": 6, // Edition 6 is ES2015, not the year 2006.
+  "Reflect": 6,
+  "SharedArrayBuffer": 8,
+  "BigInt64Array": 11,
+  "WeakRef": 12,
+  "FinalizationRegistry": 12,
+  "Iterator": 16,
+  "Float16Array": 16,
+}
+```
+
+Availability checks are handled separately. This fallback can run without `Reflect`, so it is not reported as an unconditional dependency on that global:
+
+```js guarded
+function readSetting(settings, key) {
+  if (typeof Reflect !== "undefined") {
+    return Reflect.get(settings, key);
+  }
+  return settings[key];
+}
+```
+
+A check such as `typeof Reflect.get` still needs `Reflect` to exist before accessing its property. Local bindings and direct, earlier assignments are also tracked, but this is static analysis: ES Check does not execute a shim or prove that it implements the built-in correctly.
+
+## pnpm and Nub
+
+<ReleaseSummary>
+
+**pnpm and Nub**
+
+The repository moved from pnpm 10.30.0 to 12.3.0. This is contributor tooling, not a new requirement for installing or running ES Check.
+
+</ReleaseSummary>
+
+The repository already used pnpm; this update pins it to **12.3.0** for local development, CI, site deployment, and the release-test container. Those workflows now use the same package-manager version instead of relying on whichever version happens to be installed.
+
+```diff
+-"packageManager": "pnpm@10.30.0"
++"packageManager": "pnpm@12.3.0"
+```
+
+The manifest also declares [`devEngines.packageManager`](https://pnpm.io/package_json#devenginespackagemanager), with pnpm's `onFail: "download"` policy and an npm entry set to `onFail: "ignore"`. The old `engines.pnpm` requirement was removed; consumers do not have to adopt pnpm. The workspace explicitly allows esbuild's dependency build script, and CI now tests and builds the docs site.
+
+[Nub's package-manager tooling](https://nubjs.com/docs/pm) can provision and run a project's pinned package manager. Nub is not pinned or invoked by this repository's CI; the committed workflow uses pnpm directly. The benchmark below therefore measures the pnpm-based repository update, not a separate Nub migration or Nub speedup.
+
+## Benchmarks
+
+<ReleaseSummary>
+
+**Benchmarks**
+
+Tests took about the same time in this local Docker comparison. Installs and site builds completed sooner, but the dependency graph changed too; these results do not isolate pnpm's performance.
+
+</ReleaseSummary>
+
+We compared the revision before the tooling update (`9ab9ca6`, pnpm 10.30.0) with a saved 9.7 candidate snapshot using pnpm 12.3.0. Both ran in the same Node 24.15.0 Alpine Docker image on Linux arm64, limited to 4 CPUs and 6 GiB of RAM. These are medians of three successful runs per snapshot, measured on September 6, 2026, Pacific time.
+
+| Command or scenario                        | Before: pnpm 10.30.0 | 9.7 candidate: pnpm 12.3.0 |
+| ------------------------------------------ | -------------------: | -------------------------: |
+| Clean install                              |              5.359 s |                    4.084 s |
+| Warm install, dependencies already present |              0.437 s |                    0.023 s |
+| `pnpm test`                                |              5.009 s |                    4.818 s |
+| `pnpm run lint:ci`                         |              0.336 s |                    0.181 s |
+| `pnpm run site:build`                      |              5.156 s |                    2.936 s |
+
+Each clean install started with no `node_modules` and an empty pnpm store. The warm measurement repeated the same `pnpm install --no-frozen-lockfile` command without removing either. pnpm 10 reran the repository's `prepare` hook on the warm install; pnpm 12 did not, so the warm result includes that behavior difference. Lockfile hashes stayed unchanged in all successful runs.
+
+Image creation, package-manager provisioning, container startup, and source copying were excluded. All measured commands exited successfully. The candidate's unit suite contained 772 tests versus 464 in the baseline, with one skipped test in each; `pnpm test` also ran the CLI, ESM, package-files, and source-map E2E checks.
+
+These numbers describe the whole saved repository snapshots, not pnpm alone or the installed ES Check CLI. Dependencies changed from 433 installed packages to 405, and registry/network conditions and host load were not controlled. The candidate was captured before subsequent receiver and site edits, and failed exploratory build runs were excluded from the successful-build medians. Nub and `npx` startup were not measured. Three local samples are not a general speed guarantee.
+
+## Summary
+
+ES Check 9.7.\* adds initial ES2026 support while improving checks for existing targets. The update covers newer APIs, corrects earlier edition assignments, and distinguishes native globals and known Map receivers from local bindings and unrelated methods.
+
+Keep your existing CLI workflow and target version when upgrading. Use `--checkFeatures` when you also need API and global checks, and review any newly reported runtime requirements. The pnpm update affects contributors; installing and running ES Check does not require adopting pnpm or Nub.

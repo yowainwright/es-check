@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Github } from "lucide-react";
 import { resolveUrl } from "@/utils/url";
+import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
 export function Footer() {
   const year = new Date().getFullYear();
@@ -12,9 +13,7 @@ export function Footer() {
           <p>&copy; {year} - MIT License</p>
         </div>
 
-        <Link to="/" className="hover:opacity-80 transition">
-          <img src={resolveUrl("/es-check-logo.svg")} alt="ES Check" className="h-8 w-8" />
-        </Link>
+        <FooterLogo />
 
         <div className="lg:flex-1 flex justify-center lg:justify-end">
           <a
@@ -27,5 +26,26 @@ export function Footer() {
         </div>
       </div>
     </footer>
+  );
+}
+
+function FooterLogo() {
+  const { ref, isVisible } = useScrollAnimation(0.1, { once: false });
+  const appearanceClass = isVisible
+    ? "translate-y-0 scale-100 opacity-100"
+    : "translate-y-3 scale-95 opacity-0";
+
+  return (
+    <div ref={ref} className="size-16 shrink-0">
+      <Link to="/" className="block size-full hover:opacity-80 transition-opacity">
+        <img
+          src={resolveUrl("/es-check-logo.svg")}
+          alt="ES Check"
+          width={64}
+          height={64}
+          className={`size-full transition duration-500 ease-out motion-reduce:transition-none motion-reduce:translate-y-0 motion-reduce:scale-100 motion-reduce:opacity-100 ${appearanceClass}`}
+        />
+      </Link>
+    </div>
   );
 }
