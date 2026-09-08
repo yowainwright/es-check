@@ -44,6 +44,15 @@ describe("Full-text documentation search", () => {
     assert.equal(fuse.search("Programmatic API")[0]?.item.href, "/docs/programmatic-api");
   });
 
+  it("displays quoted documentation descriptions without their delimiters", () => {
+    const result = fuse.search("Contributing Guidelines")[0]?.item;
+    assert.equal(result?.href, "/docs/contributing-guideline");
+    assert.equal(
+      result.description,
+      "Guidelines for contributing to ES Check - code standards, PR process, and testing requirements",
+    );
+  });
+
   it("does not return documents when a query term is absent", () => {
     assert.deepEqual(fuse.search("JavaScript zqxvbnmlkjhgfdsa"), []);
   });

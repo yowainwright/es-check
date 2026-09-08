@@ -13,6 +13,7 @@ function parseFrontmatterLine(line: string): [string, string][] {
   if (colonIndex < 1) return [];
 
   const key = line.slice(0, colonIndex).trim();
-  const value = line.slice(colonIndex + 1).trim();
+  const rawValue = line.slice(colonIndex + 1).trim();
+  const value = rawValue.replace(/^(["'])(.*)\1$/, "$2");
   return [[key, value]];
 }

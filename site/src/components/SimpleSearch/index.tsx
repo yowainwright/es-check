@@ -1,26 +1,19 @@
-import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { useState, useEffect, useRef, useCallback, lazy, Suspense } from "react";
 import { createPortal } from "react-dom";
-import { Link } from "@tanstack/react-router";
-import Fuse from "fuse.js";
-import { Search, Frown } from "lucide-react";
-import type { SearchItem, SimpleSearchProps, SearchButtonProps } from "./types";
-import { SEARCH_DATA, FUSE_OPTIONS } from "./constants";
+import { Search } from "lucide-react";
+import type { SimpleSearchProps, SearchButtonProps } from "./types";
 
 export type { SimpleSearchProps } from "./types";
 
-const fuse = new Fuse(SEARCH_DATA, FUSE_OPTIONS);
+const SearchContent = lazy(() =>
+  import("./SearchContent").then((module) => ({ default: module.SearchContent })),
+);
 
 export function SimpleSearch({ variant = "default" }: SimpleSearchProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState("");
   const searchRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-
-  const results = useMemo(() => {
-    const searchQuery = query.trim();
-    if (searchQuery.length < 2) return [];
-    return fuse.search(searchQuery, { limit: 8 }).map((result) => result.item);
-  }, [query]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -50,24 +43,9 @@ export function SimpleSearch({ variant = "default" }: SimpleSearchProps) {
     setQuery("");
   }, []);
 
-  const groupedResults = results.reduce(
-    (acc, item) => {
-      const category = item.category || "Other";
-      const group = acc[category] || [];
-      acc[category] = group.concat(item);
-      return acc;
-    },
-    {} as Record<string, SearchItem[]>,
-  );
   const canShowSearch = isOpen && typeof document !== "undefined";
   const modal = (
-    <SearchModal
-      query={query}
-      setQuery={setQuery}
-      groupedResults={groupedResults}
-      inputRef={inputRef}
-      onClose={closeSearch}
-    />
+    <SearchModal query={query} setQuery={setQuery} inputRef={inputRef} onClose={closeSearch} />
   );
   const searchModal = canShowSearch ? modal : null;
 
@@ -110,26 +88,25 @@ function SearchButton({ onClick, variant }: SearchButtonProps) {
 interface SearchModalProps {
   query: string;
   setQuery: (query: string) => void;
-  groupedResults: Record<string, SearchItem[]>;
   inputRef: React.RefObject<HTMLInputElement | null>;
   onClose: () => void;
 }
 
-function SearchModal({ query, setQuery, groupedResults, inputRef, onClose }: SearchModalProps) {
-  const hasResults = Object.keys(groupedResults).length > 0;
-  const hasQuery = query.trim().length > 1;
-  const showNoResults = hasQuery && !hasResults;
-  const showInitialState = !hasQuery;
-
+function SearchModal({ query, setQuery, inputRef, onClose }: SearchModalProps) {
+  const loading = (
+    <div className="p-12 text-center text-base-content/60" role="status">
+      Loading search...
+    </div>
+  );
   const modal = (
     <>
       <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9998]" onClick={onClose} />
       <div className="fixed inset-0 z-[9999] flex items-start justify-center pt-[5vh] md:pt-[10vh] pointer-events-none">
         <div className="bg-base-100 rounded-lg md:rounded-2xl shadow-2xl border border-base-300 overflow-hidden w-full max-w-2xl mx-2 md:mx-4 pointer-events-auto">
           <SearchHeader query={query} setQuery={setQuery} inputRef={inputRef} />
-          {hasResults && <SearchResults groupedResults={groupedResults} onClose={onClose} />}
-          {showNoResults && <NoResults query={query} />}
-          {showInitialState && <InitialState />}
+          <Suspense fallback={loading}>
+            <SearchContent query={query} onClose={onClose} />
+          </Suspense>
         </div>
       </div>
     </>
@@ -168,90 +145,6 @@ function SearchHeader({ query, setQuery, inputRef }: SearchHeaderProps) {
         </div>
       </div>
       <div className="h-px bg-gradient-to-r from-transparent via-base-300 to-transparent mt-4 md:mt-6" />
-    </div>
-  );
-}
-
-interface SearchResultsProps {
-  groupedResults: Record<string, SearchItem[]>;
-  onClose: () => void;
-}
-
-function SearchResults({ groupedResults, onClose }: SearchResultsProps) {
-  const groups = Object.entries(groupedResults).map(([category, items]) => (
-    <SearchResultGroup key={category} category={category} items={items} onClose={onClose} />
-  ));
-  return <div className="max-h-[50vh] md:max-h-[60vh] overflow-y-auto">{groups}</div>;
-}
-
-interface SearchResultGroupProps {
-  category: string;
-  items: SearchItem[];
-  onClose: () => void;
-}
-
-function SearchResultGroup({ category, items, onClose }: SearchResultGroupProps) {
-  const links = items.map((result) => (
-    <SearchResultLink key={result.href} result={result} onClose={onClose} />
-  ));
-  return (
-    <div>
-      <div className="px-4 pt-3 pb-2">
-        <div className="text-xs font-semibold text-base-content/60 uppercase tracking-wider">
-          {category}
-        </div>
-      </div>
-      {links}
-    </div>
-  );
-}
-
-function SearchResultLink({ result, onClose }: { result: SearchItem; onClose: () => void }) {
-  return (
-    <Link
-      to={result.href}
-      className="block px-4 py-3 hover:bg-primary/10 focus:bg-primary/10 focus:outline-none transition-colors border-l-2 border-transparent hover:border-primary focus:border-primary"
-      onClick={onClose}
-    >
-      <div className="font-medium text-base-content">{result.title}</div>
-      <div className="text-sm text-base-content/60 mt-0.5">{result.description}</div>
-    </Link>
-  );
-}
-
-function NoResults({ query }: { query: string }) {
-  return (
-    <div className="p-12 text-center">
-      <Frown className="h-12 w-12 mx-auto text-base-content/20 mb-4" />
-      <div className="text-base-content/60">No results found for "{query}"</div>
-      <div className="text-sm text-base-content/40 mt-2">
-        Try searching for "installation" or "configuration"
-      </div>
-    </div>
-  );
-}
-
-function InitialState() {
-  return (
-    <div className="p-12 text-center">
-      <div className="text-base-content/60">Start typing to search...</div>
-      <div className="text-sm text-base-content/40 mt-2">Search docs, commands, and features</div>
-      <div className="flex justify-center gap-6 mt-6">
-        <KeyboardHint keys="↑↓" label="Navigate" />
-        <KeyboardHint keys="↵" label="Select" />
-        <KeyboardHint keys="ESC" label="Close" />
-      </div>
-    </div>
-  );
-}
-
-function KeyboardHint({ keys, label }: { keys: string; label: string }) {
-  return (
-    <div className="flex items-center gap-2 text-xs text-base-content/40">
-      <kbd className="px-1.5 py-0.5 text-xs rounded border border-base-300 bg-base-200 font-mono">
-        {keys}
-      </kbd>
-      <span>{label}</span>
     </div>
   );
 }
