@@ -1,13 +1,13 @@
 import { describe, it } from "node:test";
 import assert from "node:assert";
-import { ES_CHECK_DEMO } from "../../AnimatedTerminal/constants";
+import { ES_CHECK_DEMO } from "../../AnimatedTerminal/constants.ts";
 import {
   createTerminalLine,
   createCommandLine,
   createInfoLine,
   createErrorLine,
   createEmptyLine,
-} from "../utils";
+} from "../utils.ts";
 
 describe("AnimatedTerminal demo constants", () => {
   it("has valid ES_CHECK_DEMO configuration", () => {

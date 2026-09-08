@@ -17,8 +17,9 @@ jobs:
     runs-on: ubuntu-latest
 
     strategy:
+      fail-fast: false
       matrix:
-        node-version: [24.x]
+        node-version: [26.x, 24.x, 22.x, 20.x]
 
     steps:
       - uses: actions/checkout@v4
@@ -36,8 +37,10 @@ jobs:
       - run: pnpm run report:coverage
       - run: pnpm run test:e2e
       - name: Test documentation site
+        if: matrix.node-version == '26.x'
         run: pnpm --filter es-check-docs test
       - name: Build documentation site
+        if: matrix.node-version == '26.x'
         run: pnpm --filter es-check-docs build
 
       - name: Upload coverage to Codecov
