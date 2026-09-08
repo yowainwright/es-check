@@ -4,6 +4,9 @@ import { writeFileSync, chmodSync, mkdirSync, existsSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 
+const ignoreScripts = process.env.npm_config_ignore_scripts === "true";
+if (ignoreScripts) process.exit(0);
+
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const hooksDir = join(__dirname, "..", "..", ".git", "hooks");

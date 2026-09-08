@@ -177,32 +177,18 @@ function verifyPackageFiles() {
 function testNpmPack(requiredFiles) {
   log.info("\n[PKG] Testing npm pack to verify files will be included...\n");
 
-  try {
-    const packOutput = execSync("npm pack --dry-run --json", {
-      cwd: rootDir,
-      encoding: "utf-8",
-      stdio: ["pipe", "pipe", "ignore"],
-    });
-
-    const packData = JSON.parse(packOutput);
-    const packedFiles = packData[0].files.map((f) => f.path);
-
-    let hasError = false;
-    for (const requiredFile of requiredFiles) {
-      if (!packedFiles.includes(requiredFile)) {
-        log.info(`[FAIL] Required file "${requiredFile}" will NOT be included in npm package`);
-        hasError = true;
-      }
-    }
-
-    if (hasError) {
-      process.exit(1);
-    }
-
-    log.info("[PASS] npm pack verification passed");
-  } catch (error) {
-    log.info("[WARN]  Could not verify with npm pack --dry-run");
+  const packOutput = execSync("npm pack --dry-run --ignore-scripts --json", {
+    cwd: rootDir,
+    encoding: "utf-8",
+    stdio: ["pipe", "pipe", "inherit"],
+  });
+  const [packageData] = JSON.parse(packOutput);
+  const packedFiles = new Set(packageData.files.map((file) => file.path));
+  const missingFiles = requiredFiles.filter((file) => !packedFiles.has(file));
+  if (missingFiles.length > 0) {
+    throw new Error(`Required files missing from npm package: ${missingFiles.join(", ")}`);
   }
+  log.info("[PASS] npm pack verification passed");
 }
 
 verifyPackageFiles();

@@ -1,14 +1,20 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
-import { describe, it } from "node:test";
+import { after, describe, it } from "node:test";
 import { createProcessor } from "@mdx-js/mdx";
 import { parse } from "acorn";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { compileMDX } from "../../lib/mdx/compileMDX";
-import { mdxComponents } from "../../components/MDXComponents";
-import { getActiveHeadingId } from "../../components/TableOfContents";
+import { createServer } from "vite";
+import { compileMDX } from "../../lib/mdx/compileMDX.ts";
+
+const vite = await createServer({
+  server: { middlewareMode: true, ws: false, watch: null },
+});
+after(() => vite.close());
+const { mdxComponents } = await vite.ssrLoadModule("/src/components/MDXComponents.tsx");
+const { getActiveHeadingId } = await vite.ssrLoadModule("/src/components/TableOfContents.tsx");
 
 const require = createRequire(import.meta.url);
 const detectFeatures = require("../../../../lib/detectFeatures");
