@@ -19,7 +19,9 @@ export function ReleasePage() {
       const rawContent = await getReleaseBySlug(version);
       if (cancelled) return;
 
-      const result = rawContent ? await compileMDX(rawContent, "release") : null;
+      const result = rawContent
+        ? await compileMDX(rawContent, "release", `Release ${version}`)
+        : null;
       if (cancelled) return;
 
       setCompiled(result);
@@ -34,6 +36,12 @@ export function ReleasePage() {
 
   const title = (compiled?.frontmatter?.title as string) || `Release ${version}`;
   const Content = compiled?.content;
+  const needsTitle = loading || !Content;
+  const fallbackTitle = needsTitle && (
+    <header className="max-w-[720px] lg:ml-66">
+      <h1>{title}</h1>
+    </header>
+  );
 
   return (
     <section className="p-4 sm:p-6 md:p-10 md:pt-10 font-sans">
@@ -41,10 +49,7 @@ export function ReleasePage() {
         <Breadcrumbs title={title} />
 
         <section className="prose prose-sm sm:prose-base mb-10 min-w-0 max-w-none prose-pre:max-w-full prose-pre:overflow-x-auto">
-          <header className="max-w-[720px] lg:ml-66">
-            <h1>{title}</h1>
-          </header>
-
+          {fallbackTitle}
           <ContentRenderer loading={loading} Content={Content} />
         </section>
       </article>

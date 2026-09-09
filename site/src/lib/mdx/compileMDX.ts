@@ -62,38 +62,40 @@ function htmlElement(tagName: string, className: string, children: HtmlNode[]): 
   return { type: "element", tagName, properties, children };
 }
 
-function releaseSection(nodes: HtmlNode[]): HtmlElement {
+function releaseContent(nodes: HtmlNode[]): HtmlElement {
+  const className =
+    "min-w-0 max-w-[720px] [&>:first-child]:mt-0 [&_pre]:max-w-full [&_table]:block [&_table]:overflow-x-auto";
+  return htmlElement("div", className, nodes);
+}
+
+function releaseSection(nodes: HtmlNode[], isIntro = false): HtmlElement {
   const isSummary = (node: HtmlNode) =>
     node.type === "mdxJsxFlowElement" && node.name === "ReleaseSummary";
   const summary = nodes.filter(isSummary);
   const body = nodes.filter((node) => !isSummary(node));
-  const notes = htmlElement(
-    "div",
-    "hidden lg:block min-w-0 lg:self-start lg:sticky lg:top-24",
-    summary,
-  );
-  const content = htmlElement(
-    "div",
-    "min-w-0 max-w-[720px] [&>:first-child]:mt-0 [&_pre]:max-w-full [&_table]:block [&_table]:overflow-x-auto",
-    body,
-  );
-  return htmlElement(
-    "section",
-    "grid min-w-0 grid-cols-1 gap-6 border-t border-base-content/10 py-10 lg:grid-cols-[14rem_minmax(0,1fr)] lg:gap-10",
-    [notes, content],
-  );
+  const visibility = isIntro ? "order-2 lg:order-none" : "hidden lg:block";
+  const notesClass = [visibility, "min-w-0 lg:self-start lg:sticky lg:top-24"].join(" ");
+  const notes = htmlElement("div", notesClass, summary);
+  const content = releaseContent(body);
+  const spacing = isIntro ? "pb-10" : "border-t border-base-content/10 py-10";
+  const className = [
+    "grid min-w-0 grid-cols-1 gap-6 lg:grid-cols-[14rem_minmax(0,1fr)] lg:gap-10",
+    spacing,
+  ].join(" ");
+  return htmlElement("section", className, [notes, content]);
 }
 
-function groupReleaseSections(nodes: HtmlNode[]): HtmlNode[] {
+function groupReleaseSections(nodes: HtmlNode[], title: string): HtmlNode[] {
   const starts = nodes.flatMap((node, index) => {
     const isMainHeading = node.type === "element" && node.tagName === "h2";
     return isMainHeading ? [index] : [];
   });
-  if (starts.length === 0) return nodes;
   const sections = starts.map((start, index) =>
     releaseSection(nodes.slice(start, starts[index + 1])),
   );
-  const intro = htmlElement("div", "max-w-[720px] lg:ml-66", nodes.slice(0, starts[0]));
+  const heading = htmlElement("h1", "", [{ type: "text", value: title }]);
+  const introNodes: HtmlNode[] = [heading];
+  const intro = releaseSection(introNodes.concat(nodes.slice(0, starts[0])), true);
   return [intro].concat(sections);
 }
 
@@ -113,13 +115,19 @@ async function compileMarkdown(content: string, collectContent: () => (tree: Htm
   });
 }
 
-export async function compileMDX(source: string, layout?: "release"): Promise<CompiledMDX> {
+export async function compileMDX(
+  source: string,
+  layout?: "release",
+  fallbackTitle = "Release notes",
+): Promise<CompiledMDX> {
   const { frontmatter, content: mdxContent } = extractFrontmatter(source);
+  const hasTitle = typeof frontmatter.title === "string";
+  const title = hasTitle ? frontmatter.title : fallbackTitle;
   let headings: Heading[] = [];
   const collectContent = () => (tree: HtmlRoot) => {
     const nodes = tree.children.filter((node): node is HtmlNode => node.type !== "doctype");
     headings = nodes.flatMap(collectHeadings);
-    if (layout === "release") tree.children = groupReleaseSections(nodes);
+    if (layout === "release") tree.children = groupReleaseSections(nodes, title);
   };
   const compiled = await compileMarkdown(mdxContent, collectContent);
   const runtimeOptions = Object.assign({}, runtime, { baseUrl: import.meta.url });
