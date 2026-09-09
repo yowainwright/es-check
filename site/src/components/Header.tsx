@@ -98,7 +98,7 @@ function NavActions() {
         href="https://github.com/yowainwright/es-check"
         aria-label="GitHub"
       >
-        <GithubIcon className="h-5 w-5" aria-hidden="true" />
+        <GithubIcon className="size-4" aria-hidden="true" />
       </a>
       <ThemeToggle />
     </div>
