@@ -1,7 +1,9 @@
 @import "tailwindcss";
 @import "./terminal.css";
 @import "./animations.css";
-@plugin "daisyui";
+@plugin "daisyui" {
+  themes: false;
+}
 @plugin "daisyui/theme" {
   name: "light";
   default: true;

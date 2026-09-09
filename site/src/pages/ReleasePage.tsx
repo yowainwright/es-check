@@ -93,7 +93,7 @@ export function ReleasesPage() {
               params={{ version: release.slug }}
               className="text-xl font-semibold text-primary hover:underline"
             >
-              ES Check {release.slug.replace("-", ".")}.*
+              ES Check {release.slug.replace("-", ".")}
             </Link>
           </li>
         ))}

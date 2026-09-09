@@ -1,5 +1,6 @@
 import { Link, useLocation } from "@tanstack/react-router";
-import { ArrowRight, Menu } from "lucide-react";
+import { Menu } from "lucide-react";
+import { GithubIcon } from "./GithubIcon";
 import { ThemeToggle } from "./ThemeToggle";
 import { SimpleSearch } from "./SimpleSearch";
 import { SITE_NAVIGATION } from "@/constants/sidebar";
@@ -97,7 +98,7 @@ function NavActions() {
         href="https://github.com/yowainwright/es-check"
         aria-label="GitHub"
       >
-        <ArrowRight className="h-5 w-5" aria-hidden="true" />
+        <GithubIcon className="h-5 w-5" aria-hidden="true" />
       </a>
       <ThemeToggle />
     </div>
