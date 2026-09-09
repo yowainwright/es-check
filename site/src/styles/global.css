@@ -1,7 +1,9 @@
 @import "tailwindcss";
 @import "./terminal.css";
 @import "./animations.css";
-@plugin "daisyui";
+@plugin "daisyui" {
+  themes: false;
+}
 @plugin "daisyui/theme" {
   name: "light";
   default: true;
@@ -80,16 +82,16 @@
 
 html {
   font-family: var(--font-sans);
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 body {
   font-family: var(--font-sans);
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 #root {
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 .font-sans {

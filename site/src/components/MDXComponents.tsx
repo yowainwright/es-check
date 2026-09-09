@@ -76,7 +76,7 @@ function ReleaseSummary({ children }: { children: React.ReactNode }) {
   return (
     <aside
       aria-label="Section summary"
-      className="not-prose rounded-lg border border-base-content/15 bg-base-200/60 p-4 text-sm leading-relaxed text-base-content/80 [&_p]:m-0 [&_p+p]:mt-2 [&_strong]:text-base-content [&_a]:mt-3 [&_a]:inline-block [&_code]:whitespace-nowrap"
+      className="not-prose rounded-lg border border-base-content/15 p-6 text-xs leading-relaxed text-base-content/80 [&_p]:m-0 [&_p+p]:mt-2 [&_strong]:text-base-content [&_a]:mt-3 [&_a]:inline-block [&_code]:whitespace-nowrap"
     >
       {children}
     </aside>

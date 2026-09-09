@@ -116,7 +116,7 @@ describe("ES Check 9.7 release notes", () => {
   });
 
   it("opens with a TL;DR and closes with a summary", () => {
-    const overviewIndex = source.indexOf("**TL;DR**");
+    const overviewIndex = source.indexOf("### TL;DR");
     const firstSectionIndex = source.indexOf("## ES2026 Support");
     assert.ok(overviewIndex > 0 && overviewIndex < firstSectionIndex);
     const headings = tree.children.filter((node) => node.type === "heading");
@@ -132,7 +132,7 @@ describe("ES Check 9.7 release notes", () => {
     const cards = tree.children
       .filter((node) => node.type === "mdxJsxFlowElement")
       .filter((node) => node.name === "ReleaseSummary");
-    assert.equal(cards.length, 5);
+    assert.equal(cards.length, 6);
     cards.forEach((card) => {
       const title = card.children[0];
       assert.equal(title.type, "paragraph");
@@ -209,6 +209,31 @@ describe("ES Check 9.7 release notes", () => {
 });
 
 describe("Documentation headings and release sections", () => {
+  it("places the dated introduction beside the title and keeps TL;DR in the main column", async () => {
+    const compiled = await compileMDX(source, "release");
+    const html = renderToStaticMarkup(
+      createElement(compiled.content, { components: mdxComponents }),
+    );
+    const sidebar = html.slice(html.indexOf("<aside"), html.indexOf("</aside>"));
+
+    assert.match(sidebar, /<strong>Sept 7, 2026<\/strong>/);
+    assert.match(sidebar, /ES Check 9\.7 adds ES2026 support/);
+    assert.ok(!sidebar.includes("TL;DR"));
+    assert.equal(html.match(/<h1\b/g)?.length, 1);
+    assert.match(html, /<\/aside><\/div><div[^>]*><h1[^>]*>ES Check, 9\.7;/);
+    assert.ok(html.indexOf("</h1>") < html.indexOf('id="tldr"'));
+  });
+
+  it("retains the title and content in a short release without section headings", async () => {
+    const compiled = await compileMDX("A short release.", "release", "Release 1.2");
+    const html = renderToStaticMarkup(
+      createElement(compiled.content, { components: mdxComponents }),
+    );
+
+    assert.match(html, /<h1[^>]*>Release 1\.2<\/h1>/);
+    assert.match(html, /<p>A short release\.<\/p>/);
+  });
+
   it("uses rendered IDs for inline code, duplicate headings, and level-four headings", async () => {
     const markdown =
       "## Use `Array.fromAsync`\n\n### Details\n\n#### Limits\n\n## Use `Array.fromAsync`\n\n```text\n## Not a heading\n```";
@@ -229,8 +254,8 @@ describe("Documentation headings and release sections", () => {
       createElement(compiled.content, { components: mdxComponents }),
     );
     const mainHeadings = compiled.headings.filter((heading) => heading.depth === 2);
-    assert.equal(html.match(/<section\b/g)?.length, mainHeadings.length);
-    assert.equal(html.match(/aria-label="Section summary"/g)?.length, 5);
+    assert.equal(html.match(/<section\b/g)?.length, mainHeadings.length + 1);
+    assert.equal(html.match(/aria-label="Section summary"/g)?.length, 6);
     assert.ok(html.includes("collectSearchResults"));
     assert.ok(html.includes("formatDeliveryWindow"));
     assert.ok(html.includes("hidden lg:block"));

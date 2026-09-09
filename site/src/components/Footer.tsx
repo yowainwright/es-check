@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowRight } from "lucide-react";
+import { GithubIcon } from "./GithubIcon";
 import { resolveUrl } from "@/utils/url";
 import { useScrollAnimation } from "@/hooks/useScrollAnimation";
 
@@ -21,7 +21,7 @@ export function Footer() {
             href="https://github.com/yowainwright/es-check"
             aria-label="GitHub"
           >
-            <ArrowRight className="h-5 w-5" aria-hidden="true" />
+            <GithubIcon className="size-4" aria-hidden="true" />
           </a>
         </div>
       </div>
