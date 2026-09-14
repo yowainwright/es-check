@@ -486,6 +486,10 @@ describe("helpers/astDetector.js", () => {
       'typeof Float16Array>"a"?Float16Array:void 0;',
       'typeof Float16Array<"z"?Float16Array:void 0;',
       'typeof Float16Array.BYTES_PER_ELEMENT<"u"&&Float16Array;',
+      'if((typeof Float16Array<"u")===false){Float16Array;}',
+      'if(false===("u">typeof Float16Array)){Float16Array;}',
+      'if((typeof Float16Array>"u")!==true){}else{Float16Array;}',
+      'if((typeof Float16Array<"u")===condition){Float16Array;}',
     ].forEach((code) => {
       it(`should detect globals without a safe minified guard: ${code}`, () => {
         const result = detectFeaturesFromAST(parse(code));
