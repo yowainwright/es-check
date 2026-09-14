@@ -461,6 +461,36 @@ describe("helpers/astDetector.js", () => {
       assert.strictEqual(result.Reflect, true);
     });
 
+    it("should not detect globals in minified negative typeof ternary alternates", () => {
+      const ast = parse('typeof Reflect>"u"?installShim():Reflect.get(a,b);');
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Reflect, false);
+    });
+
+    it("should not detect globals in minified positive typeof and guards", () => {
+      const ast = parse('typeof Reflect<"u"&&Reflect.get(a,b);');
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Reflect, false);
+    });
+
+    it("should not detect globals in reversed minified positive typeof and guards", () => {
+      const ast = parse('"u">typeof Reflect&&Reflect.get(a,b);');
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Reflect, false);
+    });
+
+    it("should detect globals in minified negative typeof and guards", () => {
+      const ast = parse('typeof Reflect>"u"&&Reflect.get(a,b);');
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Reflect, true);
+    });
+
+    it("should detect globals in minified non-undefined typeof comparisons", () => {
+      const ast = parse('typeof Reflect>"a"&&Reflect.get(a,b);');
+      const result = detectFeaturesFromAST(ast);
+      assert.strictEqual(result.Reflect, true);
+    });
+
     it("should not detect imported names as global references", () => {
       const ast = parse("import { Proxy } from './proxy-shim.js'; Proxy.create(target);");
       const result = detectFeaturesFromAST(ast);
