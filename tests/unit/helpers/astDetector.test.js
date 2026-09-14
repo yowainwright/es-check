@@ -461,6 +461,38 @@ describe("helpers/astDetector.js", () => {
       assert.strictEqual(result.Reflect, true);
     });
 
+    [
+      'var a=typeof Float16Array>"u"?void 0:Float16Array;',
+      'var a=typeof Float16Array<"u"?Float16Array:void 0;',
+      'var a="u"<typeof Float16Array?void 0:Float16Array;',
+      'var a="u">typeof Float16Array?Float16Array:void 0;',
+      'typeof Float16Array>"u"||Float16Array;',
+      'typeof Float16Array<"u"&&Float16Array;',
+      'if(typeof Float16Array<"u"){Float16Array;}',
+    ].forEach((code) => {
+      it(`should not detect globals protected by minified guards: ${code}`, () => {
+        const result = detectFeaturesFromAST(parse(code));
+        assert.strictEqual(result.Float16Array, false);
+      });
+    });
+
+    [
+      'typeof Float16Array>"u"?Float16Array:void 0;',
+      'typeof Float16Array<"u"?void 0:Float16Array;',
+      '"u"<typeof Float16Array?Float16Array:void 0;',
+      '"u">typeof Float16Array?void 0:Float16Array;',
+      'typeof Float16Array<"u"||Float16Array;',
+      'typeof Float16Array>"u"&&Float16Array;',
+      'typeof Float16Array>"a"?Float16Array:void 0;',
+      'typeof Float16Array<"z"?Float16Array:void 0;',
+      'typeof Float16Array.BYTES_PER_ELEMENT<"u"&&Float16Array;',
+    ].forEach((code) => {
+      it(`should detect globals without a safe minified guard: ${code}`, () => {
+        const result = detectFeaturesFromAST(parse(code));
+        assert.strictEqual(result.Float16Array, true);
+      });
+    });
+
     it("should not detect imported names as global references", () => {
       const ast = parse("import { Proxy } from './proxy-shim.js'; Proxy.create(target);");
       const result = detectFeaturesFromAST(ast);
