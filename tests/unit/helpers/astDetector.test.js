@@ -497,6 +497,36 @@ describe("helpers/astDetector.js", () => {
       });
     });
 
+    [
+      ['(typeof Float16Array<"u")===true', true],
+      ['(typeof Float16Array<"u")===false', false],
+      ['(typeof Float16Array<"u")!==false', true],
+      ['(typeof Float16Array<"u")!==true', false],
+      ['(typeof Float16Array>"u")==false', true],
+      ['(typeof Float16Array>"u")==true', false],
+      ['(typeof Float16Array>"u")!=true', true],
+      ['(typeof Float16Array>"u")!=false', false],
+      ['true===("u">typeof Float16Array)', true],
+      ['false===("u">typeof Float16Array)', false],
+      ['false!==("u">typeof Float16Array)', true],
+      ['true!==("u">typeof Float16Array)', false],
+      ['false==("u"<typeof Float16Array)', true],
+      ['true==("u"<typeof Float16Array)', false],
+      ['true!=("u"<typeof Float16Array)', true],
+      ['false!=("u"<typeof Float16Array)', false],
+      ['((typeof Float16Array<"u")===false)===false', true],
+      ['((typeof Float16Array<"u")===false)===true', false],
+      ['(typeof Float16Array!=="undefined")===true', true],
+      ['(typeof Float16Array==="function")===false', false],
+    ].forEach(([condition, guardedBranch]) => {
+      it(`should preserve both branches of boolean-wrapped guards: ${condition}`, () => {
+        const consequent = parse(`if(${condition}){Float16Array;}`);
+        const alternate = parse(`if(${condition}){}else{Float16Array;}`);
+        assert.strictEqual(detectFeaturesFromAST(consequent).Float16Array, !guardedBranch);
+        assert.strictEqual(detectFeaturesFromAST(alternate).Float16Array, guardedBranch);
+      });
+    });
+
     it("should not detect imported names as global references", () => {
       const ast = parse("import { Proxy } from './proxy-shim.js'; Proxy.create(target);");
       const result = detectFeaturesFromAST(ast);
