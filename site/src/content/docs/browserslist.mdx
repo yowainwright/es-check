@@ -107,11 +107,41 @@ In `.escheckrc`:
 }
 ```
 
+## Feature-Level Browser Checks
+
+Mapping browsers to a single ES version is coarse: a browser can ship most of an ES release while
+still missing a few APIs or syntax forms. Combine `--checkBrowser` with `--checkFeatures` to check
+every detected feature against the concrete browser versions resolved from browserslist:
+
+```bash
+es-check checkBrowser ./dist/**/*.js --checkFeatures
+```
+
+With `ios_saf 15.0` in your browserslist, the ES version is ES2022, but `Object.hasOwn` (added in
+iOS Safari 15.4) and class static blocks (16.4) are still reported:
+
+```
+Unsupported features detected: ObjectHasOwn (safari_ios 15.0 requires 15.4), ClassStaticBlocks (safari_ios 15.0 requires 16.4). These require a higher ES version than 13 or are not supported by the target browsers.
+```
+
+Feature support data comes from [MDN browser-compat-data](https://github.com/mdn/browser-compat-data)
+and is generated into `lib/constants/es-features/browserSupport.js` with `pnpm scripts:generate:browser-support`.
+
+- The earliest version that ships a feature is used, including `partial_implementation` entries.
+  ES Check verifies that syntax parses and APIs exist; it does not verify complete implementations.
+- Entries behind runtime flags are ignored.
+- Browserslist version ranges such as `ios_saf 15.0-15.1` use the lower bound.
+- Browsers without browser-compat-data (`op_mini`, `kaios`, `baidu`, ...) and unversioned releases
+  (`safari TP`, `op_mini all`) are skipped; the ES version check still applies to them.
+- Features without browser-compat-data fall back to the ES version check.
+- `--ignore`, `--allowList`, `--checkForPolyfills`, and `--ignorePolyfillable` apply as usual.
+
 ## How It Works
 
 1. ES Check reads your browserslist configuration
 2. Determines the minimum ES version needed for those browsers
 3. Checks your code against that ES version
-4. Reports any incompatibilities
+4. With `--checkFeatures`, checks each detected feature against every target browser version
+5. Reports any incompatibilities, naming the browsers that lack support
 
 This ensures your code works in all your target browsers without manually tracking ES version support.

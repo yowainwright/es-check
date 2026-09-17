@@ -229,6 +229,16 @@ es-check --checkBrowser --browserslistQuery="last 2 versions" ./dist/**/*.js
 es-check --checkBrowser --browserslistQuery=">0.5%, not dead" --checkFeatures ./dist/**/*.js
 ```
 
+When `--checkBrowser` is combined with `--checkFeatures`, every detected feature is also checked
+against the individual browser versions resolved from browserslist using
+[MDN browser-compat-data](https://github.com/mdn/browser-compat-data). For example
+`--browserslistQuery="ios_saf 15.0"` maps to ES2022, but `Object.hasOwn` and class static blocks are still
+reported because iOS Safari added them in 15.4 and 16.4. Failures name the browser that lacks support:
+
+```
+Unsupported features detected: ObjectHasOwn (safari_ios 15.0 requires 15.4). These require a higher ES version than 13 or are not supported by the target browsers.
+```
+
 **Using browserlist just like an es version**
 
 ```sh
