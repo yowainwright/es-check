@@ -118,7 +118,7 @@ function SidebarSectionItem({ section, pathname }: { section: SidebarSection; pa
 function SidebarNavItem({ item, pathname }: { item: SidebarItem; pathname: string }) {
   const isRelease = item.href === "/release" && pathname.startsWith("/release");
   const isActive = pathname === item.href || isRelease;
-  const activeClass = isActive ? "text-primary bg-primary/5" : "";
+  const activeClass = isActive ? "text-primary bg-primary/5 shadow-none" : "";
 
   return (
     <li className="flex flex-col">
