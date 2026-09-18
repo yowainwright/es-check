@@ -69,7 +69,8 @@ es-check es5 './dist/**/*.js' --not='./dist/vendor/**/*.js'
 
 ### `--checkFeatures`
 
-Check for ES version specific features (default: false)
+Check for ES version specific features (default: false). With `--checkBrowser`, also check detected
+features against individual target browser versions using MDN compatibility data.
 
 ```bash
 es-check es6 './dist/**/*.js' --checkFeatures
@@ -132,6 +133,14 @@ Use browserslist configuration to determine ES version
 ```bash
 es-check --checkBrowser --browserslistQuery="last 2 versions" ./dist/**/*.js
 ```
+
+Add `--checkFeatures` to catch features missing from a target browser even when its ES version allows them:
+
+```bash
+es-check --checkBrowser --checkFeatures --browserslistQuery="ios_saf 15.0" './dist/**/*.js'
+```
+
+See [feature-level browser checks](/docs/browserslist#feature-level-browser-checks) for compatibility data rules.
 
 ### `--browserslistQuery <query>`
 

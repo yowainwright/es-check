@@ -31,15 +31,31 @@ All command-line options can be specified in the configuration file:
 | `module`             | Boolean        | Parse files as ES modules                                                            |
 | `not`                | Array          | Files or patterns to exclude                                                         |
 | `allowHashBang`      | Boolean        | Allow hash bang in files                                                             |
-| `checkFeatures`      | Boolean        | Check for ES version specific features                                               |
+| `checkFeatures`      | Boolean        | Check ES features and, with `checkBrowser`, support in target browsers               |
 | `checkForPolyfills`  | Boolean        | Consider polyfills when checking                                                     |
 | `ignorePolyfillable` | Boolean/String | Ignore polyfillable features; set to library name (e.g., `"core-js"`) to limit scope |
 | `ignore`             | Array          | Features to ignore                                                                   |
 | `ignoreFile`         | String         | Path to JSON file with features to ignore                                            |
 | `allowList`          | Array          | Features to allow                                                                    |
-| `checkBrowser`       | Boolean        | Use browserslist configuration                                                       |
+| `checkBrowser`       | Boolean        | Select an ES target from Browserslist; use with `checkFeatures` for browser checks   |
 | `browserslistQuery`  | String         | Custom browserslist query                                                            |
 | `browserslistPath`   | String         | Custom path to browserslist config file                                              |
+
+## Browser Feature Checks
+
+Enable both options to check detected features against individual target browsers as well as the
+ES version selected by Browserslist:
+
+```json
+{
+  "checkBrowser": true,
+  "checkFeatures": true,
+  "browserslistQuery": "last 2 versions",
+  "files": ["dist/**/*.js"]
+}
+```
+
+See [Browserslist integration](/docs/browserslist#feature-level-browser-checks) for compatibility data rules.
 
 ## Multiple Configurations
 

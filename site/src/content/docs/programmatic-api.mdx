@@ -129,7 +129,8 @@ const config = {
   files: ["dist/**/*.js"], // Files to check (array or string)
   module: false, // Use ES modules
   allowHashBang: false, // Allow hashbang comments
-  checkFeatures: true, // Check for ES version specific features
+  checkFeatures: true, // Check ES features and browser support when checkBrowser is enabled
+  checkBrowser: false, // Use Browserslist targets; combine with checkFeatures for browser checks
   checkForPolyfills: false, // Consider polyfills when checking
   not: ["**/vendor/*.js"], // Files/folders to exclude
   looseGlobMatching: false, // Don't fail if no files found
@@ -257,6 +258,9 @@ async function checkMultipleTargets() {
 
 ### With Browserslist
 
+Set `checkFeatures: true` with `ecmaVersion: "checkBrowser"` or `checkBrowser: true` to check
+detected features against individual target browser versions as well as the resolved ES version.
+
 ```javascript
 const { runChecks } = require("es-check");
 
@@ -279,7 +283,7 @@ async function checkBrowserCompatibility() {
   }
   // Output depends on logger configuration
   // Silent mode: no output
-  // With logger: "ES-Check: Using ES11 based on browserslist configuration"
+  // Debug logging includes the resolved ES version and target browser versions.
   return { success: true };
 }
 ```

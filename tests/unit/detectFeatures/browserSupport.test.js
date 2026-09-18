@@ -3,9 +3,18 @@ const assert = require("assert");
 const acorn = require("acorn");
 
 const detectFeatures = require("../../../lib/detectFeatures");
+const { getESVersionFromBrowserslist, getTargetBrowsers } = require("../../../lib/browserslist");
 
 function parse(code) {
   return acorn.parse(code, { ecmaVersion: 2026, sourceType: "script" });
+}
+
+function checkBrowserFeatures(code, browserslistQuery) {
+  const options = { browserslistQuery };
+  const ecmaVersion = getESVersionFromBrowserslist(options);
+  const targetBrowsers = getTargetBrowsers(options);
+  const ast = parse(code);
+  return detectFeatures(code, ecmaVersion, "script", new Set(), { ast, targetBrowsers });
 }
 
 const hasOwnCode = 'Object.hasOwn({}, "a");';
@@ -63,6 +72,50 @@ test("should respect the ignore list for browser-unsupported features", () => {
   });
 
   assert.deepStrictEqual(result.unsupportedFeatures, []);
+});
+
+test("should respect ignorePolyfillable for browser-unsupported features", () => {
+  const result = detectFeatures(hasOwnCode, 13, "script", new Set(), {
+    ast: parse(hasOwnCode),
+    targetBrowsers: IOS_15_0,
+    ignorePolyfillable: "core-js",
+  });
+
+  assert.deepStrictEqual(result.unsupportedFeatures, []);
+});
+
+test("should respect detected polyfills for browser-unsupported features", () => {
+  const code = 'require("core-js/actual/object/has-own");' + hasOwnCode;
+  const result = detectFeatures(code, 13, "script", new Set(), {
+    ast: parse(code),
+    targetBrowsers: IOS_15_0,
+    checkForPolyfills: true,
+  });
+
+  assert.deepStrictEqual(result.unsupportedFeatures, []);
+});
+
+["Object", "Map"].forEach((receiver) => {
+  const code = `${receiver}.groupBy([1], (value) => value);`;
+  const feature = `${receiver}GroupBy`;
+
+  ["safari", "ios_saf"].forEach((browser) => {
+    test(`${feature} should fail for ${browser} 17.0 despite the older Array API`, () => {
+      assert.throws(
+        () => checkBrowserFeatures(code, `${browser} 17.0`),
+        (error) => {
+          assert.deepStrictEqual(error.features, [feature]);
+          assert.strictEqual(error.browserDetails[feature][0].requiredVersion, "17.4");
+          return true;
+        },
+      );
+    });
+
+    test(`${feature} should pass for ${browser} 17.4`, () => {
+      const result = checkBrowserFeatures(code, `${browser} 17.4`);
+      assert.deepStrictEqual(result.unsupportedFeatures, []);
+    });
+  });
 });
 
 test("should check syntax features and globals against target browsers", () => {
