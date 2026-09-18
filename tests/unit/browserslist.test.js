@@ -1,6 +1,10 @@
 const { describe, it, before, after } = require("node:test");
 const assert = require("node:assert");
-const { getESVersionFromBrowserslist, getESVersionForBrowser } = require("../../lib/browserslist");
+const {
+  getESVersionFromBrowserslist,
+  getESVersionForBrowser,
+  getTargetBrowsers,
+} = require("../../lib/browserslist");
 const fs = require("fs");
 const path = require("path");
 
@@ -263,5 +267,61 @@ describe("getESVersionFromBrowserslist - ios", () => {
       browserslistQuery: "ios >= 9",
     });
     assert.strictEqual(esVersion, 6, "ios >= 9 should return ES6");
+  });
+});
+
+describe("getTargetBrowsers", () => {
+  it("should map browserslist names to browser-compat-data identifiers", () => {
+    const browsers = getTargetBrowsers({
+      browserslistQuery: "ios_saf 15.4, firefox 120, chrome 120",
+    });
+
+    assert.deepStrictEqual(browsers, [
+      { name: "chrome", version: "120", browserslistName: "chrome" },
+      { name: "firefox", version: "120", browserslistName: "firefox" },
+      { name: "safari_ios", version: "15.4", browserslistName: "ios_saf" },
+    ]);
+  });
+
+  it("should map mobile browserslist names to their browser-compat-data identifiers", () => {
+    const browsers = getTargetBrowsers({
+      browserslistQuery: "last 1 and_chr version, last 1 and_ff version",
+    });
+    const names = browsers.map((browser) => browser.name);
+
+    assert.deepStrictEqual(names, ["chrome_android", "firefox_android"]);
+  });
+
+  it("should use the lower bound of version ranges", () => {
+    const browsers = getTargetBrowsers({ browserslistQuery: "ios_saf 15.0-15.1" });
+
+    assert.deepStrictEqual(browsers, [
+      { name: "safari_ios", version: "15.0", browserslistName: "ios_saf" },
+    ]);
+  });
+
+  it("should skip unknown browsers and unversioned releases", () => {
+    const browsers = getTargetBrowsers({
+      browserslistQuery: "op_mini all, safari TP, kaios 3.0-3.1, chrome 120",
+    });
+
+    assert.deepStrictEqual(browsers, [
+      { name: "chrome", version: "120", browserslistName: "chrome" },
+    ]);
+  });
+
+  it("should respect browserslist config path and environment", () => {
+    const browsers = getTargetBrowsers({
+      browserslistPath: path.join(__dirname, ".browserslistrc-env"),
+      browserslistEnv: "legacy",
+    });
+
+    assert.deepStrictEqual(browsers, [{ name: "ie", version: "11", browserslistName: "ie" }]);
+  });
+
+  it("should return an empty list when browserslist fails", () => {
+    const browsers = getTargetBrowsers({ browserslistQuery: "not a real query ???" });
+
+    assert.deepStrictEqual(browsers, []);
   });
 });

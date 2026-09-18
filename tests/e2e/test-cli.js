@@ -273,4 +273,54 @@ try {
   fs.unlinkSync(es6File);
 }
 
+log.info("Test 18: Browser-aware feature check should fail for iOS 15.0 with Object.hasOwn");
+const hasOwnFile = path.join(__dirname, "temp-has-own.js");
+fs.writeFileSync(hasOwnFile, 'const owned = Object.hasOwn({ a: 1 }, "a");');
+try {
+  execFileSync(
+    "node",
+    [
+      esCheckPath,
+      "checkBrowser",
+      hasOwnFile,
+      "--checkFeatures",
+      "--browserslistQuery=ios_saf 15.0",
+    ],
+    { encoding: "utf8", stdio: "pipe" },
+  );
+  log.error("[FAIL] Test 18 failed - iOS 15.0 should not support Object.hasOwn");
+  process.exit(1);
+} catch (error) {
+  const output = `${error.stdout || ""}${error.stderr || ""}`;
+  const hasBrowserDetail = output.includes("ObjectHasOwn (safari_ios 15.0 requires 15.4)");
+  assert.ok(hasBrowserDetail, "Should report the browser that lacks support");
+  log.info("[PASS] Test 18 passed (expected failure)\n");
+} finally {
+  fs.unlinkSync(hasOwnFile);
+}
+
+log.info("Test 19: Browser-aware feature check should pass for iOS 15.4 with Object.hasOwn");
+const hasOwnFile2 = path.join(__dirname, "temp-has-own2.js");
+fs.writeFileSync(hasOwnFile2, 'const owned = Object.hasOwn({ a: 1 }, "a");');
+try {
+  execFileSync(
+    "node",
+    [
+      esCheckPath,
+      "checkBrowser",
+      hasOwnFile2,
+      "--checkFeatures",
+      "--browserslistQuery=ios_saf 15.4",
+    ],
+    { encoding: "utf8" },
+  );
+  log.info("[PASS] Test 19 passed\n");
+} catch (error) {
+  log.error("[FAIL] Test 19 failed - iOS 15.4 should support Object.hasOwn");
+  log.error(error.message);
+  process.exit(1);
+} finally {
+  fs.unlinkSync(hasOwnFile2);
+}
+
 log.info("[PASS] All CLI tests passed!");

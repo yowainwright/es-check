@@ -307,6 +307,45 @@ describe("check-runner/utils.js", () => {
       assert.strictEqual(result.hasError, false);
       assert.strictEqual(debugMessages.length, 1);
       assert.match(debugMessages[0], /browserslist/);
+      assert.match(debugMessages[0], /target browsers: chrome \d+/);
+    });
+
+    it("should resolve target browsers when checkBrowser is true", () => {
+      const config = {
+        checkBrowser: true,
+        browserslistQuery: "ios_saf 15.0-15.1, chrome 120",
+      };
+      const options = {
+        logger: null,
+        isDebug: false,
+        isWarn: false,
+        isNodeAPI: true,
+        allErrors: [],
+      };
+
+      const result = determineEcmaVersion(config, options);
+
+      assert.strictEqual(result.hasError, false);
+      assert.deepStrictEqual(result.targetBrowsers, [
+        { name: "chrome", version: "120", browserslistName: "chrome" },
+        { name: "safari_ios", version: "15.0", browserslistName: "ios_saf" },
+      ]);
+    });
+
+    it("should return no target browsers for explicit ES versions", () => {
+      const config = { ecmaVersion: "es2022" };
+      const options = {
+        logger: null,
+        isDebug: false,
+        isWarn: false,
+        isNodeAPI: true,
+        allErrors: [],
+      };
+
+      const result = determineEcmaVersion(config, options);
+
+      assert.strictEqual(result.hasError, false);
+      assert.deepStrictEqual(result.targetBrowsers, []);
     });
   });
 
