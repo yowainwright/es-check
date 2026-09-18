@@ -124,13 +124,14 @@ function formatFeature(featureName, support) {
   return `  ${featureName}: {\n${lines.join("\n")}\n  },`;
 }
 
-function createModuleTemplate(browserSupport) {
+function createModuleTemplate(browserSupport, bcdVersion) {
   const sortedFeatures = Object.keys(browserSupport).sort();
   const body = sortedFeatures
     .map((featureName) => formatFeature(featureName, browserSupport[featureName]))
     .join("\n");
 
-  return `const FEATURE_BROWSER_SUPPORT = {
+  return `// Generated from @mdn/browser-compat-data ${bcdVersion}; run pnpm scripts:generate:browser-support.
+const FEATURE_BROWSER_SUPPORT = {
 ${body}
 };
 
@@ -144,7 +145,8 @@ function getOutputPath() {
 
 function main() {
   const browserSupport = generateBrowserSupport();
-  writeFileSync(getOutputPath(), createModuleTemplate(browserSupport));
+  const bcdVersion = bcd.__meta.version;
+  writeFileSync(getOutputPath(), createModuleTemplate(browserSupport, bcdVersion));
 }
 
 main();
