@@ -11,6 +11,18 @@ ES Check can detect specific ECMAScript features in your code using the `--check
 es-check es5 './dist/**/*.js' --checkFeatures
 ```
 
+## Checking Target Browsers
+
+Combine `--checkFeatures` with `--checkBrowser` to also check detected features against individual
+target browser versions using MDN compatibility data:
+
+```bash
+es-check --checkBrowser --checkFeatures --browserslistQuery="ios_saf 15.0" './dist/**/*.js'
+```
+
+For example, this reports `Object.hasOwn` because iOS Safari added it in 15.4, even though the
+ES2022 target permits it; see [Browserslist integration](/docs/browserslist#feature-level-browser-checks).
+
 ## Detected Features by Version
 
 ### ES6 (ES2015) Features

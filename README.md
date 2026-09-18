@@ -140,13 +140,13 @@ Here's a comprehensive list of all available options:
 | `--quiet`                     | Quiet mode: only displays warn and error messages (default: false)                                                          |
 | `--looseGlobMatching`         | Doesn't fail if no files are found in some globs/files (default: false)                                                     |
 | `--silent`                    | Silent mode: does not output anything, giving no indication of success or failure other than the exit code (default: false) |
-| `--checkFeatures`             | Check for actual ES version specific features (default: false)                                                              |
+| `--checkFeatures`             | Check ES features; with `--checkBrowser`, also check support in target browsers (default: false)                            |
 | `--checkForPolyfills`         | Consider polyfills when checking features (only works with --checkFeatures) (default: false)                                |
 | `--ignorePolyfillable [lib]`  | Ignore polyfillable features; optionally specify library (e.g., `core-js`) to limit scope                                   |
 | `--ignore <features>`         | Comma-separated list of features to ignore, e.g., "ErrorCause,TopLevelAwait"                                                |
 | `--ignoreFile <path>`         | Path to JSON file containing features to ignore                                                                             |
 | `--allowList <features>`      | Comma-separated list of features to allow even in lower ES versions, e.g., "const,let"                                      |
-| `--checkBrowser`              | Use browserslist configuration to determine ES version (default: false)                                                     |
+| `--checkBrowser`              | Select an ES target from Browserslist; add `--checkFeatures` for per-browser feature checks (default: false)                |
 | `--browserslistQuery <query>` | Custom browserslist query (e.g., "last 2 versions")                                                                         |
 | `--browserslistPath <path>`   | Path to custom browserslist configuration (default: uses standard browserslist config resolution)                           |
 | `--browserslistEnv <env>`     | Browserslist environment to use (default: production)                                                                       |
@@ -342,12 +342,12 @@ Here's an example of what an `.escheckrc` file will look like:
 | `not`                | Array           | Files or glob patterns to exclude                                                    |
 | `allowHashBang`      | Boolean         | Whether to allow hash bang in files                                                  |
 | `looseGlobMatching`  | Boolean         | Whether to ignore missing files in globs                                             |
-| `checkFeatures`      | Boolean         | Whether to check for ES version specific features                                    |
+| `checkFeatures`      | Boolean         | Check ES features and, with `checkBrowser`, support in target browsers               |
 | `checkForPolyfills`  | Boolean         | Whether to consider polyfills when checking features                                 |
 | `ignorePolyfillable` | Boolean/String  | Ignore polyfillable features; set to library name (e.g., `"core-js"`) to limit scope |
 | `ignore`             | Array           | Features to ignore when checking                                                     |
 | `allowList`          | Array           | Features to allow even in lower ES versions                                          |
-| `checkBrowser`       | Boolean         | Whether to use browserslist configuration to determine ES version                    |
+| `checkBrowser`       | Boolean         | Select an ES target from Browserslist; use with `checkFeatures` for browser checks   |
 | `browserslistQuery`  | String          | Custom browserslist query to use                                                     |
 | `browserslistPath`   | String          | Path to custom browserslist configuration                                            |
 | `browserslistEnv`    | String          | Browserslist environment to use                                                      |
@@ -522,6 +522,8 @@ es-check --checkBrowser --browserslistEnv="production" ./dist/**/*.js
 ```
 
 **Combining with feature checking:**
+
+Add `--checkFeatures` to check detected features against individual target browser versions using MDN compatibility data, as well as the selected ES version:
 
 ```sh
 es-check --checkBrowser --checkFeatures ./dist/**/*.js

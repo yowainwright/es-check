@@ -47,6 +47,16 @@ Use `--light` mode for faster checking in CI pipelines:
 npx es-check es5 './dist/**/*.js' --light
 ```
 
+### Example 5: Check Target Browser Features
+
+Use `--checkBrowser --checkFeatures` to check detected features against your target browsers:
+
+```bash
+npx es-check --checkBrowser --checkFeatures --browserslistQuery="last 2 versions" './dist/**/*.js'
+```
+
+See [Browserslist integration](/docs/browserslist#feature-level-browser-checks) for project configuration and compatibility data rules.
+
 ## Common Scenarios
 
 ### Production Build Check

@@ -38,3 +38,10 @@ test("FEATURE_BROWSER_SUPPORT should skip features without browser-compat-data",
   assert.strictEqual(FEATURE_BROWSER_SUPPORT.ArrayPrototypeGroup, undefined);
   assert.strictEqual(FEATURE_BROWSER_SUPPORT.ArrayPrototypeGroupToMap, undefined);
 });
+
+test("grouping methods should require standard API support in Safari", () => {
+  ["ObjectGroupBy", "MapGroupBy"].forEach((feature) => {
+    assert.strictEqual(FEATURE_BROWSER_SUPPORT[feature].safari, "17.4");
+    assert.strictEqual(FEATURE_BROWSER_SUPPORT[feature].safari_ios, "17.4");
+  });
+});
