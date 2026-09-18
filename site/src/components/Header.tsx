@@ -74,7 +74,7 @@ function isNavActive(pathname: string, item: { href: string; title: string }) {
 }
 
 function NavLink({ href, title, isActive }: { href: string; title: string; isActive: boolean }) {
-  const activeClass = isActive ? "text-primary bg-primary/5" : "";
+  const activeClass = isActive ? "text-primary bg-primary/5 shadow-none" : "";
 
   return (
     <Link
