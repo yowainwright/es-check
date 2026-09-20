@@ -1,0 +1,143 @@
+---
+title: "ES Check 9.8.0: check the browsers you support"
+description: ES Check 9.8.0 adds browser-specific feature checks, generated MDN compatibility data, and Safari support corrections.
+---
+
+<ReleaseSummary>
+
+**September 18, 2026**`
+
+Improves Checking detected JavaScript features against Browserslist targets with `--checkFeatures` with `--checkBrowser`.
+
+</ReleaseSummary>
+
+ES Check 9.8.0 checks detected JavaScript features against a target browser versions when combining `checkBrowser` with `--checkFeatures`.
+
+Thanks to [@re-taro](https://github.com/re-taro) for identifying this browser-support gap and contributing the fix in [#439](https://github.com/yowainwright/es-check/pull/439), their first contribution to ES Check.
+
+### Contents
+
+- [Catch gaps an ES-version check misses](#catch-gaps-an-es-version-check-misses)
+- [Why compatibility data stays in devDependencies](#why-compatibility-data-stays-in-devdependencies)
+- [What the data update changed](#what-the-data-update-changed)
+- [Upgrading to 9.8.0](#upgrading-to-980)
+
+## Catch gaps an ES-version check misses
+
+<ReleaseSummary>
+
+**Browser support**
+
+With `--checkBrowser` and `--checkFeatures`, failures name the target browser and the version a detected feature needs.
+
+</ReleaseSummary>
+
+A bundle can pass an ECMAScript version check and still use an API that one of your target browsers lacks.
+An examples is ES-Check maps iOS Safari 15.0 to ES2022, but although ESS2022 is generally supported, items like `Object.hasOwn` where not supported until s15.4.
+
+```ts
+Object.hasOwn({ name: "Ada" }, "name");
+```
+
+Check it against iOS Safari 15.0:
+
+```bash
+es-check checkBrowser './dist/**/*.js' --checkFeatures --browserslistQuery="ios_saf 15.0"
+```
+
+In 9.7.2, this passes because `Object.hasOwn` belongs to ES2022.
+In 9.8.0, it fails and names the browser that lacks support:
+
+```text
+Unsupported features detected: ObjectHasOwn (safari_ios 15.0 requires 15.4). These require a higher ES version than 13 or are not supported by the target browsers.
+```
+
+Changing the query to `ios_saf 15.4` makes this example pass.
+Class static blocks show the same problem: they belong to ES2022, but iOS Safari added them in 16.4.
+
+The new check covers detected syntax, APIs, and global built-ins using [MDN browser-compat-data](https://github.com/mdn/browser-compat-data).
+It runs alongside the existing ES-version check. [#439](https://github.com/yowainwright/es-check/pull/439) includes the implementation and examples.
+
+## Why compatibility data stays in devDependencies
+
+<ReleaseSummary>
+
+**Generate once, ship the data**
+
+MDN and core-js supply development inputs. ES Check ships generated tables for use at runtime.
+
+</ReleaseSummary>
+
+ES Check uses `@mdn/browser-compat-data` and `core-js-compat` during development to generate the tables that ship with the package.
+This follows the usual [devDependencies pattern](https://docs.npmjs.com/cli/v11/configuring-npm/package-json/#devdependencies): tools and inputs used to prepare a package can stay out of its runtime dependencies.
+
+| Development dependency     | Generated output used by ES Check                                                 |
+| -------------------------- | --------------------------------------------------------------------------------- |
+| `@mdn/browser-compat-data` | Parser requirements and, starting in 9.8.0, browser support for detected features |
+| `core-js-compat`           | The feature list used by `--ignorePolyfillable`, including its `core-js` option   |
+
+The [generators](https://github.com/yowainwright/es-check/tree/v9.8.0/scripts/generate) write those outputs under `lib/`, which is included in the published package.
+Users get the generated data without installing these source packages through ES Check or running the generators themselves.
+`acorn` and `browserslist` remain runtime dependencies because checks use them directly.
+
+In 9.8.0, it also runs the new browser-support generator.
+The repository's `pnpm run update` script combines dependency updates with regeneration; both commands are defined in [package.json](https://github.com/yowainwright/es-check/blob/v9.8.0/package.json).
+
+That gives each ES Check release a bundled snapshot of compatibility data.
+Users receive refreshed tables by upgrading ES Check.
+
+## What the data update changed
+
+<ReleaseSummary>
+
+**Data and generator updates**
+
+MDN 8.1.2 refreshes Samsung Internet data. A generator correction fixes Safari grouping support.
+
+</ReleaseSummary>
+
+[#440](https://github.com/yowainwright/es-check/pull/440) updates `@mdn/browser-compat-data` from 8.1.0 to 8.1.2 and corrects how the new generator selects support records.
+
+The MDN update adds Samsung Internet 30.0 support to the generated data for six Uint8Array methods:
+
+| Static methods                                | Instance methods                                   |
+| --------------------------------------------- | -------------------------------------------------- |
+| `Uint8Array.fromBase64`, `Uint8Array.fromHex` | `setFromBase64`, `setFromHex`, `toBase64`, `toHex` |
+
+The generator correction excludes implementations that require a prefix or use an alternative API name, as well as those behind runtime flags.
+That changes `Object.groupBy` and `Map.groupBy` support for Safari and iOS Safari from 16.4 to 17.4, matching [WebKit's Safari 17.4 release notes](https://webkit.org/blog/15063/webkit-features-in-safari-17-4/).
+Earlier grouping APIs had different names.
+
+The data refresh supplies the Samsung Internet values; the generator correction fixes the Safari values.
+Both are visible in the [generated-data diff](https://github.com/yowainwright/es-check/pull/440/files).
+
+## Upgrading to 9.8.0
+
+<ReleaseSummary>
+
+**Check your existing targets**
+
+Use your Browserslist configuration with `--checkFeatures`. Review newly reported browser gaps.
+
+</ReleaseSummary>
+
+Upgrade ES Check in your project:
+
+```bash
+npm install --save-dev es-check@9.8.0
+```
+
+Then use your existing Browserslist configuration:
+
+```bash
+es-check checkBrowser './dist/**/*.js' --checkFeatures
+```
+
+If you already use both options, previously passing bundles may now fail when a target browser lacks a detected feature.
+Existing ignore, allowlist, and polyfill options still apply.
+
+Browser data has limits: partial implementations count as support, and targets or features without usable browser data retain the ES-version check.
+A passing result does not verify complete runtime behavior. See the [Browserslist documentation](https://jeffry.in/es-check/docs/browserslist) for the data rules and options.
+
+This post covers [#439](https://github.com/yowainwright/es-check/pull/439) and [#440](https://github.com/yowainwright/es-check/pull/440).
+The [full comparison](https://github.com/yowainwright/es-check/compare/v9.7.2...v9.8.0) shows the changes since 9.7.2.
