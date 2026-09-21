@@ -640,6 +640,32 @@ describe("detectFeatures", () => {
   });
 
   describe("ignorePolyfillable option (#390)", () => {
+    const rawJSONCode = 'Iterator.from([]); JSON.isRawJSON(JSON.rawJSON("1"));';
+
+    it("should report Iterator and raw JSON APIs without ignoring polyfills (#444)", () => {
+      const ast = parse(rawJSONCode);
+      assert.throws(() => detectFeatures(rawJSONCode, 8, "script", new Set(), { ast }), {
+        features: ["JSONRawJSON", "JSONIsRawJSON", "Iterator"],
+      });
+    });
+
+    [true, "core-js"].forEach((ignorePolyfillable) => {
+      it(`should ignore Iterator and raw JSON APIs with ${ignorePolyfillable} (#444)`, () => {
+        const ast = parse(rawJSONCode);
+        const options = { ast, ignorePolyfillable };
+        assert.doesNotThrow(() => detectFeatures(rawJSONCode, 8, "script", new Set(), options));
+      });
+
+      it(`should still reject BigInt alongside ignored APIs with ${ignorePolyfillable}`, () => {
+        const code = `${rawJSONCode} 0n;`;
+        const ast = parse(code);
+        const options = { ast, ignorePolyfillable };
+        assert.throws(() => detectFeatures(code, 8, "script", new Set(), options), {
+          features: ["BigInt"],
+        });
+      });
+    });
+
     it("should not throw for polyfillable features when ignorePolyfillable is set", () => {
       const code = `
         const sorted = [3, 1, 2].toSorted();
