@@ -34,6 +34,10 @@ jobs:
           cache: "pnpm"
       - run: pnpm install --no-frozen-lockfile
       - run: pnpm run lint:ci
+      - name: Check generated polyfill allowlist
+        run: |
+          pnpm run scripts:generate:polyfills
+          git diff --exit-code -- lib/constants/polyfillableFeatures.js
       - run: pnpm run report:coverage
       - run: pnpm run test:e2e
       - name: Test documentation site

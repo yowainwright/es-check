@@ -6,6 +6,34 @@ const {
   CORE_JS_POLYFILLABLE,
 } = require("../../../lib/constants/polyfillableFeatures");
 const { getPolyfillableFeatures } = require("../../../lib/detectFeatures");
+const { ES_FEATURES, ES_GLOBAL_MIN_VERSION } = require("../../../lib/constants");
+const coreJsModules = new Set(require("core-js-compat/modules"));
+const scriptConstants = import("../../../scripts/constants.mjs");
+
+test("core-js mappings should reference known features and upstream modules", async () => {
+  const { FEATURE_CORE_JS_MODULES } = await scriptConstants;
+  const featureKeys = Object.keys(ES_FEATURES);
+  const globalKeys = Object.keys(ES_GLOBAL_MIN_VERSION);
+  const allFeatureKeys = featureKeys.concat(globalKeys);
+  const knownFeatures = new Set(allFeatureKeys);
+
+  Object.entries(FEATURE_CORE_JS_MODULES).forEach(([feature, moduleName]) => {
+    assert.ok(knownFeatures.has(feature), `Unknown feature: ${feature}`);
+    assert.ok(coreJsModules.has(moduleName), `Missing core-js module: ${moduleName}`);
+  });
+});
+
+test("generated allowlist should match the explicit core-js mappings", async () => {
+  const { FEATURE_CORE_JS_MODULES } = await scriptConstants;
+  const expected = Object.keys(FEATURE_CORE_JS_MODULES).sort();
+  const actual = Array.from(CORE_JS_POLYFILLABLE).sort();
+  assert.deepStrictEqual(actual, expected);
+});
+
+test("non-polyfillable syntax and globals should remain excluded", () => {
+  const features = ["BigInt", "Proxy", "WeakRef", "FinalizationRegistry", "OptionalChaining"];
+  features.forEach((feature) => assert.strictEqual(CORE_JS_POLYFILLABLE.has(feature), false));
+});
 
 test("getPolyfillableFeatures should return core-js set when library is 'core-js'", () => {
   const result = getPolyfillableFeatures("core-js");
@@ -58,6 +86,12 @@ test("CORE_JS_POLYFILLABLE should include common Array methods", () => {
 test("CORE_JS_POLYFILLABLE should include ES2023+ features", () => {
   assert.strictEqual(CORE_JS_POLYFILLABLE.has("ArrayFindLast"), true);
   assert.strictEqual(CORE_JS_POLYFILLABLE.has("ArrayFindLastIndex"), true);
+});
+
+["Iterator", "JSONRawJSON", "JSONIsRawJSON", "AggregateError", "DataView"].forEach((feature) => {
+  test(`CORE_JS_POLYFILLABLE should include ${feature} (#444)`, () => {
+    assert.strictEqual(CORE_JS_POLYFILLABLE.has(feature), true);
+  });
 });
 
 test("POLYFILLABLE_FEATURES and CORE_JS_POLYFILLABLE should be the same set", () => {
