@@ -33,6 +33,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: pnpm run update
       - run: pnpm install --no-frozen-lockfile
+      - run: pnpm run scripts:generate
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v7
         with:
