@@ -97,17 +97,17 @@
   },
   "dependencies": {
     "acorn": "8.18.0",
-    "browserslist": "4.28.9",
+    "browserslist": "4.29.0",
     "fast-glob": "^3.3.3"
   },
   "devDependencies": {
     "@mdn/browser-compat-data": "^8.1.2",
     "codependence": "1.0.15",
     "core-js-compat": "^3.50.0",
-    "oxfmt": "^0.67.0",
-    "oxlint": "^1.82.0",
-    "pastoralist": "1.13.2",
-    "release-it": "21.0.2"
+    "oxfmt": "^0.68.0",
+    "oxlint": "^1.83.0",
+    "pastoralist": "1.13.4",
+    "release-it": "21.1.0"
   },
   "peerDependencies": {},
   "optionalDependencies": {},
@@ -135,20 +135,6 @@
       "site/package.json"
     ]
   },
-  "pastoralist": {
-    "depPaths": [
-      "package.json",
-      "site/package.json"
-    ],
-    "security": {
-      "enabled": true,
-      "provider": "github",
-      "autoFix": true,
-      "interactive": false,
-      "severityThreshold": "low",
-      "hasWorkspaceSecurityChecks": true
-    }
-  },
   "release-it": {
     "git": {
       "commitMessage": "chore(release): ${version}",
@@ -173,5 +159,19 @@
       "after:release": "echo Successfully released ${name} v${version} to ${repo.repository}."
     }
   },
-  "website": "https://jeffry.in/es-check"
+  "website": "https://jeffry.in/es-check",
+  "pastoralist": {
+    "depPaths": [
+      "package.json",
+      "site/package.json"
+    ],
+    "security": {
+      "enabled": true,
+      "provider": "github",
+      "autoFix": true,
+      "interactive": false,
+      "severityThreshold": "low",
+      "hasWorkspaceSecurityChecks": true
+    }
+  }
 }
