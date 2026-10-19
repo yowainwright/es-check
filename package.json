@@ -96,18 +96,18 @@
     "site:install": "pnpm --filter es-check-docs install"
   },
   "dependencies": {
-    "acorn": "8.18.0",
-    "browserslist": "4.29.0",
+    "acorn": "8.19.0",
+    "browserslist": "4.29.3",
     "fast-glob": "^3.3.3"
   },
   "devDependencies": {
-    "@mdn/browser-compat-data": "^8.1.2",
-    "codependence": "1.0.15",
+    "@mdn/browser-compat-data": "^8.1.6",
+    "codependence": "1.0.16",
     "core-js-compat": "^3.50.0",
-    "oxfmt": "^0.68.0",
-    "oxlint": "^1.83.0",
-    "pastoralist": "1.13.4",
-    "release-it": "21.1.0"
+    "oxfmt": "^0.73.0",
+    "oxlint": "^1.88.0",
+    "pastoralist": "1.13.9",
+    "release-it": "21.1.1"
   },
   "peerDependencies": {},
   "optionalDependencies": {},
