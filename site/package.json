@@ -17,12 +17,12 @@
     "@shikijs/rehype": "^4.5.0",
     "@shikijs/transformers": "^4.5.0",
     "@tailwindcss/vite": "^4.3.3",
-    "@tanstack/react-router": "^1.170.45",
+    "@tanstack/react-router": "^1.170.46",
     "@vitejs/plugin-react": "^6.1.2",
-    "effect": "^4.0.5",
+    "effect": "^4.0.6",
     "fuse.js": "^7.5.0",
     "github-slugger": "^2.0.0",
-    "lucide-react": "^1.59.0",
+    "lucide-react": "^1.61.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "rehype-slug": "^6.0.0",
@@ -37,7 +37,7 @@
     "daisyui": "^5.7.50",
     "tailwindcss": "^4.3.3",
     "typescript": "^7.0.2",
-    "vite": "^8.3.4"
+    "vite": "^8.3.5"
   },
   "peerDependencies": {},
   "optionalDependencies": {}
