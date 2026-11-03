@@ -452,13 +452,7 @@ ES Check provides three ways to handle polyfilled features:
    es-check es2022 './dist/**/*.js' --checkFeatures --checkForPolyfills
    ```
 
-2. **--allowList**: Explicitly specify features to allow regardless of ES version
-
-   ```sh
-   es-check es2022 './dist/**/*.js' --checkFeatures --allowList="ArrayToSorted,ObjectHasOwn"
-   ```
-
-3. **--ignorePolyfillable**: Ignore all features that can be polyfilled (or limit to a specific library)
+2. **--ignorePolyfillable**: Ignore all features that can be polyfilled (or limit to a specific library)
 
    ```sh
    # Ignore all polyfillable features
@@ -468,13 +462,13 @@ ES Check provides three ways to handle polyfilled features:
    es-check es2017 './dist/**/*.js' --checkFeatures --ignorePolyfillable=core-js
    ```
 
-4. **--allowList**: Explicitly specify features to allow regardless of ES version
+3. **--allowList**: Explicitly specify features to allow regardless of ES version
 
    ```sh
    es-check es2022 './dist/**/*.js' --checkFeatures --allowList="ArrayToSorted,ObjectHasOwn"
    ```
 
-5. **--ignore**: Completely ignore specific features during checking
+4. **--ignore**: Completely ignore specific features during checking
    ```sh
    es-check es2022 './dist/**/*.js' --checkFeatures --ignore="ArrayToSorted,ObjectHasOwn"
    ```
