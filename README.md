@@ -441,6 +441,7 @@ This option tells ES Check to look for common polyfill patterns in your code and
 
 - Core-js polyfills (both direct usage and imports)
 - Common polyfill patterns for Array, String, Object, Promise, and RegExp methods
+- Hand-written polyfills such as `Object.fromEntries = ...` or `Object.defineProperty(Array.prototype, "at", ...)`
 
 ### Comparing Polyfill Handling Options
 
