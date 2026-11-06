@@ -95,6 +95,51 @@ test("should respect detected polyfills for browser-unsupported features", () =>
   assert.deepStrictEqual(result.unsupportedFeatures, []);
 });
 
+const CHROME_63 = [{ name: "chrome", version: "63" }];
+
+[
+  {
+    feature: "ArrayPrototypeAt",
+    code: 'Array.prototype.at||Object.defineProperty(Array.prototype,"at",{value(){}});[1].at(-1);',
+  },
+  {
+    feature: "ObjectFromEntries",
+    code: "if (!Object.fromEntries) Object.fromEntries = function () {};Object.fromEntries([]);",
+  },
+].forEach(({ feature, code }) => {
+  const options = { ast: parse(code), targetBrowsers: CHROME_63 };
+
+  test(`checkForPolyfills should accept ${feature} installed on its builtin`, () => {
+    const result = detectFeatures(code, 9, "script", new Set(), {
+      ...options,
+      checkForPolyfills: true,
+    });
+
+    assert.deepStrictEqual(result.unsupportedFeatures, []);
+  });
+
+  test(`${feature} installed on its builtin should still fail without checkForPolyfills`, () => {
+    assert.throws(
+      () => detectFeatures(code, 9, "script", new Set(), options),
+      (error) => error.features.includes(feature),
+    );
+  });
+});
+
+test("checkForPolyfills should not accept a method installed on another builtin", () => {
+  const code =
+    'Object.defineProperty(String.prototype, "includes", { value() {} });[1].includes(1);';
+
+  assert.throws(
+    () =>
+      detectFeatures(code, 6, "script", new Set(), {
+        ast: parse(code),
+        checkForPolyfills: true,
+      }),
+    (error) => error.features.includes("ArrayPrototypeIncludes"),
+  );
+});
+
 ["Object", "Map"].forEach((receiver) => {
   const code = `${receiver}.groupBy([1], (value) => value);`;
   const feature = `${receiver}GroupBy`;

@@ -6,6 +6,7 @@ const {
   buildFeatureIndex,
   matchesFeature,
   detectFeaturesFromAST,
+  detectInstalledPropertiesFromAST,
 } = require("../../../lib/helpers/astDetector.js");
 
 const parse = (code) => acorn.parse(code, { ecmaVersion: 2025, sourceType: "module" });
@@ -1006,6 +1007,26 @@ describe("helpers/astDetector.js", () => {
       const ast = parse("try { throw 1; } catch { console.log('caught'); }");
       const result = detectFeaturesFromAST(ast);
       assert.strictEqual(result.OptionalCatchBinding, true);
+    });
+  });
+
+  describe("detectInstalledPropertiesFromAST()", () => {
+    const installed = (code) => [...detectInstalledPropertiesFromAST(parse(code))];
+
+    it("should record properties installed with Object.defineProperty", () => {
+      const code = 'Array.prototype.at||Object.defineProperty(Array.prototype,"at",{value(){}});';
+      assert.deepStrictEqual(installed(code), ["Array.prototype.at"]);
+    });
+
+    it("should record properties installed by assignment", () => {
+      const code = "if (!Object.fromEntries) Object.fromEntries = function () {};";
+      assert.deepStrictEqual(installed(code), ["Object.fromEntries"]);
+    });
+
+    it("should ignore computed keys and non-member targets", () => {
+      const code =
+        "Object.defineProperty(Array.prototype, name, {}); Array.prototype[name] = f; at = f;";
+      assert.deepStrictEqual(installed(code), []);
     });
   });
 });
