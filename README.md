@@ -443,6 +443,8 @@ This option tells ES Check to look for common polyfill patterns in your code and
 - Common polyfill patterns for Array, String, Object, Promise, and RegExp methods
 - Hand-written polyfills such as `Object.fromEntries = ...` or `Object.defineProperty(Array.prototype, "at", ...)`
 
+Hand-written detection recognizes an initial sequence of inline function installs, including matching `if (!method)` and `method || install` guards. It stops at other executable statements. Indirect installers, function aliases, dynamic keys, and compound assignments are not recognized. Features shared by Map and WeakMap require both prototypes to be patched. Detection does not verify implementation correctness or arbitrary runtime side effects.
+
 ### Comparing Polyfill Handling Options
 
 ES Check provides three ways to handle polyfilled features:

@@ -135,6 +135,20 @@
       "site/package.json"
     ]
   },
+  "pastoralist": {
+    "depPaths": [
+      "package.json",
+      "site/package.json"
+    ],
+    "security": {
+      "enabled": true,
+      "provider": "github",
+      "autoFix": true,
+      "interactive": false,
+      "severityThreshold": "low",
+      "hasWorkspaceSecurityChecks": true
+    }
+  },
   "release-it": {
     "git": {
       "commitMessage": "chore(release): ${version}",
@@ -159,19 +173,5 @@
       "after:release": "echo Successfully released ${name} v${version} to ${repo.repository}."
     }
   },
-  "website": "https://jeffry.in/es-check",
-  "pastoralist": {
-    "depPaths": [
-      "package.json",
-      "site/package.json"
-    ],
-    "security": {
-      "enabled": true,
-      "provider": "github",
-      "autoFix": true,
-      "interactive": false,
-      "severityThreshold": "low",
-      "hasWorkspaceSecurityChecks": true
-    }
-  }
+  "website": "https://jeffry.in/es-check"
 }

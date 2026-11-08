@@ -1028,5 +1028,58 @@ describe("helpers/astDetector.js", () => {
         "Object.defineProperty(Array.prototype, name, {}); Array.prototype[name] = f; at = f;";
       assert.deepStrictEqual(installed(code), []);
     });
+
+    it("should record literal computed member paths", () => {
+      const code =
+        'Array["prototype"]["at"] = function () {}; Object["defineProperty"](Object, "fromEntries", { value() {} });';
+      assert.deepStrictEqual(installed(code), ["Array.prototype.at", "Object.fromEntries"]);
+    });
+
+    [
+      "function install(Array) { Array.prototype.at = f; }",
+      "function install() { Array.prototype.at = f; var Array; }",
+      "{ Array.prototype.at = f; let Array; }",
+      "try {} catch (Array) { Array.prototype.at = f; }",
+      "for (let Array of arrays) { Array.prototype.at = f; }",
+      "switch (x) { case 0: let Array; case 1: Array.prototype.at = f; }",
+      "const C = class Array { method() { Array.prototype.at = f; } };",
+      'import Array from "local"; Array.prototype.at = f;',
+      'function install(Object) { Object.defineProperty(Array.prototype, "at", { value: f }); }',
+      'Array["prototype.at"] = f;',
+      'Object.defineProperty(Array, "prototype.at", { value: f });',
+    ].forEach((code) => {
+      it(`should ignore shadowed or ambiguous installs: ${code}`, () => {
+        assert.deepStrictEqual(installed(code), []);
+      });
+    });
+
+    it("should preserve global installs after an unrelated function declaration", () => {
+      const code = "function local(Array) {} Array.prototype.at = function () {};";
+      assert.deepStrictEqual(installed(code), ["Array.prototype.at"]);
+    });
+
+    [
+      "{}",
+      "{ enumerable: false }",
+      "{ value: undefined }",
+      "{ value: null }",
+      "{ value() {}, value: null }",
+      "{ value() {}, ...other }",
+      "{ get value() { return undefined; } }",
+    ].forEach((descriptor) => {
+      it(`should reject descriptors without a definite implementation: ${descriptor}`, () => {
+        const code = `Object.defineProperty(Array.prototype, "at", ${descriptor});`;
+        assert.deepStrictEqual(installed(code), []);
+      });
+    });
+
+    ["{ value: function () {} }", "{ 'value': () => {} }", '{ ["value"]() {} }'].forEach(
+      (descriptor) => {
+        it(`should accept inline descriptor implementations: ${descriptor}`, () => {
+          const code = `Object.defineProperty(Array.prototype, "at", ${descriptor});`;
+          assert.deepStrictEqual(installed(code), ["Array.prototype.at"]);
+        });
+      },
+    );
   });
 });
