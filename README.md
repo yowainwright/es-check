@@ -441,6 +441,11 @@ This option tells ES Check to look for common polyfill patterns in your code and
 
 - Core-js polyfills (both direct usage and imports)
 - Common polyfill patterns for Array, String, Object, Promise, and RegExp methods
+- Hand-written polyfills such as `Object.fromEntries = ...` or `Object.defineProperty(Array.prototype, "at", ...)`
+
+Define hand-written polyfills as inline functions before other code. `if (!method)` and `method || install` checks are supported. Calls to installer functions, aliases, dynamic keys, and compound assignments are not.
+
+For methods shared by Map and WeakMap, patch both prototypes. ES Check detects installation patterns; it does not verify that a polyfill works.
 
 ### Comparing Polyfill Handling Options
 
