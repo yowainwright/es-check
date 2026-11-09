@@ -29,9 +29,17 @@ test("FEATURE_BROWSER_SUPPORT should match MDN browser-compat-data for known fea
   assert.strictEqual(FEATURE_BROWSER_SUPPORT.ObjectHasOwn.safari_ios, "15.4");
   assert.strictEqual(FEATURE_BROWSER_SUPPORT.ClassStaticBlocks.safari_ios, "16.4");
   assert.strictEqual(FEATURE_BROWSER_SUPPORT.PrivateClassFields.safari_ios, "14.5");
-  assert.strictEqual(FEATURE_BROWSER_SUPPORT.TopLevelAwait.safari, "15");
+  assert.strictEqual(FEATURE_BROWSER_SUPPORT.TopLevelAwait.safari, "27");
   assert.strictEqual(FEATURE_BROWSER_SUPPORT.OptionalChaining.chrome, "80");
   assert.strictEqual(FEATURE_BROWSER_SUPPORT.Proxy.ie, false);
+});
+
+test("FEATURE_BROWSER_SUPPORT should require full implementations", () => {
+  assert.strictEqual(FEATURE_BROWSER_SUPPORT.let.chrome, "49");
+  assert.strictEqual(FEATURE_BROWSER_SUPPORT.let.edge, "14");
+  assert.strictEqual(FEATURE_BROWSER_SUPPORT.let.ie, false);
+  assert.strictEqual(FEATURE_BROWSER_SUPPORT.AtomicsWaitAsync.chrome, "90");
+  assert.strictEqual(FEATURE_BROWSER_SUPPORT.ErrorIsError.safari, false);
 });
 
 test("FEATURE_BROWSER_SUPPORT should skip features without browser-compat-data", () => {

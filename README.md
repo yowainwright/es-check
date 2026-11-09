@@ -231,7 +231,8 @@ es-check --checkBrowser --browserslistQuery=">0.5%, not dead" --checkFeatures ./
 
 When `--checkBrowser` is combined with `--checkFeatures`, every detected feature is also checked
 against the individual browser versions resolved from browserslist using
-[MDN browser-compat-data](https://github.com/mdn/browser-compat-data). For example
+[MDN browser-compat-data](https://github.com/mdn/browser-compat-data).
+Implementations marked partial in MDN data do not count as full support. For example
 `--browserslistQuery="ios_saf 15.0"` maps to ES2022, but `Object.hasOwn` and class static blocks are still
 reported because iOS Safari added them in 15.4 and 16.4. Failures name the browser that lacks support:
 

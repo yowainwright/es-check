@@ -21,6 +21,25 @@ const hasOwnCode = 'Object.hasOwn({}, "a");';
 const IOS_15_0 = [{ name: "safari_ios", version: "15.0" }];
 const IOS_15_4 = [{ name: "safari_ios", version: "15.4" }];
 
+test("should reject partial browser implementations and accept full support", () => {
+  const code = "let value = 1;";
+  const ast = parse(code);
+  const partialTarget = [{ name: "chrome", version: "48" }];
+  const fullTarget = [{ name: "chrome", version: "49" }];
+  assert.throws(
+    () => detectFeatures(code, 6, "script", new Set(), { ast, targetBrowsers: partialTarget }),
+    (error) => {
+      assert.deepStrictEqual(error.features, ["let"]);
+      assert.deepStrictEqual(error.browserDetails.let, [
+        { name: "chrome", version: "48", requiredVersion: "49" },
+      ]);
+      return true;
+    },
+  );
+  const result = detectFeatures(code, 6, "script", new Set(), { ast, targetBrowsers: fullTarget });
+  assert.deepStrictEqual(result.unsupportedFeatures, []);
+});
+
 test("should report features unsupported by a target browser even when the ES version allows them", () => {
   assert.throws(
     () =>
