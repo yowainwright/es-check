@@ -17,6 +17,31 @@ function cleanupTestDir() {
 }
 
 describe("Node API Tests", () => {
+  [
+    ["JSON.parse(text, (k, v, context) => context.source);", "JSONParseSource"],
+    ["const bytes = new Uint8Array(1); bytes.toHex();", "Uint8ArrayToHex"],
+  ].forEach(([code, feature], index) => {
+    test(`runChecks - enforces reconciled ES2026 behavior (case ${index})`, async () => {
+      const file = path.join(testDir, `es2026-audit-${index}.js`);
+      fs.writeFileSync(file, code);
+      const config = { files: [file], checkFeatures: true, cache: false };
+      const rejected = await runChecks([Object.assign({}, config, { ecmaVersion: "es2025" })]);
+      assert.strictEqual(rejected.success, false);
+      assert.ok(rejected.errors[0].err.features.includes(feature));
+      const accepted = await runChecks([Object.assign({}, config, { ecmaVersion: "es2026" })]);
+      assert.strictEqual(accepted.success, true);
+    });
+  });
+
+  test("runChecks - accepts custom hex methods before ES2026", async () => {
+    const file = path.join(testDir, "custom-hex-method.js");
+    fs.writeFileSync(file, "const custom = {toHex() { return ''; }}; custom.toHex();");
+    const result = await runChecks([
+      { ecmaVersion: "es2025", files: [file], checkFeatures: true, cache: false },
+    ]);
+    assert.strictEqual(result.success, true);
+  });
+
   const iteratorCases = [
     ["Iterator.from([]);", "IteratorFrom"],
     ["const it = [1].values(); it.map(fn);", "IteratorMap"],

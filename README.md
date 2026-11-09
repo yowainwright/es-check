@@ -92,6 +92,25 @@ and their aliases or helper chains. Unknown receivers and user-defined factory r
 are left unclassified. This analysis assumes built-in factory and prototype methods
 have not been replaced.
 
+ES2026 coverage follows the seven additions in the
+[TC39 finished proposals](https://github.com/tc39/proposals/blob/main/finished-proposals.md):
+
+| Addition                 | Feature checks                                                                                               |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------ |
+| Map/WeakMap upsert       | `getOrInsert`, `getOrInsertComputed` on known Map/WeakMap receivers                                          |
+| JSON source text         | `JSON.rawJSON`, `JSON.isRawJSON`, and inline `JSON.parse` revivers reading or destructuring `context.source` |
+| Iterator sequencing      | `Iterator.concat`                                                                                            |
+| Uint8Array base64/hex    | `fromBase64`, `fromHex`, `toBase64`, `toHex`, `setFromBase64`, `setFromHex`                                  |
+| Precise summation        | `Math.sumPrecise`                                                                                            |
+| Error detection          | `Error.isError`                                                                                              |
+| Async array construction | `Array.fromAsync`                                                                                            |
+
+Uint8Array instance checks require a known Uint8Array receiver. Unknown receivers,
+revivers passed by identifier, and dynamic property names are not inferred. Checks
+identify API use; they do not verify runtime algorithm behavior. Map and WeakMap
+upserts share feature names, so explicit modular polyfill detection requires both
+corresponding core-js modules.
+
 ---
 
 ## Walk through

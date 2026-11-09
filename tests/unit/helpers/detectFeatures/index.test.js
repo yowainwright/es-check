@@ -934,6 +934,7 @@ describe("detectFeatures", () => {
         Math.sumPrecise(values);
         Uint8Array.fromBase64(text);
         Uint8Array.fromHex(text);
+        const bytes = new Uint8Array(1);
         bytes.toBase64();
         bytes.toHex();
         bytes.setFromBase64(text);

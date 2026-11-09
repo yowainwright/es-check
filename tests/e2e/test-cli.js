@@ -387,4 +387,30 @@ try {
   fs.unlinkSync(iteratorFile);
 }
 
+log.info("ES2026 source context and byte methods should require the right target");
+[
+  ["JSON.parse(text, (k, v, context) => context.source);", "JSONParseSource"],
+  ["new Uint8Array(1).toHex();", "Uint8ArrayToHex"],
+].forEach(([code, feature]) => {
+  const file = path.join(__dirname, "temp-es2026-audit.js");
+  fs.writeFileSync(file, code);
+  const flags = [file, "--checkFeatures", "--noCache"];
+  try {
+    assert.throws(
+      () =>
+        execFileSync("node", [esCheckPath, "es2025"].concat(flags), {
+          encoding: "utf8",
+          stdio: "pipe",
+        }),
+      (error) => `${error.stdout}${error.stderr}`.includes(feature),
+    );
+    execFileSync("node", [esCheckPath, "es2026"].concat(flags), {
+      encoding: "utf8",
+      stdio: "pipe",
+    });
+  } finally {
+    fs.unlinkSync(file);
+  }
+});
+
 log.info("[PASS] All CLI tests passed!");
