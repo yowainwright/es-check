@@ -1,0 +1,15 @@
+{
+  "depPaths": [
+    "package.json",
+    "site/package.json"
+  ],
+  "security": {
+    "enabled": true,
+    "provider": "osv",
+    "strict": true,
+    "autoFix": true,
+    "interactive": false,
+    "severityThreshold": "low",
+    "hasWorkspaceSecurityChecks": true
+  }
+}
