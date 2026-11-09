@@ -29,6 +29,42 @@ test("isVersionSupported should compare target version against version_added", (
   assert.strictEqual(isVersionSupported("15.0", "15.4"), false);
 });
 
+test("isVersionSupported should preserve backports, removals, and reintroduction", () => {
+  const periods = [
+    { version_added: "18.20.0", version_removed: "19.0.0" },
+    { version_added: "20.10.0" },
+  ];
+  assert.strictEqual(isVersionSupported("18.19.0", periods), false);
+  assert.strictEqual(isVersionSupported("18.20.0", periods), true);
+  assert.strictEqual(isVersionSupported("19.0.0", periods), false);
+  assert.strictEqual(isVersionSupported("20.9.0", periods), false);
+  assert.strictEqual(isVersionSupported("20.10.0", periods), true);
+});
+
+test("getUnsupportedBrowsers should name the next supported release after a removal", () => {
+  const unsupported = [{ name: "nodejs", version: "19.0.0" }];
+  const supported = [{ name: "nodejs", version: "18.20.0" }];
+  const result = getUnsupportedBrowsers("ImportAttributes", unsupported);
+  assert.deepStrictEqual(result, [
+    { name: "nodejs", version: "19.0.0", requiredVersion: "20.10.0" },
+  ]);
+  assert.deepStrictEqual(getUnsupportedBrowsers("ImportAttributes", supported), []);
+  assert.strictEqual(
+    formatFeatureWithBrowsers("ImportAttributes", result),
+    "ImportAttributes (nodejs 19.0.0 requires 20.10.0)",
+  );
+});
+
+test("getUnsupportedBrowsers should report support removed without a replacement", () => {
+  const browserSupport = {
+    Feature: { chrome: [{ version_added: "10", version_removed: "20" }] },
+  };
+  assert.deepStrictEqual(
+    getUnsupportedBrowsers("Feature", [{ name: "chrome", version: "20" }], browserSupport),
+    [{ name: "chrome", version: "20", requiredVersion: false }],
+  );
+});
+
 test("getUnsupportedBrowsers should return browsers below the required version", () => {
   const targetBrowsers = [
     { name: "safari_ios", version: "15.0" },

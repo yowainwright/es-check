@@ -17,6 +17,50 @@ function cleanupTestDir() {
 }
 
 describe("Node API Tests", () => {
+  const syntaxCases = [
+    ['import data from "x" with {type: "json"};', ["ImportAttributes"]],
+    ['import "x" with {};', ["ImportAttributes"]],
+    ['export * from "x" with {};', ["ImportAttributes"]],
+    ['import("x", options);', ["ImportOptions"]],
+    ['import("x",);', ["ImportOptions"]],
+    ['import("x", {with: {type: "json"}});', ["ImportAttributes", "ImportOptions"]],
+    ["/(?i:pattern)/;", ["RegExpModifiers"]],
+  ];
+
+  syntaxCases.forEach(([code, features], index) => {
+    test(`runChecks - enforces ES2025 syntax (case ${index})`, async () => {
+      const file = path.join(testDir, `es2025-syntax-${index}.js`);
+      fs.writeFileSync(file, code);
+      const config = { files: [file], module: true, checkFeatures: true, cache: false };
+      const rejected = await runChecks([Object.assign({}, config, { ecmaVersion: "es2024" })]);
+      assert.strictEqual(rejected.success, false);
+      assert.deepStrictEqual(rejected.errors[0].err.features, features);
+      const accepted = await runChecks([Object.assign({}, config, { ecmaVersion: "es2025" })]);
+      assert.strictEqual(accepted.success, true);
+      assert.deepStrictEqual(accepted.errors, []);
+    });
+
+    test(`runChecks - preserves syntax ignores and polyfill rules (case ${index})`, async () => {
+      const file = path.join(testDir, `es2025-syntax-options-${index}.js`);
+      fs.writeFileSync(file, code);
+      const config = {
+        ecmaVersion: "es2024",
+        files: [file],
+        module: true,
+        checkFeatures: true,
+        checkForPolyfills: true,
+        ignorePolyfillable: "core-js",
+        cache: false,
+      };
+      const rejected = await runChecks([config]);
+      assert.strictEqual(rejected.success, false);
+      assert.deepStrictEqual(rejected.errors[0].err.features, features);
+      const allowList = features.join(",");
+      const accepted = await runChecks([Object.assign({}, config, { allowList })]);
+      assert.strictEqual(accepted.success, true);
+    });
+  });
+
   ["last 1 and_chr version", "last 1 and_ff version", "samsung 24", "op_mob 80"].forEach(
     (browserslistQuery) => {
       test(`runChecks - accepts ES6 syntax for ${browserslistQuery}`, async () => {

@@ -130,6 +130,9 @@ export const BROWSER_SUPPORT_BROWSERS = [
 ];
 
 export const FEATURE_BCD_PATHS = {
+  ImportAttributes: "javascript.statements.import.import_attributes",
+  ImportOptions: "javascript.operators.import.options_parameter",
+  RegExpModifiers: "javascript.regular_expressions.modifier",
   ArraySpread: "javascript.operators.spread.spread_in_arrays",
   let: "javascript.statements.let",
   const: "javascript.statements.const",

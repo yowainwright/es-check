@@ -332,4 +332,28 @@ log.info("Mobile browser queries should accept ES6 syntax");
   );
 });
 
+log.info("ES2025 syntax should be versioned with feature checking");
+[
+  ['import "x" with {};', "ImportAttributes"],
+  ['import("x", {});', "ImportOptions"],
+  ["/(?i:pattern)/;", "RegExpModifiers"],
+].forEach(([code, feature]) => {
+  const file = path.join(__dirname, "temp-es2025-syntax.js");
+  fs.writeFileSync(file, code);
+  const flags = [file, "--module", "--checkFeatures", "--noCache"];
+  try {
+    const olderArgs = [esCheckPath, "es2024"].concat(flags);
+    assert.throws(
+      () => execFileSync("node", olderArgs, { encoding: "utf8", stdio: "pipe" }),
+      (error) => `${error.stdout}${error.stderr}`.includes(feature),
+    );
+    const supportedArgs = [esCheckPath, "es2025"].concat(flags);
+    execFileSync("node", supportedArgs, { encoding: "utf8", stdio: "pipe" });
+    const ignoredArgs = olderArgs.concat(`--allowList=${feature}`);
+    execFileSync("node", ignoredArgs, { encoding: "utf8", stdio: "pipe" });
+  } finally {
+    fs.unlinkSync(file);
+  }
+});
+
 log.info("[PASS] All CLI tests passed!");
