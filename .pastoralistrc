@@ -1,0 +1,14 @@
+{
+  "depPaths": [
+    "package.json",
+    "site/package.json"
+  ],
+  "security": {
+    "enabled": true,
+    "provider": "github",
+    "autoFix": true,
+    "interactive": false,
+    "severityThreshold": "low",
+    "hasWorkspaceSecurityChecks": true
+  }
+}
