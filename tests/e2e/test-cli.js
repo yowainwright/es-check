@@ -323,4 +323,13 @@ try {
   fs.unlinkSync(hasOwnFile2);
 }
 
+log.info("Mobile browser queries should accept ES6 syntax");
+["last 1 and_chr version", "last 1 and_ff version", "samsung 24", "op_mob 80"].forEach((query) => {
+  execFileSync(
+    "node",
+    [esCheckPath, "checkBrowser", "./tests/fixtures/es6.js", `--browserslistQuery=${query}`],
+    { encoding: "utf8", stdio: "pipe" },
+  );
+});
+
 log.info("[PASS] All CLI tests passed!");
