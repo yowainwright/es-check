@@ -645,7 +645,7 @@ describe("detectFeatures", () => {
     it("should report Iterator and raw JSON APIs without ignoring polyfills (#444)", () => {
       const ast = parse(rawJSONCode);
       assert.throws(() => detectFeatures(rawJSONCode, 8, "script", new Set(), { ast }), {
-        features: ["JSONRawJSON", "JSONIsRawJSON", "Iterator"],
+        features: ["IteratorFrom", "JSONRawJSON", "JSONIsRawJSON", "Iterator"],
       });
     });
 

@@ -17,6 +17,26 @@ function cleanupTestDir() {
 }
 
 describe("Node API Tests", () => {
+  const iteratorCases = [
+    ["Iterator.from([]);", "IteratorFrom"],
+    ["const it = [1].values(); it.map(fn);", "IteratorMap"],
+    ["function* gen() { yield 1; } gen().take(1);", "IteratorTake"],
+    ["new Map().values().filter(fn);", "IteratorFilter"],
+  ];
+
+  iteratorCases.forEach(([code, feature], index) => {
+    test(`runChecks - enforces ES2025 iterator helpers (case ${index})`, async () => {
+      const file = path.join(testDir, `es2025-iterator-${index}.js`);
+      fs.writeFileSync(file, code);
+      const config = { files: [file], checkFeatures: true, cache: false };
+      const rejected = await runChecks([Object.assign({}, config, { ecmaVersion: "es2024" })]);
+      assert.strictEqual(rejected.success, false);
+      assert.ok(rejected.errors[0].err.features.includes(feature));
+      const accepted = await runChecks([Object.assign({}, config, { ecmaVersion: "es2025" })]);
+      assert.strictEqual(accepted.success, true);
+    });
+  });
+
   const syntaxCases = [
     ['import data from "x" with {type: "json"};', ["ImportAttributes"]],
     ['import "x" with {};', ["ImportAttributes"]],

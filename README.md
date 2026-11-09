@@ -86,6 +86,12 @@ ES2025 feature checks include import attributes, dynamic import options, and Reg
 modifiers. Modifier detection covers RegExp literals; strings passed to the `RegExp`
 constructor are not parsed as regular expression source.
 
+Iterator helper checks cover `Iterator.from` and the eleven ES2025 prototype methods.
+Receivers are inferred from known built-in iterator factories, synchronous generators,
+and their aliases or helper chains. Unknown receivers and user-defined factory returns
+are left unclassified. This analysis assumes built-in factory and prototype methods
+have not been replaced.
+
 ---
 
 ## Walk through
