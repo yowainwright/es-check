@@ -5,7 +5,8 @@
   ],
   "security": {
     "enabled": true,
-    "provider": "github",
+    "provider": "osv",
+    "strict": true,
     "autoFix": true,
     "interactive": false,
     "severityThreshold": "low",
