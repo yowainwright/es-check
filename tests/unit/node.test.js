@@ -18,6 +18,7 @@ function cleanupTestDir() {
 
 describe("Node API Tests", () => {
   [
+    ["JSON.parse(text, (k, v, context, raw = context.source) => raw);", "JSONParseSource"],
     ["JSON.parse(text, (k, v, context) => context.source);", "JSONParseSource"],
     ["const bytes = new Uint8Array(1); bytes.toHex();", "Uint8ArrayToHex"],
   ].forEach(([code, feature], index) => {
@@ -43,6 +44,13 @@ describe("Node API Tests", () => {
   });
 
   const iteratorCases = [
+    [
+      "[1, 2].sort().reverse().fill(0).copyWithin(0, 1).splice(0, 1).values().map(fn);",
+      "IteratorMap",
+    ],
+    ["Array(3).values().map(fn);", "IteratorMap"],
+    ["String(value).matchAll(pattern).map(fn);", "IteratorMap"],
+    ["let it = ''; it ||= [].values(); it.map(fn);", "IteratorMap"],
     ["Iterator.from([]);", "IteratorFrom"],
     ["const it = [1].values(); it.map(fn);", "IteratorMap"],
     ["function* gen() { yield 1; } gen().take(1);", "IteratorTake"],
@@ -102,6 +110,28 @@ describe("Node API Tests", () => {
       assert.deepStrictEqual(rejected.errors[0].err.features, features);
       const allowList = features.join(",");
       const accepted = await runChecks([Object.assign({}, config, { allowList })]);
+      assert.strictEqual(accepted.success, true);
+    });
+  });
+
+  const samsungCases = [
+    ["async function f() {}", "5", "6.2-6.4"],
+    ["const copy = {...source};", "7.2-7.4", "8.2"],
+    ["try {} catch {}", "8.2", "9.2"],
+  ];
+
+  samsungCases.forEach(([code, before, supported], index) => {
+    test(`runChecks - respects Samsung syntax boundaries (case ${index})`, async () => {
+      const file = path.join(testDir, `samsung-syntax-${index}.js`);
+      fs.writeFileSync(file, code);
+      const config = { ecmaVersion: "checkBrowser", files: [file], cache: false };
+      const rejectedConfig = Object.assign({}, config, { browserslistQuery: `samsung ${before}` });
+      const acceptedConfig = Object.assign({}, config, {
+        browserslistQuery: `samsung ${supported}`,
+      });
+      const rejected = await runChecks([rejectedConfig]);
+      const accepted = await runChecks([acceptedConfig]);
+      assert.strictEqual(rejected.success, false);
       assert.strictEqual(accepted.success, true);
     });
   });

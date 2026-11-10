@@ -68,6 +68,27 @@ methods.forEach(([method, args, feature]) => {
 });
 
 const positive = [
+  "[1, 2].sort().values().map(fn);",
+  "[1, 2].reverse().values().map(fn);",
+  "[1, 2].fill(0).values().map(fn);",
+  "[1, 2].copyWithin(0, 1).values().map(fn);",
+  "[1, 2].splice(0, 1).values().map(fn);",
+  "const arr = [1, 2]; const alias = arr.sort(); alias.values().map(fn);",
+  "Array(3).values().map(fn);",
+  "Array().entries().map(fn);",
+  "String(value).matchAll(pattern).map(fn);",
+  "const text = String(value); text[Symbol.iterator]().map(fn);",
+  "let it = ''; it ||= [].values(); it.map(fn);",
+  "const empty = ''; let it = empty; it ||= [].values(); it.map(fn);",
+  "const holder = {}; holder.it = ''; holder.it ||= [].values(); holder.it.map(fn);",
+  "let it = ''; it &&= [].values(); it.matchAll(pattern).map(fn);",
+  "let it = 'text'; it &&= [].values(); it.map(fn);",
+  "let it = 'text'; it ||= [].values(); it.matchAll(pattern).map(fn);",
+  "let it = new String(''); it &&= [].values(); it.map(fn);",
+  "let it = new String(''); it ||= [].values(); it.matchAll(pattern).map(fn);",
+  "let it = String(); it ||= [].values(); it.map(fn);",
+  "let it = String(''); it ||= [].values(); it.map(fn);",
+  "let it = String('text'); it &&= [].values(); it.map(fn);",
   "[1].values().map(fn);",
   "new Array(1).entries().map(fn);",
   "const arr = [1]; const it = arr.values(); it.map(fn);",
@@ -100,6 +121,19 @@ positive.forEach((code) => {
 });
 
 const negative = [
+  "const arr = {sort() { return []; }}; arr.sort().values().map(fn);",
+  "unknown.reverse().values().map(fn);",
+  "function run(Array) { Array(3).values().map(fn); }",
+  "function run(String) { String(value).matchAll(pattern).map(fn); }",
+  "function run(String) { new String(value).matchAll(pattern).map(fn); }",
+  "let it = ''; it &&= [].values(); it.map(fn);",
+  "let it = ''; it ??= [].values(); it.map(fn);",
+  "let it = 'text'; it ||= [].values(); it.map(fn);",
+  "let it = new String(''); it ||= [].values(); it.map(fn);",
+  "let it = String(value); it ||= [].values(); it.map(fn);",
+  "let it = String(value); it &&= [].values(); it.map(fn);",
+  "let arr = Array(3); arr = custom; arr.values().map(fn);",
+  "let text = String(value); text = custom; text.matchAll(pattern).map(fn);",
   "[1].map(fn);",
   "const arr = [1]; arr.map(fn);",
   "const it = {map: fn}; it.map(fn);",
@@ -130,6 +164,19 @@ negative.forEach((code) => {
   test(`does not infer an iterator receiver: ${code}`, () => {
     assert.strictEqual(inspect(code).IteratorMap, false);
   });
+});
+
+test("array mutation chains retain iterator browser requirements", () => {
+  const code = "[1, 2].sort().reverse().fill(0).copyWithin(0, 1).splice(0, 1).values().map(fn);";
+  const ast = parse(code);
+  const targetBrowsers = [{ name: "chrome", version: "120" }];
+  assert.throws(
+    () => detectFeatures(code, 16, "module", new Set(), { ast, targetBrowsers }),
+    (error) => error.browserDetails.IteratorMap?.[0].requiredVersion === "122",
+  );
+  const supported = [{ name: "chrome", version: "122" }];
+  const result = detectFeatures(code, 16, "module", new Set(), { ast, targetBrowsers: supported });
+  assert.deepStrictEqual(result.unsupportedFeatures, []);
 });
 
 test("Iterator.from has its own static feature and respects shadowing", () => {

@@ -456,6 +456,38 @@ function cleanupTestDir() {
   }
 }
 
+[
+  ["", null],
+  [" with {}", "ImportAttributes"],
+].forEach(([suffix, feature], index) => {
+  test(`feature checking uses transformed TypeScript source (case ${index})`, () => {
+    const file = path.join(testDir, `bun-import-${index}.ts`);
+    fs.writeFileSync(file, `const n: T = 1; import {value} from "dependency"${suffix};`);
+    const source = `const n = 1;\nimport { value } from "dependency"${suffix};\n`;
+    global.Bun = {
+      Transpiler: class {
+        transformSync() {
+          return source;
+        }
+      },
+    };
+    const config = { checkFeatures: true, typescript: true };
+    const acornOpts = { ecmaVersion: 2025, sourceType: "module" };
+    const processFile = createFileProcessor(config, {
+      acornOpts,
+      ignoreList: new Set(),
+      ecmaVersion: "15",
+    });
+    try {
+      const result = processFile(file);
+      if (feature === null) return assert.strictEqual(result, null);
+      assert.deepStrictEqual(result.err.features, [feature]);
+    } finally {
+      delete global.Bun;
+    }
+  });
+});
+
 test("createFileProcessor returns ES-Check feature error with file and stack", () => {
   const testFile = path.join(testDir, "es6-features.js");
   fs.writeFileSync(testFile, "const x = 1; let y = 2;");

@@ -389,6 +389,7 @@ try {
 
 log.info("ES2026 source context and byte methods should require the right target");
 [
+  ["JSON.parse(text, (k, v, context, raw = context.source) => raw);", "JSONParseSource"],
   ["JSON.parse(text, (k, v, context) => context.source);", "JSONParseSource"],
   ["new Uint8Array(1).toHex();", "Uint8ArrayToHex"],
 ].forEach(([code, feature]) => {
@@ -408,6 +409,26 @@ log.info("ES2026 source context and byte methods should require the right target
       encoding: "utf8",
       stdio: "pipe",
     });
+  } finally {
+    fs.unlinkSync(file);
+  }
+});
+
+log.info("Samsung queries should respect syntax boundaries");
+[
+  ["async function f() {}", "5", "6.2-6.4"],
+  ["const copy = {...source};", "7.2-7.4", "8.2"],
+  ["try {} catch {}", "8.2", "9.2"],
+].forEach(([code, before, supported], index) => {
+  const file = path.join(__dirname, `temp-samsung-syntax-${index}.js`);
+  fs.writeFileSync(file, code);
+  const args = [esCheckPath, "checkBrowser", file];
+  const rejectedArgs = args.concat(`--browserslistQuery=samsung ${before}`);
+  const acceptedArgs = args.concat(`--browserslistQuery=samsung ${supported}`);
+  const options = { encoding: "utf8", stdio: "pipe" };
+  try {
+    assert.throws(() => execFileSync("node", rejectedArgs, options));
+    execFileSync("node", acceptedArgs, options);
   } finally {
     fs.unlinkSync(file);
   }

@@ -76,6 +76,16 @@ apiCases.forEach(([feature, code, modules]) => {
 });
 
 const sourceCases = [
+  ["JSON.parse(text, (k, v, c, raw = c.source) => raw);", true],
+  ["JSON.parse(text, function (k, v, c, raw = c['source']) { return raw; });", true],
+  ["JSON.parse(text, (k, v, c, {source} = c) => source);", true],
+  ["JSON.parse(text, (k, v, c, read = () => c.source) => read());", true],
+  ["JSON.parse(text, (k, v, c, raw = c.source) => { c = custom; return raw; });", true],
+  ["JSON.parse(text, (k, v, c, raw = (c ||= custom)) => c.source);", true],
+  ["JSON.parse(text, (k, v, c, raw = (c = custom)) => c.source);", false],
+  ["JSON.parse(text, (k, v, c, raw = (c = custom, c.source)) => raw);", false],
+  ["JSON.parse(text, (k, v, c, raw = custom.source) => raw);", false],
+  ["function f(JSON) { JSON.parse(text, (k, v, c, raw = c.source) => raw); }", false],
   ["JSON.parse(text, (k, v, c) => c.source);", true],
   ["JSON.parse(text, function (k, v, c) { return c['source']; });", true],
   ["JSON.parse(text, (k, v, {source}) => source);", true],
