@@ -34,8 +34,8 @@ function resolveFeature([featureName, moduleName]) {
 
 function collectFeatures() {
   const entries = Object.entries(FEATURE_CORE_JS_MODULES);
-  const features = entries.map(resolveFeature);
-  return features.toSorted();
+  const features = entries.map(resolveFeature).sort();
+  return features;
 }
 
 function formatFeatureList(features) {
