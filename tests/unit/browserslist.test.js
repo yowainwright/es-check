@@ -259,6 +259,57 @@ describe("getESVersionForBrowser", () => {
     assert.strictEqual(getESVersionForBrowser("ios_saf", "9.0-9.2"), 6);
     assert.strictEqual(getESVersionForBrowser("ios_saf", "9.3"), 6);
   });
+
+  it("should select syntax targets for mobile browser release numbers", () => {
+    const cases = [
+      ["and_chr", "55", 7],
+      ["and_chr", "60", 9],
+      ["and_ff", "100", 13],
+      ["and_ff", "104", 14],
+      ["samsung", "4", 5],
+      ["samsung", "5", 6],
+      ["samsung", "6", 8],
+      ["samsung", "6.2-6.4", 8],
+      ["samsung", "8", 8],
+      ["samsung", "8.2", 9],
+      ["samsung", "9.2", 10],
+      ["samsung", "23", 14],
+      ["samsung", "24", 15],
+      ["op_mob", "12.1", 5],
+      ["op_mob", "43", 8],
+      ["op_mob", "44", 9],
+      ["op_mob", "80", 15],
+    ];
+
+    cases.forEach(([browser, version, expected]) => {
+      assert.strictEqual(getESVersionForBrowser(browser, version), expected);
+    });
+  });
+});
+
+describe("getESVersionFromBrowserslist - mobile", () => {
+  it("should recognize mobile-only queries", () => {
+    ["last 1 and_chr version", "last 1 and_ff version", "samsung 24", "op_mob 80"].forEach(
+      (browserslistQuery) => {
+        const esVersion = getESVersionFromBrowserslist({ browserslistQuery });
+        assert.ok(esVersion >= 6, `${browserslistQuery} should support ES6 syntax`);
+      },
+    );
+  });
+
+  it("should include mobile targets when choosing the lowest ES version", () => {
+    const cases = [
+      ["chrome 136, samsung 5", 6],
+      ["chrome 136, op_mob 80", 15],
+      ["samsung 24, ios_saf 15.4", 14],
+      ["samsung 24, ie 11", 5],
+      ["samsung 24, kaios 2.5", 15],
+    ];
+
+    cases.forEach(([browserslistQuery, expected]) => {
+      assert.strictEqual(getESVersionFromBrowserslist({ browserslistQuery }), expected);
+    });
+  });
 });
 
 describe("getESVersionFromBrowserslist - ios", () => {

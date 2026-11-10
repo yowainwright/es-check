@@ -17,6 +17,41 @@ function cleanupTestDir() {
 }
 
 describe("Node API Tests", () => {
+  const samsungCases = [
+    ["async function f() {}", "5", "6.2-6.4"],
+    ["const copy = {...source};", "7.2-7.4", "8.2"],
+    ["try {} catch {}", "8.2", "9.2"],
+  ];
+
+  samsungCases.forEach(([code, before, supported], index) => {
+    test(`runChecks - respects Samsung syntax boundaries (case ${index})`, async () => {
+      const file = path.join(testDir, `samsung-syntax-${index}.js`);
+      fs.writeFileSync(file, code);
+      const config = { ecmaVersion: "checkBrowser", files: [file], cache: false };
+      const rejectedConfig = Object.assign({}, config, { browserslistQuery: `samsung ${before}` });
+      const acceptedConfig = Object.assign({}, config, {
+        browserslistQuery: `samsung ${supported}`,
+      });
+      const rejected = await runChecks([rejectedConfig]);
+      const accepted = await runChecks([acceptedConfig]);
+      assert.strictEqual(rejected.success, false);
+      assert.strictEqual(accepted.success, true);
+    });
+  });
+
+  ["last 1 and_chr version", "last 1 and_ff version", "samsung 24", "op_mob 80"].forEach(
+    (browserslistQuery) => {
+      test(`runChecks - accepts ES6 syntax for ${browserslistQuery}`, async () => {
+        const file = path.join(__dirname, "../fixtures/es6.js");
+        const result = await runChecks([
+          { ecmaVersion: "checkBrowser", files: [file], browserslistQuery, cache: false },
+        ]);
+        assert.strictEqual(result.success, true);
+        assert.deepStrictEqual(result.errors, []);
+      });
+    },
+  );
+
   const featureCases = [
     ["ObjectSpread", 9, "const copy = {...source};"],
     ["AsyncIteration", 9, "async function consume() { for await (const item of source) {} }"],

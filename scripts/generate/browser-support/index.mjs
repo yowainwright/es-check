@@ -23,15 +23,14 @@ function collectFeaturePaths() {
   const globalPaths = Object.fromEntries(
     Object.keys(ES_GLOBAL_MIN_VERSION).map((name) => [name, `${GLOBAL_BCD_PREFIX}${name}`]),
   );
-  return { ...globalPaths, ...FEATURE_BCD_PATHS };
+  return Object.assign({}, globalPaths, FEATURE_BCD_PATHS);
 }
 
 function normalizeVersion(versionAdded) {
   const isUnknownButSupported = versionAdded === true;
   if (isUnknownButSupported) return true;
 
-  const isUnsupported =
-    versionAdded === false || versionAdded === null || versionAdded === undefined;
+  const isUnsupported = [false, null, undefined].includes(versionAdded);
   if (isUnsupported) return false;
 
   const isPreview = versionAdded === "preview";
@@ -61,7 +60,9 @@ function isStandardSupport(statement) {
   const hasFlags = Boolean(statement.flags);
   const hasAlternateName = Boolean(statement.alternative_name);
   const hasPrefix = Boolean(statement.prefix);
-  return !hasFlags && !hasAlternateName && !hasPrefix;
+  const isPartial = Boolean(statement.partial_implementation);
+  const hasNonstandardSupport = hasFlags || hasAlternateName || hasPrefix || isPartial;
+  return !hasNonstandardSupport;
 }
 
 function pickEarliestVersion(statements) {
@@ -114,7 +115,8 @@ function generateBrowserSupport() {
 }
 
 function formatVersion(version) {
-  return typeof version === "string" ? `"${version}"` : String(version);
+  if (typeof version === "string") return `"${version}"`;
+  return String(version);
 }
 
 function formatFeature(featureName, support) {
