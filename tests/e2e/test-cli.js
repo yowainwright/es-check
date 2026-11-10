@@ -356,6 +356,37 @@ log.info("ES2025 syntax should be versioned with feature checking");
   }
 });
 
+log.info("Iterator helpers should respect ES and browser targets");
+const iteratorFile = path.join(__dirname, "temp-es2025-iterator.js");
+fs.writeFileSync(iteratorFile, "const it = [1].values(); it.map(fn);");
+try {
+  const flags = [iteratorFile, "--checkFeatures", "--noCache"];
+  assert.throws(
+    () =>
+      execFileSync("node", [esCheckPath, "es2024"].concat(flags), {
+        encoding: "utf8",
+        stdio: "pipe",
+      }),
+    (error) => `${error.stdout}${error.stderr}`.includes("IteratorMap"),
+  );
+  execFileSync("node", [esCheckPath, "es2025"].concat(flags), { encoding: "utf8", stdio: "pipe" });
+  const browserArgs = [esCheckPath, "checkBrowser"].concat(flags);
+  assert.throws(
+    () =>
+      execFileSync("node", browserArgs.concat("--browserslistQuery=safari 18.2"), {
+        encoding: "utf8",
+        stdio: "pipe",
+      }),
+    (error) => `${error.stdout}${error.stderr}`.includes("IteratorMap (safari 18.2 requires 18.4)"),
+  );
+  execFileSync("node", browserArgs.concat("--browserslistQuery=safari 18.4"), {
+    encoding: "utf8",
+    stdio: "pipe",
+  });
+} finally {
+  fs.unlinkSync(iteratorFile);
+}
+
 log.info("Samsung queries should respect syntax boundaries");
 [
   ["async function f() {}", "5", "6.2-6.4"],

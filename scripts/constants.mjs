@@ -44,6 +44,18 @@ export const FEATURE_MDN_MAPPING = {
 
 // https://github.com/zloirock/core-js/tree/master/packages/core-js-compat#additional-api
 export const FEATURE_CORE_JS_MODULES = {
+  IteratorFrom: "es.iterator.from",
+  IteratorMap: "es.iterator.map",
+  IteratorFilter: "es.iterator.filter",
+  IteratorTake: "es.iterator.take",
+  IteratorDrop: "es.iterator.drop",
+  IteratorFlatMap: "es.iterator.flat-map",
+  IteratorReduce: "es.iterator.reduce",
+  IteratorToArray: "es.iterator.to-array",
+  IteratorForEach: "es.iterator.for-each",
+  IteratorSome: "es.iterator.some",
+  IteratorEvery: "es.iterator.every",
+  IteratorFind: "es.iterator.find",
   AggregateError: "es.aggregate-error",
   ArrayBufferTransfer: "es.array-buffer.transfer",
   ArrayBufferTransferToFixedLength: "es.array-buffer.transfer-to-fixed-length",
@@ -130,6 +142,19 @@ export const BROWSER_SUPPORT_BROWSERS = [
 ];
 
 export const FEATURE_BCD_PATHS = {
+  Iterator: "javascript.builtins.Iterator.Iterator",
+  IteratorFrom: "javascript.builtins.Iterator.from",
+  IteratorMap: "javascript.builtins.Iterator.map",
+  IteratorFilter: "javascript.builtins.Iterator.filter",
+  IteratorTake: "javascript.builtins.Iterator.take",
+  IteratorDrop: "javascript.builtins.Iterator.drop",
+  IteratorFlatMap: "javascript.builtins.Iterator.flatMap",
+  IteratorReduce: "javascript.builtins.Iterator.reduce",
+  IteratorToArray: "javascript.builtins.Iterator.toArray",
+  IteratorForEach: "javascript.builtins.Iterator.forEach",
+  IteratorSome: "javascript.builtins.Iterator.some",
+  IteratorEvery: "javascript.builtins.Iterator.every",
+  IteratorFind: "javascript.builtins.Iterator.find",
   ImportAttributes: "javascript.statements.import.import_attributes",
   ImportOptions: "javascript.operators.import.options_parameter",
   RegExpModifiers: "javascript.regular_expressions.modifier",
