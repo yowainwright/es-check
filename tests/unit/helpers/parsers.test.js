@@ -29,6 +29,7 @@ describe("helpers/parsers.js", () => {
       assert.strictEqual(result.error, null);
       assert(result.ast);
       assert.strictEqual(result.ast.type, "Program");
+      assert.strictEqual(result.sourceCode, code);
     });
 
     it("should return error for invalid syntax", () => {
@@ -511,6 +512,28 @@ describe("helpers/parsers.js", () => {
   });
 
   describe("parseCode() with Bun line offset mapping", () => {
+    it("should return the transformed source used for AST offsets", () => {
+      const input = 'const n: T = 1; import {value} from "dependency"; console.log(value,n);';
+      const source = 'const n = 1;\nimport { value } from "dependency";\nconsole.log(value, n);\n';
+      global.Bun = {
+        Transpiler: class {
+          transformSync() {
+            return source;
+          }
+        },
+      };
+      try {
+        const acorn = require("acorn");
+        const options = { ecmaVersion: 2025, sourceType: "module" };
+        const result = parseCode(input, options, acorn, "test.ts", { typescript: true });
+        assert.strictEqual(result.error, null);
+        assert.strictEqual(result.sourceCode, source);
+        assert.deepStrictEqual(result.ast, acorn.parse(result.sourceCode, options));
+      } finally {
+        delete global.Bun;
+      }
+    });
+
     it("should map error positions back to original TS source in Bun", () => {
       global.Bun = {
         Transpiler: function (options) {
