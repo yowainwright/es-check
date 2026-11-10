@@ -4,6 +4,7 @@ import { writeFileSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 import { createRequire } from "module";
+import { format } from "oxfmt";
 import { BROWSER_SUPPORT_BROWSERS, FEATURE_BCD_PATHS } from "../../constants.mjs";
 
 const require = createRequire(import.meta.url);
@@ -24,6 +25,29 @@ function collectFeaturePaths() {
     Object.keys(ES_GLOBAL_MIN_VERSION).map((name) => [name, `${GLOBAL_BCD_PREFIX}${name}`]),
   );
   return Object.assign({}, globalPaths, FEATURE_BCD_PATHS);
+}
+
+function resolveSupportPeriods(statements) {
+  const standard = statements.filter(isStandardSupport);
+  const hasRemoval = standard.some((statement) => Boolean(statement.version_removed));
+  if (!hasRemoval) return pickEarliestVersion(standard);
+  const periods = standard.map(normalizeSupportPeriod).filter(Boolean);
+  if (periods.length === 0) return false;
+  const sortedPeriods = periods.toSorted((a, b) =>
+    compareVersions(String(a.version_added), String(b.version_added)),
+  );
+  return sortedPeriods;
+}
+
+function normalizeSupportPeriod(statement) {
+  const added = normalizeVersion(statement.version_added);
+  if (added === false) return null;
+  const period = { version_added: added };
+  if (!statement.version_removed) return period;
+  const removed = normalizeVersion(statement.version_removed);
+  if (removed === false) return null;
+  period.version_removed = removed;
+  return period;
 }
 
 function normalizeVersion(versionAdded) {
@@ -89,7 +113,7 @@ function resolveSupport(compatData) {
   const entries = BROWSER_SUPPORT_BROWSERS.map((browser) => {
     const statements = support[browser];
     if (!statements) return null;
-    return [browser, pickEarliestVersion([].concat(statements))];
+    return [browser, resolveSupportPeriods([].concat(statements))];
   }).filter(Boolean);
 
   const hasNoEntries = entries.length === 0;
@@ -115,6 +139,7 @@ function generateBrowserSupport() {
 }
 
 function formatVersion(version) {
+  if (Array.isArray(version)) return JSON.stringify(version);
   if (typeof version === "string") return `"${version}"`;
   return String(version);
 }
@@ -145,10 +170,14 @@ function getOutputPath() {
   return join(__dirname, "../../../lib/constants/es-features/browserSupport.js");
 }
 
-function main() {
+async function main() {
   const browserSupport = generateBrowserSupport();
   const bcdVersion = bcd.__meta.version;
-  writeFileSync(getOutputPath(), createModuleTemplate(browserSupport, bcdVersion));
+  const outputPath = getOutputPath();
+  const source = createModuleTemplate(browserSupport, bcdVersion);
+  const formatted = await format(outputPath, source);
+  if (formatted.errors.length > 0) throw new Error("Cannot format generated browser support");
+  writeFileSync(outputPath, formatted.code);
 }
 
-main();
+await main();

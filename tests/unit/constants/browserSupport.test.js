@@ -14,12 +14,21 @@ test("FEATURE_BROWSER_SUPPORT should only contain known feature names", () => {
   assert.deepStrictEqual(unknown, []);
 });
 
-test("FEATURE_BROWSER_SUPPORT values should be versions or booleans", () => {
+test("FEATURE_BROWSER_SUPPORT values should be versions, booleans, or support periods", () => {
   Object.entries(FEATURE_BROWSER_SUPPORT).forEach(([featureName, support]) => {
     Object.entries(support).forEach(([browser, version]) => {
       const isBoolean = typeof version === "boolean";
       const isVersion = typeof version === "string" && VERSION_PATTERN.test(version);
-      assert.ok(isBoolean || isVersion, `${featureName}.${browser} has invalid value ${version}`);
+      const isPeriods = Array.isArray(version);
+      assert.ok(
+        isBoolean || isVersion || isPeriods,
+        `${featureName}.${browser} has invalid value ${version}`,
+      );
+      if (!isPeriods) return;
+      version.forEach((period) => {
+        assert.ok(VERSION_PATTERN.test(period.version_added));
+        if (period.version_removed) assert.ok(VERSION_PATTERN.test(period.version_removed));
+      });
     });
   });
 });

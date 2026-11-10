@@ -82,6 +82,10 @@ Modern JavaScript builds assume proper transpilation via tools like Babel. ES Ch
 
 ES Check validates syntax by default. Add `--checkFeatures` for ES version-specific feature checking. View supported [features](./lib/constants/es-features/).
 
+ES2025 feature checks include import attributes, dynamic import options, and RegExp
+modifiers. Modifier detection covers RegExp literals; strings passed to the `RegExp`
+constructor are not parsed as regular expression source.
+
 ---
 
 ## Walk through
@@ -239,6 +243,9 @@ reported because iOS Safari added them in 15.4 and 16.4. Failures name the brows
 ```
 Unsupported features detected: ObjectHasOwn (safari_ios 15.0 requires 15.4). These require a higher ES version than 13 or are not supported by the target browsers.
 ```
+
+When MDN records support being removed and later reintroduced, browser checks retain
+those intervals. A supported backport does not imply support in every later major version.
 
 **Using browserlist just like an es version**
 

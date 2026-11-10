@@ -21,6 +21,33 @@ const hasOwnCode = 'Object.hasOwn({}, "a");';
 const IOS_15_0 = [{ name: "safari_ios", version: "15.0" }];
 const IOS_15_4 = [{ name: "safari_ios", version: "15.4" }];
 
+[
+  ['import data from "x" with {type: "json"};', "ImportAttributes", "122", "123"],
+  ['import("x", {});', "ImportOptions", "90", "91"],
+  ["/(?i:pattern)/;", "RegExpModifiers", "124", "125"],
+].forEach(([code, feature, before, added]) => {
+  test(`${feature} respects browser support boundaries`, () => {
+    const ast = acorn.parse(code, { ecmaVersion: 2025, sourceType: "module" });
+    const targetBrowsers = [{ name: "chrome", version: before }];
+    assert.throws(
+      () => detectFeatures(code, 16, "module", new Set(), { ast, targetBrowsers }),
+      (error) => {
+        assert.deepStrictEqual(error.features, [feature]);
+        assert.deepStrictEqual(error.browserDetails[feature], [
+          { name: "chrome", version: before, requiredVersion: added },
+        ]);
+        return true;
+      },
+    );
+    const supported = [{ name: "chrome", version: added }];
+    const result = detectFeatures(code, 16, "module", new Set(), {
+      ast,
+      targetBrowsers: supported,
+    });
+    assert.deepStrictEqual(result.unsupportedFeatures, []);
+  });
+});
+
 test("should reject partial browser implementations and accept full support", () => {
   const code = "let value = 1;";
   const ast = parse(code);
