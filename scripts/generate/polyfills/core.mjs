@@ -22,9 +22,11 @@ function resolveFeature([featureName, moduleName]) {
   const isKnownFeature = ES_FEATURE_KEYS.has(featureName);
   if (!isKnownFeature) throw new Error(`Unknown es-check feature: ${featureName}`);
 
-  const hasPolyfill = coreJsModules.has(moduleName);
-  if (!hasPolyfill) {
-    throw new Error(`No core-js-compat module found for ${featureName} at ${moduleName}`);
+  const modules = [].concat(moduleName);
+  if (modules.length === 0) throw new Error(`No core-js modules configured for ${featureName}`);
+  const hasPolyfills = modules.every((name) => coreJsModules.has(name));
+  if (!hasPolyfills) {
+    throw new Error(`No core-js-compat modules found for ${featureName}: ${modules.join(", ")}`);
   }
 
   return featureName;
@@ -32,8 +34,8 @@ function resolveFeature([featureName, moduleName]) {
 
 function collectFeatures() {
   const entries = Object.entries(FEATURE_CORE_JS_MODULES);
-  const features = entries.map(resolveFeature);
-  return features.sort();
+  const features = entries.map(resolveFeature).sort();
+  return features;
 }
 
 function formatFeatureList(features) {

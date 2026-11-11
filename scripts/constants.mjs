@@ -44,6 +44,7 @@ export const FEATURE_MDN_MAPPING = {
 
 // https://github.com/zloirock/core-js/tree/master/packages/core-js-compat#additional-api
 export const FEATURE_CORE_JS_MODULES = {
+  JSONParseSource: "es.json.parse",
   IteratorFrom: "es.iterator.from",
   IteratorMap: "es.iterator.map",
   IteratorFilter: "es.iterator.filter",
@@ -80,8 +81,8 @@ export const FEATURE_CORE_JS_MODULES = {
   JSONIsRawJSON: "es.json.is-raw-json",
   JSONRawJSON: "es.json.raw-json",
   Map: "es.map",
-  MapGetOrInsert: "es.map.get-or-insert",
-  MapGetOrInsertComputed: "es.map.get-or-insert-computed",
+  MapGetOrInsert: ["es.map.get-or-insert", "es.weak-map.get-or-insert"],
+  MapGetOrInsertComputed: ["es.map.get-or-insert-computed", "es.weak-map.get-or-insert-computed"],
   MapGroupBy: "es.map.group-by",
   MathSumPrecise: "es.math.sum-precise",
   ObjectEntries: "es.object.entries",
@@ -142,6 +143,7 @@ export const BROWSER_SUPPORT_BROWSERS = [
 ];
 
 export const FEATURE_BCD_PATHS = {
+  JSONParseSource: "javascript.builtins.JSON.parse.reviver_parameter_context_argument",
   Iterator: "javascript.builtins.Iterator.Iterator",
   IteratorFrom: "javascript.builtins.Iterator.from",
   IteratorMap: "javascript.builtins.Iterator.map",

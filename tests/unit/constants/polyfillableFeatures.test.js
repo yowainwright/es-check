@@ -17,9 +17,12 @@ test("core-js mappings should reference known features and upstream modules", as
   const allFeatureKeys = featureKeys.concat(globalKeys);
   const knownFeatures = new Set(allFeatureKeys);
 
-  Object.entries(FEATURE_CORE_JS_MODULES).forEach(([feature, moduleName]) => {
+  Object.keys(FEATURE_CORE_JS_MODULES).forEach((feature) => {
     assert.ok(knownFeatures.has(feature), `Unknown feature: ${feature}`);
-    assert.ok(coreJsModules.has(moduleName), `Missing core-js module: ${moduleName}`);
+  });
+  const modules = Object.values(FEATURE_CORE_JS_MODULES).flat();
+  modules.forEach((name) => {
+    assert.ok(coreJsModules.has(name), `Missing core-js module: ${name}`);
   });
 });
 
