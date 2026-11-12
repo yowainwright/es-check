@@ -134,6 +134,9 @@ importers:
       oxlint:
         specifier: ^1.92.0
         version: 1.92.0
+      oxlint-plugin-legibility:
+        specifier: 0.0.5
+        version: 0.0.5(oxlint@1.92.0)
       pastoralist:
         specifier: 1.14.1
         version: 1.14.1
@@ -1957,6 +1960,16 @@ packages:
       svelte:
         optional: true
       vite-plus:
+        optional: true
+
+  oxlint-plugin-legibility@0.0.5:
+    resolution: {integrity: sha512-QBKeQ09Oho3X4tiP3g8loEE5MplFZ5fkRoxSQyvWFxieLBQG2F/XfUUFjwQmIAjs3h3rZqfz7IgYzADlT0IMEQ==}
+    engines: {node: '>=22'}
+    hasBin: true
+    peerDependencies:
+      oxlint: '>=1.55.0'
+    peerDependenciesMeta:
+      oxlint:
         optional: true
 
   oxlint@1.92.0:
@@ -4095,6 +4108,10 @@ snapshots:
       '@oxfmt/binding-win32-arm64-msvc': 0.77.0
       '@oxfmt/binding-win32-ia32-msvc': 0.77.0
       '@oxfmt/binding-win32-x64-msvc': 0.77.0
+
+  oxlint-plugin-legibility@0.0.5(oxlint@1.92.0):
+    optionalDependencies:
+      oxlint: 1.92.0
 
   oxlint@1.92.0:
     optionalDependencies:

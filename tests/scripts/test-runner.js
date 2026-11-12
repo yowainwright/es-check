@@ -11,10 +11,10 @@ const fg = require("fast-glob");
 
 const TEST_PATTERNS = {
   unit: "tests/unit/**/*.test.js",
-  constants: "tests/unit/constants/*.test.js",
-  helpers: "tests/unit/helpers/**/*.test.js",
+  constants: "tests/unit/constants/**/*.test.js",
+  core: "tests/unit/core/**/*.test.js",
   cli: "tests/unit/cli/*.test.js",
-  "check-runner": "tests/unit/check-runner/*.test.js",
+  "check-runner": "tests/unit/core/checkRunner.test.js",
   e2e: "tests/e2e/test-*.js",
 };
 

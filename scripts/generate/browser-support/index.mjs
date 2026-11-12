@@ -5,13 +5,16 @@ import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 import { createRequire } from "module";
 import { format } from "oxfmt";
-import { BROWSER_SUPPORT_BROWSERS, FEATURE_BCD_PATHS } from "../../constants.mjs";
 
 const require = createRequire(import.meta.url);
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const bcd = require("@mdn/browser-compat-data");
-const { ES_GLOBAL_MIN_VERSION } = require("../../../lib/constants/es-features/globals");
+const { ES_GLOBAL_MIN_VERSION } = require("../../../lib/constants/es");
+const {
+  BROWSER_SUPPORT_BROWSERS,
+  FEATURE_BCD_PATHS,
+} = require("../../../lib/constants/browserslist/constants");
 
 const GLOBAL_BCD_PREFIX = "javascript.builtins.";
 const VERSION_PATTERN = /^\d+(\.\d+)*$/;
@@ -167,7 +170,7 @@ module.exports = { FEATURE_BROWSER_SUPPORT };
 }
 
 function getOutputPath() {
-  return join(__dirname, "../../../lib/constants/es-features/browserSupport.js");
+  return join(__dirname, "../../../lib/constants/browserslist/support/index.js");
 }
 
 async function main() {

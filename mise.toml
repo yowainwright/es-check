@@ -1,2 +1,5 @@
 [tools]
 pnpm = "12.3.4"
+"github:yowainwright/src-lint" = "0.1.2"
+"github:yowainwright/fs-lint" = "0.3.0"
+"github:yowainwright/struct-lint" = "0.1.2"

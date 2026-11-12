@@ -80,7 +80,7 @@ Modern JavaScript builds assume proper transpilation via tools like Babel. ES Ch
 
 ## What features does ES Check check for?
 
-ES Check validates syntax by default. Add `--checkFeatures` for ES version-specific feature checking. View supported [features](./lib/constants/es-features/).
+ES Check validates syntax by default. Add `--checkFeatures` for ES version-specific feature checking. View supported [features](./lib/constants/es/).
 
 ES2025 feature checks include import attributes, dynamic import options, and RegExp
 modifiers. Modifier detection covers RegExp literals; strings passed to the `RegExp`
@@ -754,18 +754,31 @@ ES Check has only 3 core dependencies: [acorn](https://github.com/ternjs/acorn/)
 
 The CLI, logging, and source map support are implemented with custom lightweight solutions using Node.js built-ins to minimize dependencies. To contribute, file an [issue](https://github.com/yowainwright/es-check/issues) or submit a pull request.
 
+Install [mise](https://mise.jdx.dev/getting-started.html), then run:
+
+```sh
+mise install
+pnpm install --frozen-lockfile
+pnpm lint
+pnpm test
+```
+
+`pnpm lint` runs Oxlint with legibility rules, src-lint for import boundaries,
+struct-lint for source declaration order, and fs-lint for file paths. Native tool
+versions are pinned in `mise.toml`. The pre-commit hook and CI run the same checks.
+
 ### Contributing to ES Features
 
 To update ES version support:
 
-- Update [ES version mappings](./lib/constants/versions.js)
+- Update [ES version mappings](./lib/constants/es/index.js) and [browser mappings](./lib/constants/browserslist/index.js)
 - Reference [Acorn ES version support](https://github.com/acornjs/acorn/blob/3221fa54f9dea30338228b97210c4f1fd332652d/acorn/src/acorn.d.ts#L586)
 
 To update ES feature detection:
 
-- Add features to [version-specific files](./lib/constants/es-features/) (e.g., `6.js` for ES6 features)
-- Update [ES globals](./lib/constants/es-features/globals.js) from [sindresorhus/globals](https://github.com/sindresorhus/globals/blob/main/globals.json) when global availability changes
-- Update [polyfill patterns](./lib/constants/es-features/polyfills.js) if needed
+- Add features to [year-specific folders](./lib/constants/es/) (e.g., `2015/index.js` for ES2015 features)
+- Update [ES globals](./lib/constants/es/index.js) from [sindresorhus/globals](https://github.com/sindresorhus/globals/blob/main/globals.json) when global availability changes
+- Update [polyfill mappings and patterns](./lib/constants/polyfills/index.js) if needed
 - Feature detection uses AST traversal via [Acorn](https://github.com/acornjs/acorn/)
 
 Tests are located in `tests/unit/` and mirror the `lib/` structure. Please add tests for new features!

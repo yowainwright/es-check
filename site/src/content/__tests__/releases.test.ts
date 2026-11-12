@@ -17,7 +17,7 @@ const { mdxComponents } = await vite.ssrLoadModule("/src/components/MDXComponent
 const { getActiveHeadingId } = await vite.ssrLoadModule("/src/components/TableOfContents.tsx");
 
 const require = createRequire(import.meta.url);
-const detectFeatures = require("../../../../lib/detectFeatures");
+const detectFeatures = require("../../../../lib/core/detectFeatures");
 const releaseUrl = new URL("../releases/9-7.mdx", import.meta.url);
 const source = readFileSync(releaseUrl, "utf8");
 const tree = createProcessor().parse(source);
@@ -150,7 +150,7 @@ describe("ES Check 9.7 release notes", () => {
   });
 
   it("keeps each documented global version synchronized with the detector", () => {
-    const { ES_GLOBAL_MIN_VERSION } = require("../../../../lib/constants/es-features/globals");
+    const { ES_GLOBAL_MIN_VERSION } = require("../../../../lib/constants/es");
     const block = codeBlocks.find(
       (node) => node.lang === "jsonc" && node.value.includes('"Proxy"'),
     );
