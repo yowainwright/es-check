@@ -111,6 +111,30 @@ identify API use; they do not verify runtime algorithm behavior. Map and WeakMap
 upserts share feature names, so explicit modular polyfill detection requires both
 corresponding core-js modules.
 
+Initial **ES2027** support follows the seven finished proposals currently assigned
+to 2027 in the [TC39 proposal list](https://github.com/tc39/proposals/blob/main/finished-proposals.md).
+Use `es2027` or `es18`; the edition is still evolving.
+
+- Temporal global references and `toTemporalInstant()` on known Date receivers.
+- Explicit resource management: `using`, `await using`, `Symbol.dispose`,
+  `Symbol.asyncDispose`, `DisposableStack`, `AsyncDisposableStack`, and `SuppressedError`.
+- `Atomics.pause()`.
+- Iterator joint iteration (`zip`, `zipKeyed`), chunking (`chunks`, `windows`),
+  `includes`, and `join` on known iterator receivers.
+
+Use `--checkFeatures` to check built-in APIs. Resource-management declarations are
+also checked in syntax-only mode. Browser feature checks use generated MDN data
+when all targets have data, with the edition baseline as a fallback. No ES2027
+browser-wide baseline is assumed.
+
+Detection retains the existing scope and receiver-inference limits: dynamic keys,
+unknown receivers, and built-ins reached through global-object properties or
+untracked aliases are not inferred. Temporal is checked as a global API, rather
+than tracking compatibility of each Temporal member. Core-js exclusions and
+explicit imports apply only to mapped APIs; resource-management syntax cannot be
+polyfilled. Data comes from the installed `@mdn/browser-compat-data` and
+`core-js-compat` packages; no network request is made at runtime.
+
 ---
 
 ## Walk through
@@ -147,7 +171,7 @@ Usage: index [options] [ecmaVersion] [files...]
 
 Arguments:
   ecmaVersion                         ecmaVersion to check files against. Can be: es3, es4, es5, es6/es2015, es7/es2016, es8/es2017, es9/es2018, es10/es2019, es11/es2020, es12/es2021,
-                                      es13/es2022, es14/es2023, es15/es2024, es16/es2025, es17/es2026
+                                      es13/es2022, es14/es2023, es15/es2024, es16/es2025, es17/es2026, es18/es2027
   files                               a glob of files to to test the EcmaScript version against
 
 ```

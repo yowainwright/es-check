@@ -20,14 +20,14 @@
       "lib/constants/{es,browserslist,polyfills}/index.js",
       "lib/constants/browserslist/constants.js",
       "lib/constants/browserslist/support/index.js",
-      "lib/constants/es/{2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025,2026}/index.js",
+      "lib/constants/es/{2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025,2026,2027}/index.js",
       "!tests/unit/browserslist/**",
       "!tests/unit/check-runner/**",
       "!tests/unit/{checkRunner,browserslist}.test.js",
       "!tests/unit/detectFeatures/**",
       "!tests/unit/helpers/**",
       "!tests/unit/core/**",
-      "tests/unit/core/{browserslist,checkRunner,browserSupport,es2026,files,iteratorReceivers,logger,mapReceivers,parsers,sourcemap}.test.js",
+      "tests/unit/core/{browserslist,checkRunner,browserSupport,es2026,es2027,files,iteratorReceivers,logger,mapReceivers,parsers,sourcemap}.test.js",
       "tests/unit/core/detectFeatures/{index,browserSupport,filterPolyfillableFeatures,modernPolyfillDetection}.test.js",
       "tests/unit/core/ast/{index,constants,utils}.test.js",
       "tests/unit/core/ast/detector/{index,utils}.test.js",
@@ -38,7 +38,7 @@
       "tests/unit/constants/{es,browserslist,polyfills}/index.test.js",
       "tests/unit/constants/browserslist/constants.test.js",
       "tests/unit/constants/browserslist/support/index.test.js",
-      "tests/unit/constants/es/{2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025,2026}/index.test.js"
+      "tests/unit/constants/es/{2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025,2026,2027}/index.test.js"
     ]
   }
 }

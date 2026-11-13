@@ -434,4 +434,67 @@ log.info("Samsung queries should respect syntax boundaries");
   }
 });
 
+log.info("ES2027 aliases, syntax and browser feature boundaries");
+const es2027File = path.join(__dirname, "temp-es2027-audit.js");
+assert.equal(fs.existsSync(es2027File), false);
+const es2027Options = { encoding: "utf8", stdio: "pipe" };
+try {
+  fs.writeFileSync(es2027File, "{ using resource = acquire(); }");
+  ["es2027", "es18", "2027", "18"].forEach((version) => {
+    execFileSync("node", [esCheckPath, version, es2027File, "--noCache"], es2027Options);
+  });
+  [[], ["--checkFeatures"], ["--checkFeatures", "--ignorePolyfillable=core-js"]].forEach(
+    (flags) => {
+      const args = [esCheckPath, "es2026", es2027File, "--noCache"].concat(flags);
+      assert.throws(
+        () => execFileSync("node", args, es2027Options),
+        (error) => `${error.stdout}${error.stderr}`.includes("UsingDeclarations"),
+      );
+    },
+  );
+  fs.writeFileSync(es2027File, "await using resource = acquire();");
+  execFileSync("node", [esCheckPath, "es2027", es2027File, "--module", "--noCache"], es2027Options);
+  assert.throws(
+    () =>
+      execFileSync(
+        "node",
+        [esCheckPath, "es2026", es2027File, "--module", "--noCache"],
+        es2027Options,
+      ),
+    (error) => `${error.stdout}${error.stderr}`.includes("AwaitUsingDeclarations"),
+  );
+  fs.writeFileSync(es2027File, "Temporal.Now.instant(); Iterator.zip([[1]]).chunks(1).join(',');");
+  execFileSync(
+    "node",
+    [esCheckPath, "es2027", es2027File, "--checkFeatures", "--noCache"],
+    es2027Options,
+  );
+  assert.throws(
+    () =>
+      execFileSync(
+        "node",
+        [esCheckPath, "es2026", es2027File, "--checkFeatures", "--noCache"],
+        es2027Options,
+      ),
+    (error) => `${error.stdout}${error.stderr}`.includes("Temporal"),
+  );
+  fs.writeFileSync(es2027File, "Atomics.pause();");
+  const browserArgs = [esCheckPath, "checkBrowser", es2027File, "--checkFeatures", "--noCache"];
+  execFileSync("node", browserArgs.concat("--browserslistQuery=safari 18.4"), es2027Options);
+  assert.throws(
+    () =>
+      execFileSync("node", browserArgs.concat("--browserslistQuery=safari 18.3"), es2027Options),
+    (error) => `${error.stdout}${error.stderr}`.includes("AtomicsPause"),
+  );
+  fs.writeFileSync(es2027File, "{ using resource = acquire(); }");
+  const syntaxArgs = [esCheckPath, "checkBrowser", es2027File, "--noCache"];
+  execFileSync("node", syntaxArgs.concat("--browserslistQuery=chrome 150"), es2027Options);
+  assert.throws(
+    () => execFileSync("node", syntaxArgs.concat("--browserslistQuery=safari 26"), es2027Options),
+    (error) => `${error.stdout}${error.stderr}`.includes("UsingDeclarations"),
+  );
+} finally {
+  fs.unlinkSync(es2027File);
+}
+
 log.info("[PASS] All CLI tests passed!");
