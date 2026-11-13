@@ -1,0 +1,107 @@
+const { test } = require("node:test");
+const assert = require("assert");
+
+const {
+  POLYFILLABLE_FEATURES,
+  CORE_JS_POLYFILLABLE,
+  FEATURE_CORE_JS_MODULES,
+} = require("../../../../lib/constants/polyfills");
+const { getPolyfillableFeatures } = require("../../../../lib/core/detectFeatures");
+const { ES_FEATURES, ES_GLOBAL_MIN_VERSION } = require("../../../../lib/constants/es");
+const coreJsModules = new Set(require("core-js-compat/modules"));
+
+test("core-js mappings should reference known features and upstream modules", () => {
+  const featureKeys = Object.keys(ES_FEATURES);
+  const globalKeys = Object.keys(ES_GLOBAL_MIN_VERSION);
+  const allFeatureKeys = featureKeys.concat(globalKeys);
+  const knownFeatures = new Set(allFeatureKeys);
+
+  const features = Object.keys(FEATURE_CORE_JS_MODULES);
+  assert.ok(features.length > 0, "Core-js feature mappings must be present");
+  features.forEach((feature) => {
+    assert.ok(knownFeatures.has(feature), `Unknown feature: ${feature}`);
+  });
+  const mappings = Object.values(FEATURE_CORE_JS_MODULES).map((value) => [].concat(value));
+  assert.ok(
+    mappings.every((modules) => modules.length > 0),
+    "Each feature needs a core-js module",
+  );
+  const modules = mappings.flat();
+  modules.forEach((name) => {
+    assert.ok(coreJsModules.has(name), `Missing core-js module: ${name}`);
+  });
+});
+
+test("polyfillable features should match the explicit core-js mappings", () => {
+  const expected = Object.keys(FEATURE_CORE_JS_MODULES).sort();
+  const actual = Array.from(CORE_JS_POLYFILLABLE).sort();
+  assert.deepStrictEqual(actual, expected);
+});
+
+test("non-polyfillable syntax and globals should remain excluded", () => {
+  const features = ["BigInt", "Proxy", "WeakRef", "FinalizationRegistry", "OptionalChaining"];
+  features.forEach((feature) => assert.strictEqual(CORE_JS_POLYFILLABLE.has(feature), false));
+});
+
+test("getPolyfillableFeatures should return core-js set when library is 'core-js'", () => {
+  const result = getPolyfillableFeatures("core-js");
+  assert.strictEqual(result, CORE_JS_POLYFILLABLE);
+});
+
+test("getPolyfillableFeatures should return core-js set when library is 'CORE-JS' (case insensitive)", () => {
+  const result = getPolyfillableFeatures("CORE-JS");
+  assert.strictEqual(result, CORE_JS_POLYFILLABLE);
+});
+
+test("getPolyfillableFeatures should return default set when library is undefined", () => {
+  const result = getPolyfillableFeatures();
+  assert.strictEqual(result, POLYFILLABLE_FEATURES);
+});
+
+test("getPolyfillableFeatures should return default set when library is unknown", () => {
+  const result = getPolyfillableFeatures("unknown-lib");
+  assert.strictEqual(result, POLYFILLABLE_FEATURES);
+});
+
+test("getPolyfillableFeatures should handle edge cases gracefully", () => {
+  assert.strictEqual(getPolyfillableFeatures(null), POLYFILLABLE_FEATURES);
+  assert.strictEqual(getPolyfillableFeatures(0), POLYFILLABLE_FEATURES);
+  assert.strictEqual(getPolyfillableFeatures(false), POLYFILLABLE_FEATURES);
+  assert.strictEqual(getPolyfillableFeatures(123), POLYFILLABLE_FEATURES);
+  assert.strictEqual(getPolyfillableFeatures({}), POLYFILLABLE_FEATURES);
+  assert.strictEqual(getPolyfillableFeatures([]), POLYFILLABLE_FEATURES);
+});
+
+test("getPolyfillableFeatures should handle objects that throw on toString", () => {
+  const badObject = {
+    toString: () => {
+      throw new Error("Cannot convert");
+    },
+    valueOf: () => {
+      throw new Error("Cannot convert");
+    },
+  };
+  const result = getPolyfillableFeatures(badObject);
+  assert.strictEqual(result, POLYFILLABLE_FEATURES);
+});
+
+test("CORE_JS_POLYFILLABLE should include common Array methods", () => {
+  assert.strictEqual(CORE_JS_POLYFILLABLE.has("ArrayToSorted"), true);
+  assert.strictEqual(CORE_JS_POLYFILLABLE.has("ArrayToReversed"), true);
+  assert.strictEqual(CORE_JS_POLYFILLABLE.has("ArrayWith"), true);
+});
+
+test("CORE_JS_POLYFILLABLE should include ES2023+ features", () => {
+  assert.strictEqual(CORE_JS_POLYFILLABLE.has("ArrayFindLast"), true);
+  assert.strictEqual(CORE_JS_POLYFILLABLE.has("ArrayFindLastIndex"), true);
+});
+
+["Iterator", "JSONRawJSON", "JSONIsRawJSON", "AggregateError", "DataView"].forEach((feature) => {
+  test(`CORE_JS_POLYFILLABLE should include ${feature} (#444)`, () => {
+    assert.strictEqual(CORE_JS_POLYFILLABLE.has(feature), true);
+  });
+});
+
+test("POLYFILLABLE_FEATURES and CORE_JS_POLYFILLABLE should be the same set", () => {
+  assert.strictEqual(POLYFILLABLE_FEATURES, CORE_JS_POLYFILLABLE);
+});

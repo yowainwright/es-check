@@ -42,7 +42,7 @@
   "main": "lib/index.js",
   "exports": {
     ".": {
-      "import": "./lib/esm-wrapper.mjs",
+      "import": "./lib/core/esm.mjs",
       "require": "./lib/index.js"
     }
   },
@@ -52,8 +52,10 @@
   },
   "scripts": {
     "dev": "pnpm site:dev",
-    "lint": "oxlint -c .oxlintrc.json lib --deny-warnings",
-    "lint:ci": "oxlint -c .oxlintrc.json lib --deny-warnings",
+    "lint": "oxlint -c .oxlintrc.json lib --deny-warnings && pnpm run lint:structure",
+    "lint:ci": "pnpm run lint",
+    "lint:structure": "mise exec -- src-lint check lib --strict && mise exec -- struct-lint --profile ci lib && pnpm run lint:files",
+    "lint:files": "find lib tests/unit -type f -print0 | mise exec -- fs-lint check --stdin0",
     "format": "oxfmt",
     "format:check": "oxfmt --check",
     "codependence": "codependence --update",
@@ -78,9 +80,7 @@
     "release:tag:dry": "node scripts/release-tag.mjs --dry-run",
     "release:dry": "release-it --dry-run --no-git.requireUpstream",
     "report:coverage": "mkdir -p coverage && node tests/scripts/test-runner.js unit --coverage --reporter=lcov --reporter-destination=coverage/lcov.info",
-    "scripts:generate": "pnpm run scripts:generate:requirements && pnpm run scripts:generate:polyfills && pnpm run scripts:generate:browser-support",
-    "scripts:generate:requirements": "node scripts/generate/requirements/parser.mjs",
-    "scripts:generate:polyfills": "node scripts/generate/polyfills/core.mjs",
+    "scripts:generate": "pnpm run scripts:generate:browser-support",
     "scripts:generate:browser-support": "node scripts/generate/browser-support/index.mjs",
     "test": "node tests/scripts/test-runner.js unit && npm run test:e2e",
     "test:unit": "node tests/scripts/test-runner.js unit",
@@ -109,11 +109,10 @@
     "core-js-compat": "^3.51.0",
     "oxfmt": "^0.77.0",
     "oxlint": "^1.92.0",
+    "oxlint-plugin-legibility": "0.0.5",
     "pastoralist": "1.14.1",
     "release-it": "21.1.2"
   },
-  "peerDependencies": {},
-  "optionalDependencies": {},
   "devEngines": {
     "packageManager": [
       {
@@ -173,6 +172,77 @@
         "pnpm test"
       ],
       "after:release": "echo Successfully released ${name} v${version} to ${repo.repository}."
+    }
+  },
+  "src-lint": {
+    "version": 1,
+    "boundaries": {
+      "runtime": {
+        "root": "lib",
+        "public": [
+          "index.js"
+        ],
+        "allow": [
+          "lib/core/checkRunner.js"
+        ]
+      },
+      "cli": {
+        "root": "lib/cli",
+        "public": [
+          "index.js"
+        ]
+      },
+      "constants": {
+        "root": "lib/constants",
+        "public": [
+          "index.js"
+        ]
+      },
+      "es": {
+        "root": "lib/constants/es",
+        "public": [
+          "index.js"
+        ]
+      },
+      "browserslist-constants": {
+        "root": "lib/constants/browserslist",
+        "public": [
+          "index.js",
+          "constants.js"
+        ]
+      },
+      "polyfills": {
+        "root": "lib/constants/polyfills",
+        "public": [
+          "index.js"
+        ]
+      },
+      "core": {
+        "root": "lib/core",
+        "public": [
+          "index.js",
+          "esm.mjs"
+        ],
+        "allow": [
+          "lib/cli/utils.js"
+        ]
+      },
+      "ast": {
+        "root": "lib/core/ast",
+        "public": [
+          "index.js"
+        ]
+      },
+      "detector": {
+        "root": "lib/core/ast/detector",
+        "public": [
+          "index.js"
+        ],
+        "allow": [
+          "lib/core/ast/utils.js",
+          "lib/core/ast/constants.js"
+        ]
+      }
     }
   },
   "website": "https://jeffry.in/es-check"

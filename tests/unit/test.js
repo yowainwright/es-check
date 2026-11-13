@@ -4,7 +4,7 @@ const { describe, it, before, after, beforeEach, afterEach } = require("node:tes
 const assert = require("node:assert");
 const fs = require("fs");
 const path = require("path");
-const { generateBashCompletion, generateZshCompletion } = require("../../lib/helpers");
+const { generateBashCompletion, generateZshCompletion } = require("../../lib/core");
 const {
   FIXTURE_FILES,
   CLI_COMMANDS,
@@ -1288,7 +1288,7 @@ describe("Shell Completion", () => {
 
 describe("🧪 Programmatic API Tests", () => {
   const { runChecks, loadConfig } = require("../../lib/index.js");
-  const { createLogger } = require("../../lib/helpers");
+  const { createLogger } = require("../../lib/core");
 
   it("[PASS] Should expose runChecks function", () => {
     assert(typeof runChecks === "function", "runChecks should be a function");

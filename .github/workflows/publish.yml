@@ -39,6 +39,11 @@ jobs:
 
       - run: pnpm install --no-frozen-lockfile
 
+      - name: Install structure linters
+        uses: jdx/mise-action@d5574b52816a478f9d4e6529a3f6ff17a8a36785 # v5.2.8
+        with:
+          version: 2026.9.15
+
       - run: pnpm run lint:ci
 
       - run: pnpm test

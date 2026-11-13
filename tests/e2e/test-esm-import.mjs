@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { runChecks, loadConfig, createLogger } from "../../lib/esm-wrapper.mjs";
+import { runChecks, loadConfig, createLogger } from "../../lib/core/esm.mjs";
 import assert from "assert";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";

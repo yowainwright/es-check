@@ -5,7 +5,7 @@ const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
 const fg = require("fast-glob");
-const { createLogger } = require("../lib/helpers/logger");
+const { createLogger } = require("../lib/core/logger");
 
 const verbose = process.env.VERBOSE === "true" || process.env.DEBUG === "true";
 const defaultLogger = createLogger({ verbose });
