@@ -94,6 +94,8 @@ const positive = [
   "const arr = [1]; const it = arr.values(); it.map(fn);",
   "const it = Array.from([1]).keys(); it.map(fn);",
   "const it = new Uint8Array(2).values(); it.map(fn);",
+  "let values; if (flag) values = new Int16Array(2); else values = new Uint16Array(2); values.slice().values().map(fn);",
+  "let values; if (flag) values = new Int16Array(2); else values = new Uint16Array(2); values[Symbol.iterator]().map(fn);",
   "const it = new Set().values(); it.map(fn);",
   "const it = new Map().entries(); it.map(fn);",
   "const map = new Map(); map.values().map(fn);",

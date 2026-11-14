@@ -502,6 +502,8 @@ This option tells ES Check to look for common polyfill patterns in your code and
 
 Define hand-written polyfills as inline functions before other code. `if (!method)` and `method || install` checks are supported. Calls to installer functions, aliases, dynamic keys, and compound assignments are not.
 
+Prototype polyfills cover the known receiver types whose prototypes are patched. An Array polyfill does not cover TypedArray methods; unclassified array-method receivers retain compatibility errors.
+
 For methods shared by Map and WeakMap, patch both prototypes. ES Check detects installation patterns; it does not verify that a polyfill works.
 
 ### Comparing Polyfill Handling Options
