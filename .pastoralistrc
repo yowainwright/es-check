@@ -11,5 +11,25 @@
     "interactive": false,
     "severityThreshold": "low",
     "hasWorkspaceSecurityChecks": true
+  },
+  "appendix": {
+    "get-uri@8.0.1>basic-ftp@6.2.4": {
+      "dependents": {
+        "es-check": "get-uri@8.0.1>basic-ftp (transitive dependency)"
+      },
+      "ledger": {
+        "reason": "Fix GHSA-c475-qrg2-pj4r, GHSA-5pm8-86m8-9m6r and GHSA-r4jh-29pc-gfqr; get-uri 8.0.1 still requires basic-ftp ^5.3.1.",
+        "addedDate": "2026-11-13T22:53:01.667Z"
+      }
+    },
+    "@tailwindcss/typography@0.5.20>postcss-selector-parser@6.1.5": {
+      "dependents": {
+        "es-check-docs": "@tailwindcss/typography@0.5.20>postcss-selector-parser (transitive dependency)"
+      },
+      "ledger": {
+        "reason": "Fix GHSA-rj75-hqrm-r3gf; typography 0.5.20 still pins postcss-selector-parser to 6.0.10.",
+        "addedDate": "2026-11-13T22:53:01.667Z"
+      }
+    }
   }
 }

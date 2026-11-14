@@ -232,6 +232,10 @@ test("a later install should not hide an earlier call", () => {
     feature: "PromiseAllSettled",
     code: "Promise.allSettled = function () {}; Promise.allSettled([]);",
   },
+  {
+    feature: "DateToTemporalInstant",
+    code: "Date.prototype.toTemporalInstant = function () {}; new Date().toTemporalInstant();",
+  },
 ].forEach(({ feature, code }) => {
   const options = { ast: parse(code), targetBrowsers: CHROME_63 };
 
@@ -264,6 +268,133 @@ test("checkForPolyfills should not accept a method installed on another builtin"
       }),
     (error) => error.features.includes("ArrayPrototypeIncludes"),
   );
+});
+
+[
+  ["toSorted", "", "ArrayToSorted"],
+  ["toReversed", "", "ArrayToReversed"],
+  ["with", "0, 1", "ArrayWith"],
+].forEach(([method, args, feature]) => {
+  const install = `Array.prototype.${method} = function () { return this; };`;
+  const receivers = [
+    "new Uint8Array([2, 1])",
+    "new Int16Array([2, 1])",
+    "Uint8Array.from([2, 1])",
+    "new Uint8Array([2, 1]).slice()",
+  ];
+
+  receivers.forEach((receiver) => {
+    test(`Array ${method} polyfills do not cover ${receiver}`, () => {
+      const code = `${install} const bytes = ${receiver}; [2, 1].${method}(${args}); bytes.${method}(${args});`;
+      assert.throws(
+        () =>
+          detectFeatures(code, 13, "script", new Set(), {
+            ast: parse(code),
+            checkForPolyfills: true,
+          }),
+        (error) => error.features.includes(feature),
+      );
+    });
+  });
+
+  test(`Array ${method} polyfills still cover Array receivers`, () => {
+    const code = `${install} const values = [2, 1]; values.${method}(${args});`;
+    const result = detectFeatures(code, 13, "script", new Set(), {
+      ast: parse(code),
+      checkForPolyfills: true,
+    });
+    assert.deepStrictEqual(result.unsupportedFeatures, []);
+    assert.strictEqual(result.foundFeatures[feature], true);
+  });
+
+  test(`matching Array and Uint8Array ${method} polyfills cover both receivers`, () => {
+    const byteInstall = `Uint8Array.prototype.${method} = function () { return this; };`;
+    const code = `${install} ${byteInstall} [2, 1].${method}(${args}); new Uint8Array([2, 1]).${method}(${args});`;
+    const result = detectFeatures(code, 13, "script", new Set(), {
+      ast: parse(code),
+      checkForPolyfills: true,
+    });
+    assert.deepStrictEqual(result.unsupportedFeatures, []);
+  });
+
+  test(`matching Int16Array ${method} polyfills cover aliases and chains`, () => {
+    const byteInstall = `Int16Array.prototype.${method} = function () { return this; };`;
+    const code = `${install} ${byteInstall} const bytes = Int16Array.from([2, 1]).slice(); const alias = bytes; [2, 1].${method}(${args}); alias.${method}(${args});`;
+    const result = detectFeatures(code, 13, "script", new Set(), {
+      ast: parse(code),
+      checkForPolyfills: true,
+    });
+    assert.deepStrictEqual(result.unsupportedFeatures, []);
+  });
+
+  [
+    "let values; if (flag) values = new Int16Array(2); else values = new Uint16Array(2); values",
+    "let values; if (flag) values = new Int16Array(2); else values = new Uint16Array(2); const alias = values; alias.slice().subarray(0)",
+    "let values; if (first) values = new Int16Array(2); else if (second) values = new Uint16Array(2); else values = new Uint8Array(2); values",
+  ].forEach((receiver) => {
+    const signedInstall = `Int16Array.prototype.${method} = function () { return this; };`;
+    const unsignedInstall = `Uint16Array.prototype.${method} = function () { return this; };`;
+    const byteInstall = `Uint8Array.prototype.${method} = function () { return this; };`;
+    const patched = `${install} ${signedInstall} ${unsignedInstall} ${byteInstall}`;
+    const partial = `${install} ${signedInstall} ${byteInstall}`;
+
+    test(`matching ${method} polyfills cover merged receivers: ${receiver}`, () => {
+      const code = `${patched} ${receiver}.${method}(${args});`;
+      const result = detectFeatures(code, 13, "script", new Set(), {
+        ast: parse(code),
+        checkForPolyfills: true,
+      });
+      assert.deepStrictEqual(result.unsupportedFeatures, []);
+    });
+
+    test(`partial ${method} polyfills reject merged receivers: ${receiver}`, () => {
+      const code = `${partial} ${receiver}.${method}(${args});`;
+      assert.throws(
+        () =>
+          detectFeatures(code, 13, "script", new Set(), {
+            ast: parse(code),
+            checkForPolyfills: true,
+          }),
+        (error) => error.features.includes(feature),
+      );
+    });
+  });
+});
+
+test("Array polyfills do not cover unclassified global-object receivers", () => {
+  const code =
+    "Array.prototype.toSorted = function () { return this; }; new globalThis.Uint8Array(1).toSorted();";
+  assert.throws(
+    () =>
+      detectFeatures(code, 13, "script", new Set(), {
+        ast: parse(code),
+        checkForPolyfills: true,
+      }),
+    (error) => error.features.includes("ArrayToSorted"),
+  );
+});
+
+test("polyfill hints do not hide typed-array calls before Array calls", () => {
+  const code =
+    "/* polyfill */ Array.prototype.toSorted = function () { return this; }; new Uint8Array(1).toSorted(); [1].toSorted();";
+  assert.throws(
+    () =>
+      detectFeatures(code, 13, "script", new Set(), {
+        ast: parse(code),
+        checkForPolyfills: true,
+      }),
+    (error) => error.features.includes("ArrayToSorted"),
+  );
+});
+
+test("a matching Uint8Array polyfill covers a typed-array-only call", () => {
+  const code =
+    "Uint8Array.prototype.toSorted = function () { return this; }; new Uint8Array(1).toSorted();";
+  const result = detectFeatures(code, 13, "script", new Set(), {
+    ast: parse(code),
+    checkForPolyfills: true,
+  });
+  assert.deepStrictEqual(result.unsupportedFeatures, []);
 });
 
 ["Object", "Map"].forEach((receiver) => {
