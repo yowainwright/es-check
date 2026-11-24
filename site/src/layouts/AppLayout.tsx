@@ -27,7 +27,7 @@ function AppLayoutInner({ children }: AppLayoutProps) {
   const mainClass = isDocsPage ? "mx-auto w-full min-w-0 max-w-[720px]" : "min-w-0 flex-1";
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex min-h-screen flex-col supports-[height:100dvh]:min-h-dvh">
       <Header />
       <div className="flex flex-1 min-w-0">
         <Sidebar />

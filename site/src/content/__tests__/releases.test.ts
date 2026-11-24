@@ -10,6 +10,7 @@ import { createServer } from "vite";
 import { compileMDX } from "../../lib/mdx/compileMDX.ts";
 
 const vite = await createServer({
+  cacheDir: "node_modules/.vite-tests/releases",
   server: { middlewareMode: true, ws: false, watch: null },
 });
 after(() => vite.close());

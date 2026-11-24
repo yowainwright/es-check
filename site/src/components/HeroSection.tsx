@@ -12,7 +12,7 @@ export function HeroSection() {
   return (
     <div className="hero" ref={ref}>
       <BackgroundBlobs />
-      <div className="hero-content text-center min-h-[40rem] font-sans">
+      <div className="hero-content text-center font-sans">
         <div className="max-w-2xl md:max-w-6xl">
           <Logo className={`animate-on-scroll ${visibleClass}`} />
           <NewBadge className={`animate-on-scroll stagger-1 ${visibleClass}`} />

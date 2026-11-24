@@ -1,12 +1,10 @@
 export { AnimatedTerminal } from "./AnimatedTerminal";
-export { CodeBlockSection } from "./CodeBlockSection";
 export { ContributorsSection } from "./ContributorsSection";
 export { CopyButton } from "./CopyButton";
 export { FeaturesSection } from "./FeaturesSection";
 export { Footer } from "./Footer";
 export { Header } from "./Header";
 export { HeroSection } from "./HeroSection";
-export { InstallSection } from "./InstallSection";
 export { mdxComponents } from "./MDXComponents";
 export { Pagination } from "./Pagination";
 export { Sidebar } from "./Sidebar";
