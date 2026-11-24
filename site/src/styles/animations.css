@@ -127,14 +127,6 @@
   box-shadow: 0 0 30px 4px rgba(106, 163, 212, 0.5);
 }
 
-.code-block-glow {
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-}
-
-[data-theme="dark"] .code-block-glow {
-  box-shadow: 0 0 30px 5px rgba(106, 163, 212, 0.15);
-}
-
 .stagger-1 {
   animation-delay: 0.1s;
 }

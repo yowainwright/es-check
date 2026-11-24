@@ -3,6 +3,7 @@ import assert from "node:assert";
 import { createServer } from "vite";
 
 const vite = await createServer({
+  cacheDir: "node_modules/.vite-tests/terminal",
   server: { middlewareMode: true, ws: false, watch: null },
 });
 after(() => vite.close());

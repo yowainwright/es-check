@@ -6,6 +6,7 @@ import { createServer } from "vite";
 import type { SearchItem } from "../types.ts";
 
 const vite = await createServer({
+  cacheDir: "node_modules/.vite-tests/search",
   server: { middlewareMode: true, ws: false, watch: null },
 });
 after(() => vite.close());
