@@ -7,15 +7,15 @@ export function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="footer px-4 md:px-10 xl:px-28 py-6 md:py-7 border-t border-base-300 font-sans">
-      <div className="flex flex-col lg:flex-row w-full justify-between items-center gap-3 md:gap-4">
-        <div className="text-sm opacity-70 lg:flex-1 text-center lg:text-left">
+    <footer className="navbar px-4 md:px-10 xl:px-28 border-t border-base-300 font-sans">
+      <div className="flex w-full items-center gap-2">
+        <div className="flex-1 text-sm opacity-70">
           <p>&copy; {year} - MIT License</p>
         </div>
 
         <FooterLogo />
 
-        <div className="lg:flex-1 flex justify-center lg:justify-end">
+        <div className="flex flex-1 justify-end">
           <a
             className="btn btn-sm btn-ghost btn-circle"
             href="https://github.com/yowainwright/es-check"
@@ -36,13 +36,13 @@ function FooterLogo() {
     : "translate-y-3 scale-95 opacity-0";
 
   return (
-    <div ref={ref} className="size-16 shrink-0">
+    <div ref={ref} className="size-10 shrink-0">
       <Link to="/" className="block size-full hover:opacity-80 transition-opacity">
         <img
           src={resolveUrl("/es-check-logo.svg")}
           alt="ES Check"
-          width={64}
-          height={64}
+          width={40}
+          height={40}
           className={`size-full transition duration-500 ease-out motion-reduce:transition-none motion-reduce:translate-y-0 motion-reduce:scale-100 motion-reduce:opacity-100 ${appearanceClass}`}
         />
       </Link>
