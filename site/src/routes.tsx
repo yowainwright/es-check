@@ -1,5 +1,5 @@
 import { lazy, Suspense } from "react";
-import { createRootRoute, createRoute, Outlet } from "@tanstack/react-router";
+import { createRootRoute, createRoute, Outlet, redirect } from "@tanstack/react-router";
 import { Loader2 } from "lucide-react";
 
 const AppLayout = lazy(() => import("./layouts/AppLayout").then((m) => ({ default: m.AppLayout })));
@@ -15,14 +15,6 @@ const ReleasesPage = lazy(() =>
   import("./pages/ReleasePage").then((m) => ({ default: m.ReleasesPage })),
 );
 
-function PageLoader() {
-  return (
-    <div className="min-h-screen flex items-center justify-center">
-      <Loader2 className="size-8 animate-spin text-primary" />
-    </div>
-  );
-}
-
 const rootRoute = createRootRoute({
   component: () => <Outlet />,
 });
@@ -30,6 +22,18 @@ const rootRoute = createRootRoute({
 const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/",
+  beforeLoad: redirectToGettingStarted,
+});
+
+const docsIndexRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/docs",
+  beforeLoad: redirectToGettingStarted,
+});
+
+const heroRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/hero",
   component: () => (
     <Suspense fallback={<PageLoader />}>
       <AppLayout>
@@ -54,6 +58,16 @@ const communityRoute = createRoute({
 const docsRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/docs/$slug",
+  beforeLoad: ({ params }) => {
+    const isOldGuide = ["how-to-contribute", "having-an-issue"].includes(params.slug);
+    if (isOldGuide) {
+      throw redirect({
+        to: "/docs/$slug",
+        params: { slug: "contributing-guideline" },
+        replace: true,
+      });
+    }
+  },
   component: () => (
     <Suspense fallback={<PageLoader />}>
       <AppLayout>
@@ -89,8 +103,22 @@ const releasesRoute = createRoute({
 
 export const routeTree = rootRoute.addChildren([
   indexRoute,
+  heroRoute,
   communityRoute,
+  docsIndexRoute,
   docsRoute,
   releaseRoute,
   releasesRoute,
 ]);
+
+function redirectToGettingStarted() {
+  throw redirect({ to: "/docs/$slug", params: { slug: "gettingstarted" }, replace: true });
+}
+
+function PageLoader() {
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      <Loader2 className="size-8 animate-spin text-primary" />
+    </div>
+  );
+}

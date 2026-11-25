@@ -39,14 +39,7 @@ export const SIDEBAR: SidebarSection[] = [
   },
   {
     title: "Contribute",
-    items: [
-      { title: "How to Contribute", href: "/docs/how-to-contribute" },
-      {
-        title: "Contributing Guidelines",
-        href: "/docs/contributing-guideline",
-      },
-      { title: "Report Issues", href: "/docs/having-an-issue" },
-    ],
+    items: [{ title: "Contributing Guidelines", href: "/docs/contributing-guideline" }],
   },
 ];
 

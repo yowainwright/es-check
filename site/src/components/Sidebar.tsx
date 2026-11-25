@@ -1,6 +1,7 @@
 import { Link, useLocation } from "@tanstack/react-router";
 import { useEffect, useRef } from "react";
 import { X } from "lucide-react";
+import { NewBadge } from "./NewBadge";
 import {
   SIDEBAR,
   SITE_NAVIGATION,
@@ -20,7 +21,7 @@ export function Sidebar() {
         <aside className="hidden lg:block w-64 shrink-0 border-r border-base-content/10">
           <nav
             aria-label="Documentation"
-            className="sticky top-20 max-h-[calc(100dvh-6rem)] overflow-y-auto py-4"
+            className="sticky top-16 max-h-[calc(100dvh-4rem)] overflow-y-auto pt-3 pb-4"
           >
             <SidebarNav pathname={pathname} />
           </nav>
@@ -75,7 +76,7 @@ function MobileMenu({ pathname }: { pathname: string }) {
             if ((event.target as HTMLElement).closest("a")) setMenuOpen(false);
           }}
         >
-          <ul className="menu w-full px-4 pb-4 border-b border-base-content/10 mb-4">
+          <ul className="menu w-full px-4 pb-4 border-b border-base-content/10 mb-1">
             {SITE_NAVIGATION.map((item) => (
               <SidebarNavItem key={item.href} item={item} pathname={pathname} />
             ))}
@@ -94,11 +95,14 @@ function MobileMenu({ pathname }: { pathname: string }) {
 
 function SidebarNav({ pathname }: { pathname: string }) {
   return (
-    <ul className="menu w-full px-4 py-0 font-sans">
-      {SIDEBAR.map((section) => (
-        <SidebarSectionItem key={section.title} section={section} pathname={pathname} />
-      ))}
-    </ul>
+    <div className="flex flex-col items-center px-4">
+      <NewBadge className="mb-1 h-auto max-w-full text-center text-xs leading-normal text-balance" />
+      <ul className="menu w-full p-0 font-sans">
+        {SIDEBAR.map((section) => (
+          <SidebarSectionItem key={section.title} section={section} pathname={pathname} />
+        ))}
+      </ul>
+    </div>
   );
 }
 

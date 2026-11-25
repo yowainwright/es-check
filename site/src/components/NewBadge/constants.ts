@@ -1,4 +1,7 @@
-export const BADGE_TEXT = "ES Check v9.7.* • Now with ES2026 support";
+const version = import.meta.env.ES_CHECK_VERSION;
+const edition = import.meta.env.ES_CHECK_EDITION;
+
+export const BADGE_TEXT = `v${version} with initial ${edition} support`;
 export const BADGE_HREF = "https://github.com/yowainwright/es-check/releases";
 
 export const RAINBOW_GRADIENT =

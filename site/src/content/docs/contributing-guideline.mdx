@@ -3,31 +3,39 @@ title: Contributing Guidelines
 description: "Guidelines for contributing to ES Check - code standards, PR process, and testing requirements"
 ---
 
-## Guidelines for contributors
+## Getting Started
 
-1. **Fork** the repository and **clone** it to your local machine.
+Fork [ES Check on GitHub](https://github.com/yowainwright/es-check/fork). Clone your fork, add the original repository as `upstream`, and create a branch. Replace `YOUR-USERNAME` with your GitHub username.
 
-2. **Create a branch** for your contribution. Use a descriptive name for your branch.
+```bash
+git clone https://github.com/YOUR-USERNAME/es-check.git
+cd es-check
+git remote add upstream https://github.com/yowainwright/es-check.git
+git switch -c feature/your-change
+```
 
-3. **Commit** your changes with clear and concise messages.
+Install the project tools with [mise](https://mise.jdx.dev/getting-started.html), then install dependencies.
 
-4. **Push** your changes to your fork.
+```bash
+mise install
+pnpm install --frozen-lockfile
+```
 
-5. **Submit a pull request** (PR) to the `main` branch of the original repository.
+## Submit a pull request
 
-6. Ensure your PR includes:
-   - A descriptive title summarizing the changes.
-   - Detailed information in the description about the problem and solution.
+1. Add tests for the behavior you changed and update the affected docs.
+2. Run `pnpm lint` and `pnpm test` from the repository root.
+3. Commit your changes with a descriptive message and push your branch to your fork.
+4. Open a pull request against `main`. Describe the problem, explain the change, link any related issue, and respond to review comments.
 
-7. **Be responsive** to feedback and comments on your PR. Make any requested changes promptly.
+Contributions use ES Check’s [MIT license](https://github.com/yowainwright/es-check/blob/main/LICENSE).
 
-8. Before submitting your PR, ensure:
-   - Your code follows the project's style guidelines.
-   - You have included relevant tests (if applicable).
-   - You have updated documentation (if necessary).
+## Report an issue
 
-9. By contributing, you agree that your work will be licensed under ES Check's MIT license.
+Search [existing issues](https://github.com/yowainwright/es-check/issues) first. If someone has reported the same problem, add your findings there. Otherwise, [open an issue](https://github.com/yowainwright/es-check/issues/new) with a descriptive title.
 
-Thank you for your contribution!
+For a bug, include steps to reproduce it, your ES Check and Node.js versions, and the output you expected and received. For a feature request, describe the use case. Add a code sample or screenshot when it helps explain the issue.
 
-If you have any questions or need further assistance, feel free to reach out to us. We're here to help!
+## Homepage banner
+
+Open the [homepage banner](/hero/) to take a screenshot for a social post. To capture local changes, run `pnpm dev` from the repository root and open `/es-check/hero/` on the local server.

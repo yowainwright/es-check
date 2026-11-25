@@ -1,17 +1,11 @@
-import { Link, useLocation } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { Menu } from "lucide-react";
 import { GithubIcon } from "./GithubIcon";
 import { ThemeToggle } from "./ThemeToggle";
 import { SimpleSearch } from "./SimpleSearch";
-import { SITE_NAVIGATION } from "@/constants/sidebar";
 import { useLayout } from "@/contexts";
 
-const DESKTOP_NAVIGATION = SITE_NAVIGATION.filter((item) => item.href !== "/");
-
 export function Header() {
-  const location = useLocation();
-  const pathname = location.pathname;
-
   return (
     <header className="sticky top-0 z-30">
       <nav className="navbar bg-base-100/80 border-b border-base-content/10 backdrop-blur-3xl justify-between items-center py-2 px-2 sm:px-4 md:px-20 font-sans">
@@ -19,7 +13,6 @@ export function Header() {
           <MobileMenuButton />
           <Logo />
         </div>
-        <DesktopNav pathname={pathname} />
         <NavActions />
       </nav>
     </header>
@@ -45,7 +38,12 @@ function MobileMenuButton() {
 
 function Logo() {
   return (
-    <Link to="/" className="btn btn-ghost px-2" aria-label="ES Check home">
+    <Link
+      to="/docs/$slug"
+      params={{ slug: "gettingstarted" }}
+      className="inline-flex h-10 items-center rounded-field px-2 hover:bg-base-content/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+      aria-label="ES Check home"
+    >
       <span className="whitespace-nowrap text-xl md:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/50">
         ES Check
       </span>
@@ -53,43 +51,16 @@ function Logo() {
   );
 }
 
-function DesktopNav({ pathname }: { pathname: string }) {
-  return (
-    <div className="hidden lg:flex">
-      <ul className="menu menu-horizontal text-base font-medium">
-        {DESKTOP_NAVIGATION.map((item) => (
-          <li key={item.href}>
-            <NavLink href={item.href} title={item.title} isActive={isNavActive(pathname, item)} />
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
-function isNavActive(pathname: string, item: { href: string; title: string }) {
-  if (item.href.startsWith("/release")) return pathname.startsWith("/release");
-  if (item.href.startsWith("/docs")) return pathname.startsWith("/docs");
-  return pathname === item.href;
-}
-
-function NavLink({ href, title, isActive }: { href: string; title: string; isActive: boolean }) {
-  const activeClass = isActive ? "text-primary bg-primary/5 shadow-none" : "";
-
-  return (
-    <Link
-      to={href}
-      aria-current={isActive ? "page" : undefined}
-      className={`hover:text-primary hover:bg-primary/5 transition flex ${activeClass}`}
-    >
-      {title}
-    </Link>
-  );
-}
-
 function NavActions() {
   return (
     <div className="flex items-center gap-1">
+      <Link
+        to="/release"
+        className="btn btn-ghost hidden text-base font-medium lg:inline-flex"
+        activeProps={{ className: "text-primary bg-primary/5" }}
+      >
+        Releases
+      </Link>
       <div className="[&_kbd]:hidden sm:[&_kbd]:inline [&_button]:px-2 sm:[&_button]:px-3">
         <SimpleSearch variant="compact" />
       </div>

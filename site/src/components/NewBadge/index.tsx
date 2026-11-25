@@ -21,7 +21,7 @@ export function NewBadge({ className = "" }: NewBadgeProps) {
 
   return (
     <a
-      className={`badge badge-outline badge-xs md:badge-lg mb-5 p-2 border-dashed border-base-content/40 ${className}`}
+      className={`badge badge-outline badge-xs md:badge-lg p-2 border-dashed border-base-content/40 ${className}`}
       href={BADGE_HREF}
     >
       <span
