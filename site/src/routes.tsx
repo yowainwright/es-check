@@ -22,13 +22,13 @@ const rootRoute = createRootRoute({
 const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/",
-  beforeLoad: redirectToGettingStarted,
+  beforeLoad: redirectToIntroduction,
 });
 
 const docsIndexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/docs",
-  beforeLoad: redirectToGettingStarted,
+  beforeLoad: redirectToIntroduction,
 });
 
 const heroRoute = createRoute({
@@ -59,6 +59,15 @@ const docsRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/docs/$slug",
   beforeLoad: ({ params }) => {
+    if (params.slug === "gettingstarted") redirectToIntroduction();
+    if (params.slug === "installation") {
+      throw redirect({
+        to: "/docs/$slug",
+        params: { slug: "quickstart" },
+        hash: "installation",
+        replace: true,
+      });
+    }
     const isOldGuide = ["how-to-contribute", "having-an-issue"].includes(params.slug);
     if (isOldGuide) {
       throw redirect({
@@ -111,8 +120,8 @@ export const routeTree = rootRoute.addChildren([
   releasesRoute,
 ]);
 
-function redirectToGettingStarted() {
-  throw redirect({ to: "/docs/$slug", params: { slug: "gettingstarted" }, replace: true });
+function redirectToIntroduction() {
+  throw redirect({ to: "/docs/$slug", params: { slug: "introduction" }, replace: true });
 }
 
 function PageLoader() {

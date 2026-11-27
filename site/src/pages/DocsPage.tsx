@@ -44,7 +44,8 @@ export function DocsPage() {
   }, [slug]);
 
   useEffect(() => {
-    const ready = compiled !== null && !loading;
+    const hasHeadings = compiled && compiled.headings.length > 0;
+    const ready = hasHeadings && !loading;
     const contents = ready ? (
       <TableOfContents headings={compiled.headings} articleRef={articleRef} />
     ) : null;
@@ -53,7 +54,7 @@ export function DocsPage() {
   }, [compiled, loading, setRightSidebarContent]);
 
   if (error) {
-    return <Navigate to="/docs/$slug" params={{ slug: "gettingstarted" }} />;
+    return <Navigate to="/docs/$slug" params={{ slug: "introduction" }} />;
   }
 
   const title = (compiled?.frontmatter?.title as string) || slug;
@@ -94,7 +95,7 @@ function Breadcrumbs({ title }: { title: string }) {
           <Link to="/">Home</Link>
         </li>
         <li>
-          <Link to="/docs/$slug" params={{ slug: "gettingstarted" }}>
+          <Link to="/docs/$slug" params={{ slug: "introduction" }}>
             Docs
           </Link>
         </li>

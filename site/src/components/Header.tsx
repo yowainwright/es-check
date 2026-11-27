@@ -40,7 +40,7 @@ function Logo() {
   return (
     <Link
       to="/docs/$slug"
-      params={{ slug: "gettingstarted" }}
+      params={{ slug: "introduction" }}
       className="inline-flex h-10 items-center rounded-field px-2 hover:bg-base-content/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
       aria-label="ES Check home"
     >

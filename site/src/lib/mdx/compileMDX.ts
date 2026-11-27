@@ -4,6 +4,7 @@ import remarkGfm from "remark-gfm";
 import rehypeSlug from "rehype-slug";
 import rehypeShikiFromHighlighter from "@shikijs/rehype/core";
 import { createHighlighterCore } from "shiki/core";
+import type { ShikiTransformer } from "shiki";
 import { createJavaScriptRegexEngine } from "shiki/engine/javascript";
 import { transformerNotationDiff, transformerNotationHighlight } from "@shikijs/transformers";
 import { extractFrontmatter } from "../../content/frontmatter.ts";
@@ -39,6 +40,16 @@ export interface CompiledMDX {
 type HtmlRoot = Parameters<ReturnType<typeof rehypeSlug>>[0];
 type HtmlElement = Extract<HtmlRoot["children"][number], { type: "element" }>;
 type HtmlNode = HtmlElement["children"][number];
+
+const copyCommand: ShikiTransformer = {
+  name: "es-check-copy-command",
+  pre(node) {
+    const marked = this.options.meta?.__raw === "copy";
+    const shell = ["bash", "sh"].includes(this.options.lang);
+    const singleCommand = marked && shell && !this.source.includes("\n");
+    if (singleCommand) node.properties["data-command"] = this.source;
+  },
+};
 
 function headingText(node: HtmlNode): string {
   if (node.type === "text") return node.value;
@@ -102,7 +113,7 @@ function groupReleaseSections(nodes: HtmlNode[], title: string): HtmlNode[] {
 async function compileMarkdown(content: string, collectContent: () => (tree: HtmlRoot) => void) {
   const highlighter = await highlighterPromise;
   const themes = { light: "github-light", dark: "github-dark" };
-  const transformers = [transformerNotationDiff(), transformerNotationHighlight()];
+  const transformers = [copyCommand, transformerNotationDiff(), transformerNotationHighlight()];
   const highlighting = { themes, defaultColor: false as const, transformers };
   return compile(content, {
     outputFormat: "function-body",

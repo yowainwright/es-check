@@ -91,8 +91,9 @@ function HeadingItem({ heading, activeId }: { heading: Heading; activeId: string
     <li className={indent}>
       <a
         href={`#${heading.slug}`}
+        title={heading.text}
         aria-current={isActive ? "location" : undefined}
-        className={`-ml-px block border-l-2 py-2 pl-3 pr-2 text-sm break-words transition-colors ${linkClass}`}
+        className={`-ml-px block truncate border-l-2 py-2 pl-3 pr-2 text-sm transition-colors ${linkClass}`}
       >
         {heading.text}
       </a>

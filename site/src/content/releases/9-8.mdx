@@ -41,7 +41,7 @@ Object.hasOwn({ name: "Ada" }, "name");
 
 Check it against iOS Safari 15.0:
 
-```bash
+```bash copy
 es-check checkBrowser './dist/**/*.js' --checkFeatures --browserslistQuery="ios_saf 15.0"
 ```
 
@@ -123,13 +123,13 @@ Use your Browserslist configuration with `--checkFeatures`. Review newly reporte
 
 Upgrade ES Check in your project:
 
-```bash
+```bash copy
 npm install --save-dev es-check@9.8.0
 ```
 
 Then use your existing Browserslist configuration:
 
-```bash
+```bash copy
 es-check checkBrowser './dist/**/*.js' --checkFeatures
 ```
 

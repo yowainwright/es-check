@@ -1,121 +1,40 @@
 ---
 title: Quick Start
-description: Get up and running with ES Check in minutes
+description: Check a built JavaScript file against the oldest ECMAScript version your project supports.
 ---
-
-This guide will help you get started with ES Check in just a few minutes.
 
 ## Installation
 
-First, install ES Check in your project:
+From your project directory, install ES Check as a development dependency. It requires Node.js 18 or later.
 
-```bash
-npm install es-check --save-dev
+```bash copy
+npm install --save-dev es-check
 ```
 
-## Basic Usage
+## Check a bundle
 
-### Example 1: Check ES5 Compatibility
+Build your project, then run the check against the files it produced. This example checks every JavaScript file under `dist/` for ES5 syntax. Adjust the target and glob to match your build.
 
-Check if your bundled JavaScript is ES5 compatible:
-
-```bash
+```bash copy
 npx es-check es5 './dist/**/*.js'
 ```
 
-### Example 2: Check Multiple Directories
+## Read the result
 
-Check both vendor and distribution files:
+A passing check exits with status 0. A syntax error exits with status 1 and identifies the file and position. For example, this line in an ES5 bundle contains an arrow function:
 
-```bash
-npx es-check es5 './vendor/**/*.js' './dist/**/*.js'
+```js
+var names = ["Ada", "Lin"];
+var lengths = names.map(name => name.length);
 ```
 
-### Example 3: Check ES6 Modules
+For `dist/bundle.js`, the diagnostic includes these lines.
 
-For ES6 modules, use the `--module` flag:
-
-```bash
-npx es-check es6 './src/**/*.mjs' --module
+```text
+· erroring file: ./dist/bundle.js at ./dist/bundle.js:2:30
+· error: SyntaxError: Unexpected token (2:30)
 ```
 
-### Example 4: Fast Mode for CI/CD
+Line 2 uses ES2015 syntax. If you need ES5, update your build to transform arrow functions, rebuild, and run the check again.
 
-Use `--light` mode for faster checking in CI pipelines:
-
-```bash
-npx es-check es5 './dist/**/*.js' --light
-```
-
-### Example 5: Check Target Browser Features
-
-Use `--checkBrowser --checkFeatures` to check detected features against your target browsers:
-
-```bash
-npx es-check --checkBrowser --checkFeatures --browserslistQuery="last 2 versions" './dist/**/*.js'
-```
-
-See [Browserslist integration](/docs/browserslist#feature-level-browser-checks) for project configuration and compatibility data rules.
-
-## Common Scenarios
-
-### Production Build Check
-
-Add to your build pipeline:
-
-```json
-{
-  "scripts": {
-    "build": "webpack && npm run check:es",
-    "check:es": "es-check es5 './dist/**/*.js'"
-  }
-}
-```
-
-### CI/CD Integration
-
-```yaml
-# Example GitHub Actions
-- name: Check ES Version
-  run: npx es-check es5 './dist/**/*.js'
-```
-
-### With Configuration File
-
-Create `.escheckrc`:
-
-```json
-{
-  "ecmaVersion": "es5",
-  "files": ["./dist/**/*.js"],
-  "not": ["./dist/modern/**/*.js"]
-}
-```
-
-Run with:
-
-```bash
-npx es-check
-```
-
-## Understanding Output
-
-### Success
-
-```bash
-✓ ES Check passed! All files are ES5 compatible.
-```
-
-### Failure
-
-```bash
-✗ ES Check failed!
-./dist/app.js - Uses ES6 feature: arrow function (line 10)
-./dist/utils.js - Uses ES6 feature: const declaration (line 5)
-```
-
-## What's Next?
-
-- [Explore all command options](/docs/options)
-- [Configure ES Check for your project](/docs/configuration)
-- [Debug ES version issues](/docs/debugging)
+To run the same check on every build, see [CI integration](/docs/ci-integration). For reusable targets and file patterns, see [Configuration](/docs/configuration).

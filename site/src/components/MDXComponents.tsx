@@ -1,18 +1,23 @@
 import { Link } from "@tanstack/react-router";
 import { CopyButton } from "./CopyButton";
 
-function Pre({ children, className, ...props }: React.HTMLAttributes<HTMLPreElement>) {
+type PreProps = React.HTMLAttributes<HTMLPreElement> & { "data-command"?: string };
+
+function Pre({ children, className, "data-command": command, ...props }: PreProps) {
+  const padding = command ? "pr-16" : "";
   return (
-    <div className="relative group">
+    <div className="relative">
       <pre
         {...props}
-        className={`overflow-x-auto p-4 rounded-lg border border-base-content/20 shadow-inner ${className || ""}`}
+        className={`overflow-x-auto p-4 rounded-lg border border-base-content/20 shadow-inner ${padding} ${className || ""}`}
       >
         {children}
       </pre>
-      <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-        <CopyButton />
-      </div>
+      {command && (
+        <div className="absolute top-2 right-2">
+          <CopyButton text={command} />
+        </div>
+      )}
     </div>
   );
 }

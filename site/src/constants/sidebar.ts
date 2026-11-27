@@ -10,10 +10,9 @@ export interface SidebarSection {
 
 export const SIDEBAR: SidebarSection[] = [
   {
-    title: "Introduction",
+    title: "Overview",
     items: [
-      { title: "Getting Started", href: "/docs/gettingstarted" },
-      { title: "Installation", href: "/docs/installation" },
+      { title: "Introduction", href: "/docs/introduction" },
       { title: "Quick Start", href: "/docs/quickstart" },
     ],
   },
@@ -45,6 +44,6 @@ export const SIDEBAR: SidebarSection[] = [
 
 export const SITE_NAVIGATION = [
   { title: "Home", href: "/" },
-  { title: "Docs", href: "/docs/gettingstarted" },
+  { title: "Docs", href: "/docs/introduction" },
   { title: "Releases", href: "/release" },
 ];

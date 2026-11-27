@@ -1,0 +1,10 @@
+---
+title: Introduction
+description: ES Check tells you whether the JavaScript you ship can be parsed by the ECMAScript version you support.
+---
+
+A dependency can introduce newer syntax into your bundle even when your own code targets older browsers. For example, an arrow function left in an ES5 bundle causes a syntax error before the browser can run the file.
+
+Run ES Check on the files your build produces. When a file fails, ES Check reports its name and the position of the syntax error. In CI, the command’s exit status lets you stop the release.
+
+The [Quick Start](/docs/quickstart) walks through checking your first bundle. If your targets are specific browsers, see [Browserslist integration](/docs/browserslist).
