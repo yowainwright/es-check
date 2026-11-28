@@ -12,10 +12,6 @@ const siteUrl = "https://jeffry.in/es-check/";
 const siteTitle = "ES Check - JavaScript ES Version Checker";
 const siteDescription = "Check JavaScript files for ECMAScript version and browser compatibility.";
 const imageUrl = new URL("social-preview.png", siteUrl).href;
-const legacyPaths = new Map([
-  ["docs/introduction/", "docs/gettingstarted/"],
-  ["docs/quickstart/", "docs/installation/"],
-]);
 const imageAlt =
   "ES Check logo above the headline “Check JavaScript files for ES version compatibility”.";
 
@@ -36,8 +32,6 @@ export function socialPages(): Plugin {
         const fileName = `${page.path}index.html`;
         const source = renderPage(shell, page);
         this.emitFile({ type: "asset", fileName, source });
-        const oldPath = legacyPaths.get(page.path);
-        if (oldPath) this.emitFile({ type: "asset", fileName: oldPath + "index.html", source });
       });
     },
   };
