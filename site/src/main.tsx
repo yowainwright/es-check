@@ -2,6 +2,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { RouterProvider, createRouter } from "@tanstack/react-router";
 import { routeTree } from "./routes";
+import { startAnalytics } from "./analytics";
 import "./styles/global.css";
 
 const router = createRouter({
@@ -14,6 +15,8 @@ declare module "@tanstack/react-router" {
     router: typeof router;
   }
 }
+
+startAnalytics(router);
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

@@ -38,6 +38,20 @@ const expectedExamples = [
 
 const specificationUrl = new URL("https://tc39.es/ecma262/2026/multipage/");
 
+it("offers Copy only for an explicitly marked, single shell command", async () => {
+  const markdown = [
+    "```bash copy\nnpm install --save-dev es-check\n```",
+    "```bash copy\nnpm install es-check\nyarn add es-check\n```",
+    "```bash\nExample output\n```",
+    "```text copy\nSyntaxError: Unexpected token\n```",
+    "```js\nvar numbers = [1, 2];\n```",
+  ].join("\n\n");
+  const compiled = await compileMDX(markdown);
+  const html = renderToStaticMarkup(createElement(compiled.content, { components: mdxComponents }));
+  assert.equal(html.match(/aria-label="Copy command"/g)?.length, 1);
+  assert.equal(html.match(/<pre\b/g)?.length, 5);
+});
+
 function hasSpecificationLink(markdown: string): boolean {
   const parsed = createProcessor().parse(markdown);
   return collectLinkUrls(parsed).some((href) => {

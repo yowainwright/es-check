@@ -4,6 +4,7 @@ import tailwindcss from "@tailwindcss/vite";
 import { createRequire } from "node:module";
 import path from "node:path";
 import manifest from "../package.json" with { type: "json" };
+import { socialPages } from "./socialPages.ts";
 
 const require = createRequire(import.meta.url);
 const { VERSION_ORDER } = require("../lib/constants/es/index.js");
@@ -15,7 +16,7 @@ export default defineConfig({
     "import.meta.env.ES_CHECK_VERSION": JSON.stringify(manifest.version),
     "import.meta.env.ES_CHECK_EDITION": JSON.stringify(latestEdition),
   },
-  plugins: [react(), tailwindcss()],
+  plugins: [react(), tailwindcss(), socialPages()],
   resolve: {
     alias: {
       "@": path.resolve(import.meta.dirname, "./src"),

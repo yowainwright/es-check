@@ -7,7 +7,7 @@ ES Check can detect specific ECMAScript features in your code using the `--check
 
 ## Enabling Feature Detection
 
-```bash
+```bash copy
 es-check es5 './dist/**/*.js' --checkFeatures
 ```
 
@@ -16,7 +16,7 @@ es-check es5 './dist/**/*.js' --checkFeatures
 Combine `--checkFeatures` with `--checkBrowser` to also check detected features against individual
 target browser versions using MDN compatibility data:
 
-```bash
+```bash copy
 es-check --checkBrowser --checkFeatures --browserslistQuery="ios_saf 15.0" './dist/**/*.js'
 ```
 
@@ -127,7 +127,7 @@ ES2022 target permits it; see [Browserslist integration](/docs/browserslist#feat
 
 If you need to temporarily ignore certain features:
 
-```bash
+```bash copy
 es-check es6 './dist/**/*.js' --checkFeatures --ignore="ErrorCause,TopLevelAwait"
 ```
 
@@ -135,7 +135,7 @@ es-check es6 './dist/**/*.js' --checkFeatures --ignore="ErrorCause,TopLevelAwait
 
 Allow certain modern features even in older ES versions:
 
-```bash
+```bash copy
 es-check es5 './dist/**/*.js' --checkFeatures --allowList="const,let"
 ```
 
@@ -143,13 +143,13 @@ es-check es5 './dist/**/*.js' --checkFeatures --allowList="const,let"
 
 ES Check can detect polyfilled features to avoid false positives:
 
-```bash
+```bash copy
 es-check es2022 './dist/**/*.js' --checkFeatures --checkForPolyfills
 ```
 
 Or ignore all polyfillable features when polyfills are provided externally:
 
-```bash
+```bash copy
 es-check es2017 './dist/**/*.js' --checkFeatures --ignorePolyfillable=core-js
 ```
 

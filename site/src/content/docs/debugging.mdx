@@ -57,7 +57,7 @@ When ES Check finds incompatible JavaScript features, it provides detailed error
 
 Get more detailed output:
 
-```bash
+```bash copy
 es-check es5 './dist/**/*.js' --verbose
 ```
 
@@ -85,7 +85,7 @@ goUrlButton?.addEventListener("click", () => {
 });
 ```
 
-```bash
+```bash copy
 es-check es2015 './tmp/inline-script.js'
 ```
 
@@ -95,7 +95,7 @@ This reports optional chaining because `?.` is newer than ES2015.
 
 Exclude known incompatible files:
 
-```bash
+```bash copy
 es-check es5 './dist/**/*.js' --not './dist/modern/**/*.js'
 ```
 
@@ -103,7 +103,7 @@ es-check es5 './dist/**/*.js' --not './dist/modern/**/*.js'
 
 ES Check automatically uses source maps when available to show errors in your original source code:
 
-```bash
+```bash copy
 es-check es5 './dist/**/*.js'
 ```
 
